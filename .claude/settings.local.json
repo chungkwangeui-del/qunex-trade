@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pip install:*)",
+      "Bash(dir)",
+      "Bash(python:*)",
+      "Bash(timeout:*)",
+      "Bash(powershell:*)",
+      "Bash(dir data)",
+      "Bash(dir models)",
+      "Bash(dir:*)",
+      "Bash(tee:*)",
+      "Bash(if not exist logs mkdir logs)",
+      "Bash(git lfs version)",
+      "Bash(git lfs install)",
+      "Bash(git lfs track \"models/*.pkl\")",
+      "Bash(git init)",
+      "Bash(git add .gitattributes)",
+      "Bash(git add .)",
+      "Bash(if exist nul del /f nul)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

@@ -1,0 +1,9 @@
+WARNING:root:TA-Lib not available. Using ta library instead.
+WARNING:root:pandas-ta not available. Using basic ta library instead.
+WARNING:root:Deep learning models not available. TensorFlow not installed.
+WARNING:src.utils:Skipping 2023-04-17 00:00:00-04:00 - insufficient data
+WARNING:src.utils:Skipping 2023-07-13 00:00:00-04:00 - insufficient data
+WARNING:src.utils:Error predicting CWGYF: Input X contains infinity or a value too large for dtype('float32').
+WARNING:src.utils:Error predicting AVVH: Input X contains infinity or a value too large for dtype('float32').
+WARNING:src.utils:Error predicting CWGYF: Input X contains infinity or a value too large for dtype('float32').
+WARNING:src.utils:Error predicting CWGYF: Input X contains infinity or a value too large for dtype('float32').

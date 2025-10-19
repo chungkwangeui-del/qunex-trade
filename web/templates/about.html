@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About - Qunex Trade</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #00d9ff;
+            --secondary: #7c3aed;
+            --accent: #ff006e;
+            --bg-dark: #0a0e27;
+            --bg-card: #131829;
+            --bg-hover: #1a1f3a;
+            --text-primary: #ffffff;
+            --text-secondary: #8b92b0;
+            --border: rgba(0, 217, 255, 0.15);
+            --glow: rgba(0, 217, 255, 0.4);
+        }
+
+        body {
+            font-family: 'Space Grotesk', -apple-system, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                radial-gradient(circle at 20% 50%, rgba(0, 217, 255, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(124, 58, 237, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Navigation */
+        nav {
+            background: var(--bg-card);
+            padding: 20px 40px;
+            border-radius: 16px;
+            margin-bottom: 40px;
+            border: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.8em;
+            font-weight: 700;
+            letter-spacing: -1px;
+        }
+
+        .logo {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.1em;
+            box-shadow: 0 0 20px var(--glow);
+        }
+
+        .brand-text {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            transition: width 0.3s;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--primary);
+        }
+
+        .nav-links a:hover::after,
+        .nav-links a.active::after {
+            width: 100%;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: var(--bg-card);
+            padding: 80px 60px;
+            border-radius: 24px;
+            margin-bottom: 40px;
+            border: 1px solid var(--border);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(0, 217, 255, 0.1) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .hero h1 {
+            font-size: 4.5em;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 25px;
+            letter-spacing: -3px;
+            position: relative;
+        }
+
+        .hero p {
+            font-size: 1.4em;
+            color: var(--text-secondary);
+            line-height: 1.8;
+            max-width: 900px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        /* Content Sections */
+        .section {
+            background: var(--bg-card);
+            padding: 50px;
+            border-radius: 20px;
+            margin-bottom: 40px;
+            border: 1px solid var(--border);
+        }
+
+        .section h2 {
+            font-size: 2.5em;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 30px;
+            letter-spacing: -1px;
+        }
+
+        .section h3 {
+            font-size: 1.6em;
+            color: var(--primary);
+            margin: 35px 0 20px 0;
+            font-weight: 600;
+        }
+
+        .section p {
+            color: var(--text-secondary);
+            font-size: 1.15em;
+            line-height: 1.9;
+            margin-bottom: 25px;
+        }
+
+        .section ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .section li {
+            color: var(--text-secondary);
+            font-size: 1.1em;
+            line-height: 2.2;
+            padding-left: 35px;
+            position: relative;
+        }
+
+        .section li::before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: var(--primary);
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .section li strong {
+            color: var(--text-primary);
+        }
+
+        /* Stats Row */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 25px;
+            margin: 40px 0;
+        }
+
+        .stat-box {
+            background: var(--bg-dark);
+            padding: 30px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .stat-box:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            box-shadow: 0 10px 30px rgba(0, 217, 255, 0.2);
+        }
+
+        .stat-number {
+            font-size: 3em;
+            font-weight: 700;
+            background: linear-gradient(135deg, #00ff88 0%, var(--primary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-weight: 600;
+        }
+
+        /* Feature Grid */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 35px;
+        }
+
+        .feature-card {
+            background: var(--bg-dark);
+            padding: 35px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            transition: all 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            box-shadow: 0 10px 35px rgba(0, 217, 255, 0.15);
+        }
+
+        .feature-icon {
+            font-size: 3em;
+            margin-bottom: 20px;
+        }
+
+        .feature-card h4 {
+            color: var(--primary);
+            font-size: 1.4em;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .feature-card p {
+            color: var(--text-secondary);
+            font-size: 1.05em;
+            line-height: 1.7;
+            margin: 0;
+        }
+
+        /* Tech Stack */
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .tech-badge {
+            background: rgba(0, 217, 255, 0.1);
+            border: 1px solid var(--border);
+            padding: 12px 22px;
+            border-radius: 10px;
+            font-size: 0.95em;
+            color: var(--primary);
+            font-weight: 600;
+            font-family: 'JetBrains Mono', monospace;
+            transition: all 0.3s;
+        }
+
+        .tech-badge:hover {
+            background: rgba(0, 217, 255, 0.2);
+            border-color: var(--primary);
+        }
+
+        /* Creator Section */
+        .creator {
+            background: linear-gradient(135deg, rgba(0, 217, 255, 0.1) 0%, rgba(124, 58, 237, 0.1) 100%);
+            padding: 50px;
+            border-radius: 20px;
+            border: 1px solid var(--primary);
+            text-align: center;
+            box-shadow: 0 0 40px rgba(0, 217, 255, 0.1);
+        }
+
+        .creator h3 {
+            font-size: 2.5em;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+        }
+
+        .creator p {
+            font-size: 1.3em;
+            color: var(--text-primary);
+            line-height: 1.9;
+        }
+
+        .creator .highlight {
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 1.1em;
+        }
+
+        /* Disclaimer */
+        .disclaimer-box {
+            background: rgba(255, 0, 110, 0.05);
+            border: 1px solid rgba(255, 0, 110, 0.3);
+            padding: 30px;
+            border-radius: 16px;
+            margin-top: 30px;
+        }
+
+        .warning-icon {
+            font-size: 2em;
+            margin-bottom: 15px;
+        }
+
+        .disclaimer-box p {
+            color: var(--text-secondary);
+            font-size: 1.05em;
+            line-height: 1.8;
+        }
+
+        .disclaimer-box p:first-of-type {
+            color: #fbbf24;
+            font-weight: 700;
+            font-size: 1.2em;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 50px 20px;
+            color: var(--text-secondary);
+            margin-top: 60px;
+            border-top: 1px solid var(--border);
+        }
+
+        footer p {
+            margin: 10px 0;
+            font-size: 0.95em;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2.8em; }
+            .section { padding: 30px 25px; }
+            nav { padding: 20px; }
+            .hero { padding: 50px 30px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Navigation -->
+        <nav>
+            <div class="nav-brand">
+                <div class="logo">Q</div>
+                <span class="brand-text">Qunex Trade</span>
+            </div>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/about" class="active">About</a>
+            </div>
+        </nav>
+
+        <!-- Hero Section -->
+        <div class="hero">
+            <h1>About Qunex Trade</h1>
+            <p>
+                An AI-powered penny stock intelligence platform that uses advanced machine learning
+                to identify high-probability trading opportunities with 70%+ success rate.
+            </p>
+        </div>
+
+        <!-- What is Qunex Trade -->
+        <div class="section">
+            <h2>What is Qunex Trade?</h2>
+            <p>
+                Qunex Trade is an advanced machine learning system designed to predict penny stock surges
+                (50%+ intraday gains) with exceptional accuracy. Using ensemble learning and 115+ engineered
+                features, the model achieves a 0.9789 ROC-AUC score and maintains a 70%+ success rate in
+                real-world trading scenarios.
+            </p>
+
+            <div class="stats-row">
+                <div class="stat-box">
+                    <div class="stat-number">0.9789</div>
+                    <div class="stat-label">ROC-AUC Score</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number">70%+</div>
+                    <div class="stat-label">Success Rate</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number">522</div>
+                    <div class="stat-label">Stocks Tracked</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number">115+</div>
+                    <div class="stat-label">Features</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- How It Works -->
+        <div class="section">
+            <h2>How It Works</h2>
+
+            <h3>1. Data Collection & Feature Engineering</h3>
+            <p>
+                The system continuously monitors 522 penny stocks, collecting historical price, volume,
+                and technical indicator data. Advanced feature engineering creates 115+ predictive features
+                including volatility patterns, momentum indicators, and price-volume relationships.
+            </p>
+
+            <h3>2. Machine Learning Ensemble</h3>
+            <p>
+                Four state-of-the-art ML models work together:
+            </p>
+            <ul>
+                <li><strong>XGBoost Advanced</strong> - Gradient boosting with custom parameters (ROC-AUC: 0.9783)</li>
+                <li><strong>LightGBM Advanced</strong> - Fast gradient boosting (ROC-AUC: 0.9699)</li>
+                <li><strong>RandomForest Advanced</strong> - Ensemble decision trees (ROC-AUC: 0.9740)</li>
+                <li><strong>GradientBoosting</strong> - Classic boosting (ROC-AUC: 0.9749)</li>
+            </ul>
+            <p>
+                The models are weighted and combined to achieve a final ensemble ROC-AUC of 0.9789.
+            </p>
+
+            <h3>3. Signal Generation (4:05 PM Daily)</h3>
+            <p>
+                Every day at 4:05 PM ET (after market close), the system automatically:
+            </p>
+            <ul>
+                <li>Downloads the latest market data for all 522 stocks</li>
+                <li>Calculates all 115+ features for each stock</li>
+                <li>Runs predictions through the ensemble model</li>
+                <li>Filters for ultra-high confidence signals (90%+ probability)</li>
+                <li>Saves signals for the next trading day</li>
+            </ul>
+
+            <h3>4. Performance Tracking</h3>
+            <p>
+                The system tracks every signal's actual performance by comparing predicted vs. actual results.
+                Success is measured by 50%+ intraday gains (buy at open, sell at close). All signals remain
+                active over weekends and holidays until the next trading day.
+            </p>
+        </div>
+
+        <!-- Key Features -->
+        <div class="section">
+            <h2>Key Features</h2>
+
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🤖</div>
+                    <h4>Fully Automated</h4>
+                    <p>Signals generated daily at 4:05 PM automatically. No manual intervention required.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h4>Real-Time Tracking</h4>
+                    <p>Every signal is tracked and performance is recorded automatically with success/failure status.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🎯</div>
+                    <h4>High Precision</h4>
+                    <p>Only signals with 90%+ confidence are displayed (0.90 threshold for optimal signal volume).</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📈</div>
+                    <h4>Proven Backtest</h4>
+                    <p>19 months of rigorous backtesting (Apr 2024 - Oct 2025) with 70%+ success rate.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">💎</div>
+                    <h4>Transparency</h4>
+                    <p>All signals, results, and statistics are openly displayed on the dashboard.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📅</div>
+                    <h4>Smart Scheduling</h4>
+                    <p>Automatically handles weekends and US market holidays. Signals persist until next trading day.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Technology Stack -->
+        <div class="section">
+            <h2>Technology Stack</h2>
+
+            <h3>Machine Learning</h3>
+            <div class="tech-stack">
+                <span class="tech-badge">Python 3.14</span>
+                <span class="tech-badge">XGBoost 2.0</span>
+                <span class="tech-badge">LightGBM 4.1</span>
+                <span class="tech-badge">Scikit-learn 1.3</span>
+                <span class="tech-badge">Pandas 2.1</span>
+                <span class="tech-badge">NumPy 1.24</span>
+            </div>
+
+            <h3>Data & APIs</h3>
+            <div class="tech-stack">
+                <span class="tech-badge">yFinance</span>
+                <span class="tech-badge">Yahoo Finance API</span>
+                <span class="tech-badge">Real-time Market Data</span>
+            </div>
+
+            <h3>Web Application</h3>
+            <div class="tech-stack">
+                <span class="tech-badge">Flask 3.0</span>
+                <span class="tech-badge">HTML5 / CSS3</span>
+                <span class="tech-badge">JavaScript</span>
+                <span class="tech-badge">Responsive Design</span>
+            </div>
+
+            <h3>Automation</h3>
+            <div class="tech-stack">
+                <span class="tech-badge">Python Schedule</span>
+                <span class="tech-badge">Task Scheduler</span>
+                <span class="tech-badge">Automated Pipeline</span>
+            </div>
+        </div>
+
+        <!-- Creator Section -->
+        <div class="section">
+            <div class="creator">
+                <h3>Created By</h3>
+                <p>
+                    <span class="highlight">Kwangui Chung</span><br>
+                    University of Illinois at Urbana-Champaign (UIUC) Student
+                </p>
+                <p style="margin-top: 25px; font-size: 1.1em; color: var(--text-secondary);">
+                    Developed as a personal project to explore machine learning applications in financial markets.<br>
+                    Combining academic knowledge with practical trading strategies.
+                </p>
+            </div>
+        </div>
+
+        <!-- Disclaimer -->
+        <div class="section">
+            <h2>Disclaimer</h2>
+            <div class="disclaimer-box">
+                <div class="warning-icon">⚠️</div>
+                <p>
+                    This system is for educational and informational purposes only.
+                </p>
+                <p>
+                    Trading penny stocks involves substantial risk of loss. Past performance does not guarantee
+                    future results. The 70%+ success rate is based on historical backtesting and may not reflect
+                    future performance. Always conduct your own research and consult with a financial advisor
+                    before making investment decisions.
+                </p>
+                <p>
+                    This is not financial advice. Use at your own risk.
+                </p>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer>
+            <p><span class="gradient-text">Qunex Trade</span> - AI Penny Stock Intelligence</p>
+            <p>Built with passion and data science by Kwangui Chung</p>
+            <p style="margin-top: 20px;">© 2025 All Rights Reserved</p>
+        </footer>
+    </div>
+</body>
+</html>

@@ -1,0 +1,75 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Environment variables
+.env
+*.env
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Data files
+data/*.csv
+data/*.pkl
+data/*.parquet
+*.db
+*.sqlite
+
+# Model files (tracked with Git LFS)
+# models/*.pkl is tracked via LFS
+models/*.h5
+models/*.pt
+models/*.pth
+models/*.ckpt
+
+# Results and outputs
+results/*.csv
+results/*.txt
+results/*.json
+plots/*.png
+plots/*.jpg
+plots/*.pdf
+
+# Logs
+logs/*.log
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Temporary files
+*.tmp
+*.bak
+*.cache
+nul

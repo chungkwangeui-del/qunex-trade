@@ -1,0 +1,42 @@
+# Data Collection
+yfinance>=0.2.36
+pandas>=2.0.0
+numpy>=1.24.0
+requests>=2.31.0
+
+# Machine Learning
+scikit-learn>=1.3.0
+xgboost>=2.0.0
+lightgbm>=4.1.0
+# catboost>=1.2.0  # Requires Python < 3.14
+
+# Deep Learning (Optional - requires Python 3.11 or lower)
+# tensorflow>=2.15.0
+# torch>=2.1.0
+# keras>=2.15.0
+
+# Technical Indicators
+ta>=0.11.0
+# ta-lib>=0.4.28  # Optional, difficult to install
+# pandas-ta>=0.3.14b  # Requires Python < 3.14, use ta instead
+
+# Data Visualization
+matplotlib>=3.7.0
+seaborn>=0.12.0
+plotly>=5.17.0
+
+# Database
+sqlalchemy>=2.0.0
+sqlite3
+
+# Utilities
+python-dotenv>=1.0.0
+tqdm>=4.66.0
+joblib>=1.3.0
+pyyaml>=6.0
+
+# API Keys Management
+python-decouple>=3.8
+
+# Backtesting
+backtrader>=1.9.78.123
