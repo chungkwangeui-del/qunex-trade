@@ -31,9 +31,20 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 
 with app.app_context():
-    # Create tables if they don't exist (won't drop existing data)
-    print("Creating/updating database tables...")
-    db.create_all()
+    # Check if we need to recreate tables (schema changed)
+    # Only do this ONCE when deploying new schema changes
+    RECREATE_TABLES = os.getenv('RECREATE_DB_TABLES', 'false').lower() == 'true'
+
+    if RECREATE_TABLES:
+        print("⚠️  RECREATING ALL TABLES (RECREATE_DB_TABLES=true)")
+        print("⚠️  This will DELETE all existing data!")
+        db.drop_all()
+        db.create_all()
+        print("✅ Tables recreated")
+    else:
+        # Create tables if they don't exist (won't drop existing data)
+        print("Creating/updating database tables...")
+        db.create_all()
 
     # Check if admin account exists
     admin = db.session.execute(
