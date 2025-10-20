@@ -1,12 +1,14 @@
 services:
   - type: web
     name: qunex-trade
+    runtime: python
     env: python
     region: oregon
     plan: free
     branch: main
     buildCommand: bash build.sh
     startCommand: cd web && gunicorn app:app --bind 0.0.0.0:$PORT
+    runtimeVersion: "3.11.11"
     envVars:
       - key: SECRET_KEY
         generateValue: true
