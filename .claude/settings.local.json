@@ -17,7 +17,17 @@
       "Bash(git init)",
       "Bash(git add .gitattributes)",
       "Bash(git add .)",
-      "Bash(if exist nul del /f nul)"
+      "Bash(if exist nul del /f nul)",
+      "Bash(git config user.name \"Kwangui Chung\")",
+      "Bash(git config user.email \"your-email@example.com\")",
+      "Bash(git commit -m \"Initial commit - Qunex Trade v1.0\n\n- AI-powered penny stock prediction platform\n- ROC-AUC: 0.9789, 70%+ success rate\n- Ensemble ML models (XGBoost, LightGBM, RF, GB)\n- Flask web dashboard with modern UI\n- Automatic signal generation at 4:05 PM daily\n- Weekend and holiday handling\n- Git LFS for model files\n- Auto-training on deployment\")",
+      "Bash(git branch -M main)",
+      "Bash(git remote add origin https://github.com/chungkwangeui-del/qunex-trade.git)",
+      "Bash(git push -u origin main)",
+      "Bash(git add web/requirements.txt render.yaml)",
+      "Bash(git commit -m \"Fix: Update Python dependencies for compatibility\n\n- Change Python version to 3.11.0 (stable)\n- Update pandas to >=2.2.0 for Python 3.13 compatibility\n- Update numpy to >=1.26.0\n- Fix gunicorn installation issue\")",
+      "Bash(git push origin main)",
+      "Bash(nslookup qunextrade.com)"
     ],
     "deny": [],
     "ask": []
