@@ -8,7 +8,7 @@ services:
     branch: main
     buildCommand: bash build.sh
     startCommand: cd web && gunicorn app:app --bind 0.0.0.0:$PORT
-    runtimeVersion: "3.11.11"
+    runtimeVersion: "3.13.1"
     envVars:
       - key: SECRET_KEY
         generateValue: true
