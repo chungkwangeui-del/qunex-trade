@@ -280,6 +280,7 @@
                 <button type="submit" class="btn">Log In</button>
             </form>
 
+            {% if google_oauth_enabled %}
             <div class="divider">or</div>
 
             <a href="/auth/google/login" class="btn-google">
@@ -291,6 +292,7 @@
                 </svg>
                 Continue with Google
             </a>
+            {% endif %}
 
             <div class="signup-link" style="margin-top: 20px;">
                 Don't have an account? <a href="/auth/signup">Sign up</a>

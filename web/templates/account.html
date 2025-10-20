@@ -256,7 +256,7 @@
         <div class="header">
             <h1>My Account</h1>
             <p>Manage your subscription and account settings</p>
-            {% if user.email == 'kwangui2@illinois.edu' %}
+            {% if user.subscription_tier == 'developer' %}
             <p style="margin-top: 20px;">
                 <a href="/auth/admin/dashboard" style="background: linear-gradient(135deg, #ff006e 0%, #7c3aed 100%); color: white; padding: 12px 30px; border-radius: 10px; text-decoration: none; font-weight: 700; display: inline-block; box-shadow: 0 4px 15px rgba(255, 0, 110, 0.3);">
                     🔐 Admin Dashboard

@@ -7,6 +7,10 @@ from flask import Flask, render_template, jsonify, request
 from flask_login import LoginManager, login_required, current_user
 import os
 from datetime import datetime, timedelta
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # MAINTENANCE MODE FLAG
 MAINTENANCE_MODE = False  # Disabled - show website shell

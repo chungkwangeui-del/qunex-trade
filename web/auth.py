@@ -18,16 +18,24 @@ auth = Blueprint('auth', __name__)
 # Initialize OAuth
 oauth = OAuth()
 
-# Google OAuth configuration
-google = oauth.register(
-    name='google',
-    client_id=os.getenv('GOOGLE_CLIENT_ID'),
-    client_secret=os.getenv('GOOGLE_CLIENT_SECRET'),
-    server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
-    client_kwargs={
-        'scope': 'openid email profile'
-    }
-)
+# Google OAuth configuration (only if credentials are set)
+GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
+GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
+
+if GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET:
+    google = oauth.register(
+        name='google',
+        client_id=GOOGLE_CLIENT_ID,
+        client_secret=GOOGLE_CLIENT_SECRET,
+        server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
+        client_kwargs={
+            'scope': 'openid email profile'
+        }
+    )
+    GOOGLE_OAUTH_ENABLED = True
+else:
+    google = None
+    GOOGLE_OAUTH_ENABLED = False
 
 
 @auth.route('/login', methods=['GET', 'POST'])
@@ -62,7 +70,7 @@ def login():
         next_page = request.args.get('next')
         return redirect(next_page) if next_page else redirect(url_for('index'))
 
-    return render_template('login.html')
+    return render_template('login.html', google_oauth_enabled=GOOGLE_OAUTH_ENABLED)
 
 
 @auth.route('/signup', methods=['GET', 'POST'])
@@ -132,15 +140,10 @@ def account():
 @auth.route('/admin/dashboard')
 @login_required
 def admin_dashboard():
-    """Admin dashboard - only accessible to admin users"""
-    import os
-
-    # Check if user is admin (you can add is_admin field to User model later)
-    # For now, check if email is the admin email
-    admin_email = os.getenv('ADMIN_EMAIL', 'kwangui2@illinois.edu')
-
-    if current_user.email != admin_email:
-        flash('Unauthorized access', 'error')
+    """Admin dashboard - only accessible to developer tier users"""
+    # Check if user is developer tier (admin)
+    if current_user.subscription_tier != 'developer':
+        flash('Unauthorized access - Admin only', 'error')
         return redirect(url_for('index'))
 
     # Get all users
@@ -205,6 +208,10 @@ def admin_upgrade_user(email, tier):
 @auth.route('/google/login')
 def google_login():
     """Initiate Google OAuth login"""
+    if not GOOGLE_OAUTH_ENABLED:
+        flash('Google login is not configured. Please use email/password login.', 'error')
+        return redirect(url_for('auth.login'))
+
     redirect_uri = url_for('auth.google_callback', _external=True)
     return google.authorize_redirect(redirect_uri)
 
@@ -212,6 +219,10 @@ def google_login():
 @auth.route('/google/callback')
 def google_callback():
     """Handle Google OAuth callback"""
+    if not GOOGLE_OAUTH_ENABLED:
+        flash('Google login is not configured.', 'error')
+        return redirect(url_for('auth.login'))
+
     try:
         # Get token from Google
         token = google.authorize_access_token()
