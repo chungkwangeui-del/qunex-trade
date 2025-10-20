@@ -13,11 +13,13 @@ app.config['SECRET_KEY'] = 'dev-secret-key'
 # Database configuration - Use PostgreSQL in production, SQLite in development
 DATABASE_URL = os.getenv('DATABASE_URL')
 if DATABASE_URL:
-    # Render provides DATABASE_URL starting with postgres://, but SQLAlchemy needs postgresql://
+    # Render provides DATABASE_URL starting with postgres://, convert to postgresql+psycopg:// for psycopg3
     if DATABASE_URL.startswith('postgres://'):
-        DATABASE_URL = DATABASE_URL.replace('postgres://', 'postgresql://', 1)
+        DATABASE_URL = DATABASE_URL.replace('postgres://', 'postgresql+psycopg://', 1)
+    elif DATABASE_URL.startswith('postgresql://'):
+        DATABASE_URL = DATABASE_URL.replace('postgresql://', 'postgresql+psycopg://', 1)
     app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
-    print("Using PostgreSQL database")
+    print("Using PostgreSQL database with psycopg3")
 else:
     # Local development - use SQLite
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///qunextrade.db'
