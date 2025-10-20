@@ -9,7 +9,7 @@ import os
 from datetime import datetime, timedelta
 
 # MAINTENANCE MODE FLAG
-MAINTENANCE_MODE = True  # Enable for production until Kiwoom API ready
+MAINTENANCE_MODE = False  # Disabled - show website shell
 
 # Import database and blueprints
 try:
@@ -109,38 +109,31 @@ def filter_signals_by_subscription(signals):
 
 @app.route('/')
 def index():
-    """Main page"""
-    # Load today's signals
-    today_signals = load_today_signals()
+    """Main page - Empty state until Kiwoom API integration"""
+    # Empty signals for now
+    today_signals = []
+    filtered_signals = []
+    history = []
 
-    # Filter by subscription
-    filtered_signals = filter_signals_by_subscription(today_signals)
+    # Empty statistics
+    stats = {
+        'total_signals': 0,
+        'success_rate': 0,
+        'win_rate': 0,
+        'avg_return': 0,
+        'total_tracked': 0
+    }
+    stats_30d = stats
 
-    # Load history
-    history = load_signals_history()
-
-    # Calculate statistics
-    stats = calculate_statistics(history)
-
-    # Last 30 days performance
-    if not history.empty:
-        history_30d = history[history['signal_date'] >= datetime.now() - timedelta(days=30)]
-        stats_30d = calculate_statistics(history_30d)
-    else:
-        stats_30d = stats
-
-    # Check if user needs to upgrade
-    show_upgrade_banner = (
-        not current_user.is_authenticated or
-        not current_user.is_pro()
-    ) and len(today_signals) > 3
+    # No upgrade banner needed
+    show_upgrade_banner = False
 
     return render_template('index.html',
-                         today_signals=filtered_signals.to_dict('records') if not filtered_signals.empty else [],
-                         total_signals=len(today_signals),
+                         today_signals=[],
+                         total_signals=0,
                          stats=stats,
                          stats_30d=stats_30d,
-                         show_upgrade_banner=show_upgrade_banner,
+                         show_upgrade_banner=False,
                          user=current_user)
 
 @app.route('/about')

@@ -1,7 +1,10 @@
 {
   "permissions": {
     "allow": [
-      "Bash(git commit -m \"$(cat <<''EOF''\nUpdate to SQLAlchemy 2.0 API and fix database initialization\n\n✅ Updates:\n- Migrate all Query.get() to db.session.get()\n- Migrate all .query.filter_by() to db.session.execute(db.select())\n- Update app.py user loader to SQLAlchemy 2.0 style\n- Update auth.py login/signup/admin functions\n- Update create_db.py and init_db.py scripts\n\n🔧 Database:\n- Add create_db.py for simple database initialization\n- Add init_db.py for admin account setup\n- Turn off maintenance mode for testing\n- Database working correctly with SQLAlchemy 2.0\n\n🐛 Fixes:\n- Remove all LegacyAPIWarning messages\n- Fix login/signup functionality\n- Users now save correctly to database\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")"
+      "Bash(git commit -m \"$(cat <<''EOF''\nAdd Render deployment configuration for public website\n\n📦 Deployment Files:\n- Add requirements.txt (Flask, SQLAlchemy, Gunicorn, Stripe)\n- Add Procfile for Render deployment\n- Add render.yaml with automatic DB initialization\n- Update .gitignore for Flask instance directory\n\n🔧 Configuration:\n- Enable Maintenance Mode for production\n- Auto-create database on deployment\n- Set up admin credentials via environment variables\n\n🌐 Ready for Render deployment at qunex-trade.onrender.com\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(chmod +x build.sh)",
+      "Bash(git add build.sh render.yaml)",
+      "Bash(git commit -m \"Fix: Add build.sh for Render deployment\n\n- Create build.sh script for Render\n- Update render.yaml to use build.sh\n- Add proper gunicorn binding for Render port\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\")"
     ],
     "deny": [],
     "ask": []
