@@ -8,7 +8,7 @@ from flask_mail import Message
 from datetime import datetime, timedelta
 from authlib.integrations.flask_client import OAuth
 import os
-import secrets
+import random
 
 try:
     from database import db, User
@@ -88,6 +88,11 @@ def signup():
 
         print(f"[DEBUG] Signup attempt - Email: {email}, Username: {username}")
 
+        # Check if email was verified
+        if not session.get('email_verified') or session.get('verified_email') != email:
+            flash('Please verify your email first', 'error')
+            return redirect(url_for('auth.signup'))
+
         # Check if user exists
         user = db.session.execute(db.select(User).filter_by(email=email)).scalar_one_or_none()
         if user:
@@ -105,6 +110,7 @@ def signup():
         new_user = User(
             email=email,
             username=username,
+            email_verified=True,
             subscription_tier='free',
             subscription_status='active'
         )
@@ -116,6 +122,13 @@ def signup():
         db.session.commit()
 
         print(f"[DEBUG] User created successfully: {new_user.id}")
+
+        # Clear verification session data
+        session.pop('email_verified', None)
+        session.pop('verified_email', None)
+        session.pop('verification_code', None)
+        session.pop('verification_email', None)
+        session.pop('verification_expiry', None)
 
         login_user(new_user)
         flash('Account created successfully!', 'success')
@@ -331,114 +344,87 @@ def change_password():
     return redirect(url_for('auth.account'))
 
 
-@auth.route('/forgot-password', methods=['GET', 'POST'])
-def forgot_password():
-    """Forgot password page - send reset email"""
-    if current_user.is_authenticated:
-        return redirect(url_for('index'))
+@auth.route('/send-verification-code', methods=['POST'])
+def send_verification_code():
+    """Send 6-digit verification code to email"""
+    data = request.get_json()
+    email = data.get('email')
 
-    if request.method == 'POST':
-        email = request.form.get('email')
+    if not email:
+        return jsonify({'success': False, 'message': 'Email is required'}), 400
 
-        user = db.session.execute(
-            db.select(User).filter_by(email=email)
-        ).scalar_one_or_none()
+    # Generate 6-digit code
+    code = ''.join([str(random.randint(0, 9)) for _ in range(6)])
 
-        # Always show success message (security: don't reveal if email exists)
-        flash('If an account with that email exists, a password reset link has been sent.', 'info')
+    # Store code in session temporarily (expires in 10 minutes)
+    session['verification_code'] = code
+    session['verification_email'] = email
+    session['verification_expiry'] = (datetime.utcnow() + timedelta(minutes=10)).isoformat()
 
-        if user and user.password_hash:  # Only send if user exists and has password (not OAuth)
-            # Generate reset token
-            token = secrets.token_urlsafe(32)
-            user.reset_token = token
-            user.reset_token_expiry = datetime.utcnow() + timedelta(hours=1)  # 1 hour expiry
-            db.session.commit()
+    # Send email
+    try:
+        from app import mail
 
-            # Send reset email
-            try:
-                from flask_mail import Mail
-                mail = Mail(current_app)
+        msg = Message(
+            'Email Verification Code - Qunex Trade',
+            recipients=[email]
+        )
+        msg.body = f'''Welcome to Qunex Trade!
 
-                reset_url = url_for('auth.reset_password', token=token, _external=True)
+Your verification code is: {code}
 
-                msg = Message(
-                    'Password Reset Request - Qunex Trade',
-                    recipients=[user.email]
-                )
-                msg.body = f'''Hello {user.username},
+This code will expire in 10 minutes.
 
-You requested a password reset for your Qunex Trade account.
-
-Click the link below to reset your password (valid for 1 hour):
-{reset_url}
-
-If you didn't request this, please ignore this email. Your password will remain unchanged.
+If you didn't request this code, please ignore this email.
 
 Best regards,
 Qunex Trade Team
 '''
-                msg.html = f'''
+        msg.html = f'''
 <html>
 <body style="font-family: Arial, sans-serif; color: #333;">
-    <h2 style="color: #00f5ff;">Password Reset Request</h2>
-    <p>Hello <strong>{user.username}</strong>,</p>
-    <p>You requested a password reset for your Qunex Trade account.</p>
-    <p>Click the button below to reset your password (valid for 1 hour):</p>
-    <p style="margin: 30px 0;">
-        <a href="{reset_url}" style="background: linear-gradient(135deg, #00f5ff 0%, #7c3aed 100%); color: white; padding: 12px 30px; text-decoration: none; border-radius: 8px; display: inline-block;">Reset Password</a>
-    </p>
-    <p>Or copy and paste this link:</p>
-    <p style="color: #666; font-size: 0.9em;">{reset_url}</p>
-    <p style="margin-top: 30px; color: #999; font-size: 0.85em;">If you didn't request this, please ignore this email. Your password will remain unchanged.</p>
+    <h2 style="color: #00f5ff;">Welcome to Qunex Trade!</h2>
+    <p>Your verification code is:</p>
+    <h1 style="background: linear-gradient(135deg, #00f5ff 0%, #7c3aed 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-size: 48px; letter-spacing: 10px; text-align: center;">{code}</h1>
+    <p style="color: #999; font-size: 0.9em;">This code will expire in 10 minutes.</p>
+    <p style="margin-top: 30px; color: #999; font-size: 0.85em;">If you didn't request this code, please ignore this email.</p>
     <p style="margin-top: 20px;">Best regards,<br><strong>Qunex Trade Team</strong></p>
 </body>
 </html>
 '''
-                mail.send(msg)
-            except Exception as e:
-                print(f"Error sending email: {e}")
-
-        return redirect(url_for('auth.login'))
-
-    return render_template('forgot_password.html')
+        mail.send(msg)
+        return jsonify({'success': True, 'message': 'Verification code sent!'})
+    except Exception as e:
+        print(f"Error sending email: {e}")
+        return jsonify({'success': False, 'message': 'Failed to send email. Please try again.'}), 500
 
 
-@auth.route('/reset-password/<token>', methods=['GET', 'POST'])
-def reset_password(token):
-    """Reset password with token"""
-    if current_user.is_authenticated:
-        return redirect(url_for('index'))
+@auth.route('/verify-code', methods=['POST'])
+def verify_code():
+    """Verify the 6-digit code"""
+    data = request.get_json()
+    code = data.get('code')
 
-    # Find user with this token
-    user = db.session.execute(
-        db.select(User).filter_by(reset_token=token)
-    ).scalar_one_or_none()
+    if not code:
+        return jsonify({'success': False, 'message': 'Code is required'}), 400
 
-    # Check if token is valid and not expired
-    if not user or not user.reset_token_expiry or user.reset_token_expiry < datetime.utcnow():
-        flash('Invalid or expired reset link. Please request a new one.', 'error')
-        return redirect(url_for('auth.forgot_password'))
+    # Check if code matches and hasn't expired
+    stored_code = session.get('verification_code')
+    stored_email = session.get('verification_email')
+    expiry_str = session.get('verification_expiry')
 
-    if request.method == 'POST':
-        new_password = request.form.get('new_password')
-        confirm_password = request.form.get('confirm_password')
+    if not stored_code or not expiry_str:
+        return jsonify({'success': False, 'message': 'No verification code found. Please request a new one.'}), 400
 
-        # Validate password
-        if len(new_password) < 6:
-            flash('Password must be at least 6 characters', 'error')
-            return render_template('reset_password.html', token=token)
+    expiry = datetime.fromisoformat(expiry_str)
+    if datetime.utcnow() > expiry:
+        return jsonify({'success': False, 'message': 'Verification code expired. Please request a new one.'}), 400
 
-        if new_password != confirm_password:
-            flash('Passwords do not match', 'error')
-            return render_template('reset_password.html', token=token)
+    if code != stored_code:
+        return jsonify({'success': False, 'message': 'Invalid verification code'}), 400
 
-        # Update password and clear reset token
-        user.set_password(new_password)
-        user.reset_token = None
-        user.reset_token_expiry = None
-        db.session.commit()
+    # Code is valid
+    session['email_verified'] = True
+    session['verified_email'] = stored_email
 
-        flash('Password reset successfully! You can now log in.', 'success')
-        return redirect(url_for('auth.login'))
-
-    return render_template('reset_password.html', token=token)
+    return jsonify({'success': True, 'message': 'Email verified successfully!'})

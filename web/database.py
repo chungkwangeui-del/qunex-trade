@@ -22,9 +22,10 @@ class User(UserMixin, db.Model):
     oauth_provider = db.Column(db.String(50), nullable=True)  # 'google', 'apple', etc
     profile_picture = db.Column(db.String(500), nullable=True)
 
-    # Password reset
-    reset_token = db.Column(db.String(100), nullable=True)
-    reset_token_expiry = db.Column(db.DateTime, nullable=True)
+    # Email verification
+    email_verified = db.Column(db.Boolean, default=False)
+    verification_code = db.Column(db.String(6), nullable=True)
+    verification_code_expiry = db.Column(db.DateTime, nullable=True)
 
     # Subscription info
     subscription_tier = db.Column(db.String(20), default='free')  # free, pro, premium, developer

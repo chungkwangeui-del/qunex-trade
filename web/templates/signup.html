@@ -226,6 +226,50 @@
         .terms a:hover {
             text-decoration: underline;
         }
+
+        .verification-section {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .verification-input-wrapper {
+            flex: 1;
+        }
+
+        .btn-secondary {
+            width: auto;
+            padding: 15px 25px;
+            background: var(--bg-dark);
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            margin-top: 0;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(0, 217, 255, 0.1);
+        }
+
+        .btn-secondary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .verified-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            color: #00ff88;
+            border-radius: 8px;
+            font-size: 0.85em;
+            margin-left: 10px;
+        }
+
+        #submitBtn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 <body>
@@ -247,10 +291,24 @@
                 {% endif %}
             {% endwith %}
 
-            <form method="POST" action="/auth/signup">
+            <form method="POST" action="/auth/signup" id="signupForm">
                 <div class="form-group">
-                    <label for="email">Email</label>
-                    <input type="email" id="email" name="email" required>
+                    <label for="email">
+                        Email
+                        <span id="verifiedBadge" class="verified-badge" style="display: none;">✓ Verified</span>
+                    </label>
+                    <div class="verification-section">
+                        <input type="email" id="email" name="email" required style="flex: 1;">
+                        <button type="button" id="sendCodeBtn" class="btn btn-secondary">Send Code</button>
+                    </div>
+                </div>
+
+                <div class="form-group" id="verificationCodeGroup" style="display: none;">
+                    <label for="verificationCode">Verification Code</label>
+                    <div class="verification-section">
+                        <input type="text" id="verificationCode" maxlength="6" placeholder="Enter 6-digit code" style="flex: 1;">
+                        <button type="button" id="verifyCodeBtn" class="btn btn-secondary">Verify</button>
+                    </div>
                 </div>
 
                 <div class="form-group">
@@ -263,7 +321,7 @@
                     <input type="password" id="password" name="password" required minlength="6">
                 </div>
 
-                <button type="submit" class="btn">Create Account</button>
+                <button type="submit" class="btn" id="submitBtn" disabled>Create Account</button>
 
                 <div class="terms">
                     By signing up, you agree to our <a href="/terms">Terms of Service</a> and <a href="/privacy">Privacy Policy</a>
@@ -277,5 +335,96 @@
             </div>
         </div>
     </div>
+
+    <script>
+        let emailVerified = false;
+
+        // Send verification code
+        document.getElementById('sendCodeBtn').addEventListener('click', async function() {
+            const email = document.getElementById('email').value;
+            if (!email) {
+                alert('Please enter your email');
+                return;
+            }
+
+            const btn = this;
+            btn.disabled = true;
+            btn.textContent = 'Sending...';
+
+            try {
+                const response = await fetch('/auth/send-verification-code', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email: email })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    document.getElementById('verificationCodeGroup').style.display = 'block';
+                    btn.textContent = 'Resend Code';
+                    alert(data.message);
+                } else {
+                    alert(data.message);
+                }
+            } catch (error) {
+                alert('Failed to send verification code. Please try again.');
+            } finally {
+                btn.disabled = false;
+            }
+        });
+
+        // Verify code
+        document.getElementById('verifyCodeBtn').addEventListener('click', async function() {
+            const code = document.getElementById('verificationCode').value;
+            if (!code || code.length !== 6) {
+                alert('Please enter the 6-digit code');
+                return;
+            }
+
+            const btn = this;
+            btn.disabled = true;
+            btn.textContent = 'Verifying...';
+
+            try {
+                const response = await fetch('/auth/verify-code', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ code: code })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    emailVerified = true;
+                    document.getElementById('verifiedBadge').style.display = 'inline-block';
+                    document.getElementById('email').readOnly = true;
+                    document.getElementById('sendCodeBtn').style.display = 'none';
+                    document.getElementById('verificationCodeGroup').style.display = 'none';
+                    document.getElementById('submitBtn').disabled = false;
+                    alert(data.message);
+                } else {
+                    alert(data.message);
+                }
+            } catch (error) {
+                alert('Failed to verify code. Please try again.');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Verify';
+            }
+        });
+
+        // Prevent form submission if email not verified
+        document.getElementById('signupForm').addEventListener('submit', function(e) {
+            if (!emailVerified) {
+                e.preventDefault();
+                alert('Please verify your email first');
+            }
+        });
+    </script>
 </body>
 </html>
