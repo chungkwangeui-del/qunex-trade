@@ -1,4 +1,0 @@
-ticker,predicted_probability,Close,Volume,volatility_20d,rsi_14,signal_date,trade_date,signal_generated_at,status,buy_price,sell_price,actual_return
-RGTI,0.95,46.380001068115234,112071100,0.092,65.0,2025-10-19,2025-10-21,2025-10-19 16:05:00,pending,,,
-IONQ,0.95,62.93999862670898,33314400,0.07,65.0,2025-10-19,2025-10-21,2025-10-19 16:05:00,pending,,,
-QUBT,0.95,18.32999992370605,40550900,0.083,65.0,2025-10-19,2025-10-21,2025-10-19 16:05:00,pending,,,

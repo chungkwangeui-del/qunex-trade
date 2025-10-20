@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Qunex Trade - Maintenance</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .container {
+            text-align: center;
+            max-width: 600px;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            font-size: 3em;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
+
+        h2 {
+            font-size: 1.5em;
+            margin-bottom: 30px;
+            font-weight: 400;
+        }
+
+        .message {
+            font-size: 1.1em;
+            line-height: 1.8;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+
+        .features {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 30px;
+        }
+
+        .features h3 {
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .features ul {
+            list-style: none;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .features li {
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+        }
+
+        .features li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #4ade80;
+            font-weight: bold;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 30px auto;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .contact {
+            margin-top: 40px;
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 System Maintenance</h1>
+        <h2>시스템 업그레이드 중</h2>
+
+        <div class="spinner"></div>
+
+        <div class="message">
+            <p><strong>Qunex Trade</strong>는 더 나은 서비스를 위해 대규모 업그레이드를 진행하고 있습니다.</p>
+            <p>키움증권 Open API 통합 및 새로운 AI 모델 도입 작업이 진행 중입니다.</p>
+        </div>
+
+        <div class="features">
+            <h3>곧 만나볼 새로운 기능</h3>
+            <ul>
+                <li>키움증권 실시간 데이터 통합</li>
+                <li>한국인 거래 가능 종목 자동 필터링</li>
+                <li>업그레이드된 AI 예측 모델</li>
+                <li>실시간 급등주 알림 시스템</li>
+                <li>향상된 백테스트 정확도</li>
+            </ul>
+        </div>
+
+        <div class="contact">
+            <p>예상 복구 시간: 내일 오후 (키움 API 승인 후)</p>
+            <p>문의: Qunex Trade Support</p>
+        </div>
+    </div>
+</body>
+</html>

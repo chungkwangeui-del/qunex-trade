@@ -1,13 +1,16 @@
 """
-Flask Web Application - Qunex Trade (Monetized Version)
-With user authentication, subscriptions, and premium features
+Flask Web Application - Qunex Trade (MAINTENANCE MODE)
+System upgrade in progress - Kiwoom API integration
 """
 
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template, jsonify, request
 from flask_login import LoginManager, login_required, current_user
 import pandas as pd
 import os
 from datetime import datetime, timedelta
+
+# MAINTENANCE MODE FLAG
+MAINTENANCE_MODE = True
 
 # Import database and blueprints
 try:
@@ -44,6 +47,12 @@ def load_user(user_id):
 # Create tables
 with app.app_context():
     db.create_all()
+
+# Maintenance mode middleware
+@app.before_request
+def check_maintenance():
+    if MAINTENANCE_MODE and not request.path.startswith('/static'):
+        return render_template('maintenance.html')
 
 def load_signals_history():
     """Load signal history"""
