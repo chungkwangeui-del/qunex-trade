@@ -5,6 +5,7 @@ System upgrade in progress - Kiwoom API integration
 
 from flask import Flask, render_template, jsonify, request
 from flask_login import LoginManager, login_required, current_user
+from flask_mail import Mail
 import os
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
@@ -33,11 +34,20 @@ app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev-secret-key-change-in-pro
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///qunextrade.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+# Email configuration (Gmail SMTP)
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')  # Gmail address
+app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')  # Gmail app password
+app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_USERNAME', 'noreply@qunextrade.com')
+
 # Initialize OAuth with app
 oauth.init_app(app)
 
 # Initialize extensions
 db.init_app(app)
+mail = Mail(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'auth.login'

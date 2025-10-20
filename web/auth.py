@@ -2,11 +2,13 @@
 Authentication routes and utilities
 """
 
-from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify, session
+from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify, session, current_app
 from flask_login import login_user, logout_user, login_required, current_user
-from datetime import datetime
+from flask_mail import Message
+from datetime import datetime, timedelta
 from authlib.integrations.flask_client import OAuth
 import os
+import secrets
 
 try:
     from database import db, User
@@ -327,3 +329,116 @@ def change_password():
 
     flash('Password updated successfully!', 'success')
     return redirect(url_for('auth.account'))
+
+
+@auth.route('/forgot-password', methods=['GET', 'POST'])
+def forgot_password():
+    """Forgot password page - send reset email"""
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+
+    if request.method == 'POST':
+        email = request.form.get('email')
+
+        user = db.session.execute(
+            db.select(User).filter_by(email=email)
+        ).scalar_one_or_none()
+
+        # Always show success message (security: don't reveal if email exists)
+        flash('If an account with that email exists, a password reset link has been sent.', 'info')
+
+        if user and user.password_hash:  # Only send if user exists and has password (not OAuth)
+            # Generate reset token
+            token = secrets.token_urlsafe(32)
+            user.reset_token = token
+            user.reset_token_expiry = datetime.utcnow() + timedelta(hours=1)  # 1 hour expiry
+            db.session.commit()
+
+            # Send reset email
+            try:
+                from flask_mail import Mail
+                mail = Mail(current_app)
+
+                reset_url = url_for('auth.reset_password', token=token, _external=True)
+
+                msg = Message(
+                    'Password Reset Request - Qunex Trade',
+                    recipients=[user.email]
+                )
+                msg.body = f'''Hello {user.username},
+
+You requested a password reset for your Qunex Trade account.
+
+Click the link below to reset your password (valid for 1 hour):
+{reset_url}
+
+If you didn't request this, please ignore this email. Your password will remain unchanged.
+
+Best regards,
+Qunex Trade Team
+'''
+                msg.html = f'''
+<html>
+<body style="font-family: Arial, sans-serif; color: #333;">
+    <h2 style="color: #00f5ff;">Password Reset Request</h2>
+    <p>Hello <strong>{user.username}</strong>,</p>
+    <p>You requested a password reset for your Qunex Trade account.</p>
+    <p>Click the button below to reset your password (valid for 1 hour):</p>
+    <p style="margin: 30px 0;">
+        <a href="{reset_url}" style="background: linear-gradient(135deg, #00f5ff 0%, #7c3aed 100%); color: white; padding: 12px 30px; text-decoration: none; border-radius: 8px; display: inline-block;">Reset Password</a>
+    </p>
+    <p>Or copy and paste this link:</p>
+    <p style="color: #666; font-size: 0.9em;">{reset_url}</p>
+    <p style="margin-top: 30px; color: #999; font-size: 0.85em;">If you didn't request this, please ignore this email. Your password will remain unchanged.</p>
+    <p style="margin-top: 20px;">Best regards,<br><strong>Qunex Trade Team</strong></p>
+</body>
+</html>
+'''
+                mail.send(msg)
+            except Exception as e:
+                print(f"Error sending email: {e}")
+
+        return redirect(url_for('auth.login'))
+
+    return render_template('forgot_password.html')
+
+
+@auth.route('/reset-password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    """Reset password with token"""
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+
+    # Find user with this token
+    user = db.session.execute(
+        db.select(User).filter_by(reset_token=token)
+    ).scalar_one_or_none()
+
+    # Check if token is valid and not expired
+    if not user or not user.reset_token_expiry or user.reset_token_expiry < datetime.utcnow():
+        flash('Invalid or expired reset link. Please request a new one.', 'error')
+        return redirect(url_for('auth.forgot_password'))
+
+    if request.method == 'POST':
+        new_password = request.form.get('new_password')
+        confirm_password = request.form.get('confirm_password')
+
+        # Validate password
+        if len(new_password) < 6:
+            flash('Password must be at least 6 characters', 'error')
+            return render_template('reset_password.html', token=token)
+
+        if new_password != confirm_password:
+            flash('Passwords do not match', 'error')
+            return render_template('reset_password.html', token=token)
+
+        # Update password and clear reset token
+        user.set_password(new_password)
+        user.reset_token = None
+        user.reset_token_expiry = None
+        db.session.commit()
+
+        flash('Password reset successfully! You can now log in.', 'success')
+        return redirect(url_for('auth.login'))
+
+    return render_template('reset_password.html', token=token)
