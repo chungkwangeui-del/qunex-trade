@@ -1,0 +1,7 @@
+flask==3.0.0
+flask-login==0.6.3
+flask-sqlalchemy==3.1.1
+werkzeug==3.0.0
+sqlalchemy==2.0.44
+gunicorn==21.2.0
+stripe==7.0.0

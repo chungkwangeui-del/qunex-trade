@@ -10,7 +10,7 @@ import os
 from datetime import datetime, timedelta
 
 # MAINTENANCE MODE FLAG
-MAINTENANCE_MODE = False  # Changed to test signup/login
+MAINTENANCE_MODE = True  # Enable for production until Kiwoom API ready
 
 # Import database and blueprints
 try:

@@ -73,3 +73,9 @@ desktop.ini
 *.bak
 *.cache
 nul
+
+# Claude Code
+.claude/settings.local.json
+
+# Flask instance
+instance/
