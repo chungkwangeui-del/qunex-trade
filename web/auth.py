@@ -27,7 +27,7 @@ def login():
 
         print(f"[DEBUG] Login attempt for email: {email}")
 
-        user = User.query.filter_by(email=email).first()
+        user = db.session.execute(db.select(User).filter_by(email=email)).scalar_one_or_none()
 
         if not user:
             print(f"[DEBUG] User not found: {email}")
@@ -63,13 +63,13 @@ def signup():
         print(f"[DEBUG] Signup attempt - Email: {email}, Username: {username}")
 
         # Check if user exists
-        user = User.query.filter_by(email=email).first()
+        user = db.session.execute(db.select(User).filter_by(email=email)).scalar_one_or_none()
         if user:
             print(f"[DEBUG] Email already exists: {email}")
             flash('Email already exists', 'error')
             return redirect(url_for('auth.signup'))
 
-        user = User.query.filter_by(username=username).first()
+        user = db.session.execute(db.select(User).filter_by(username=username)).scalar_one_or_none()
         if user:
             print(f"[DEBUG] Username already taken: {username}")
             flash('Username already taken', 'error')
@@ -128,7 +128,9 @@ def admin_dashboard():
         return redirect(url_for('index'))
 
     # Get all users
-    all_users = User.query.order_by(User.created_at.desc()).all()
+    all_users = db.session.execute(
+        db.select(User).order_by(User.created_at.desc())
+    ).scalars().all()
 
     # Calculate statistics
     total_users = len(all_users)
@@ -165,7 +167,7 @@ def admin_upgrade_user(email, tier):
     if tier not in ['free', 'pro', 'premium', 'developer']:
         return jsonify({'error': 'Invalid tier'}), 400
 
-    user = User.query.filter_by(email=email).first()
+    user = db.session.execute(db.select(User).filter_by(email=email)).scalar_one_or_none()
     if not user:
         return jsonify({'error': 'User not found'}), 404
 

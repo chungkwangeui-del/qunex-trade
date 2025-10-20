@@ -10,7 +10,7 @@ import os
 from datetime import datetime, timedelta
 
 # MAINTENANCE MODE FLAG
-MAINTENANCE_MODE = True
+MAINTENANCE_MODE = False  # Changed to test signup/login
 
 # Import database and blueprints
 try:
@@ -42,7 +42,7 @@ app.register_blueprint(payments, url_prefix='/payments')
 
 @login_manager.user_loader
 def load_user(user_id):
-    return User.query.get(int(user_id))
+    return db.session.get(User, int(user_id))
 
 # Create tables
 with app.app_context():
