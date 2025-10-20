@@ -1,17 +1,44 @@
 """
-Flask 웹 애플리케이션 - God Model Signal Dashboard
+Flask Web Application - Qunex Trade (Monetized Version)
+With user authentication, subscriptions, and premium features
 """
 
 from flask import Flask, render_template, jsonify
+from flask_login import LoginManager, login_required, current_user
+from database import db, User
+from auth import auth
+from payments import payments
 import pandas as pd
 import os
 from datetime import datetime, timedelta
-import json
 
 app = Flask(__name__)
 
+# Configuration
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev-secret-key-change-in-production')
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///qunextrade.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Initialize extensions
+db.init_app(app)
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'auth.login'
+
+# Register blueprints
+app.register_blueprint(auth, url_prefix='/auth')
+app.register_blueprint(payments, url_prefix='/payments')
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
+# Create tables
+with app.app_context():
+    db.create_all()
+
 def load_signals_history():
-    """시그널 히스토리 로드"""
+    """Load signal history"""
     path = 'data/signals_history.csv'
     if os.path.exists(path):
         df = pd.read_csv(path)
@@ -21,7 +48,7 @@ def load_signals_history():
     return pd.DataFrame()
 
 def load_today_signals():
-    """오늘 시그널 로드"""
+    """Load today's signals"""
     path = 'data/signals_today.csv'
     if os.path.exists(path):
         df = pd.read_csv(path)
@@ -31,7 +58,7 @@ def load_today_signals():
     return pd.DataFrame()
 
 def calculate_statistics(df):
-    """통계 계산"""
+    """Calculate statistics"""
     if df.empty:
         return {
             'total_signals': 0,
@@ -69,61 +96,102 @@ def calculate_statistics(df):
 
     return stats
 
+def filter_signals_by_subscription(signals):
+    """Filter signals based on user subscription"""
+    if signals.empty:
+        return signals
+
+    # If not logged in or free tier, show only 3 signals
+    if not current_user.is_authenticated or not current_user.is_pro():
+        return signals.head(3)
+
+    # Pro and Premium users see all signals
+    return signals
+
 @app.route('/')
 def index():
-    """메인 페이지"""
-    # 오늘 시그널
+    """Main page"""
+    # Load today's signals
     today_signals = load_today_signals()
 
-    # 전체 히스토리
+    # Filter by subscription
+    filtered_signals = filter_signals_by_subscription(today_signals)
+
+    # Load history
     history = load_signals_history()
 
-    # 통계
+    # Calculate statistics
     stats = calculate_statistics(history)
 
-    # 최근 30일 성과
+    # Last 30 days performance
     if not history.empty:
         history_30d = history[history['signal_date'] >= datetime.now() - timedelta(days=30)]
         stats_30d = calculate_statistics(history_30d)
     else:
         stats_30d = stats
 
+    # Check if user needs to upgrade
+    show_upgrade_banner = (
+        not current_user.is_authenticated or
+        not current_user.is_pro()
+    ) and len(today_signals) > 3
+
     return render_template('index.html',
-                         today_signals=today_signals.to_dict('records') if not today_signals.empty else [],
+                         today_signals=filtered_signals.to_dict('records') if not filtered_signals.empty else [],
+                         total_signals=len(today_signals),
                          stats=stats,
-                         stats_30d=stats_30d)
+                         stats_30d=stats_30d,
+                         show_upgrade_banner=show_upgrade_banner,
+                         user=current_user)
 
 @app.route('/about')
 def about():
-    """About 페이지"""
+    """About page"""
     return render_template('about.html')
+
+@app.route('/terms')
+def terms():
+    """Terms of Service"""
+    return render_template('terms.html')
+
+@app.route('/privacy')
+def privacy():
+    """Privacy Policy"""
+    return render_template('privacy.html')
 
 @app.route('/api/signals/today')
 def api_today_signals():
-    """오늘 시그널 API"""
+    """Today's signals API (requires authentication for full access)"""
     signals = load_today_signals()
 
     if signals.empty:
         return jsonify([])
 
-    # JSON 변환을 위해 날짜를 문자열로 변환
-    signals['signal_date'] = signals['signal_date'].dt.strftime('%Y-%m-%d')
-    signals['trade_date'] = signals['trade_date'].dt.strftime('%Y-%m-%d')
+    # Filter by subscription
+    filtered_signals = filter_signals_by_subscription(signals)
 
-    return jsonify(signals.to_dict('records'))
+    # Convert dates to strings for JSON
+    filtered_signals['signal_date'] = filtered_signals['signal_date'].dt.strftime('%Y-%m-%d')
+    filtered_signals['trade_date'] = filtered_signals['trade_date'].dt.strftime('%Y-%m-%d')
+
+    return jsonify(filtered_signals.to_dict('records'))
 
 @app.route('/api/signals/history')
+@login_required
 def api_history():
-    """전체 히스토리 API"""
+    """Full history API (Premium only)"""
+    if not current_user.is_pro():
+        return jsonify({'error': 'Premium subscription required'}), 403
+
     history = load_signals_history()
 
     if history.empty:
         return jsonify([])
 
-    # 최근 100개만
+    # Last 100 signals
     history = history.sort_values('signal_date', ascending=False).head(100)
 
-    # JSON 변환
+    # Convert to JSON
     history['signal_date'] = history['signal_date'].dt.strftime('%Y-%m-%d')
     history['trade_date'] = history['trade_date'].dt.strftime('%Y-%m-%d')
 
@@ -131,11 +199,11 @@ def api_history():
 
 @app.route('/api/statistics')
 def api_statistics():
-    """통계 API"""
+    """Statistics API"""
     history = load_signals_history()
     stats = calculate_statistics(history)
 
-    # 최근 7일, 30일 통계도 추가
+    # Add 7-day and 30-day stats
     if not history.empty:
         history_7d = history[history['signal_date'] >= datetime.now() - timedelta(days=7)]
         history_30d = history[history['signal_date'] >= datetime.now() - timedelta(days=30)]
@@ -144,32 +212,6 @@ def api_statistics():
         stats['last_30_days'] = calculate_statistics(history_30d)
 
     return jsonify(stats)
-
-@app.route('/api/chart/daily_performance')
-def api_chart_daily():
-    """일별 성과 차트 데이터"""
-    history = load_signals_history()
-
-    if history.empty:
-        return jsonify([])
-
-    # 날짜별 그룹화
-    tracked = history[history['status'].isin(['success', 'partial', 'failed'])]
-
-    if tracked.empty:
-        return jsonify([])
-
-    daily = tracked.groupby(tracked['signal_date'].dt.date).agg({
-        'ticker': 'count',
-        'actual_return': 'mean',
-        'status': lambda x: (x == 'success').sum()
-    }).reset_index()
-
-    daily.columns = ['date', 'total_signals', 'avg_return', 'success_count']
-    daily['success_rate'] = daily['success_count'] / daily['total_signals'] * 100
-    daily['date'] = daily['date'].astype(str)
-
-    return jsonify(daily.to_dict('records'))
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)

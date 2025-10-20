@@ -100,7 +100,8 @@
 
         .nav-links {
             display: flex;
-            gap: 30px;
+            gap: 20px;
+            align-items: center;
         }
 
         .nav-links a {
@@ -109,6 +110,38 @@
             font-weight: 600;
             transition: all 0.3s;
             position: relative;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 10px 25px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 700;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0, 217, 255, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(0, 217, 255, 0.5);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--primary);
+            padding: 10px 25px;
+            border: 1px solid var(--primary);
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 700;
+            transition: all 0.3s;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(0, 217, 255, 0.1);
+            transform: translateY(-2px);
         }
 
         .nav-links a::after {
@@ -409,6 +442,39 @@
             margin: 10px 0;
         }
 
+        /* Upgrade Banner */
+        .upgrade-banner {
+            background: linear-gradient(135deg, rgba(0, 217, 255, 0.1) 0%, rgba(124, 58, 237, 0.1) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 16px;
+            padding: 30px 40px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            box-shadow: 0 0 40px rgba(0, 217, 255, 0.2);
+        }
+
+        .upgrade-banner h3 {
+            font-size: 1.8em;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .upgrade-banner p {
+            color: var(--text-secondary);
+            font-size: 1.1em;
+        }
+
+        .upgrade-banner .btn-primary {
+            font-size: 1.1em;
+            padding: 15px 35px;
+        }
+
         /* Footer */
         footer {
             text-align: center;
@@ -451,6 +517,14 @@
             <div class="nav-links">
                 <a href="/" class="active">Home</a>
                 <a href="/about">About</a>
+                <a href="/payments/pricing">Pricing</a>
+                {% if user.is_authenticated %}
+                <a href="/auth/account">Account</a>
+                <a href="/auth/logout" class="btn-secondary">Logout</a>
+                {% else %}
+                <a href="/auth/login" class="btn-secondary">Login</a>
+                <a href="/auth/signup" class="btn-primary">Sign Up</a>
+                {% endif %}
             </div>
         </nav>
 
@@ -495,11 +569,22 @@
             </div>
         </div>
 
+        <!-- Upgrade Banner (for free users) -->
+        {% if show_upgrade_banner %}
+        <div class="upgrade-banner">
+            <div>
+                <h3>Unlock All {{ total_signals }} Signals</h3>
+                <p>You're seeing 3 of {{ total_signals }} high-confidence signals. Upgrade to Pro for unlimited access!</p>
+            </div>
+            <a href="/payments/pricing" class="btn-primary">Upgrade to Pro - $19.99/mo</a>
+        </div>
+        {% endif %}
+
         <!-- Today's Signals -->
         <div class="section">
             <div class="section-header">
                 <h2>Today's Signals</h2>
-                <span class="badge">Next Trading Day</span>
+                <span class="badge">{% if user.is_authenticated and user.is_pro() %}All Signals{% else %}Free: 3 Signals{% endif %}</span>
             </div>
 
             {% if today_signals %}
