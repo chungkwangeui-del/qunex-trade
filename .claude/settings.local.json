@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(rm web/data/*.csv)",
-      "Bash(git add -A)"
+      "Bash(git add -A)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nMAJOR RESET: Clean slate for Kiwoom API integration\n\n🧹 Cleanup Summary:\n- Delete all God Model files (train, backtest, 6 models)\n- Delete all old models (surge_predictor, standalone models)\n- Delete all stock data (penny_stocks_data.csv, backtest results)\n- Delete 40+ analysis/test scripts\n- Clear web signal data (signals_today.csv, signals_history.csv)\n\n🔧 Maintenance Mode:\n- Add maintenance.html template\n- Enable MAINTENANCE_MODE in web/app.py\n- Website now shows upgrade notice\n\n📁 Clean Structure:\n- Keep: web/ (Flask app, user DB, payments)\n- Keep: src/, config.yaml, main.py\n- Empty: data/, models/, results/\n\n📋 Next Steps:\n- Wait for Kiwoom Open API approval\n- Integrate Kiwoom real-time data\n- Build new ML model with Kiwoom data\n- Relaunch website with new system\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")"
     ],
     "deny": [],
     "ask": []
