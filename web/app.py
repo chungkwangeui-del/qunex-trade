@@ -155,7 +155,7 @@ def index():
 @app.route('/about')
 def about():
     """About page"""
-    return render_template('about.html')
+    return render_template('about.html', user=current_user)
 
 @app.route('/terms')
 def terms():
