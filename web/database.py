@@ -27,6 +27,10 @@ class User(UserMixin, db.Model):
     verification_code = db.Column(db.String(6), nullable=True)
     verification_code_expiry = db.Column(db.DateTime, nullable=True)
 
+    # Password reset
+    reset_token = db.Column(db.String(100), nullable=True)
+    reset_token_expiry = db.Column(db.DateTime, nullable=True)
+
     # Subscription info
     subscription_tier = db.Column(db.String(20), default='free')  # free, pro, premium, developer
     subscription_status = db.Column(db.String(20), default='inactive')  # active, inactive, cancelled
