@@ -2,7 +2,7 @@
 Authentication routes and utilities
 """
 
-from flask import Blueprint, render_template, redirect, url_for, flash, request
+from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify
 from flask_login import login_user, logout_user, login_required, current_user
 from datetime import datetime
 
@@ -92,3 +92,35 @@ def logout():
 def account():
     """User account page"""
     return render_template('account.html', user=current_user)
+
+
+@auth.route('/admin/upgrade-user/<email>/<tier>')
+def admin_upgrade_user(email, tier):
+    """Admin endpoint to upgrade users (use with caution!)"""
+    # Simple security: require admin password in query param
+    import os
+    admin_password = os.getenv('ADMIN_PASSWORD', 'change-me-in-production')
+
+    if request.args.get('password') != admin_password:
+        return jsonify({'error': 'Unauthorized'}), 403
+
+    if tier not in ['free', 'pro', 'premium']:
+        return jsonify({'error': 'Invalid tier'}), 400
+
+    user = User.query.filter_by(email=email).first()
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+
+    old_tier = user.subscription_tier
+    user.subscription_tier = tier
+    user.subscription_status = 'active'
+    db.session.commit()
+
+    return jsonify({
+        'success': True,
+        'email': email,
+        'username': user.username,
+        'old_tier': old_tier,
+        'new_tier': tier,
+        'status': 'active'
+    })
