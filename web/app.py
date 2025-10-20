@@ -5,7 +5,6 @@ System upgrade in progress - Kiwoom API integration
 
 from flask import Flask, render_template, jsonify, request
 from flask_login import LoginManager, login_required, current_user
-import pandas as pd
 import os
 from datetime import datetime, timedelta
 
@@ -55,28 +54,18 @@ def check_maintenance():
         return render_template('maintenance.html')
 
 def load_signals_history():
-    """Load signal history"""
-    path = 'data/signals_history.csv'
-    if os.path.exists(path):
-        df = pd.read_csv(path)
-        df['signal_date'] = pd.to_datetime(df['signal_date'])
-        df['trade_date'] = pd.to_datetime(df['trade_date'])
-        return df
-    return pd.DataFrame()
+    """Load signal history - DISABLED (will be re-enabled with Kiwoom API)"""
+    # Pandas not installed to reduce dependencies during maintenance
+    return []
 
 def load_today_signals():
-    """Load today's signals"""
-    path = 'data/signals_today.csv'
-    if os.path.exists(path):
-        df = pd.read_csv(path)
-        df['signal_date'] = pd.to_datetime(df['signal_date'])
-        df['trade_date'] = pd.to_datetime(df['trade_date'])
-        return df
-    return pd.DataFrame()
+    """Load today's signals - DISABLED (will be re-enabled with Kiwoom API)"""
+    # Pandas not installed to reduce dependencies during maintenance
+    return []
 
 def calculate_statistics(df):
     """Calculate statistics"""
-    if df.empty:
+    if not df or (hasattr(df, 'empty') and df.empty):
         return {
             'total_signals': 0,
             'success_rate': 0,
@@ -114,16 +103,9 @@ def calculate_statistics(df):
     return stats
 
 def filter_signals_by_subscription(signals):
-    """Filter signals based on user subscription"""
-    if signals.empty:
-        return signals
-
-    # If not logged in or free tier, show only 3 signals
-    if not current_user.is_authenticated or not current_user.is_pro():
-        return signals.head(3)
-
-    # Pro and Premium users see all signals
-    return signals
+    """Filter signals based on user subscription - DISABLED"""
+    # Return empty during maintenance
+    return []
 
 @app.route('/')
 def index():
