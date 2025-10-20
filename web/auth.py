@@ -2,9 +2,11 @@
 Authentication routes and utilities
 """
 
-from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify
+from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify, session
 from flask_login import login_user, logout_user, login_required, current_user
 from datetime import datetime
+from authlib.integrations.flask_client import OAuth
+import os
 
 try:
     from database import db, User
@@ -12,6 +14,20 @@ except ImportError:
     from web.database import db, User
 
 auth = Blueprint('auth', __name__)
+
+# Initialize OAuth
+oauth = OAuth()
+
+# Google OAuth configuration
+google = oauth.register(
+    name='google',
+    client_id=os.getenv('GOOGLE_CLIENT_ID'),
+    client_secret=os.getenv('GOOGLE_CLIENT_SECRET'),
+    server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
+    client_kwargs={
+        'scope': 'openid email profile'
+    }
+)
 
 
 @auth.route('/login', methods=['GET', 'POST'])
@@ -184,3 +200,83 @@ def admin_upgrade_user(email, tier):
         'new_tier': tier,
         'status': 'active'
     })
+
+
+@auth.route('/google/login')
+def google_login():
+    """Initiate Google OAuth login"""
+    redirect_uri = url_for('auth.google_callback', _external=True)
+    return google.authorize_redirect(redirect_uri)
+
+
+@auth.route('/google/callback')
+def google_callback():
+    """Handle Google OAuth callback"""
+    try:
+        # Get token from Google
+        token = google.authorize_access_token()
+
+        # Get user info from Google
+        user_info = token.get('userinfo')
+
+        if not user_info:
+            flash('Failed to get user information from Google', 'error')
+            return redirect(url_for('auth.login'))
+
+        google_id = user_info.get('sub')
+        email = user_info.get('email')
+        name = user_info.get('name', '').split()[0]  # First name
+        picture = user_info.get('picture')
+
+        # Check if user exists by Google ID
+        user = db.session.execute(
+            db.select(User).filter_by(google_id=google_id)
+        ).scalar_one_or_none()
+
+        if not user:
+            # Check if email already exists
+            user = db.session.execute(
+                db.select(User).filter_by(email=email)
+            ).scalar_one_or_none()
+
+            if user:
+                # Link Google account to existing user
+                user.google_id = google_id
+                user.oauth_provider = 'google'
+                user.profile_picture = picture
+                db.session.commit()
+                flash('Google account linked successfully!', 'success')
+            else:
+                # Create new user
+                # Generate unique username
+                base_username = name.lower().replace(' ', '')
+                username = base_username
+                counter = 1
+
+                while db.session.execute(
+                    db.select(User).filter_by(username=username)
+                ).scalar_one_or_none():
+                    username = f"{base_username}{counter}"
+                    counter += 1
+
+                user = User(
+                    email=email,
+                    username=username,
+                    google_id=google_id,
+                    oauth_provider='google',
+                    profile_picture=picture,
+                    subscription_tier='free',
+                    subscription_status='active'
+                )
+                # No password needed for OAuth users
+                db.session.add(user)
+                db.session.commit()
+                flash('Account created successfully with Google!', 'success')
+
+        # Log in the user
+        login_user(user, remember=True)
+        return redirect(url_for('index'))
+
+    except Exception as e:
+        flash(f'Google login failed: {str(e)}', 'error')
+        return redirect(url_for('auth.login'))

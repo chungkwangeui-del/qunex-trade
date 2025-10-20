@@ -4,7 +4,8 @@
       "Bash(git commit -m \"$(cat <<''EOF''\nAdd Render deployment configuration for public website\n\n📦 Deployment Files:\n- Add requirements.txt (Flask, SQLAlchemy, Gunicorn, Stripe)\n- Add Procfile for Render deployment\n- Add render.yaml with automatic DB initialization\n- Update .gitignore for Flask instance directory\n\n🔧 Configuration:\n- Enable Maintenance Mode for production\n- Auto-create database on deployment\n- Set up admin credentials via environment variables\n\n🌐 Ready for Render deployment at qunex-trade.onrender.com\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
       "Bash(chmod +x build.sh)",
       "Bash(git add build.sh render.yaml)",
-      "Bash(git commit -m \"Fix: Add build.sh for Render deployment\n\n- Create build.sh script for Render\n- Update render.yaml to use build.sh\n- Add proper gunicorn binding for Render port\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\")"
+      "Bash(git commit -m \"Fix: Add build.sh for Render deployment\n\n- Create build.sh script for Render\n- Update render.yaml to use build.sh\n- Add proper gunicorn binding for Render port\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\")",
+      "Bash(git commit -m \"Remove maintenance mode and show website shell\n\n- Turn off MAINTENANCE_MODE\n- Delete maintenance.html template\n- Show empty state on main page (no signals)\n- Keep all UI/UX intact (signup, login, pricing, etc)\n- Website shell ready for Kiwoom API integration\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\")"
     ],
     "deny": [],
     "ask": []

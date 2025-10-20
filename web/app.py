@@ -14,12 +14,12 @@ MAINTENANCE_MODE = False  # Disabled - show website shell
 # Import database and blueprints
 try:
     from database import db, User
-    from auth import auth
+    from auth import auth, oauth
     from payments import payments
 except ImportError:
     # If running from parent directory
     from web.database import db, User
-    from web.auth import auth
+    from web.auth import auth, oauth
     from web.payments import payments
 
 app = Flask(__name__)
@@ -28,6 +28,9 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev-secret-key-change-in-production')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///qunextrade.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Initialize OAuth with app
+oauth.init_app(app)
 
 # Initialize extensions
 db.init_app(app)
