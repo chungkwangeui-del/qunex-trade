@@ -51,7 +51,10 @@ PRICING = {
 @payments.route('/pricing')
 def pricing():
     """Pricing page"""
-    return render_template('pricing.html', pricing=PRICING, stripe_public_key=STRIPE_PUBLIC_KEY)
+    return render_template('pricing.html',
+                         pricing=PRICING,
+                         stripe_public_key=STRIPE_PUBLIC_KEY,
+                         user=current_user)
 
 
 @payments.route('/subscribe/<tier>')

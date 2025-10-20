@@ -307,7 +307,11 @@
                     <li>Basic statistics</li>
                     <li>Community support</li>
                 </ul>
+                {% if user.is_authenticated and user.subscription_tier == 'free' %}
+                <div class="cta-button free" style="background: rgba(0, 217, 255, 0.2); cursor: default;">Current Plan</div>
+                {% else %}
                 <a href="/auth/signup" class="cta-button free">Get Started Free</a>
+                {% endif %}
             </div>
 
             <!-- Pro Plan -->
@@ -320,7 +324,9 @@
                     <li>{{ feature }}</li>
                     {% endfor %}
                 </ul>
-                {% if current_user.is_authenticated %}
+                {% if user.is_authenticated and user.subscription_tier == 'pro' %}
+                <div class="cta-button" style="background: linear-gradient(135deg, #00ff88 0%, #00d9ff 100%); cursor: default;">✓ Current Plan</div>
+                {% elif user.is_authenticated %}
                     <a href="/payments/subscribe/pro" class="cta-button">Upgrade to Pro</a>
                 {% else %}
                     <a href="/auth/signup" class="cta-button">Start Pro Trial</a>
@@ -337,7 +343,9 @@
                     <li>{{ feature }}</li>
                     {% endfor %}
                 </ul>
-                {% if current_user.is_authenticated %}
+                {% if user.is_authenticated and user.subscription_tier == 'premium' %}
+                <div class="cta-button" style="background: linear-gradient(135deg, #ff006e 0%, #7c3aed 100%); cursor: default;">✓ Current Plan</div>
+                {% elif user.is_authenticated %}
                     <a href="/payments/subscribe/premium" class="cta-button">Upgrade to Premium</a>
                 {% else %}
                     <a href="/auth/signup" class="cta-button">Start Premium Trial</a>
