@@ -291,3 +291,39 @@ def google_callback():
     except Exception as e:
         flash(f'Google login failed: {str(e)}', 'error')
         return redirect(url_for('auth.login'))
+
+
+@auth.route('/change-password', methods=['POST'])
+@login_required
+def change_password():
+    """Change user password"""
+    # OAuth users don't have passwords
+    if not current_user.password_hash:
+        flash('OAuth users cannot change password. Please use your Google account.', 'error')
+        return redirect(url_for('auth.account'))
+
+    current_password = request.form.get('current_password')
+    new_password = request.form.get('new_password')
+    confirm_password = request.form.get('confirm_password')
+
+    # Validate current password
+    if not current_user.check_password(current_password):
+        flash('Current password is incorrect', 'error')
+        return redirect(url_for('auth.account'))
+
+    # Validate new password
+    if len(new_password) < 6:
+        flash('New password must be at least 6 characters', 'error')
+        return redirect(url_for('auth.account'))
+
+    # Validate password match
+    if new_password != confirm_password:
+        flash('New passwords do not match', 'error')
+        return redirect(url_for('auth.account'))
+
+    # Update password
+    current_user.set_password(new_password)
+    db.session.commit()
+
+    flash('Password updated successfully!', 'success')
+    return redirect(url_for('auth.account'))

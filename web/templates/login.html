@@ -247,11 +247,13 @@
 <body>
     <div class="container">
         <div class="card">
-            <div class="logo-container">
-                <div class="logo">Q</div>
-                <h1>Welcome Back</h1>
-                <p class="subtitle">Log in to your Qunex Trade account</p>
-            </div>
+            <a href="/" style="text-decoration: none;">
+                <div class="logo-container">
+                    <div class="logo">Q</div>
+                    <h1>Welcome Back</h1>
+                    <p class="subtitle">Log in to your Qunex Trade account</p>
+                </div>
+            </a>
 
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
