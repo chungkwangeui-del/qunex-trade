@@ -94,6 +94,43 @@ def account():
     return render_template('account.html', user=current_user)
 
 
+@auth.route('/admin/dashboard')
+@login_required
+def admin_dashboard():
+    """Admin dashboard - only accessible to admin users"""
+    import os
+
+    # Check if user is admin (you can add is_admin field to User model later)
+    # For now, check if email is the admin email
+    admin_email = os.getenv('ADMIN_EMAIL', 'kwangui2@illinois.edu')
+
+    if current_user.email != admin_email:
+        flash('Unauthorized access', 'error')
+        return redirect(url_for('index'))
+
+    # Get all users
+    all_users = User.query.order_by(User.created_at.desc()).all()
+
+    # Calculate statistics
+    total_users = len(all_users)
+    free_users = len([u for u in all_users if u.subscription_tier == 'free'])
+    pro_users = len([u for u in all_users if u.subscription_tier == 'pro'])
+    premium_users = len([u for u in all_users if u.subscription_tier == 'premium'])
+
+    # Calculate monthly revenue
+    monthly_revenue = (pro_users * 19.99) + (premium_users * 49.99)
+
+    stats = {
+        'total_users': total_users,
+        'free_users': free_users,
+        'pro_users': pro_users,
+        'premium_users': premium_users,
+        'monthly_revenue': monthly_revenue
+    }
+
+    return render_template('admin_dashboard.html', users=all_users, stats=stats)
+
+
 @auth.route('/admin/upgrade-user/<email>/<tier>')
 def admin_upgrade_user(email, tier):
     """Admin endpoint to upgrade users (use with caution!)"""
