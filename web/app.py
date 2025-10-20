@@ -5,12 +5,20 @@ With user authentication, subscriptions, and premium features
 
 from flask import Flask, render_template, jsonify
 from flask_login import LoginManager, login_required, current_user
-from database import db, User
-from auth import auth
-from payments import payments
 import pandas as pd
 import os
 from datetime import datetime, timedelta
+
+# Import database and blueprints
+try:
+    from database import db, User
+    from auth import auth
+    from payments import payments
+except ImportError:
+    # If running from parent directory
+    from web.database import db, User
+    from web.auth import auth
+    from web.payments import payments
 
 app = Flask(__name__)
 

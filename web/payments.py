@@ -4,9 +4,13 @@ Payment processing with Stripe
 
 from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify
 from flask_login import login_required, current_user
-from web.database import db, Payment
 from datetime import datetime, timedelta
 import os
+
+try:
+    from database import db, Payment
+except ImportError:
+    from web.database import db, Payment
 
 payments = Blueprint('payments', __name__)
 
