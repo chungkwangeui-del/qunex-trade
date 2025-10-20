@@ -25,12 +25,23 @@ def login():
         password = request.form.get('password')
         remember = True if request.form.get('remember') else False
 
+        print(f"[DEBUG] Login attempt for email: {email}")
+
         user = User.query.filter_by(email=email).first()
 
-        if not user or not user.check_password(password):
+        if not user:
+            print(f"[DEBUG] User not found: {email}")
             flash('Invalid email or password', 'error')
             return redirect(url_for('auth.login'))
 
+        print(f"[DEBUG] User found: {user.username}, checking password...")
+
+        if not user.check_password(password):
+            print(f"[DEBUG] Password check failed for {email}")
+            flash('Invalid email or password', 'error')
+            return redirect(url_for('auth.login'))
+
+        print(f"[DEBUG] Login successful for {email}")
         login_user(user, remember=remember)
         next_page = request.args.get('next')
         return redirect(next_page) if next_page else redirect(url_for('index'))
@@ -49,14 +60,18 @@ def signup():
         username = request.form.get('username')
         password = request.form.get('password')
 
+        print(f"[DEBUG] Signup attempt - Email: {email}, Username: {username}")
+
         # Check if user exists
         user = User.query.filter_by(email=email).first()
         if user:
+            print(f"[DEBUG] Email already exists: {email}")
             flash('Email already exists', 'error')
             return redirect(url_for('auth.signup'))
 
         user = User.query.filter_by(username=username).first()
         if user:
+            print(f"[DEBUG] Username already taken: {username}")
             flash('Username already taken', 'error')
             return redirect(url_for('auth.signup'))
 
@@ -69,8 +84,12 @@ def signup():
         )
         new_user.set_password(password)
 
+        print(f"[DEBUG] Creating new user: {username}")
+
         db.session.add(new_user)
         db.session.commit()
+
+        print(f"[DEBUG] User created successfully: {new_user.id}")
 
         login_user(new_user)
         flash('Account created successfully!', 'success')
