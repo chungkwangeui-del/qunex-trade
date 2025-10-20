@@ -31,7 +31,18 @@ app = Flask(__name__)
 
 # Configuration
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev-secret-key-change-in-production')
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///qunextrade.db'
+
+# Database configuration - Use PostgreSQL in production, SQLite in development
+DATABASE_URL = os.getenv('DATABASE_URL')
+if DATABASE_URL:
+    # Render provides DATABASE_URL starting with postgres://, but SQLAlchemy needs postgresql://
+    if DATABASE_URL.startswith('postgres://'):
+        DATABASE_URL = DATABASE_URL.replace('postgres://', 'postgresql://', 1)
+    app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
+else:
+    # Local development - use SQLite
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///qunextrade.db'
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Email configuration (Gmail SMTP)

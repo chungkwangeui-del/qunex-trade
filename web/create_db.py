@@ -4,47 +4,70 @@ Simple database creation script
 
 from flask import Flask
 from database import db, User
+import os
 
 # Create Flask app
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'dev-secret-key'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///qunextrade.db'
+
+# Database configuration - Use PostgreSQL in production, SQLite in development
+DATABASE_URL = os.getenv('DATABASE_URL')
+if DATABASE_URL:
+    # Render provides DATABASE_URL starting with postgres://, but SQLAlchemy needs postgresql://
+    if DATABASE_URL.startswith('postgres://'):
+        DATABASE_URL = DATABASE_URL.replace('postgres://', 'postgresql://', 1)
+    app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
+    print("Using PostgreSQL database")
+else:
+    # Local development - use SQLite
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///qunextrade.db'
+    print("Using SQLite database")
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Initialize database
 db.init_app(app)
 
 with app.app_context():
-    # Drop and recreate all tables
-    print("Dropping existing tables...")
-    db.drop_all()
-
-    print("Creating tables...")
+    # Create tables if they don't exist (won't drop existing data)
+    print("Creating/updating database tables...")
     db.create_all()
 
-    # Create admin account
-    print("\nCreating admin account...")
-    admin = User(
-        email='admin@qunextrade.com',
-        username='admin',
-        subscription_tier='developer',
-        subscription_status='active'
-    )
-    admin.set_password('admin123')
+    # Check if admin account exists
+    admin = db.session.execute(
+        db.select(User).filter_by(email='admin@qunextrade.com')
+    ).scalar_one_or_none()
 
-    db.session.add(admin)
+    if not admin:
+        # Create admin account only if it doesn't exist
+        print("\nCreating admin account...")
+        admin = User(
+            email='admin@qunextrade.com',
+            username='admin',
+            email_verified=True,
+            subscription_tier='developer',
+            subscription_status='active'
+        )
+        admin.set_password('admin123')
+        db.session.add(admin)
 
-    # Create test user
-    print("Creating test user...")
-    test_user = User(
-        email='test@test.com',
-        username='testuser',
-        subscription_tier='free',
-        subscription_status='active'
-    )
-    test_user.set_password('test123')
+    # Check if test user exists
+    test_user = db.session.execute(
+        db.select(User).filter_by(email='test@test.com')
+    ).scalar_one_or_none()
 
-    db.session.add(test_user)
+    if not test_user:
+        # Create test user only if it doesn't exist
+        print("Creating test user...")
+        test_user = User(
+            email='test@test.com',
+            username='testuser',
+            email_verified=True,
+            subscription_tier='free',
+            subscription_status='active'
+        )
+        test_user.set_password('test123')
+        db.session.add(test_user)
 
     # Commit
     db.session.commit()
