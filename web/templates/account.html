@@ -138,6 +138,15 @@
             box-shadow: 0 0 20px rgba(255, 0, 110, 0.3);
         }
 
+        .badge.developer {
+            background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
+            color: #000;
+            font-weight: 800;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.6);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
         .badge.active {
             background: rgba(0, 255, 136, 0.2);
             color: var(--success);
@@ -312,6 +321,15 @@
                 <span class="info-label">Price</span>
                 <span class="info-value">$49.99/month</span>
             </div>
+            {% elif user.subscription_tier == 'developer' %}
+            <div class="info-row">
+                <span class="info-label">Access Level</span>
+                <span class="info-value">FULL ACCESS - Site Creator</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Price</span>
+                <span class="info-value">Complimentary</span>
+            </div>
             {% endif %}
 
             <div class="actions">
@@ -345,7 +363,7 @@
             </div>
             <div class="info-row">
                 <span class="info-label">API Access</span>
-                <span class="info-value">{{ '✓' if user.subscription_tier == 'premium' else '✗' }}</span>
+                <span class="info-value">{{ '✓' if user.subscription_tier in ['premium', 'developer'] else '✗' }}</span>
             </div>
             <div class="info-row">
                 <span class="info-label">Priority Support</span>

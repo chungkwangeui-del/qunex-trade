@@ -135,8 +135,9 @@ def admin_dashboard():
     free_users = len([u for u in all_users if u.subscription_tier == 'free'])
     pro_users = len([u for u in all_users if u.subscription_tier == 'pro'])
     premium_users = len([u for u in all_users if u.subscription_tier == 'premium'])
+    developer_users = len([u for u in all_users if u.subscription_tier == 'developer'])
 
-    # Calculate monthly revenue
+    # Calculate monthly revenue (developer tier is free/internal)
     monthly_revenue = (pro_users * 19.99) + (premium_users * 49.99)
 
     stats = {
@@ -144,6 +145,7 @@ def admin_dashboard():
         'free_users': free_users,
         'pro_users': pro_users,
         'premium_users': premium_users,
+        'developer_users': developer_users,
         'monthly_revenue': monthly_revenue
     }
 
@@ -160,7 +162,7 @@ def admin_upgrade_user(email, tier):
     if request.args.get('password') != admin_password:
         return jsonify({'error': 'Unauthorized'}), 403
 
-    if tier not in ['free', 'pro', 'premium']:
+    if tier not in ['free', 'pro', 'premium', 'developer']:
         return jsonify({'error': 'Invalid tier'}), 400
 
     user = User.query.filter_by(email=email).first()

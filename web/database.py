@@ -18,7 +18,7 @@ class User(UserMixin, db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     # Subscription info
-    subscription_tier = db.Column(db.String(20), default='free')  # free, pro, premium
+    subscription_tier = db.Column(db.String(20), default='free')  # free, pro, premium, developer
     subscription_status = db.Column(db.String(20), default='inactive')  # active, inactive, cancelled
     subscription_start = db.Column(db.DateTime, nullable=True)
     subscription_end = db.Column(db.DateTime, nullable=True)
@@ -35,11 +35,15 @@ class User(UserMixin, db.Model):
 
     def is_pro(self):
         """Check if user has Pro subscription"""
-        return self.subscription_tier in ['pro', 'premium'] and self.subscription_status == 'active'
+        return self.subscription_tier in ['pro', 'premium', 'developer'] and self.subscription_status == 'active'
 
     def is_premium(self):
         """Check if user has Premium subscription"""
         return self.subscription_tier == 'premium' and self.subscription_status == 'active'
+
+    def is_developer(self):
+        """Check if user is Developer (site creator)"""
+        return self.subscription_tier == 'developer' and self.subscription_status == 'active'
 
     def __repr__(self):
         return f'<User {self.username}>'
