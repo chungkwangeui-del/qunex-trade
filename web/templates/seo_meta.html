@@ -12,7 +12,7 @@
 
 <!-- Open Graph / Facebook -->
 <meta property="og:type" content="website">
-<meta property="og:url" content="{{ request.url or 'https://qunextrade.com/' }}">
+<meta property="og:url" content="{{ page_url or 'https://qunextrade.com/' }}">
 <meta property="og:title" content="{{ page_title or 'Qunex Trade - AI Penny Stock Intelligence' }}">
 <meta property="og:description" content="{{ page_description or 'AI-powered penny stock intelligence platform with 70%+ success rate. Get daily high-probability trading signals powered by advanced machine learning.' }}">
 <meta property="og:image" content="https://qunextrade.com/static/og-image.png">
@@ -23,7 +23,7 @@
 
 <!-- Twitter -->
 <meta property="twitter:card" content="summary_large_image">
-<meta property="twitter:url" content="{{ request.url or 'https://qunextrade.com/' }}">
+<meta property="twitter:url" content="{{ page_url or 'https://qunextrade.com/' }}">
 <meta property="twitter:title" content="{{ page_title or 'Qunex Trade - AI Penny Stock Intelligence' }}">
 <meta property="twitter:description" content="{{ page_description or 'AI-powered penny stock intelligence platform with 70%+ success rate. Get daily high-probability trading signals powered by advanced machine learning.' }}">
 <meta property="twitter:image" content="https://qunextrade.com/static/og-image.png">
@@ -37,7 +37,7 @@
 <meta name="apple-mobile-web-app-title" content="Qunex Trade">
 
 <!-- Canonical URL -->
-<link rel="canonical" href="{{ request.url or 'https://qunextrade.com/' }}">
+<link rel="canonical" href="{{ page_url or 'https://qunextrade.com/' }}">
 
 <!-- Schema.org JSON-LD -->
 <script type="application/ld+json">
