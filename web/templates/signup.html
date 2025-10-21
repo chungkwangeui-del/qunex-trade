@@ -292,6 +292,7 @@
             {% endwith %}
 
             <form method="POST" action="/auth/signup" id="signupForm">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <div class="form-group">
                     <label for="email">
                         Email
