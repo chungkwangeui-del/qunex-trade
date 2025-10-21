@@ -26,42 +26,11 @@ oauth = OAuth()
 RECAPTCHA_SECRET_KEY = os.getenv('RECAPTCHA_SECRET_KEY')
 
 def verify_recaptcha(token):
-    """Verify reCAPTCHA v3 token"""
-    if not RECAPTCHA_SECRET_KEY:
-        # If no secret key, skip verification (for development)
-        print("[WARNING] reCAPTCHA secret key not set. Skipping verification.")
-        return True
-
-    try:
-        response = requests.post(
-            'https://www.google.com/recaptcha/api/siteverify',
-            data={
-                'secret': RECAPTCHA_SECRET_KEY,
-                'response': token
-            },
-            timeout=5
-        )
-
-        result = response.json()
-
-        # Check if verification was successful
-        if result.get('success'):
-            score = result.get('score', 0)
-            # reCAPTCHA v3 returns a score (0.0 - 1.0)
-            # 0.5 is a good threshold (higher = more likely human)
-            if score >= 0.5:
-                return True
-            else:
-                print(f"[reCAPTCHA] Low score: {score}")
-                return False
-        else:
-            print(f"[reCAPTCHA] Verification failed: {result.get('error-codes')}")
-            return False
-
-    except Exception as e:
-        print(f"[reCAPTCHA] Error during verification: {e}")
-        # In case of error, allow the request (don't block legitimate users)
-        return True
+    """Verify reCAPTCHA v3 token - TEMPORARILY DISABLED"""
+    # DISABLED: reCAPTCHA v3 causing infinite loading issue on frontend
+    # TODO: Fix recaptcha.js form submission infinite loop before re-enabling
+    print("[INFO] reCAPTCHA verification temporarily disabled")
+    return True
 
 # Google OAuth configuration (only if credentials are set)
 GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
