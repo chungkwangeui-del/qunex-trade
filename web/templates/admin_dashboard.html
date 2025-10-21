@@ -200,6 +200,13 @@
             color: white;
         }
 
+        .badge.beta {
+            background: linear-gradient(135deg, #ffd93d 0%, #ff6b35 100%);
+            color: white;
+            font-weight: 700;
+            box-shadow: 0 0 10px rgba(255, 107, 53, 0.3);
+        }
+
         .badge.developer {
             background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
             color: #000;
@@ -327,18 +334,27 @@
                             <td class="date">{{ user.created_at.strftime('%Y-%m-%d %H:%M') if user.created_at else 'N/A' }}</td>
                             <td>
                                 {% if user.subscription_tier == 'free' %}
+                                <button class="btn" onclick="upgradeUser('{{ user.email }}', 'beta')">→ Beta</button>
                                 <button class="btn" onclick="upgradeUser('{{ user.email }}', 'pro')">→ Pro</button>
                                 <button class="btn" onclick="upgradeUser('{{ user.email }}', 'premium')">→ Premium</button>
                                 <button class="btn" onclick="upgradeUser('{{ user.email }}', 'developer')">→ Developer</button>
                                 {% elif user.subscription_tier == 'pro' %}
+                                <button class="btn" onclick="upgradeUser('{{ user.email }}', 'beta')">→ Beta</button>
                                 <button class="btn" onclick="upgradeUser('{{ user.email }}', 'premium')">→ Premium</button>
                                 <button class="btn" onclick="upgradeUser('{{ user.email }}', 'developer')">→ Developer</button>
                                 <button class="btn" onclick="upgradeUser('{{ user.email }}', 'free')">→ Free</button>
                                 {% elif user.subscription_tier == 'premium' %}
+                                <button class="btn" onclick="upgradeUser('{{ user.email }}', 'beta')">→ Beta</button>
                                 <button class="btn" onclick="upgradeUser('{{ user.email }}', 'developer')">→ Developer</button>
                                 <button class="btn" onclick="upgradeUser('{{ user.email }}', 'pro')">→ Pro</button>
                                 <button class="btn" onclick="upgradeUser('{{ user.email }}', 'free')">→ Free</button>
+                                {% elif user.subscription_tier == 'beta' %}
+                                <button class="btn" onclick="upgradeUser('{{ user.email }}', 'developer')">→ Developer</button>
+                                <button class="btn" onclick="upgradeUser('{{ user.email }}', 'premium')">→ Premium</button>
+                                <button class="btn" onclick="upgradeUser('{{ user.email }}', 'pro')">→ Pro</button>
+                                <button class="btn" onclick="upgradeUser('{{ user.email }}', 'free')">→ Free</button>
                                 {% else %}
+                                <button class="btn" onclick="upgradeUser('{{ user.email }}', 'beta')">→ Beta</button>
                                 <button class="btn" onclick="upgradeUser('{{ user.email }}', 'premium')">→ Premium</button>
                                 <button class="btn" onclick="upgradeUser('{{ user.email }}', 'pro')">→ Pro</button>
                                 <button class="btn" onclick="upgradeUser('{{ user.email }}', 'free')">→ Free</button>
