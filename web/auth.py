@@ -419,7 +419,9 @@ Qunex Trade Team
         mail.send(msg)
         return jsonify({'success': True, 'message': 'Verification code sent!'})
     except Exception as e:
-        print(f"Error sending email: {e}")
+        import traceback
+        print(f"❌ Error sending email: {type(e).__name__}: {e}")
+        print(f"Full traceback:\n{traceback.format_exc()}")
 
         # FALLBACK: Return code in response when email fails
         # This allows signup to work even when email service is unavailable
