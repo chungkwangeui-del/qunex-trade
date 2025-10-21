@@ -637,11 +637,19 @@
             {% if not has_access %}
             <div class="locked-overlay" style="position: absolute;">
                 <div class="locked-content">
+                    {% if user_tier in ['pro', 'premium'] %}
+                    <div class="lock-icon">📅</div>
+                    <h3 class="locked-title" style="font-size: 1.5em;">Beta Feature</h3>
+                    <p class="locked-subtitle" style="font-size: 1em;">
+                        Economic Calendar is in beta testing. Coming soon to Pro+!
+                    </p>
+                    {% else %}
                     <div class="lock-icon">📅</div>
                     <h3 class="locked-title" style="font-size: 1.5em;">Economic Calendar Locked</h3>
                     <p class="locked-subtitle" style="font-size: 1em;">
-                        Track critical Fed meetings and economic events with Pro access.
+                        Track critical Fed meetings and economic events - Coming soon!
                     </p>
+                    {% endif %}
                 </div>
             </div>
             {% endif %}
@@ -675,14 +683,27 @@
         <div class="news-grid {% if not has_access %}blurred{% endif %}" id="news-list">
 
             {% if not has_access %}
-            <!-- Locked Overlay for Free/Guest Users -->
+            <!-- Locked Overlay -->
             <div class="locked-overlay">
                 <div class="locked-content">
+                    {% if user_tier in ['pro', 'premium'] %}
+                    <!-- Coming Soon for Pro/Premium Users -->
+                    <div class="lock-icon">🚧</div>
+                    <h2 class="locked-title">Feature in Development</h2>
+                    <p class="locked-subtitle">
+                        News Section is currently in beta testing. This feature will be available to all Pro+ subscribers soon!
+                    </p>
+                    <p style="color: var(--text-secondary); font-size: 0.9em; margin-top: 15px;">
+                        Want early access? Contact us to join our Beta Testing program.
+                    </p>
+                    {% else %}
+                    <!-- Locked for Free/Guest Users -->
                     <div class="lock-icon">🔒</div>
                     <h2 class="locked-title">Premium Feature Locked</h2>
                     <p class="locked-subtitle">
-                        Real-time market news analysis with AI-powered insights is available for Pro subscribers and above.
+                        Real-time market news analysis with AI-powered insights is coming soon for Pro subscribers!
                     </p>
+                    {% endif %}
 
                     <div class="upgrade-benefits">
                         <div class="benefit-item">

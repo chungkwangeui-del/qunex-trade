@@ -245,15 +245,16 @@ def news():
     sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
     # Check user access level
-    # Tier hierarchy: Free < Pro < Premium < Beta < Developer
-    # Pro and above can access News Section
+    # Tier hierarchy: Free < Pro < Premium < Beta Tester < Developer
+    # News Section is in BETA - only Beta Testers and Developers can access
     has_access = False
     user_tier = 'guest'
 
     if current_user.is_authenticated:
         user_tier = current_user.subscription_tier
-        # Grant access to Pro and above (Premium, Beta, Developer)
-        if user_tier in ['pro', 'premium', 'beta', 'developer']:
+        # Grant access to Beta Testers and Developers only
+        # Pro and Premium users will see "Coming Soon" overlay
+        if user_tier in ['beta', 'developer']:
             has_access = True
 
     try:
