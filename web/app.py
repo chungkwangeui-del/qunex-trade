@@ -6,6 +6,9 @@ System upgrade in progress - Kiwoom API integration
 from flask import Flask, render_template, jsonify, request
 from flask_login import LoginManager, login_required, current_user
 from flask_mail import Mail
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+from flask_wtf.csrf import CSRFProtect
 import os
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
@@ -16,16 +19,11 @@ load_dotenv()
 # MAINTENANCE MODE FLAG
 MAINTENANCE_MODE = False  # Disabled - show website shell
 
-# Import database and blueprints
+# Import database first
 try:
     from database import db, User
-    from auth import auth, oauth
-    from payments import payments
 except ImportError:
-    # If running from parent directory
     from web.database import db, User
-    from web.auth import auth, oauth
-    from web.payments import payments
 
 app = Flask(__name__)
 
@@ -47,6 +45,22 @@ else:
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+# Database connection pooling (performance optimization)
+app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+    'pool_size': 10,  # Number of connections to keep open
+    'pool_recycle': 3600,  # Recycle connections after 1 hour
+    'pool_pre_ping': True,  # Verify connections before using them
+    'max_overflow': 20,  # Max connections beyond pool_size
+    'pool_timeout': 30  # Wait 30 seconds for a connection before timeout
+}
+
+# Security configuration
+app.config['SESSION_COOKIE_SECURE'] = True  # HTTPS only
+app.config['SESSION_COOKIE_HTTPONLY'] = True  # Prevent JavaScript access
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'  # CSRF protection
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
+app.config['WTF_CSRF_TIME_LIMIT'] = None  # CSRF token doesn't expire
+
 # Email configuration (Gmail SMTP)
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
@@ -55,15 +69,38 @@ app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')  # Gmail address
 app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')  # Gmail app password
 app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_USERNAME', 'noreply@qunextrade.com')
 
-# Initialize OAuth with app
-oauth.init_app(app)
-
 # Initialize extensions
 db.init_app(app)
 mail = Mail(app)
+csrf = CSRFProtect(app)
+
+# Initialize rate limiter
+limiter = Limiter(
+    app=app,
+    key_func=get_remote_address,
+    default_limits=["200 per day", "50 per hour"],
+    storage_uri="memory://"
+)
+
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'auth.login'
+
+# Import blueprints after limiter is initialized
+try:
+    import auth as auth_module
+    from auth import auth, oauth
+    from payments import payments
+except ImportError:
+    import web.auth as auth_module
+    from web.auth import auth, oauth
+    from web.payments import payments
+
+# Inject limiter into auth module
+auth_module.limiter = limiter
+
+# Initialize OAuth with app
+oauth.init_app(app)
 
 # Register blueprints
 app.register_blueprint(auth, url_prefix='/auth')
@@ -76,6 +113,17 @@ def load_user(user_id):
 # Create tables
 with app.app_context():
     db.create_all()
+
+# Security headers middleware
+@app.after_request
+def set_security_headers(response):
+    """Add security headers to all responses"""
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-Frame-Options'] = 'SAMEORIGIN'
+    response.headers['X-XSS-Protection'] = '1; mode=block'
+    response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+    response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self' 'unsafe-inline' https://accounts.google.com https://cdn.jsdelivr.net https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https:; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://accounts.google.com; frame-src 'self' https://accounts.google.com;"
+    return response
 
 # Maintenance mode middleware
 @app.before_request
