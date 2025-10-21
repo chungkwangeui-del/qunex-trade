@@ -74,6 +74,10 @@ db.init_app(app)
 mail = Mail(app)
 csrf = CSRFProtect(app)
 
+# Exempt email verification endpoints from CSRF protection
+csrf.exempt('auth.send_verification_code')
+csrf.exempt('auth.verify_code')
+
 # Initialize rate limiter
 limiter = Limiter(
     app=app,

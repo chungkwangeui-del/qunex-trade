@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Market News - Qunex Trade</title>
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
 
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
@@ -606,6 +607,43 @@
         .empty-state p {
             color: var(--text-secondary);
             font-size: 1.1em;
+        }
+
+        /* Light Mode Overrides */
+        .dark-mode .calendar-section,
+        .dark-mode .locked-overlay {
+            background: rgba(232, 240, 247, 0.95);
+        }
+
+        .dark-mode .calendar-section {
+            background: var(--bg-card);
+            border-color: var(--border);
+        }
+
+        .dark-mode .locked-overlay {
+            background: rgba(212, 220, 229, 0.95);
+        }
+
+        .dark-mode .calendar-header h2,
+        .dark-mode .locked-title {
+            color: var(--text-primary);
+        }
+
+        .dark-mode .calendar-event {
+            background: rgba(255, 255, 255, 0.6);
+            border-color: var(--border);
+        }
+
+        .dark-mode .event-date,
+        .dark-mode .event-title,
+        .dark-mode .event-impact,
+        .dark-mode .locked-subtitle,
+        .dark-mode .locked-coming-soon {
+            color: var(--text-primary) !important;
+        }
+
+        .dark-mode .event-description {
+            color: var(--text-secondary) !important;
         }
     </style>
 </head>
