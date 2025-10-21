@@ -101,15 +101,15 @@ oauth.init_app(app)
 app.register_blueprint(auth, url_prefix='/auth')
 app.register_blueprint(payments, url_prefix='/payments')
 
-# Apply rate limiting to auth routes
-limiter.limit("10 per minute")(auth.view_functions['login'])
-limiter.limit("5 per minute")(auth.view_functions['signup'])
-limiter.limit("3 per minute")(auth.view_functions['forgot_password'])
-limiter.limit("5 per minute")(auth.view_functions['reset_password'])
-limiter.limit("3 per minute")(auth.view_functions['send_verification_code'])
-limiter.limit("10 per minute")(auth.view_functions['verify_code'])
-limiter.limit("10 per minute")(auth.view_functions['google_login'])
-limiter.limit("10 per minute")(auth.view_functions['google_callback'])
+# Apply rate limiting to auth routes (after blueprint registration)
+limiter.limit("10 per minute")(app.view_functions['auth.login'])
+limiter.limit("5 per minute")(app.view_functions['auth.signup'])
+limiter.limit("3 per minute")(app.view_functions['auth.forgot_password'])
+limiter.limit("5 per minute")(app.view_functions['auth.reset_password'])
+limiter.limit("3 per minute")(app.view_functions['auth.send_verification_code'])
+limiter.limit("10 per minute")(app.view_functions['auth.verify_code'])
+limiter.limit("10 per minute")(app.view_functions['auth.google_login'])
+limiter.limit("10 per minute")(app.view_functions['auth.google_callback'])
 
 @login_manager.user_loader
 def load_user(user_id):
