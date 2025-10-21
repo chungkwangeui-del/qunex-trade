@@ -2,9 +2,18 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <title>Login - Qunex Trade</title>
     <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+
+    <!-- SEO Meta Tags -->
+    {% set page_title = "Login - Qunex Trade" %}
+    {% set page_description = "Login to your Qunex Trade account to access AI-powered penny stock predictions and trading signals." %}
+    {% include 'seo_meta.html' %}
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='mobile.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='skeleton-loading.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
@@ -353,5 +362,6 @@
     <!-- UI Enhancement Scripts -->
     <script src="{{ url_for('static', filename='toast.js') }}"></script>
     <script src="{{ url_for('static', filename='ui-enhancements.js') }}"></script>
+    <script src="{{ url_for('static', filename='recaptcha.js') }}"></script>
 </body>
 </html>

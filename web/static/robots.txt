@@ -1,0 +1,17 @@
+User-agent: *
+Allow: /
+Allow: /about
+Allow: /payments/pricing
+Allow: /auth/login
+Allow: /auth/signup
+
+Disallow: /auth/logout
+Disallow: /auth/account
+Disallow: /admin
+Disallow: /api/
+
+# Sitemap
+Sitemap: https://qunextrade.com/sitemap.xml
+
+# Crawl-delay for politeness
+Crawl-delay: 1

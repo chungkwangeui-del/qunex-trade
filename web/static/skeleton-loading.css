@@ -1,0 +1,365 @@
+/* Skeleton Loading Screens */
+
+/* Base skeleton styles */
+.skeleton {
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.05) 25%,
+        rgba(255, 255, 255, 0.1) 50%,
+        rgba(255, 255, 255, 0.05) 75%
+    );
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s ease-in-out infinite;
+    border-radius: 8px;
+}
+
+@keyframes skeleton-loading {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* Skeleton components */
+.skeleton-text {
+    height: 16px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+}
+
+.skeleton-text.large {
+    height: 24px;
+}
+
+.skeleton-text.small {
+    height: 12px;
+}
+
+.skeleton-title {
+    height: 32px;
+    width: 60%;
+    margin-bottom: 20px;
+    border-radius: 8px;
+}
+
+.skeleton-card {
+    height: 200px;
+    border-radius: 16px;
+    margin-bottom: 20px;
+}
+
+.skeleton-table-row {
+    height: 50px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+}
+
+.skeleton-button {
+    height: 44px;
+    width: 150px;
+    border-radius: 10px;
+}
+
+.skeleton-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+}
+
+.skeleton-stat {
+    height: 100px;
+    border-radius: 12px;
+}
+
+/* Skeleton layouts */
+.skeleton-layout-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 40px;
+}
+
+.skeleton-layout-table {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.skeleton-layout-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+/* Hide content while loading */
+.loading-state .actual-content {
+    display: none;
+}
+
+.loading-state .skeleton-content {
+    display: block;
+}
+
+/* Show content when loaded */
+.loaded-state .skeleton-content {
+    display: none;
+}
+
+.loaded-state .actual-content {
+    display: block;
+    animation: fadeIn 0.3s ease-in;
+}
+
+/* Pulse effect for important loading */
+.skeleton-pulse {
+    animation: skeleton-pulse 1s ease-in-out infinite;
+}
+
+@keyframes skeleton-pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+/* Ripple Effect for Buttons */
+.ripple {
+    position: relative;
+    overflow: hidden;
+}
+
+.ripple::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.5);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.ripple:active::after {
+    width: 300px;
+    height: 300px;
+}
+
+/* Progress Bar */
+.progress-bar-container {
+    width: 100%;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    overflow: hidden;
+    margin: 20px 0;
+}
+
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    width: 0%;
+    transition: width 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.progress-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.3),
+        transparent
+    );
+    animation: progress-shine 1.5s infinite;
+}
+
+@keyframes progress-shine {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+/* Form validation progress */
+.validation-progress {
+    display: flex;
+    gap: 10px;
+    margin: 15px 0;
+}
+
+.validation-step {
+    flex: 1;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    transition: background 0.3s ease;
+}
+
+.validation-step.complete {
+    background: var(--primary);
+}
+
+.validation-step.active {
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    animation: progress-shine 1.5s infinite;
+}
+
+/* Loading dots */
+.loading-dots {
+    display: inline-flex;
+    gap: 5px;
+}
+
+.loading-dots span {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--primary);
+    animation: loading-dot 1.4s infinite;
+}
+
+.loading-dots span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.loading-dots span:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes loading-dot {
+    0%, 80%, 100% {
+        transform: scale(0.8);
+        opacity: 0.5;
+    }
+    40% {
+        transform: scale(1.2);
+        opacity: 1;
+    }
+}
+
+/* Spinner */
+.spinner {
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.spinner.large {
+    width: 40px;
+    height: 40px;
+    border-width: 4px;
+}
+
+/* Hover scale effect */
+.hover-scale-effect {
+    transition: transform 0.2s ease;
+}
+
+.hover-scale-effect:hover {
+    transform: scale(1.05);
+}
+
+.hover-scale-effect:active {
+    transform: scale(0.98);
+}
+
+/* Checkbox animation */
+.checkbox-animated {
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--border);
+    border-radius: 4px;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.checkbox-animated:checked {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    border-color: var(--primary);
+}
+
+.checkbox-animated:checked::after {
+    content: '✓';
+    position: absolute;
+    color: white;
+    font-size: 14px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    animation: checkbox-pop 0.3s ease forwards;
+}
+
+@keyframes checkbox-pop {
+    to {
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+/* Input focus glow */
+.input-glow {
+    transition: all 0.3s ease;
+}
+
+.input-glow:focus {
+    box-shadow:
+        0 0 0 3px rgba(0, 217, 255, 0.1),
+        0 0 20px rgba(0, 217, 255, 0.3),
+        0 0 40px rgba(0, 217, 255, 0.1);
+}
+
+/* Success checkmark animation */
+.success-checkmark {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: block;
+    stroke-width: 3;
+    stroke: var(--primary);
+    stroke-miterlimit: 10;
+    margin: 20px auto;
+    box-shadow: inset 0px 0px 0px var(--primary);
+    animation: fill-success 0.4s ease-in-out 0.4s forwards,
+               scale-success 0.3s ease-in-out 0.9s both;
+}
+
+@keyframes fill-success {
+    100% {
+        box-shadow: inset 0px 0px 0px 30px var(--primary);
+    }
+}
+
+@keyframes scale-success {
+    0%, 100% {
+        transform: none;
+    }
+    50% {
+        transform: scale3d(1.1, 1.1, 1);
+    }
+}

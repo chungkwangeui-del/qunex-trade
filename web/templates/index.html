@@ -2,10 +2,23 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <title>Qunex Trade - AI Penny Stock Intelligence</title>
     <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+
+    <!-- SEO Meta Tags -->
+    {% set page_title = "Qunex Trade - AI Penny Stock Intelligence Platform" %}
+    {% set page_description = "Get daily AI-powered penny stock predictions with 70%+ success rate. Advanced machine learning predicts 50%+ intraday gains. Free 3 signals daily." %}
+    {% set is_homepage = True %}
+    {% include 'seo_meta.html' %}
+
+    <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='mobile.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='skeleton-loading.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='animations.css') }}"  >
     <style>
         * {
             margin: 0;
@@ -674,5 +687,6 @@
     <!-- UI Enhancement Scripts -->
     <script src="{{ url_for('static', filename='toast.js') }}"></script>
     <script src="{{ url_for('static', filename='ui-enhancements.js') }}"></script>
+    <script src="{{ url_for('static', filename='session-timeout.js') }}"></script>
 </body>
 </html>

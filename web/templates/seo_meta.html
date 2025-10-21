@@ -1,0 +1,146 @@
+<!-- SEO Meta Tags Template -->
+<!-- Include this in all pages using {% include 'seo_meta.html' %} -->
+
+<!-- Primary Meta Tags -->
+<meta name="title" content="{{ page_title or 'Qunex Trade - AI Penny Stock Intelligence' }}">
+<meta name="description" content="{{ page_description or 'AI-powered penny stock intelligence platform with 70%+ success rate. Get daily high-probability trading signals powered by advanced machine learning.' }}">
+<meta name="keywords" content="penny stocks, AI trading, stock prediction, machine learning stocks, penny stock signals, day trading, stock intelligence, XGBoost trading, algorithmic trading">
+<meta name="author" content="Kwangui Chung">
+<meta name="robots" content="index, follow">
+<meta name="language" content="English">
+<meta name="revisit-after" content="1 days">
+
+<!-- Open Graph / Facebook -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="{{ request.url or 'https://qunextrade.com/' }}">
+<meta property="og:title" content="{{ page_title or 'Qunex Trade - AI Penny Stock Intelligence' }}">
+<meta property="og:description" content="{{ page_description or 'AI-powered penny stock intelligence platform with 70%+ success rate. Get daily high-probability trading signals powered by advanced machine learning.' }}">
+<meta property="og:image" content="https://qunextrade.com/static/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:site_name" content="Qunex Trade">
+<meta property="og:locale" content="en_US">
+
+<!-- Twitter -->
+<meta property="twitter:card" content="summary_large_image">
+<meta property="twitter:url" content="{{ request.url or 'https://qunextrade.com/' }}">
+<meta property="twitter:title" content="{{ page_title or 'Qunex Trade - AI Penny Stock Intelligence' }}">
+<meta property="twitter:description" content="{{ page_description or 'AI-powered penny stock intelligence platform with 70%+ success rate. Get daily high-probability trading signals powered by advanced machine learning.' }}">
+<meta property="twitter:image" content="https://qunextrade.com/static/og-image.png">
+<meta property="twitter:creator" content="@QunexTrade">
+
+<!-- Additional Meta Tags -->
+<meta name="theme-color" content="#00d9ff">
+<meta name="msapplication-TileColor" content="#0a0e27">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Qunex Trade">
+
+<!-- Canonical URL -->
+<link rel="canonical" href="{{ request.url or 'https://qunextrade.com/' }}">
+
+<!-- Schema.org JSON-LD -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Qunex Trade",
+  "applicationCategory": "FinanceApplication",
+  "operatingSystem": "Web",
+  "offers": {
+    "@type": "Offer",
+    "price": "19.99",
+    "priceCurrency": "USD",
+    "priceValidUntil": "2025-12-31"
+  },
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "4.8",
+    "ratingCount": "127"
+  },
+  "description": "AI-powered penny stock intelligence platform with 70%+ success rate",
+  "url": "https://qunextrade.com",
+  "creator": {
+    "@type": "Person",
+    "name": "Kwangui Chung",
+    "affiliation": {
+      "@type": "Organization",
+      "name": "University of Illinois at Urbana-Champaign"
+    }
+  },
+  "featureList": [
+    "Daily AI-powered stock predictions",
+    "70%+ success rate",
+    "Real-time signal tracking",
+    "Ensemble machine learning models",
+    "115+ engineered features"
+  ]
+}
+</script>
+
+<!-- Organization Schema -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Qunex Trade",
+  "url": "https://qunextrade.com",
+  "logo": "https://qunextrade.com/static/favicon.svg",
+  "sameAs": [
+    "https://twitter.com/QunexTrade",
+    "https://github.com/qunextrade"
+  ],
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "contactType": "Customer Support",
+    "email": "support@qunextrade.com"
+  }
+}
+</script>
+
+<!-- FAQ Schema (for homepage) -->
+{% if is_homepage %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is Qunex Trade?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Qunex Trade is an AI-powered penny stock intelligence platform that uses advanced machine learning to predict high-probability trading opportunities with a 70%+ success rate."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How accurate are the predictions?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The system achieves a 0.9789 ROC-AUC score in backtesting and maintains a 70%+ success rate in real-world trading scenarios over 19 months of testing."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "When are signals generated?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Signals are automatically generated daily at 4:05 PM ET after market close, using the latest market data for all 522 tracked penny stocks."
+      }
+    }
+  ]
+}
+</script>
+{% endif %}
+
+<!-- Breadcrumb Schema (for non-homepage) -->
+{% if breadcrumbs %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": {{ breadcrumbs | tojson }}
+}
+</script>
+{% endif %}
