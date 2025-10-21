@@ -340,11 +340,21 @@
         }
 
         /* News Grid */
+        .news-grid-container {
+            position: relative;
+            min-height: 500px;
+        }
+
         .news-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
             gap: 25px;
-            position: relative;
+        }
+
+        .news-grid.blurred {
+            filter: blur(10px);
+            pointer-events: none;
+            user-select: none;
         }
 
         /* Locked Content Overlay */
@@ -633,9 +643,9 @@
         </header>
 
         <!-- Economic Calendar -->
-        <div class="calendar-section {% if not has_access %}blurred{% endif %}">
+        <div class="calendar-section">
             {% if not has_access %}
-            <div class="locked-overlay" style="position: absolute;">
+            <div class="locked-overlay" style="position: absolute; z-index: 10;">
                 <div class="locked-content">
                     {% if user_tier in ['pro', 'premium'] %}
                     <div class="lock-icon">📅</div>
@@ -680,8 +690,7 @@
         </div>
 
         <!-- News Grid -->
-        <div class="news-grid {% if not has_access %}blurred{% endif %}" id="news-list">
-
+        <div class="news-grid-container">
             {% if not has_access %}
             <!-- Locked Overlay -->
             <div class="locked-overlay">
@@ -740,6 +749,8 @@
                 </div>
             </div>
             {% endif %}
+
+            <div class="news-grid {% if not has_access %}blurred{% endif %}" id="news-list">
             {% if news_data %}
                 {% for news in news_data %}
                 <div class="news-card importance-{{ news.importance }}" data-importance="{{ news.importance }}">
@@ -812,7 +823,8 @@
                     <p>Click "Refresh News" to collect and analyze the latest market news.</p>
                 </div>
             {% endif %}
-        </div>
+            </div> <!-- Close news-grid -->
+        </div> <!-- Close news-grid-container -->
     </div>
 
     <script>
