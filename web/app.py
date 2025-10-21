@@ -234,6 +234,71 @@ def privacy():
     """Privacy Policy"""
     return render_template('privacy.html')
 
+@app.route('/news')
+def news():
+    """Market News & Analysis"""
+    import json
+    import os
+    import sys
+
+    # Add parent directory to path for imports
+    sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+    try:
+        # Load analyzed news from JSON file
+        news_file = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'data', 'news_analysis.json')
+
+        if os.path.exists(news_file):
+            with open(news_file, 'r', encoding='utf-8') as f:
+                news_data = json.load(f)
+        else:
+            news_data = []
+
+        return render_template('news.html',
+                             news_data=news_data,
+                             user=current_user)
+    except Exception as e:
+        print(f"Error loading news: {e}")
+        return render_template('news.html',
+                             news_data=[],
+                             user=current_user)
+
+@app.route('/api/news/refresh')
+def api_refresh_news():
+    """Refresh news data (collects and analyzes latest news)"""
+    import sys
+    import os
+
+    # Add parent directory to path
+    sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+    try:
+        from src.news_collector import NewsCollector
+        from src.news_analyzer import NewsAnalyzer
+
+        # Collect news
+        collector = NewsCollector()
+        news_list = collector.collect_all_news(hours=24)
+
+        if not news_list:
+            return jsonify({'success': False, 'message': 'No news collected'})
+
+        # Analyze news
+        analyzer = NewsAnalyzer()
+        analyzed_news = analyzer.analyze_news_batch(news_list, max_items=20)
+
+        # Save analysis
+        analyzer.save_analysis(analyzed_news)
+
+        return jsonify({
+            'success': True,
+            'message': f'{len(analyzed_news)} news items analyzed',
+            'data': analyzed_news
+        })
+
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)})
+
 @app.route('/api/signals/today')
 def api_today_signals():
     """Today's signals API (requires authentication for full access)"""
