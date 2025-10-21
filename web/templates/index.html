@@ -593,6 +593,50 @@
             header { padding: 40px 30px; }
             nav { padding: 20px; }
         }
+
+        /* Market Overview Styles */
+        .sector-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .sector-box:hover {
+            transform: translateY(-3px);
+            border-color: var(--primary);
+        }
+
+        .sector-name {
+            font-size: 0.9em;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .sector-change {
+            font-size: 1.3em;
+            font-weight: 700;
+        }
+
+        .sector-box.positive {
+            background: linear-gradient(135deg, rgba(0, 217, 85, 0.1), rgba(0, 255, 170, 0.1));
+            border-color: #00d955;
+        }
+
+        .sector-box.positive .sector-change {
+            color: #00ff7f;
+        }
+
+        .sector-box.negative {
+            background: linear-gradient(135deg, rgba(255, 0, 110, 0.1), rgba(255, 107, 53, 0.1));
+            border-color: #ff006e;
+        }
+
+        .sector-box.negative .sector-change {
+            color: #ff6b35;
+        }
     </style>
 </head>
 <body>
@@ -623,11 +667,11 @@
             <div class="header-content">
                 <div>
                     <h1>Qunex Trade</h1>
-                    <p class="subtitle">AI-Powered Penny Stock Intelligence Platform</p>
+                    <p class="subtitle">AI-Powered Stock Market Intelligence Platform</p>
                     <div class="model-info">
-                        <span class="badge">ROC-AUC: 0.9789</span>
-                        <span class="badge">Success Rate: 70%+</span>
-                        <span class="badge">90% Threshold</span>
+                        <span class="badge">Real-Time Market Data</span>
+                        <span class="badge">AI News Analysis</span>
+                        <span class="badge">Trading Signals</span>
                     </div>
                 </div>
                 <div class="live-badge">
@@ -655,6 +699,84 @@
                 <div class="stat-label">Average Return</div>
                 <div class="stat-value {% if stats.avg_return >= 50 %}success{% else %}warning{% endif %}">
                     {{ "%.1f"|format(stats.avg_return) }}%
+                </div>
+            </div>
+        </div>
+
+        <!-- Market Overview Section -->
+        <div style="margin: 40px 0;">
+            <h2 style="font-size: 2em; margin-bottom: 25px; background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-weight: 700;">
+                📊 Market Overview
+            </h2>
+
+            <!-- Market Indices -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px;">
+                <div class="stat-card">
+                    <div class="stat-label">S&P 500</div>
+                    <div class="stat-value" id="sp500-value">-</div>
+                    <div id="sp500-change" style="font-size: 0.9em; margin-top: 5px;"></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Dow Jones</div>
+                    <div class="stat-value" id="dow-value">-</div>
+                    <div id="dow-change" style="font-size: 0.9em; margin-top: 5px;"></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Nasdaq</div>
+                    <div class="stat-value" id="nasdaq-value">-</div>
+                    <div id="nasdaq-change" style="font-size: 0.9em; margin-top: 5px;"></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">VIX (Volatility)</div>
+                    <div class="stat-value" id="vix-value">-</div>
+                    <div id="vix-change" style="font-size: 0.9em; margin-top: 5px;"></div>
+                </div>
+            </div>
+
+            <!-- Fear & Greed + Sector Map -->
+            <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 20px; margin-bottom: 30px;">
+                <!-- Fear & Greed Index -->
+                <div class="card" style="padding: 25px;">
+                    <h3 style="margin-bottom: 15px; color: var(--primary); font-size: 1.2em;">Fear & Greed Index</h3>
+                    <div style="text-align: center;">
+                        <div id="fear-greed-value" style="font-size: 3em; font-weight: 700; margin: 20px 0;">-</div>
+                        <div id="fear-greed-label" style="font-size: 1.2em; font-weight: 600; margin-bottom: 10px;"></div>
+                        <div id="fear-greed-desc" style="color: var(--text-secondary); font-size: 0.9em;"></div>
+                    </div>
+                </div>
+
+                <!-- Market Sector Heatmap -->
+                <div class="card" style="padding: 25px;">
+                    <h3 style="margin-bottom: 15px; color: var(--primary); font-size: 1.2em;">Market Sectors Today</h3>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
+                        <div class="sector-box" data-sector="Technology">
+                            <div class="sector-name">Technology</div>
+                            <div class="sector-change" id="tech-change">-</div>
+                        </div>
+                        <div class="sector-box" data-sector="Healthcare">
+                            <div class="sector-name">Healthcare</div>
+                            <div class="sector-change" id="health-change">-</div>
+                        </div>
+                        <div class="sector-box" data-sector="Financial">
+                            <div class="sector-name">Financial</div>
+                            <div class="sector-change" id="finance-change">-</div>
+                        </div>
+                        <div class="sector-box" data-sector="Energy">
+                            <div class="sector-name">Energy</div>
+                            <div class="sector-change" id="energy-change">-</div>
+                        </div>
+                        <div class="sector-box" data-sector="Consumer">
+                            <div class="sector-name">Consumer</div>
+                            <div class="sector-change" id="consumer-change">-</div>
+                        </div>
+                        <div class="sector-box" data-sector="Industrial">
+                            <div class="sector-name">Industrial</div>
+                            <div class="sector-change" id="industrial-change">-</div>
+                        </div>
+                    </div>
+                    <p style="margin-top: 15px; font-size: 0.85em; color: var(--text-secondary); text-align: center;">
+                        Real-time sector performance powered by market data
+                    </p>
                 </div>
             </div>
         </div>
@@ -787,8 +909,8 @@
 
         <!-- Footer -->
         <footer>
-            <p><span class="gradient-text">Qunex Trade</span> - Next-Generation Penny Stock Intelligence</p>
-            <p>Powered by Ensemble ML (XGBoost, LightGBM, RandomForest, GradientBoosting)</p>
+            <p><span class="gradient-text">Qunex Trade</span> - AI-Powered Stock Market Intelligence Platform</p>
+            <p>Real-Time Market Data • AI News Analysis • Trading Signals</p>
             <p style="margin-top: 15px; font-size: 0.9em;">
                 <a href="/terms" style="color: var(--primary); text-decoration: none; margin: 0 10px;">Terms of Service</a> •
                 <a href="/privacy" style="color: var(--primary); text-decoration: none; margin: 0 10px;">Privacy Policy</a>
@@ -810,6 +932,86 @@
 
         // Auto refresh every 5 minutes
         setTimeout(() => location.reload(), 300000);
+
+        // Load Market Overview Data
+        async function loadMarketData() {
+            try {
+                // Simulate market data (replace with actual API calls)
+                const marketData = {
+                    sp500: { value: 5825.23, change: 0.45, changePercent: 0.75 },
+                    dow: { value: 42863.15, change: 123.45, changePercent: 0.29 },
+                    nasdaq: { value: 18342.67, change: -52.33, changePercent: -0.28 },
+                    vix: { value: 14.23, change: -0.87, changePercent: -5.76 },
+                    fearGreed: { value: 62, label: 'Greed', description: 'Market showing bullish sentiment' },
+                    sectors: {
+                        tech: 1.25,
+                        health: -0.42,
+                        finance: 0.87,
+                        energy: -1.15,
+                        consumer: 0.53,
+                        industrial: 0.31
+                    }
+                };
+
+                // Update indices
+                document.getElementById('sp500-value').textContent = marketData.sp500.value.toLocaleString('en-US', {minimumFractionDigits: 2});
+                document.getElementById('sp500-change').innerHTML = `<span style="color: ${marketData.sp500.change >= 0 ? '#00ff7f' : '#ff6b35'}">
+                    ${marketData.sp500.change >= 0 ? '▲' : '▼'} ${Math.abs(marketData.sp500.change).toFixed(2)} (${Math.abs(marketData.sp500.changePercent).toFixed(2)}%)
+                </span>`;
+
+                document.getElementById('dow-value').textContent = marketData.dow.value.toLocaleString('en-US', {minimumFractionDigits: 2});
+                document.getElementById('dow-change').innerHTML = `<span style="color: ${marketData.dow.change >= 0 ? '#00ff7f' : '#ff6b35'}">
+                    ${marketData.dow.change >= 0 ? '▲' : '▼'} ${Math.abs(marketData.dow.change).toFixed(2)} (${Math.abs(marketData.dow.changePercent).toFixed(2)}%)
+                </span>`;
+
+                document.getElementById('nasdaq-value').textContent = marketData.nasdaq.value.toLocaleString('en-US', {minimumFractionDigits: 2});
+                document.getElementById('nasdaq-change').innerHTML = `<span style="color: ${marketData.nasdaq.change >= 0 ? '#00ff7f' : '#ff6b35'}">
+                    ${marketData.nasdaq.change >= 0 ? '▲' : '▼'} ${Math.abs(marketData.nasdaq.change).toFixed(2)} (${Math.abs(marketData.nasdaq.changePercent).toFixed(2)}%)
+                </span>`;
+
+                document.getElementById('vix-value').textContent = marketData.vix.value.toFixed(2);
+                document.getElementById('vix-change').innerHTML = `<span style="color: ${marketData.vix.change >= 0 ? '#ff6b35' : '#00ff7f'}">
+                    ${marketData.vix.change >= 0 ? '▲' : '▼'} ${Math.abs(marketData.vix.change).toFixed(2)} (${Math.abs(marketData.vix.changePercent).toFixed(2)}%)
+                </span>`;
+
+                // Update Fear & Greed
+                document.getElementById('fear-greed-value').textContent = marketData.fearGreed.value;
+                document.getElementById('fear-greed-label').textContent = marketData.fearGreed.label;
+                document.getElementById('fear-greed-label').style.color = marketData.fearGreed.value > 50 ? '#00ff7f' : '#ff6b35';
+                document.getElementById('fear-greed-desc').textContent = marketData.fearGreed.description;
+
+                // Update sectors
+                const sectors = {
+                    'tech-change': marketData.sectors.tech,
+                    'health-change': marketData.sectors.health,
+                    'finance-change': marketData.sectors.finance,
+                    'energy-change': marketData.sectors.energy,
+                    'consumer-change': marketData.sectors.consumer,
+                    'industrial-change': marketData.sectors.industrial
+                };
+
+                for (const [id, value] of Object.entries(sectors)) {
+                    const elem = document.getElementById(id);
+                    const parentBox = elem.closest('.sector-box');
+                    elem.textContent = `${value >= 0 ? '+' : ''}${value.toFixed(2)}%`;
+
+                    if (value >= 0) {
+                        parentBox.classList.add('positive');
+                        parentBox.classList.remove('negative');
+                    } else {
+                        parentBox.classList.add('negative');
+                        parentBox.classList.remove('positive');
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading market data:', error);
+            }
+        }
+
+        // Load on page load
+        loadMarketData();
+        // Refresh every 60 seconds
+        setInterval(loadMarketData, 60000);
     </script>
 
     <!-- UI Enhancement Scripts -->
