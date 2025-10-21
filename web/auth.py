@@ -5,6 +5,7 @@ Authentication routes and utilities
 from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify, session, current_app
 from flask_login import login_user, logout_user, login_required, current_user
 from flask_mail import Message
+from flask_wtf.csrf import csrf
 from datetime import datetime, timedelta
 from authlib.integrations.flask_client import OAuth
 import os
@@ -369,6 +370,7 @@ def change_password():
 
 
 @auth.route('/send-verification-code', methods=['POST'])
+@csrf.exempt
 def send_verification_code():
     """Send 6-digit verification code to email"""
     data = request.get_json()
@@ -435,6 +437,7 @@ Qunex Trade Team
 
 
 @auth.route('/verify-code', methods=['POST'])
+@csrf.exempt
 def verify_code():
     """Verify the 6-digit code"""
     data = request.get_json()
