@@ -10,6 +10,7 @@ from authlib.integrations.flask_client import OAuth
 import os
 import random
 import secrets
+import requests
 
 try:
     from database import db, User
@@ -20,6 +21,47 @@ auth = Blueprint('auth', __name__)
 
 # Initialize OAuth
 oauth = OAuth()
+
+# reCAPTCHA Secret Key (from environment variable)
+RECAPTCHA_SECRET_KEY = os.getenv('RECAPTCHA_SECRET_KEY')
+
+def verify_recaptcha(token):
+    """Verify reCAPTCHA v3 token"""
+    if not RECAPTCHA_SECRET_KEY:
+        # If no secret key, skip verification (for development)
+        print("[WARNING] reCAPTCHA secret key not set. Skipping verification.")
+        return True
+
+    try:
+        response = requests.post(
+            'https://www.google.com/recaptcha/api/siteverify',
+            data={
+                'secret': RECAPTCHA_SECRET_KEY,
+                'response': token
+            },
+            timeout=5
+        )
+
+        result = response.json()
+
+        # Check if verification was successful
+        if result.get('success'):
+            score = result.get('score', 0)
+            # reCAPTCHA v3 returns a score (0.0 - 1.0)
+            # 0.5 is a good threshold (higher = more likely human)
+            if score >= 0.5:
+                return True
+            else:
+                print(f"[reCAPTCHA] Low score: {score}")
+                return False
+        else:
+            print(f"[reCAPTCHA] Verification failed: {result.get('error-codes')}")
+            return False
+
+    except Exception as e:
+        print(f"[reCAPTCHA] Error during verification: {e}")
+        # In case of error, allow the request (don't block legitimate users)
+        return True
 
 # Google OAuth configuration (only if credentials are set)
 GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
@@ -48,6 +90,12 @@ def login():
         return redirect(url_for('index'))
 
     if request.method == 'POST':
+        # Verify reCAPTCHA
+        recaptcha_token = request.form.get('recaptcha_token')
+        if not verify_recaptcha(recaptcha_token):
+            flash('Security verification failed. Please try again.', 'error')
+            return redirect(url_for('auth.login'))
+
         email = request.form.get('email')
         password = request.form.get('password')
         remember = True if request.form.get('remember') else False
@@ -83,6 +131,12 @@ def signup():
         return redirect(url_for('index'))
 
     if request.method == 'POST':
+        # Verify reCAPTCHA
+        recaptcha_token = request.form.get('recaptcha_token')
+        if not verify_recaptcha(recaptcha_token):
+            flash('Security verification failed. Please try again.', 'error')
+            return redirect(url_for('auth.signup'))
+
         email = request.form.get('email')
         username = request.form.get('username')
         password = request.form.get('password')
@@ -438,6 +492,12 @@ def forgot_password():
         return redirect(url_for('index'))
 
     if request.method == 'POST':
+        # Verify reCAPTCHA
+        recaptcha_token = request.form.get('recaptcha_token')
+        if not verify_recaptcha(recaptcha_token):
+            flash('Security verification failed. Please try again.', 'error')
+            return redirect(url_for('auth.forgot_password'))
+
         email = request.form.get('email')
 
         user = db.session.execute(

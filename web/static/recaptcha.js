@@ -4,7 +4,7 @@
  */
 
 // Configuration
-const RECAPTCHA_SITE_KEY = '6LfYourSiteKeyHere'; // REPLACE with actual site key
+const RECAPTCHA_SITE_KEY = '6LfGavErAAAAAON0YoDr5u_h7ueMDZcNyLMlOH69'; // Qunex Trade reCAPTCHA v3
 
 // Initialize reCAPTCHA on page load
 function initRecaptcha() {
