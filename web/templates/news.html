@@ -221,6 +221,13 @@
             border-radius: 15px;
             padding: 25px 30px;
             margin-bottom: 30px;
+            position: relative;
+        }
+
+        .calendar-section.blurred .calendar-grid {
+            filter: blur(8px);
+            pointer-events: none;
+            user-select: none;
         }
 
         .calendar-header {
@@ -337,6 +344,83 @@
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
             gap: 25px;
+            position: relative;
+        }
+
+        /* Locked Content Overlay */
+        .locked-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(10, 14, 39, 0.95);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            border-radius: 20px;
+        }
+
+        .locked-content {
+            text-align: center;
+            max-width: 600px;
+            padding: 50px;
+        }
+
+        .lock-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+
+        .locked-title {
+            font-size: 2em;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 15px;
+        }
+
+        .locked-subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1em;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .upgrade-benefits {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 25px 0;
+            text-align: left;
+        }
+
+        .benefit-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        .benefit-icon {
+            font-size: 1.3em;
+        }
+
+        .news-grid.blurred {
+            filter: blur(8px);
+            pointer-events: none;
+            user-select: none;
         }
 
         .news-card {
@@ -549,7 +633,18 @@
         </header>
 
         <!-- Economic Calendar -->
-        <div class="calendar-section">
+        <div class="calendar-section {% if not has_access %}blurred{% endif %}">
+            {% if not has_access %}
+            <div class="locked-overlay" style="position: absolute;">
+                <div class="locked-content">
+                    <div class="lock-icon">📅</div>
+                    <h3 class="locked-title" style="font-size: 1.5em;">Economic Calendar Locked</h3>
+                    <p class="locked-subtitle" style="font-size: 1em;">
+                        Track critical Fed meetings and economic events with Pro access.
+                    </p>
+                </div>
+            </div>
+            {% endif %}
             <div class="calendar-header">
                 <h2 class="calendar-title">📅 Economic Calendar - Upcoming Critical Events</h2>
             </div>
@@ -577,7 +672,53 @@
         </div>
 
         <!-- News Grid -->
-        <div class="news-grid" id="news-list">
+        <div class="news-grid {% if not has_access %}blurred{% endif %}" id="news-list">
+
+            {% if not has_access %}
+            <!-- Locked Overlay for Free/Guest Users -->
+            <div class="locked-overlay">
+                <div class="locked-content">
+                    <div class="lock-icon">🔒</div>
+                    <h2 class="locked-title">Premium Feature Locked</h2>
+                    <p class="locked-subtitle">
+                        Real-time market news analysis with AI-powered insights is available for Pro subscribers and above.
+                    </p>
+
+                    <div class="upgrade-benefits">
+                        <div class="benefit-item">
+                            <span class="benefit-icon">📊</span>
+                            <span>AI-powered news impact analysis</span>
+                        </div>
+                        <div class="benefit-item">
+                            <span class="benefit-icon">⭐</span>
+                            <span>1-5 star importance ratings</span>
+                        </div>
+                        <div class="benefit-item">
+                            <span class="benefit-icon">📈</span>
+                            <span>Affected stocks & sectors identification</span>
+                        </div>
+                        <div class="benefit-item">
+                            <span class="benefit-icon">📅</span>
+                            <span>Economic calendar with Fed meetings</span>
+                        </div>
+                        <div class="benefit-item">
+                            <span class="benefit-icon">🔄</span>
+                            <span>Real-time news updates</span>
+                        </div>
+                    </div>
+
+                    {% if not user.is_authenticated %}
+                    <a href="/auth/signup" class="btn-primary" style="display: inline-block; padding: 15px 40px; font-size: 1.1em; margin-top: 10px;">
+                        Sign Up to Unlock
+                    </a>
+                    {% elif user_tier == 'free' %}
+                    <a href="/payments/pricing" class="btn-primary" style="display: inline-block; padding: 15px 40px; font-size: 1.1em; margin-top: 10px;">
+                        Upgrade to Pro
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
             {% if news_data %}
                 {% for news in news_data %}
                 <div class="news-card importance-{{ news.importance }}" data-importance="{{ news.importance }}">

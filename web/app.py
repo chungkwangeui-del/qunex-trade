@@ -245,14 +245,14 @@ def news():
     sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
     # Check user access level
-    # Only beta testers and developers can access full news
+    # Only Pro, Premium, and Developer can access full news
     has_access = False
     user_tier = 'guest'
 
     if current_user.is_authenticated:
         user_tier = current_user.subscription_tier
-        # Grant access to beta testers and developers
-        if user_tier in ['beta', 'developer']:
+        # Grant access to Pro, Premium, and Developer only
+        if user_tier in ['pro', 'premium', 'developer']:
             has_access = True
 
     try:
