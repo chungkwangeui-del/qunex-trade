@@ -4,183 +4,347 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Market News - Qunex Trade</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #00d9ff;
+            --secondary: #7c3aed;
+            --accent: #ff006e;
+            --bg-dark: #0a0e27;
+            --bg-card: #131829;
+            --bg-hover: #1a1f3a;
+            --text-primary: #ffffff;
+            --text-secondary: #8b92b0;
+            --border: rgba(0, 217, 255, 0.15);
+            --glow: rgba(0, 217, 255, 0.4);
+        }
+
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Space Grotesk', -apple-system, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
             min-height: 100vh;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            position: relative;
+            overflow-x: hidden;
         }
 
-        .news-container {
-            max-width: 1200px;
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                radial-gradient(circle at 20% 50%, rgba(0, 217, 255, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(124, 58, 237, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 1600px;
             margin: 0 auto;
-            padding: 40px 20px;
-        }
-
-        .header {
-            background: white;
-            border-radius: 20px;
             padding: 30px;
-            margin-bottom: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            position: relative;
+            z-index: 1;
         }
 
-        .header h1 {
-            color: #667eea;
+        /* Navigation */
+        nav {
+            background: var(--bg-card);
+            padding: 20px 40px;
+            border-radius: 16px;
+            margin-bottom: 40px;
+            border: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.8em;
             font-weight: 700;
+            letter-spacing: -1px;
+        }
+
+        .logo {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.1em;
+            box-shadow: 0 0 20px var(--glow);
+        }
+
+        .brand-text {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--primary);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 10px 25px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 700;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0, 217, 255, 0.3);
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(0, 217, 255, 0.5);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--primary);
+            padding: 10px 25px;
+            border: 1px solid var(--primary);
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 700;
+            transition: all 0.3s;
+        }
+
+        /* Header */
+        header {
+            background: var(--bg-card);
+            padding: 40px;
+            border-radius: 20px;
+            margin-bottom: 40px;
+            border: 1px solid var(--border);
+        }
+
+        h1 {
+            font-size: 3em;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
             margin-bottom: 10px;
         }
 
-        .header p {
-            color: #666;
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.2em;
             margin-bottom: 20px;
         }
 
-        .refresh-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 12px 30px;
-            border-radius: 30px;
-            font-weight: 600;
+        /* Filter Section */
+        .filter-section {
+            background: var(--bg-card);
+            padding: 20px 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            border: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 20px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-secondary);
+            border-radius: 10px;
             cursor: pointer;
             transition: all 0.3s;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 600;
         }
 
-        .refresh-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        .filter-btn.active,
+        .filter-btn:hover {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            border-color: transparent;
         }
 
-        .refresh-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
+        /* News Grid */
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
+            gap: 25px;
         }
 
         .news-card {
-            background: white;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
             border-radius: 15px;
             padding: 25px;
-            margin-bottom: 20px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
             transition: all 0.3s;
-            border-left: 5px solid #667eea;
+            position: relative;
+            overflow: hidden;
         }
 
         .news-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            border-color: var(--primary);
+            box-shadow: 0 10px 30px rgba(0, 217, 255, 0.2);
         }
 
-        .news-card.importance-5 {
-            border-left-color: #dc3545;
-            background: linear-gradient(to right, #fff5f5 0%, white 10%);
+        .news-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: linear-gradient(180deg, var(--primary), var(--secondary));
+            opacity: 0;
+            transition: opacity 0.3s;
         }
 
-        .news-card.importance-4 {
-            border-left-color: #fd7e14;
-            background: linear-gradient(to right, #fff9f5 0%, white 10%);
+        .news-card:hover::before {
+            opacity: 1;
         }
 
-        .news-card.importance-3 {
-            border-left-color: #ffc107;
-            background: linear-gradient(to right, #fffcf5 0%, white 10%);
+        .news-card.importance-5::before { background: linear-gradient(180deg, #ff006e, #ff4d94); }
+        .news-card.importance-4::before { background: linear-gradient(180deg, #ff6b35, #ffa94d); }
+        .news-card.importance-3::before { background: linear-gradient(180deg, #ffc107, #ffd93d); }
+        .news-card.importance-2::before { background: linear-gradient(180deg, #00d9ff, #7c3aed); }
+        .news-card.importance-1::before { background: linear-gradient(180deg, #6c757d, #adb5bd); }
+
+        .news-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            font-size: 0.85em;
         }
 
-        .news-card.importance-2 {
-            border-left-color: #28a745;
-            background: linear-gradient(to right, #f5fff5 0%, white 10%);
+        .news-source {
+            color: var(--primary);
+            font-weight: 600;
         }
 
-        .news-card.importance-1 {
-            border-left-color: #6c757d;
-            background: linear-gradient(to right, #f8f9fa 0%, white 10%);
+        .news-date {
+            color: var(--text-secondary);
         }
 
         .stars {
-            color: #ffc107;
-            font-size: 20px;
+            font-size: 1.2em;
             margin-bottom: 10px;
         }
 
         .news-title {
-            font-size: 20px;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 10px;
-        }
-
-        .news-source {
-            font-size: 14px;
-            color: #888;
+            font-size: 1.3em;
+            font-weight: 700;
+            color: var(--text-primary);
             margin-bottom: 15px;
-        }
-
-        .impact-summary {
-            color: #555;
-            margin-bottom: 15px;
-            font-size: 15px;
-            line-height: 1.6;
+            line-height: 1.4;
         }
 
         .sentiment-badge {
             display: inline-block;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 13px;
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-size: 0.8em;
             font-weight: 600;
-            margin-right: 10px;
+            margin-bottom: 12px;
         }
 
         .sentiment-positive {
-            background: #d4edda;
-            color: #155724;
+            background: rgba(0, 217, 255, 0.15);
+            color: var(--primary);
         }
 
         .sentiment-negative {
-            background: #f8d7da;
-            color: #721c24;
+            background: rgba(255, 0, 110, 0.15);
+            color: var(--accent);
         }
 
         .sentiment-neutral {
-            background: #d1ecf1;
-            color: #0c5460;
+            background: rgba(139, 146, 176, 0.15);
+            color: var(--text-secondary);
         }
 
-        .affected-section {
+        .impact-summary {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .tags-section {
             margin-top: 15px;
             padding-top: 15px;
-            border-top: 1px solid #eee;
+            border-top: 1px solid var(--border);
         }
 
-        .affected-label {
+        .tag-label {
+            font-size: 0.85em;
+            color: var(--primary);
             font-weight: 600;
-            color: #667eea;
-            font-size: 14px;
             margin-bottom: 8px;
         }
 
         .tag {
             display: inline-block;
-            background: #f0f0f0;
-            padding: 5px 12px;
-            border-radius: 15px;
-            font-size: 13px;
+            background: rgba(0, 217, 255, 0.1);
+            border: 1px solid var(--border);
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-size: 0.85em;
             margin-right: 8px;
             margin-bottom: 8px;
-            color: #555;
-        }
-
-        .tag.stock {
-            background: #e7f3ff;
-            color: #0066cc;
+            color: var(--primary);
         }
 
         .tag.sector {
-            background: #fff3e0;
-            color: #e65100;
+            background: rgba(124, 58, 237, 0.1);
+            border-color: rgba(124, 58, 237, 0.3);
+            color: var(--secondary);
         }
 
         .key-points {
@@ -188,31 +352,22 @@
         }
 
         .key-points ul {
-            margin: 0;
-            padding-left: 20px;
+            margin: 10px 0 0 20px;
+            color: var(--text-secondary);
         }
 
         .key-points li {
             margin-bottom: 8px;
-            color: #555;
-            font-size: 14px;
-        }
-
-        .news-meta {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid #eee;
-            font-size: 13px;
-            color: #888;
+            font-size: 0.9em;
         }
 
         .read-more {
-            color: #667eea;
+            display: inline-block;
+            margin-top: 15px;
+            color: var(--primary);
             text-decoration: none;
             font-weight: 600;
+            font-size: 0.9em;
         }
 
         .read-more:hover {
@@ -221,142 +376,108 @@
 
         .empty-state {
             text-align: center;
-            padding: 60px 20px;
-            background: white;
+            padding: 80px 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
             border-radius: 20px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-
-        .empty-state i {
-            font-size: 80px;
-            color: #667eea;
-            margin-bottom: 20px;
         }
 
         .empty-state h3 {
-            color: #333;
-            margin-bottom: 10px;
+            font-size: 2em;
+            margin-bottom: 15px;
+            color: var(--primary);
         }
 
         .empty-state p {
-            color: #888;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 40px;
-        }
-
-        .spinner-border {
-            color: #667eea;
-        }
-
-        .filter-section {
-            background: white;
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-
-        .filter-btn {
-            padding: 8px 20px;
-            margin-right: 10px;
-            margin-bottom: 10px;
-            border: 2px solid #667eea;
-            background: white;
-            color: #667eea;
-            border-radius: 20px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .filter-btn.active {
-            background: #667eea;
-            color: white;
-        }
-
-        .filter-btn:hover {
-            background: #667eea;
-            color: white;
+            color: var(--text-secondary);
+            font-size: 1.1em;
         }
     </style>
 </head>
 <body>
-    <div class="news-container">
+    <div class="container">
+        <!-- Navigation -->
+        <nav>
+            <a href="/" class="nav-brand" style="text-decoration: none;">
+                <div class="logo">Q</div>
+                <span class="brand-text">Qunex Trade</span>
+            </a>
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/news" class="active">📰 News</a>
+                <a href="/about">About</a>
+                <a href="/payments/pricing">Pricing</a>
+                {% if user.is_authenticated %}
+                <a href="/auth/account">Account</a>
+                <a href="/auth/logout" class="btn-secondary">Logout</a>
+                {% else %}
+                <a href="/auth/login" class="btn-secondary">Login</a>
+                <a href="/auth/signup" class="btn-primary">Sign Up</a>
+                {% endif %}
+            </div>
+        </nav>
+
         <!-- Header -->
-        <div class="header">
-            <h1><i class="fas fa-newspaper"></i> Market News & Analysis</h1>
-            <p>Real-time news with AI-powered market impact analysis</p>
-            <button class="refresh-btn" onclick="refreshNews()">
-                <i class="fas fa-sync-alt"></i> Refresh News
+        <header>
+            <h1>📰 Market News Analysis</h1>
+            <p class="subtitle">AI-powered real-time news impact analysis for US stock market</p>
+            <button class="btn-primary" onclick="refreshNews()">
+                🔄 Refresh News
             </button>
-            <small id="last-update" style="margin-left: 20px; color: #888;"></small>
-        </div>
+            <small id="last-update" style="margin-left: 15px; color: var(--text-secondary);"></small>
+        </header>
 
         <!-- Filter Section -->
         <div class="filter-section">
-            <div>
-                <button class="filter-btn active" onclick="filterByImportance('all')">All News</button>
-                <button class="filter-btn" onclick="filterByImportance(5)">⭐⭐⭐⭐⭐ Critical</button>
-                <button class="filter-btn" onclick="filterByImportance(4)">⭐⭐⭐⭐ High</button>
-                <button class="filter-btn" onclick="filterByImportance(3)">⭐⭐⭐ Medium</button>
+            <div class="filter-buttons">
+                <button class="filter-btn active" onclick="filterByImportance('all', this)">All News</button>
+                <button class="filter-btn" onclick="filterByImportance(5, this)">⭐⭐⭐⭐⭐ Critical</button>
+                <button class="filter-btn" onclick="filterByImportance(4, this)">⭐⭐⭐⭐ High</button>
+                <button class="filter-btn" onclick="filterByImportance(3, this)">⭐⭐⭐ Medium</button>
             </div>
         </div>
 
-        <!-- News List -->
-        <div id="news-list">
+        <!-- News Grid -->
+        <div class="news-grid" id="news-list">
             {% if news_data %}
                 {% for news in news_data %}
                 <div class="news-card importance-{{ news.importance }}" data-importance="{{ news.importance }}">
-                    <!-- Stars -->
+                    <div class="news-meta">
+                        <span class="news-source">{{ news.news_source }}</span>
+                        <span class="news-date">{{ news.published_at[:10] if news.published_at else 'N/A' }}</span>
+                    </div>
+
                     <div class="stars">
                         {% for i in range(news.importance) %}⭐{% endfor %}
                     </div>
 
-                    <!-- Title -->
                     <div class="news-title">{{ news.news_title }}</div>
 
-                    <!-- Source & Date -->
-                    <div class="news-source">
-                        <i class="fas fa-building"></i> {{ news.news_source }}
-                        <span style="margin-left: 15px;">
-                            <i class="fas fa-clock"></i> {{ news.published_at[:10] if news.published_at else 'N/A' }}
-                        </span>
-                    </div>
+                    <span class="sentiment-badge sentiment-{{ news.sentiment }}">
+                        {% if news.sentiment == 'positive' %}
+                            📈 Positive
+                        {% elif news.sentiment == 'negative' %}
+                            📉 Negative
+                        {% else %}
+                            ➡️ Neutral
+                        {% endif %}
+                    </span>
 
-                    <!-- Sentiment Badge -->
-                    <div>
-                        <span class="sentiment-badge sentiment-{{ news.sentiment }}">
-                            {% if news.sentiment == 'positive' %}
-                                📈 Positive
-                            {% elif news.sentiment == 'negative' %}
-                                📉 Negative
-                            {% else %}
-                                ➡️ Neutral
-                            {% endif %}
-                        </span>
-                    </div>
+                    <div class="impact-summary">{{ news.impact_summary }}</div>
 
-                    <!-- Impact Summary -->
-                    <div class="impact-summary">
-                        <strong>Impact:</strong> {{ news.impact_summary }}
-                    </div>
-
-                    <!-- Affected Stocks & Sectors -->
                     {% if news.affected_stocks or news.affected_sectors %}
-                    <div class="affected-section">
+                    <div class="tags-section">
                         {% if news.affected_stocks %}
-                        <div class="affected-label">Affected Stocks:</div>
+                        <div class="tag-label">Affected Stocks:</div>
                         <div>
                             {% for stock in news.affected_stocks %}
-                            <span class="tag stock">{{ stock }}</span>
+                            <span class="tag">{{ stock }}</span>
                             {% endfor %}
                         </div>
                         {% endif %}
 
                         {% if news.affected_sectors %}
-                        <div class="affected-label" style="margin-top: 10px;">Affected Sectors:</div>
+                        <div class="tag-label" style="margin-top: 10px;">Affected Sectors:</div>
                         <div>
                             {% for sector in news.affected_sectors %}
                             <span class="tag sector">{{ sector }}</span>
@@ -366,10 +487,9 @@
                     </div>
                     {% endif %}
 
-                    <!-- Key Points -->
                     {% if news.key_points %}
                     <div class="key-points">
-                        <div class="affected-label">Key Points:</div>
+                        <div class="tag-label">Key Points:</div>
                         <ul>
                             {% for point in news.key_points %}
                             <li>{{ point }}</li>
@@ -378,23 +498,15 @@
                     </div>
                     {% endif %}
 
-                    <!-- Meta -->
-                    <div class="news-meta">
-                        <span>
-                            <i class="fas fa-bolt"></i> {{ news.time_sensitivity if news.time_sensitivity else 'short-term' }}
-                        </span>
-                        {% if news.news_url %}
-                        <a href="{{ news.news_url }}" target="_blank" class="read-more">
-                            Read Full Article <i class="fas fa-external-link-alt"></i>
-                        </a>
-                        {% endif %}
-                    </div>
+                    {% if news.news_url %}
+                    <a href="{{ news.news_url }}" target="_blank" class="read-more">
+                        Read Full Article →
+                    </a>
+                    {% endif %}
                 </div>
                 {% endfor %}
             {% else %}
-                <!-- Empty State -->
                 <div class="empty-state">
-                    <i class="fas fa-newspaper"></i>
                     <h3>No News Available</h3>
                     <p>Click "Refresh News" to collect and analyze the latest market news.</p>
                 </div>
@@ -402,12 +514,11 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         function refreshNews() {
-            const btn = document.querySelector('.refresh-btn');
+            const btn = event.target;
             btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Refreshing...';
+            btn.textContent = '🔄 Refreshing...';
 
             fetch('/api/news/refresh')
                 .then(response => response.json())
@@ -417,23 +528,23 @@
                     } else {
                         alert('Failed to refresh news: ' + data.message);
                         btn.disabled = false;
-                        btn.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh News';
+                        btn.textContent = '🔄 Refresh News';
                     }
                 })
                 .catch(error => {
                     alert('Error: ' + error);
                     btn.disabled = false;
-                    btn.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh News';
+                    btn.textContent = '🔄 Refresh News';
                 });
         }
 
-        function filterByImportance(level) {
+        function filterByImportance(level, button) {
             const cards = document.querySelectorAll('.news-card');
             const buttons = document.querySelectorAll('.filter-btn');
 
             // Update active button
             buttons.forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
+            button.classList.add('active');
 
             // Filter cards
             cards.forEach(card => {

@@ -447,6 +447,86 @@
 
         .empty-state p {
             font-size: 1.1em;
+        }
+
+        /* News Preview Grid */
+        .news-preview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .news-preview-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            padding: 30px;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .news-preview-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .news-preview-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            box-shadow: 0 10px 30px rgba(0, 217, 255, 0.2);
+        }
+
+        .news-preview-card:hover::before {
+            opacity: 1;
+        }
+
+        .news-preview-content h3 {
+            font-size: 1.6em;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .news-preview-content p {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .news-preview-content ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .news-preview-content li {
+            padding: 5px 0;
+        }
+
+        .feature-card {
+            text-align: center;
+        }
+
+        .feature-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+
+        .feature-card h4 {
+            font-size: 1.3em;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+
+        .feature-card p {
+            color: var(--text-secondary);
             line-height: 1.8;
             margin: 10px 0;
         }
@@ -632,6 +712,51 @@
                 <p>Signals are generated daily at 4:05 PM ET after market close.</p>
             </div>
             {% endif %}
+        </div>
+
+        <!-- Market News Section -->
+        <div class="section">
+            <div class="section-header">
+                <h2>📰 Market News Analysis</h2>
+                <a href="/news" class="btn-secondary">View All News</a>
+            </div>
+
+            <div class="news-preview-grid">
+                <!-- News preview cards will be loaded here -->
+                <div class="news-preview-card">
+                    <div class="news-preview-content">
+                        <h3>Real-Time Market News</h3>
+                        <p>AI-powered analysis of news impact on US stock market</p>
+                        <ul style="color: var(--text-secondary); margin-top: 15px;">
+                            <li>⭐ 1-5 stars importance rating</li>
+                            <li>📊 Affected stocks & sectors</li>
+                            <li>🤖 AI-powered impact analysis</li>
+                            <li>📈 Sentiment analysis</li>
+                        </ul>
+                        <a href="/news" class="btn-primary" style="margin-top: 20px; display: inline-block;">
+                            View Market News →
+                        </a>
+                    </div>
+                </div>
+
+                <div class="news-preview-card feature-card">
+                    <div class="feature-icon">🔔</div>
+                    <h4>Stay Informed</h4>
+                    <p>Get real-time updates on news that moves the market</p>
+                </div>
+
+                <div class="news-preview-card feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h4>AI Analysis</h4>
+                    <p>Claude AI analyzes impact and identifies affected stocks</p>
+                </div>
+
+                <div class="news-preview-card feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h4>Smart Filtering</h4>
+                    <p>Filter by importance level to focus on what matters</p>
+                </div>
+            </div>
         </div>
 
         <!-- 30 Day Performance -->
