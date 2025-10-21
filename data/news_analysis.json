@@ -1,33 +1,153 @@
 [
   {
-    "importance": 4,
-    "impact_summary": "Jim Cramer: Avoid this investing strategy—it's 'an easy road to disaster'",
-    "affected_sectors": [],
-    "affected_stocks": [],
+    "importance": 3,
+    "impact_summary": "Apple의 iPhone 17 판매 호조는 Apple 주가 및 관련 산업에 긍정적인 영향을 미칠 것으로 예상됨",
+    "affected_sectors": [
+      "기술",
+      "스마트폰"
+    ],
+    "affected_stocks": [
+      "AAPL",
+      "MSFT",
+      "GOOGL",
+      "SAMSUNG"
+    ],
     "sentiment": "positive",
     "time_sensitivity": "short-term",
-    "key_points": [],
-    "news_title": "Jim Cramer: Avoid this investing strategy—it's 'an easy road to disaster'",
-    "news_url": "https://www.cnbc.com/2025/10/20/jim-cramer-avoid-meme-stocks-do-this-instead.html",
-    "news_source": "CNBC",
-    "published_at": "2025-10-20T13:00:01Z",
-    "analyzed_at": "2025-10-21T12:43:22.960621",
-    "analysis_method": "fallback"
-  },
-  {
-    "importance": 3,
-    "impact_summary": "Apple stock rallies following strong iPhone 17 sales in U.S. and China",
-    "affected_sectors": [],
-    "affected_stocks": [],
-    "sentiment": "neutral",
-    "time_sensitivity": "short-term",
-    "key_points": [],
+    "key_points": [
+      "iPhone 17 시리즈의 판매가 전작 대비 14% 증가했다는 긍정적인 결과",
+      "Apple 주가가 이에 힘입어 3% 상승했다",
+      "iPhone은 Apple의 주요 수익원이므로 이번 판매 호조는 Apple 실적에 긍정적",
+      "관련 산업인 스마트폰 및 기술 섹터에도 유사한 영향 예상",
+      "단기적으로는 주가 상승, 중장기적으로는 Apple과 관련 기업 실적에 도움이 될 것"
+    ],
     "news_title": "Apple stock rallies following strong iPhone 17 sales in U.S. and China",
     "news_url": "https://www.cnbc.com/2025/10/20/apple-stock-iphone-17-us-china-sales.html",
     "news_source": "CNBC",
     "published_at": "2025-10-20T14:48:18Z",
-    "analyzed_at": "2025-10-21T12:43:21.713947",
-    "analysis_method": "fallback"
+    "analyzed_at": "2025-10-21T12:45:37.351364"
+  },
+  {
+    "importance": 3,
+    "impact_summary": "Cramer's advice to avoid certain investment strategies and focus on long-term investing could influence investor sentiment and market trends.",
+    "affected_sectors": [
+      "Financial Services",
+      "Asset Management"
+    ],
+    "affected_stocks": [
+      "CNBC",
+      "VTI",
+      "SPY"
+    ],
+    "sentiment": "positive",
+    "time_sensitivity": "short-term",
+    "key_points": [
+      "Cramer warns against quick-profit trading strategies, advocating for long-term investing instead",
+      "His advice could impact investor behavior and shift focus towards more sustainable investment approaches",
+      "Financial services and asset management sectors may see changes in investment flows based on Cramer's recommendations",
+      "Popular index funds like VTI and SPY may benefit if investors heed Cramer's advice to adopt a long-term investment mindset",
+      "Cramer's influence as a prominent financial commentator could shape near-term market sentiment and trends"
+    ],
+    "news_title": "Jim Cramer: Avoid this investing strategy—it's 'an easy road to disaster'",
+    "news_url": "https://www.cnbc.com/2025/10/20/jim-cramer-avoid-meme-stocks-do-this-instead.html",
+    "news_source": "CNBC",
+    "published_at": "2025-10-20T13:00:01Z",
+    "analyzed_at": "2025-10-21T12:45:43.286941"
+  },
+  {
+    "importance": 3,
+    "impact_summary": "이 뉴스는 Cooper Companies 주식에 직접적인 영향을 미칠 것으로 보이며, 의료기기 섹터 전반에 부정적인 영향을 미칠 수 있습니다.",
+    "affected_sectors": [
+      "의료기기"
+    ],
+    "affected_stocks": [
+      "COO"
+    ],
+    "sentiment": "negative",
+    "time_sensitivity": "short-term",
+    "key_points": [
+      "헤지펀드 Jana Partners가 Cooper Companies의 지분을 확보했다고 발표했습니다.",
+      "Jana Partners는 Cooper의 자본 배분 방식을 개선하도록 압박할 계획입니다.",
+      "이는 Cooper 주가에 부정적인 영향을 미칠 수 있으며, 의료기기 섹터 전반에도 부담이 될 수 있습니다.",
+      "Cooper의 경영 방식 변화에 대한 불확실성이 투자자들의 우려를 증폭시킬 수 있습니다.",
+      "단기적으로는 Cooper 주가와 의료기기 섹터 주식에 부정적인 영향이 예상됩니다."
+    ],
+    "news_title": "Activist investor Jana Partners takes stake in medical device maker Cooper Companies, WSJ says",
+    "news_url": "https://www.cnbc.com/2025/10/20/activist-investor-jana-partners-takes-stake-in-cooper-cos-wsj-says.html",
+    "news_source": "CNBC",
+    "published_at": "2025-10-20T12:56:04Z",
+    "analyzed_at": "2025-10-21T12:45:46.556986"
+  },
+  {
+    "importance": 3,
+    "impact_summary": "BJ's Restaurants의 2025년 3분기 실적 발표 예정으로 외식 섹터에 단기적인 영향 예상",
+    "affected_sectors": [
+      "외식/음식 섹터"
+    ],
+    "affected_stocks": [
+      "BJRI"
+    ],
+    "sentiment": "neutral",
+    "time_sensitivity": "short-term",
+    "key_points": [
+      "BJ's Restaurants, Inc.의 2025년 3분기 실적 발표 예정",
+      "투자자 컨퍼런스 콜이 예정되어 있음",
+      "외식 섹터 기업의 실적 발표로 해당 섹터에 단기적인 영향 예상"
+    ],
+    "news_title": "BJ's Restaurants, Inc. Announces Date for Third Quarter 2025 Earnings Release and Conference Call - BJ's Restaurants  ( NASDAQ:BJRI ) ",
+    "news_url": "https://www.benzinga.com/pressreleases/25/10/g48334730/bjs-restaurants-inc-announces-date-for-third-quarter-2025-earnings-release-and-conference-call",
+    "news_source": "Benzinga",
+    "published_at": "20251021T170000",
+    "analyzed_at": "2025-10-21T12:45:48.826555"
+  },
+  {
+    "importance": 3,
+    "impact_summary": "이 뉴스는 Nutex Health Inc.에 대한 증권 집단소송 관련 데드라인 소식으로, 해당 기업의 주가에 단기적인 영향을 줄 수 있습니다.",
+    "affected_sectors": [
+      "헬스케어"
+    ],
+    "affected_stocks": [
+      "NUTX"
+    ],
+    "sentiment": "negative",
+    "time_sensitivity": "short-term",
+    "key_points": [
+      "Nutex Health Inc.에 대한 증권 집단소송 관련 중요 데드라인 공지",
+      "2024년 8월 8일부터 2025년 8월 14일 사이에 NUTX 주식을 구매한 투자자들이 영향을 받을 수 있음",
+      "투자자들에게 변호사를 선임할 것을 권고하고 있음"
+    ],
+    "news_title": "NUTX DEADLINE TODAY: ROSEN, LEADING INVESTOR COUNSEL, Encourages Nutex Health Inc. Investors to Secure Counsel Before Important October 21 Deadline in Securities Class Action - NUTX - Nutex Health  ( NASDAQ:NUTX ) ",
+    "news_url": "https://www.benzinga.com/pressreleases/25/10/g48332635/nutx-deadline-today-rosen-leading-investor-counsel-encourages-nutex-health-inc-investors-to-secure",
+    "news_source": "Benzinga",
+    "published_at": "20251021T154945",
+    "analyzed_at": "2025-10-21T12:46:40.295059"
+  },
+  {
+    "importance": 3,
+    "impact_summary": "BWX Technologies' strong financial performance over the past 5 years could positively impact the aerospace and defense sectors, as well as the broader stock market.",
+    "affected_sectors": [
+      "Aerospace",
+      "Defense"
+    ],
+    "affected_stocks": [
+      "LMT",
+      "NOC",
+      "RTX"
+    ],
+    "sentiment": "positive",
+    "time_sensitivity": "short-term",
+    "key_points": [
+      "BWX Technologies has outperformed the market by 14.29% annually over the past 5 years",
+      "The company has a market capitalization of $18.45 billion",
+      "Strong financial performance could attract investor interest in the aerospace and defense sectors",
+      "Positive news about a major defense contractor could have a ripple effect on other industry players",
+      "Investors may view this as a sign of strength in the overall defense and aerospace sectors"
+    ],
+    "news_title": "Here's How Much You Would Have Made Owning BWX Technologies Stock In The Last 5 Years - BWX Technologies  ( NYSE:BWXT ) ",
+    "news_url": "https://www.benzinga.com/insights/news/25/10/48332500/heres-how-much-you-would-have-made-owning-bwx-technologies-stock-in-the-last-5-years",
+    "news_source": "Benzinga",
+    "published_at": "20251021T154546",
+    "analyzed_at": "2025-10-21T12:46:42.963049"
   },
   {
     "importance": 2,
@@ -41,7 +161,320 @@
     "news_url": "https://www.cnbc.com/2025/10/20/tkms-taps-into-europes-defense-boom-with-frankfurt-ipo.html",
     "news_source": "CNBC",
     "published_at": "2025-10-20T14:16:45Z",
-    "analyzed_at": "2025-10-21T12:43:22.351320",
+    "analyzed_at": "2025-10-21T12:45:40.798568",
     "analysis_method": "fallback"
+  },
+  {
+    "importance": 2,
+    "impact_summary": "이 뉴스는 캐나다 브리티시 컬럼비아 주에서 신규 암호화폐 마이닝 사이트 영구 금지를 발표한 것으로, 이는 주로 지역 수준의 영향을 미칠 것으로 예상됩니다.",
+    "affected_sectors": [
+      "기술",
+      "에너지"
+    ],
+    "affected_stocks": [
+      "RIOT",
+      "MARA",
+      "HVBT"
+    ],
+    "sentiment": "negative",
+    "time_sensitivity": "short-term",
+    "key_points": [
+      "브리티시 컬럼비아 주가 신규 암호화폐 마이닝 사이트 영구 금지를 발표했습니다.",
+      "이는 브리티시 컬럼비아 주 내 청정 에너지 자원을 일반 산업과 일자리 창출에 활용하기 위한 조치입니다.",
+      "이번 결정은 암호화폐 마이닝 기업들에게 단기적으로 부정적인 영향을 줄 수 있습니다.",
+      "하지만 장기적으로는 청정 에너지 정책이 다른 지역에도 영향을 미칠 수 있어 더 넓은 범위의 주요 섹터에 영향을 줄 수 있습니다.",
+      "이번 조치는 특히 브리티시 컬럼비아 주 내 주요 암호화폐 마이닝 기업들에 직접적인 영향을 줄 것으로 보입니다."
+    ],
+    "news_title": "British Columbia Wants to Permanently Ban New Crypto Mining Sites",
+    "news_url": "https://decrypt.co/345209/british-columbia-ban-crypto-mining-projects",
+    "news_source": "Decrypt.co",
+    "published_at": "20251021T163716",
+    "analyzed_at": "2025-10-21T12:45:54.557439"
+  },
+  {
+    "importance": 2,
+    "impact_summary": "이 뉴스는 전반적으로 주식 시장에 미치는 영향이 제한적일 것으로 보입니다. 주요 기업 경영진의 변화는 해당 기업에 단기적인 영향을 줄 수 있지만, 전체 시장에 미치는 영향은 크지 않을 것으로 예상됩니다.",
+    "affected_sectors": [
+      "소비재",
+      "비영리단체"
+    ],
+    "affected_stocks": [
+      "NWHM"
+    ],
+    "sentiment": "neutral",
+    "time_sensitivity": "short-term",
+    "key_points": [
+      "국립여성역사박물관이 새로운 이사진을 선임했다는 소식",
+      "이사진 추가 선임은 해당 기관의 운영과 활동에 영향을 줄 수 있지만, 전반적인 주식 시장에 미치는 영향은 크지 않을 것으로 예상됩니다.",
+      "이 뉴스는 박물관 운영과 관련된 기관 및 단체에 가장 직접적인 영향을 줄 것으로 보입니다.",
+      "개별 기업 수준에서는 관련 기관과 거래하는 기업들의 주가에 단기적인 영향이 있을 수 있습니다.",
+      "전반적으로 주식 시장 전체에 미치는 영향은 제한적일 것으로 판단됩니다."
+    ],
+    "news_title": "National Women's History Museum Appoints Strategic Leaders Scott Hefter and Joyce Winnecke to Board of Directors",
+    "news_url": "https://www.benzinga.com/pressreleases/25/10/n48333778/national-womens-history-museum-appoints-strategic-leaders-scott-hefter-and-joyce-winnecke-to-board",
+    "news_source": "Benzinga",
+    "published_at": "20251021T162400",
+    "analyzed_at": "2025-10-21T12:45:59.594582"
+  },
+  {
+    "importance": 2,
+    "impact_summary": "이 뉴스는 기업 간 기술 통합에 관한 내용으로, 배경 확인 산업에 영향을 줄 수 있지만 전체 주식 시장에는 제한적인 영향을 미칠 것으로 예상됩니다.",
+    "affected_sectors": [
+      "IT 서비스",
+      "전문 서비스"
+    ],
+    "affected_stocks": [
+      "RDVT"
+    ],
+    "sentiment": "positive",
+    "time_sensitivity": "short-term",
+    "key_points": [
+      "IDI와 TazWorks 간의 새로운 기술 통합 발표",
+      "IDI의 ID 검증 및 리스크 관리 기술을 TazWorks 플랫폼에 제공",
+      "배경 확인 산업에서 IDI의 제품 접근성 확대",
+      "RDVT 주가에 단기적인 긍정적 영향 예상",
+      "전체 주식 시장에는 제한적인 영향"
+    ],
+    "news_title": "IDI Announces Integration with TazWorks to Expand Access to IDI's Best-in-Class Identity Intelligence in the Background Screening Industry",
+    "news_url": "https://www.globenewswire.com/news-release/2025/10/21/3170521/0/en/IDI-Announces-Integration-with-TazWorks-to-Expand-Access-to-IDI-s-Best-in-Class-Identity-Intelligence-in-the-Background-Screening-Industry.html",
+    "news_source": "GlobeNewswire",
+    "published_at": "20251021T162100",
+    "analyzed_at": "2025-10-21T12:46:04.108546"
+  },
+  {
+    "importance": 2,
+    "impact_summary": "이 뉴스는 엔터테인먼트 및 광고 산업에서 새로운 기술 개발에 관한 것으로, 관련 기업들에 경미한 긍정적인 영향을 줄 것으로 보입니다.",
+    "affected_sectors": [
+      "엔터테인먼트",
+      "광고"
+    ],
+    "affected_stocks": [
+      "NVDA",
+      "GOOGL",
+      "FB"
+    ],
+    "sentiment": "positive",
+    "time_sensitivity": "short-term",
+    "key_points": [
+      "헬리-D와 닌자 가이든 4 게임에서 새로운 비디오 스크린 기술이 사용됨",
+      "이 기술은 엔터테인먼트, 스포츠, 광고 분야에 새로운 시각적 기회를 제공함",
+      "관련 기술 기업들의 주가에 일시적인 상승 효과가 있을 것으로 예상됨"
+    ],
+    "news_title": "HELI-D and NINJA GAIDEN 4 Take Digital Entertainment to the Skies with Record-Breaking Campaign",
+    "news_url": "https://www.benzinga.com/pressreleases/25/10/n48333053/heli-d-and-ninja-gaiden-4-take-digital-entertainment-to-the-skies-with-record-breaking-campaign",
+    "news_source": "Benzinga",
+    "published_at": "20251021T160200",
+    "analyzed_at": "2025-10-21T12:46:08.527295"
+  },
+  {
+    "importance": 2,
+    "impact_summary": "Pegasystems Inc의 주식 거래량 증가로 인해 단기적으로 해당 기업의 주가가 영향을 받을 수 있습니다.",
+    "affected_sectors": [
+      "기술"
+    ],
+    "affected_stocks": [
+      "PEGA"
+    ],
+    "sentiment": "neutral",
+    "time_sensitivity": "short-term",
+    "key_points": [
+      "Pegasystems Inc의 주식 거래량이 증가했다.",
+      "주식 거래량 증가는 단기적으로 해당 기업 주가에 영향을 미칠 수 있다.",
+      "기술 섹터에 속한 Pegasystems Inc의 주가가 변동될 수 있다."
+    ],
+    "news_title": "What Does the Market Think About Pegasystems Inc? - Pegasystems  ( NASDAQ:PEGA ) ",
+    "news_url": "https://www.benzinga.com/insights/short-sellers/25/10/48332917/what-does-the-market-think-about-pegasystems-inc",
+    "news_source": "Benzinga",
+    "published_at": "20251021T160050",
+    "analyzed_at": "2025-10-21T12:46:12.646386"
+  },
+  {
+    "importance": 2,
+    "impact_summary": "Zeta Global Holdings' short interest decrease may indicate a more positive market sentiment towards the stock, which could potentially have a modest impact on the overall market.",
+    "affected_sectors": [
+      "Technology"
+    ],
+    "affected_stocks": [
+      "ZETA"
+    ],
+    "sentiment": "positive",
+    "time_sensitivity": "short-term",
+    "key_points": [
+      "Zeta Global Holdings' short interest has decreased by 9.03% since the last report.",
+      "The current short interest is 11.49% of the company's float, indicating a reduction in bearish sentiment.",
+      "This news may have a modest impact on the technology sector and Zeta Global Holdings' stock price in the short term."
+    ],
+    "news_title": "Is the Market Bullish or Bearish on Zeta Global Holdings Corp? - Zeta Global Holdings  ( NYSE:ZETA ) ",
+    "news_url": "https://www.benzinga.com/insights/short-sellers/25/10/48332912/is-the-market-bullish-or-bearish-on-zeta-global-holdings-corp",
+    "news_source": "Benzinga",
+    "published_at": "20251021T160045",
+    "analyzed_at": "2025-10-21T12:46:15.403110"
+  },
+  {
+    "importance": 2,
+    "impact_summary": "이번 뉴스는 Beamr Imaging의 CEO가 Loop Capital과의 전문가 통화 참여에 관한 내용이며, 개별 기업 수준의 뉴스로 전반적인 주식 시장에 미치는 영향은 제한적일 것으로 보입니다.",
+    "affected_sectors": [
+      "기술"
+    ],
+    "affected_stocks": [
+      "BMR"
+    ],
+    "sentiment": "positive",
+    "time_sensitivity": "short-term",
+    "key_points": [
+      "Beamr Imaging이 비디오 최적화 기술 분야의 리더라고 언급",
+      "Beamr Imaging의 CEO가 Loop Capital과의 전문가 통화에 참여했다는 내용",
+      "기술 섹터 내 개별 기업에 관한 뉴스"
+    ],
+    "news_title": "Beamr Announces Participation in Expert Call with Loop Capital",
+    "news_url": "https://www.globenewswire.com/news-release/2025/10/21/3170492/0/en/Beamr-Announces-Participation-in-Expert-Call-with-Loop-Capital.html",
+    "news_source": "GlobeNewswire",
+    "published_at": "20251021T160000",
+    "analyzed_at": "2025-10-21T12:46:18.224854"
+  },
+  {
+    "importance": 2,
+    "impact_summary": "이 뉴스는 FLYE 그룹의 투자자들에게 직접적인 영향을 미칠 수 있지만, 전반적인 주식 시장에는 제한적인 영향을 줄 것으로 보입니다.",
+    "affected_sectors": [
+      "금융"
+    ],
+    "affected_stocks": [
+      "FLYE"
+    ],
+    "sentiment": "negative",
+    "time_sensitivity": "short-term",
+    "key_points": [
+      "FLYE 그룹의 투자자들이 손실을 입은 것으로 나타남",
+      "FLYE 그룹에 대한 집단소송이 제기됨",
+      "이 뉴스는 FLYE 주식 가격에 부정적인 영향을 줄 수 있음",
+      "금융 섹터 내 다른 기업들에는 제한적인 영향만 있을 것으로 예상됨",
+      "단기적으로 FLYE 주가에 부정적인 영향이 있을 것으로 예상됨"
+    ],
+    "news_title": "FLYE INVESTOR ALERT: Bronstein, Gewirtz & Grossman LLC Announces that Fly-E Group, Inc. Investors with Substantial Losses Have Opportunity to Lead Class Action Lawsuit - Fly-E Group  ( NASDAQ:FLYE ) ",
+    "news_url": "https://www.benzinga.com/pressreleases/25/10/g48332862/flye-investor-alert-bronstein-gewirtz-grossman-llc-announces-that-fly-e-group-inc-investors-with-s",
+    "news_source": "Benzinga",
+    "published_at": "20251021T160000",
+    "analyzed_at": "2025-10-21T12:46:21.660562"
+  },
+  {
+    "importance": 2,
+    "impact_summary": "Worldline's Q3 2025 revenue performance is in line with expectations, indicating minimal impact on the overall US stock market.",
+    "affected_sectors": [
+      "Information Technology",
+      "Financial Services"
+    ],
+    "affected_stocks": [
+      "WLN.PA"
+    ],
+    "sentiment": "neutral",
+    "time_sensitivity": "short-term",
+    "key_points": [
+      "Worldline reported Q3 2025 revenue of €1,149 million, down 0.8% organically, which is in line with expectations.",
+      "Worldline is a French payment services company, so its performance is more relevant to the European and financial services sectors.",
+      "The news does not suggest any major disruption or surprise that would significantly impact the broader US stock market."
+    ],
+    "news_title": "Worldline : Q3 2025 revenue - press release",
+    "news_url": "https://www.globenewswire.com/news-release/2025/10/21/3170486/0/en/Worldline-Q3-2025-revenue-press-release.html",
+    "news_source": "GlobeNewswire",
+    "published_at": "20251021T160000",
+    "analyzed_at": "2025-10-21T12:46:24.127360"
+  },
+  {
+    "importance": 2,
+    "impact_summary": "EverCommerce의 3분기 실적 발표 예정이 주식 시장에 미치는 영향은 제한적일 것으로 예상됩니다.",
+    "affected_sectors": [
+      "소프트웨어",
+      "IT 서비스"
+    ],
+    "affected_stocks": [
+      "EVCM"
+    ],
+    "sentiment": "neutral",
+    "time_sensitivity": "short-term",
+    "key_points": [
+      "EverCommerce는 SaaS 솔루션 제공업체로, 소규모 서비스 기업을 대상으로 합니다.",
+      "3분기 실적 발표 예정이지만, 전체 시장에 미치는 영향은 제한적일 것으로 보입니다.",
+      "EverCommerce 주식(EVCM)과 관련 IT 서비스 섹터에 단기적인 영향이 있을 수 있습니다.",
+      "이번 뉴스는 기업 실적 발표에 해당하므로 중요도는 보통 수준입니다.",
+      "투자자들은 EverCommerce의 실적과 전망을 면밀히 모니터링할 필요가 있습니다."
+    ],
+    "news_title": "EverCommerce Announces Date of Third Quarter 2025 Earnings Call - EverCommerce  ( NASDAQ:EVCM ) ",
+    "news_url": "https://www.benzinga.com/pressreleases/25/10/g48332861/evercommerce-announces-date-of-third-quarter-2025-earnings-call",
+    "news_source": "Benzinga",
+    "published_at": "20251021T160000",
+    "analyzed_at": "2025-10-21T12:46:27.729064"
+  },
+  {
+    "importance": 2,
+    "impact_summary": "이 뉴스는 DTEX 기업의 새로운 특허 획득에 관한 것이며, 주로 사이버 보안 관련 기업들에 영향을 미칠 수 있습니다.",
+    "affected_sectors": [
+      "사이버 보안",
+      "정보기술"
+    ],
+    "affected_stocks": [
+      "DTEX",
+      "CYBR",
+      "PANW",
+      "CRWD"
+    ],
+    "sentiment": "positive",
+    "time_sensitivity": "short-term",
+    "key_points": [
+      "DTEX가 AI 기반 리스크 관리 기술에 대한 특허를 받음",
+      "이는 사이버 보안 기업들의 기술 혁신 경쟁에 기여할 수 있음",
+      "DTEX의 성과는 해당 기업 및 관련 섹터에 긍정적인 영향을 줄 것으로 예상됨",
+      "단기적으로 DTEX와 유사한 사이버 보안 기업들의 주가에 긍정적인 영향을 미칠 수 있음",
+      "장기적으로는 사이버 보안 기술 발전이 전체 IT 산업에 긍정적인 영향을 줄 것으로 기대됨"
+    ],
+    "news_title": "DTEX Awarded U.S. Patent for Adaptive Data Protection as AI-Driven Risks Rise",
+    "news_url": "https://www.benzinga.com/pressreleases/25/10/g48332865/dtex-awarded-u-s-patent-for-adaptive-data-protection-as-ai-driven-risks-rise",
+    "news_source": "Benzinga",
+    "published_at": "20251021T160000",
+    "analyzed_at": "2025-10-21T12:46:32.076705"
+  },
+  {
+    "importance": 2,
+    "impact_summary": "EverCommerce의 2025년 3분기 실적 발표 예정은 해당 기업에 직접적인 영향을 미치겠지만 전체 주식 시장에 미치는 영향은 제한적일 것으로 예상됩니다.",
+    "affected_sectors": [
+      "IT 서비스",
+      "SaaS"
+    ],
+    "affected_stocks": [
+      "EVCM"
+    ],
+    "sentiment": "neutral",
+    "time_sensitivity": "short-term",
+    "key_points": [
+      "EverCommerce의 2025년 3분기 실적 발표 예정",
+      "EverCommerce는 서비스 SMB 업체를 위한 SaaS 솔루션 제공 업체",
+      "실적 발표는 해당 기업에 직접적인 영향을 미칠 것으로 보이나 전체 시장에 미치는 영향은 제한적"
+    ],
+    "news_title": "EverCommerce Announces Date of Third Quarter 2025 Earnings Call",
+    "news_url": "https://www.globenewswire.com/news-release/2025/10/21/3170490/0/en/EverCommerce-Announces-Date-of-Third-Quarter-2025-Earnings-Call.html",
+    "news_source": "GlobeNewswire",
+    "published_at": "20251021T160000",
+    "analyzed_at": "2025-10-21T12:46:34.882464"
+  },
+  {
+    "importance": 2,
+    "impact_summary": "이 뉴스는 F5 주식에 대한 투자자 소송 제기 가능성을 암시하며, 단기적으로 F5 주가에 부정적인 영향을 미칠 수 있습니다.",
+    "affected_sectors": [
+      "정보기술"
+    ],
+    "affected_stocks": [
+      "FFIV"
+    ],
+    "sentiment": "negative",
+    "time_sensitivity": "short-term",
+    "key_points": [
+      "F5에 대한 투자자 소송 제기 가능성 있음",
+      "투자자들의 피해 사실이 주장되고 있음",
+      "투자자들이 직접 소송에 참여할 수 있음"
+    ],
+    "news_title": "F5 ALERT: Bragar Eagel & Squire, P.C. is Investigating F5, Inc. on Behalf of F5 Stockholders and Encourages Investors to Contact the Firm - F5  ( NASDAQ:FFIV ) ",
+    "news_url": "https://www.benzinga.com/pressreleases/25/10/g48332639/f5-alert-bragar-eagel-squire-p-c-is-investigating-f5-inc-on-behalf-of-f5-stockholders-and-encourag",
+    "news_source": "Benzinga",
+    "published_at": "20251021T154950",
+    "analyzed_at": "2025-10-21T12:46:37.369573"
   }
 ]
