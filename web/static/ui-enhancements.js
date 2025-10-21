@@ -159,11 +159,11 @@ darkModeStyle.textContent = `
     }
 
     .dark-mode {
-        --bg-dark: #e8edf2;
-        --bg-card: #f7f9fb;
-        --text-primary: #2d3748;
-        --text-secondary: #4a5568;
-        --border: rgba(0, 0, 0, 0.08);
+        --bg-dark: #d4dce5;
+        --bg-card: #e8f0f7;
+        --text-primary: #1a202c;
+        --text-secondary: #2d3748;
+        --border: rgba(0, 0, 0, 0.12);
     }
 
     .dark-mode body {
