@@ -18,9 +18,6 @@ except ImportError:
 
 auth = Blueprint('auth', __name__)
 
-# Limiter will be imported from app.py after initialization
-limiter = None
-
 # Initialize OAuth
 oauth = OAuth()
 
@@ -45,9 +42,8 @@ else:
 
 
 @auth.route('/login', methods=['GET', 'POST'])
-@limiter.limit("10 per minute")
 def login():
-    """Login page with rate limiting (10 attempts per minute)"""
+    """Login page"""
     if current_user.is_authenticated:
         return redirect(url_for('index'))
 
@@ -81,9 +77,8 @@ def login():
 
 
 @auth.route('/signup', methods=['GET', 'POST'])
-@limiter.limit("5 per minute")
 def signup():
-    """Signup page with rate limiting (5 attempts per minute)"""
+    """Signup page"""
     if current_user.is_authenticated:
         return redirect(url_for('index'))
 
@@ -227,9 +222,8 @@ def admin_upgrade_user(email, tier):
 
 
 @auth.route('/google/login')
-@limiter.limit("10 per minute")
 def google_login():
-    """Initiate Google OAuth login with rate limiting"""
+    """Initiate Google OAuth login"""
     if not GOOGLE_OAUTH_ENABLED:
         flash('Google login is not configured. Please use email/password login.', 'error')
         return redirect(url_for('auth.login'))
@@ -239,9 +233,8 @@ def google_login():
 
 
 @auth.route('/google/callback')
-@limiter.limit("10 per minute")
 def google_callback():
-    """Handle Google OAuth callback with rate limiting"""
+    """Handle Google OAuth callback"""
     if not GOOGLE_OAUTH_ENABLED:
         flash('Google login is not configured.', 'error')
         return redirect(url_for('auth.login'))
@@ -353,9 +346,8 @@ def change_password():
 
 
 @auth.route('/send-verification-code', methods=['POST'])
-@limiter.limit("3 per minute")
 def send_verification_code():
-    """Send 6-digit verification code to email with rate limiting (3 per minute)"""
+    """Send 6-digit verification code to email"""
     data = request.get_json()
     email = data.get('email')
 
@@ -409,9 +401,8 @@ Qunex Trade Team
 
 
 @auth.route('/verify-code', methods=['POST'])
-@limiter.limit("10 per minute")
 def verify_code():
-    """Verify the 6-digit code with rate limiting (10 attempts per minute)"""
+    """Verify the 6-digit code"""
     data = request.get_json()
     code = data.get('code')
 
@@ -441,9 +432,8 @@ def verify_code():
 
 
 @auth.route('/forgot-password', methods=['GET', 'POST'])
-@limiter.limit("3 per minute")
 def forgot_password():
-    """Forgot password page - send reset email with rate limiting (3 attempts per minute)"""
+    """Forgot password page - send reset email"""
     if current_user.is_authenticated:
         return redirect(url_for('index'))
 
@@ -518,9 +508,8 @@ Qunex Trade Team
 
 
 @auth.route('/reset-password/<token>', methods=['GET', 'POST'])
-@limiter.limit("5 per minute")
 def reset_password(token):
-    """Reset password with token and rate limiting (5 attempts per minute)"""
+    """Reset password with token"""
     if current_user.is_authenticated:
         return redirect(url_for('index'))
 

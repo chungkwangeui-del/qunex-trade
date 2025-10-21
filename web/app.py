@@ -86,18 +86,13 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'auth.login'
 
-# Import blueprints after limiter is initialized
+# Import blueprints
 try:
-    import auth as auth_module
     from auth import auth, oauth
     from payments import payments
 except ImportError:
-    import web.auth as auth_module
     from web.auth import auth, oauth
     from web.payments import payments
-
-# Inject limiter into auth module
-auth_module.limiter = limiter
 
 # Initialize OAuth with app
 oauth.init_app(app)
@@ -105,6 +100,16 @@ oauth.init_app(app)
 # Register blueprints
 app.register_blueprint(auth, url_prefix='/auth')
 app.register_blueprint(payments, url_prefix='/payments')
+
+# Apply rate limiting to auth routes
+limiter.limit("10 per minute")(auth.view_functions['login'])
+limiter.limit("5 per minute")(auth.view_functions['signup'])
+limiter.limit("3 per minute")(auth.view_functions['forgot_password'])
+limiter.limit("5 per minute")(auth.view_functions['reset_password'])
+limiter.limit("3 per minute")(auth.view_functions['send_verification_code'])
+limiter.limit("10 per minute")(auth.view_functions['verify_code'])
+limiter.limit("10 per minute")(auth.view_functions['google_login'])
+limiter.limit("10 per minute")(auth.view_functions['google_callback'])
 
 @login_manager.user_loader
 def load_user(user_id):
