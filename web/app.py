@@ -236,13 +236,24 @@ def privacy():
 
 @app.route('/news')
 def news():
-    """Market News & Analysis"""
+    """Market News & Analysis (Beta/Developer Only)"""
     import json
     import os
     import sys
 
     # Add parent directory to path for imports
     sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+    # Check user access level
+    # Only beta testers and developers can access full news
+    has_access = False
+    user_tier = 'guest'
+
+    if current_user.is_authenticated:
+        user_tier = current_user.subscription_tier
+        # Grant access to beta testers and developers
+        if user_tier in ['beta', 'developer']:
+            has_access = True
 
     try:
         # Load analyzed news from JSON file
@@ -254,14 +265,21 @@ def news():
         else:
             news_data = []
 
+        # If no access, only show preview (first 3 items, blurred)
+        preview_data = news_data[:3] if not has_access else news_data
+
         return render_template('news.html',
-                             news_data=news_data,
-                             user=current_user)
+                             news_data=preview_data,
+                             user=current_user,
+                             has_access=has_access,
+                             user_tier=user_tier)
     except Exception as e:
         print(f"Error loading news: {e}")
         return render_template('news.html',
                              news_data=[],
-                             user=current_user)
+                             user=current_user,
+                             has_access=False,
+                             user_tier=user_tier)
 
 @app.route('/api/news/refresh')
 def api_refresh_news():

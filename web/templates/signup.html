@@ -366,7 +366,14 @@
                 if (data.success) {
                     document.getElementById('verificationCodeGroup').style.display = 'block';
                     btn.textContent = 'Resend Code';
-                    alert(data.message);
+
+                    // If dev_code is provided (dev mode), auto-fill it
+                    if (data.dev_code) {
+                        document.getElementById('verificationCode').value = data.dev_code;
+                        alert(data.message + '\n\nCode has been auto-filled.');
+                    } else {
+                        alert(data.message);
+                    }
                 } else {
                     alert(data.message);
                 }

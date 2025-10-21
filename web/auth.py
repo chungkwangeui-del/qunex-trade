@@ -420,7 +420,19 @@ Qunex Trade Team
         return jsonify({'success': True, 'message': 'Verification code sent!'})
     except Exception as e:
         print(f"Error sending email: {e}")
-        return jsonify({'success': False, 'message': 'Failed to send email. Please try again.'}), 500
+
+        # DEVELOPMENT FALLBACK: Use default code if email fails
+        # This allows testing without email server
+        if os.getenv('FLASK_ENV') == 'development' or not os.getenv('MAIL_PASSWORD'):
+            print(f"[DEV MODE] Email sending failed. Using default code: {code}")
+            print(f"[DEV MODE] Verification code for {email}: {code}")
+            return jsonify({
+                'success': True,
+                'message': f'DEV MODE: Email unavailable. Use code: {code}',
+                'dev_code': code  # Only in development
+            })
+
+        return jsonify({'success': False, 'message': 'Failed to send verification code. Please try again.'}), 500
 
 
 @auth.route('/verify-code', methods=['POST'])
