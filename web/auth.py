@@ -222,7 +222,7 @@ def admin_upgrade_user(email, tier):
     if request.args.get('password') != admin_password:
         return jsonify({'error': 'Unauthorized'}), 403
 
-    if tier not in ['free', 'pro', 'premium', 'developer']:
+    if tier not in ['free', 'pro', 'premium', 'beta', 'developer']:
         return jsonify({'error': 'Invalid tier'}), 400
 
     user = db.session.execute(db.select(User).filter_by(email=email)).scalar_one_or_none()
