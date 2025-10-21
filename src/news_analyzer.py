@@ -10,6 +10,10 @@ import json
 from typing import Dict, List, Optional
 from datetime import datetime
 import anthropic
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 class NewsAnalyzer:
     """뉴스 영향도 분석기"""
@@ -76,7 +80,7 @@ class NewsAnalyzer:
 1 = 루머, 경미한 뉴스"""
 
             message = client.messages.create(
-                model="claude-3-5-sonnet-20241022",
+                model="claude-3-5-sonnet-20240620",
                 max_tokens=1024,
                 messages=[
                     {"role": "user", "content": prompt}

@@ -1,0 +1,47 @@
+[
+  {
+    "importance": 4,
+    "impact_summary": "Jim Cramer: Avoid this investing strategy—it's 'an easy road to disaster'",
+    "affected_sectors": [],
+    "affected_stocks": [],
+    "sentiment": "positive",
+    "time_sensitivity": "short-term",
+    "key_points": [],
+    "news_title": "Jim Cramer: Avoid this investing strategy—it's 'an easy road to disaster'",
+    "news_url": "https://www.cnbc.com/2025/10/20/jim-cramer-avoid-meme-stocks-do-this-instead.html",
+    "news_source": "CNBC",
+    "published_at": "2025-10-20T13:00:01Z",
+    "analyzed_at": "2025-10-21T12:43:22.960621",
+    "analysis_method": "fallback"
+  },
+  {
+    "importance": 3,
+    "impact_summary": "Apple stock rallies following strong iPhone 17 sales in U.S. and China",
+    "affected_sectors": [],
+    "affected_stocks": [],
+    "sentiment": "neutral",
+    "time_sensitivity": "short-term",
+    "key_points": [],
+    "news_title": "Apple stock rallies following strong iPhone 17 sales in U.S. and China",
+    "news_url": "https://www.cnbc.com/2025/10/20/apple-stock-iphone-17-us-china-sales.html",
+    "news_source": "CNBC",
+    "published_at": "2025-10-20T14:48:18Z",
+    "analyzed_at": "2025-10-21T12:43:21.713947",
+    "analysis_method": "fallback"
+  },
+  {
+    "importance": 2,
+    "impact_summary": "Thyssenkrupp warship spinoff TKMS taps into Europe’s defense boom with Frankfurt IPO",
+    "affected_sectors": [],
+    "affected_stocks": [],
+    "sentiment": "neutral",
+    "time_sensitivity": "short-term",
+    "key_points": [],
+    "news_title": "Thyssenkrupp warship spinoff TKMS taps into Europe’s defense boom with Frankfurt IPO",
+    "news_url": "https://www.cnbc.com/2025/10/20/tkms-taps-into-europes-defense-boom-with-frankfurt-ipo.html",
+    "news_source": "CNBC",
+    "published_at": "2025-10-20T14:16:45Z",
+    "analyzed_at": "2025-10-21T12:43:22.351320",
+    "analysis_method": "fallback"
+  }
+]

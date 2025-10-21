@@ -9,6 +9,10 @@ import requests
 from datetime import datetime, timedelta
 from typing import List, Dict, Optional
 import json
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 class NewsCollector:
     """미국 주식 뉴스 수집기"""
