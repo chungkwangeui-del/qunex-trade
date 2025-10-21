@@ -1,480 +1,512 @@
 [
   {
-    "importance": 3,
-    "impact_summary": "Apple의 iPhone 17 판매 호조는 Apple 주가 및 관련 산업에 긍정적인 영향을 미칠 것으로 예상됨",
+    "importance": 4,
+    "impact_summary": "The news suggests that potential legal challenges to Trump's tariffs and the prospect of continued Fed rate cuts could provide a positive boost to the US stock market.",
     "affected_sectors": [
-      "기술",
-      "스마트폰"
+      "Industrials",
+      "Materials",
+      "Energy"
+    ],
+    "affected_stocks": [
+      "XLI",
+      "XLB",
+      "XLE"
+    ],
+    "sentiment": "positive",
+    "time_sensitivity": "short-term",
+    "key_points": [
+      "Investors are increasingly convinced that the Fed will continue to cut interest rates, which is seen as a positive for equities.",
+      "The possibility of the US Supreme Court ruling Trump's tariffs as illegal would be a further boost to the stock market.",
+      "Strong economic growth in China and a new pro-stimulus government in Japan are also contributing to the positive market sentiment.",
+      "Sectors like Industrials, Materials, and Energy, which have been impacted by the trade war, could see a rebound if the tariffs are lifted.",
+      "The impact on the stock market is likely to be felt in the short-term as investors react to the potential policy changes."
+    ],
+    "news_title": "Stock traders are delighted at the prospect of Trump losing his tariff war - Fortune",
+    "news_url": "https://fortune.com/2025/10/20/stocks-trump-tariff-trade-war/",
+    "news_source": "Fortune",
+    "published_at": "2025-10-20T11:06:00Z",
+    "analyzed_at": "2025-10-21T13:11:07.162563"
+  },
+  {
+    "importance": 4,
+    "impact_summary": "This week's events, including US-China trade negotiations and Tesla's earnings report, could have a significant impact on the US stock market as investors look for signs of progress in resolving trade tensions and the performance of a major technology company.",
+    "affected_sectors": [
+      "Technology",
+      "Automotive",
+      "Industrial",
+      "Materials"
+    ],
+    "affected_stocks": [
+      "TSLA",
+      "AAPL",
+      "MSFT",
+      "INTC",
+      "CAT",
+      "DE",
+      "LMT",
+      "X",
+      "NUE"
+    ],
+    "sentiment": "neutral",
+    "time_sensitivity": "immediate",
+    "key_points": [
+      "US-China trade negotiations resume this week, with investors hoping for diplomatic progress that could ease tensions over rare-earth export restrictions and the retaliation measures",
+      "Tesla is scheduled to report its Q1 2023 earnings, which will be closely watched by investors as a barometer for the electric vehicle industry",
+      "Potential market impact from the outcome of the trade talks and Tesla's earnings report, as they could affect sentiment and performance across several key sectors",
+      "Investors will be monitoring the negotiations and earnings report for clues on the broader economic and market conditions",
+      "The timing of these events makes them particularly time-sensitive, as they could influence immediate market movements and investor sentiment"
+    ],
+    "news_title": "China Talk, Tesla Earnings And Other Can't Miss Items This Week - Barchart.com",
+    "news_url": "https://www.barchart.com/story/news/35550490/china-talk-tesla-earnings-and-other-can-t-miss-items-this-week",
+    "news_source": "Barchart.com",
+    "published_at": "2025-10-19T17:00:02Z",
+    "analyzed_at": "2025-10-21T13:11:19.077574"
+  },
+  {
+    "importance": 4,
+    "impact_summary": "The slowdown in China's economic growth due to the ongoing trade war with the US is likely to negatively impact sectors and companies with significant exposure to the Chinese market.",
+    "affected_sectors": [
+      "Manufacturing",
+      "Technology",
+      "Commodities",
+      "Consumer Discretionary"
     ],
     "affected_stocks": [
       "AAPL",
       "MSFT",
-      "GOOGL",
-      "SAMSUNG"
-    ],
-    "sentiment": "positive",
-    "time_sensitivity": "short-term",
-    "key_points": [
-      "iPhone 17 시리즈의 판매가 전작 대비 14% 증가했다는 긍정적인 결과",
-      "Apple 주가가 이에 힘입어 3% 상승했다",
-      "iPhone은 Apple의 주요 수익원이므로 이번 판매 호조는 Apple 실적에 긍정적",
-      "관련 산업인 스마트폰 및 기술 섹터에도 유사한 영향 예상",
-      "단기적으로는 주가 상승, 중장기적으로는 Apple과 관련 기업 실적에 도움이 될 것"
-    ],
-    "news_title": "Apple stock rallies following strong iPhone 17 sales in U.S. and China",
-    "news_url": "https://www.cnbc.com/2025/10/20/apple-stock-iphone-17-us-china-sales.html",
-    "news_source": "CNBC",
-    "published_at": "2025-10-20T14:48:18Z",
-    "analyzed_at": "2025-10-21T12:45:37.351364"
-  },
-  {
-    "importance": 3,
-    "impact_summary": "Cramer's advice to avoid certain investment strategies and focus on long-term investing could influence investor sentiment and market trends.",
-    "affected_sectors": [
-      "Financial Services",
-      "Asset Management"
-    ],
-    "affected_stocks": [
-      "CNBC",
-      "VTI",
-      "SPY"
-    ],
-    "sentiment": "positive",
-    "time_sensitivity": "short-term",
-    "key_points": [
-      "Cramer warns against quick-profit trading strategies, advocating for long-term investing instead",
-      "His advice could impact investor behavior and shift focus towards more sustainable investment approaches",
-      "Financial services and asset management sectors may see changes in investment flows based on Cramer's recommendations",
-      "Popular index funds like VTI and SPY may benefit if investors heed Cramer's advice to adopt a long-term investment mindset",
-      "Cramer's influence as a prominent financial commentator could shape near-term market sentiment and trends"
-    ],
-    "news_title": "Jim Cramer: Avoid this investing strategy—it's 'an easy road to disaster'",
-    "news_url": "https://www.cnbc.com/2025/10/20/jim-cramer-avoid-meme-stocks-do-this-instead.html",
-    "news_source": "CNBC",
-    "published_at": "2025-10-20T13:00:01Z",
-    "analyzed_at": "2025-10-21T12:45:43.286941"
-  },
-  {
-    "importance": 3,
-    "impact_summary": "이 뉴스는 Cooper Companies 주식에 직접적인 영향을 미칠 것으로 보이며, 의료기기 섹터 전반에 부정적인 영향을 미칠 수 있습니다.",
-    "affected_sectors": [
-      "의료기기"
-    ],
-    "affected_stocks": [
-      "COO"
+      "AMZN",
+      "XOM",
+      "CAT"
     ],
     "sentiment": "negative",
     "time_sensitivity": "short-term",
     "key_points": [
-      "헤지펀드 Jana Partners가 Cooper Companies의 지분을 확보했다고 발표했습니다.",
-      "Jana Partners는 Cooper의 자본 배분 방식을 개선하도록 압박할 계획입니다.",
-      "이는 Cooper 주가에 부정적인 영향을 미칠 수 있으며, 의료기기 섹터 전반에도 부담이 될 수 있습니다.",
-      "Cooper의 경영 방식 변화에 대한 불확실성이 투자자들의 우려를 증폭시킬 수 있습니다.",
-      "단기적으로는 Cooper 주가와 의료기기 섹터 주식에 부정적인 영향이 예상됩니다."
+      "China's GDP growth slowed to 4.8% in Q3 2022, the lowest in a year, due to the ongoing trade tensions with the US",
+      "The slowdown is a concern for Chinese Communist Party leaders as they prepare for an important planning meeting",
+      "Sectors with significant exposure to the Chinese market, such as manufacturing, technology, commodities, and consumer discretionary, are likely to be negatively affected",
+      "Major US companies with strong business ties to China, such as Apple, Microsoft, Amazon, Exxon Mobil, and Caterpillar, may see their stock prices decline in the short term",
+      "The news underscores the continued uncertainty and challenges posed by the US-China trade war, which has been an ongoing concern for the global markets"
     ],
-    "news_title": "Activist investor Jana Partners takes stake in medical device maker Cooper Companies, WSJ says",
-    "news_url": "https://www.cnbc.com/2025/10/20/activist-investor-jana-partners-takes-stake-in-cooper-cos-wsj-says.html",
-    "news_source": "CNBC",
-    "published_at": "2025-10-20T12:56:04Z",
-    "analyzed_at": "2025-10-21T12:45:46.556986"
+    "news_title": "China’s economy grows at slowest pace in a year as trade war bites - The Washington Post",
+    "news_url": "https://www.washingtonpost.com/world/2025/10/20/china-economy-gdp-growth/",
+    "news_source": "The Washington Post",
+    "published_at": "2025-10-20T12:14:31Z",
+    "analyzed_at": "2025-10-21T13:11:31.507156"
   },
   {
-    "importance": 3,
-    "impact_summary": "BJ's Restaurants의 2025년 3분기 실적 발표 예정으로 외식 섹터에 단기적인 영향 예상",
+    "importance": 4,
+    "impact_summary": "China's new export rules on rare earths could disrupt global supply chains, particularly for high-tech and defense industries that rely on these critical materials.",
     "affected_sectors": [
-      "외식/음식 섹터"
+      "Technology",
+      "Aerospace and Defense",
+      "Automotive"
     ],
     "affected_stocks": [
-      "BJRI"
-    ],
-    "sentiment": "neutral",
-    "time_sensitivity": "short-term",
-    "key_points": [
-      "BJ's Restaurants, Inc.의 2025년 3분기 실적 발표 예정",
-      "투자자 컨퍼런스 콜이 예정되어 있음",
-      "외식 섹터 기업의 실적 발표로 해당 섹터에 단기적인 영향 예상"
-    ],
-    "news_title": "BJ's Restaurants, Inc. Announces Date for Third Quarter 2025 Earnings Release and Conference Call - BJ's Restaurants  ( NASDAQ:BJRI ) ",
-    "news_url": "https://www.benzinga.com/pressreleases/25/10/g48334730/bjs-restaurants-inc-announces-date-for-third-quarter-2025-earnings-release-and-conference-call",
-    "news_source": "Benzinga",
-    "published_at": "20251021T170000",
-    "analyzed_at": "2025-10-21T12:45:48.826555"
-  },
-  {
-    "importance": 3,
-    "impact_summary": "이 뉴스는 Nutex Health Inc.에 대한 증권 집단소송 관련 데드라인 소식으로, 해당 기업의 주가에 단기적인 영향을 줄 수 있습니다.",
-    "affected_sectors": [
-      "헬스케어"
-    ],
-    "affected_stocks": [
-      "NUTX"
-    ],
-    "sentiment": "negative",
-    "time_sensitivity": "short-term",
-    "key_points": [
-      "Nutex Health Inc.에 대한 증권 집단소송 관련 중요 데드라인 공지",
-      "2024년 8월 8일부터 2025년 8월 14일 사이에 NUTX 주식을 구매한 투자자들이 영향을 받을 수 있음",
-      "투자자들에게 변호사를 선임할 것을 권고하고 있음"
-    ],
-    "news_title": "NUTX DEADLINE TODAY: ROSEN, LEADING INVESTOR COUNSEL, Encourages Nutex Health Inc. Investors to Secure Counsel Before Important October 21 Deadline in Securities Class Action - NUTX - Nutex Health  ( NASDAQ:NUTX ) ",
-    "news_url": "https://www.benzinga.com/pressreleases/25/10/g48332635/nutx-deadline-today-rosen-leading-investor-counsel-encourages-nutex-health-inc-investors-to-secure",
-    "news_source": "Benzinga",
-    "published_at": "20251021T154945",
-    "analyzed_at": "2025-10-21T12:46:40.295059"
-  },
-  {
-    "importance": 3,
-    "impact_summary": "BWX Technologies' strong financial performance over the past 5 years could positively impact the aerospace and defense sectors, as well as the broader stock market.",
-    "affected_sectors": [
-      "Aerospace",
-      "Defense"
-    ],
-    "affected_stocks": [
-      "LMT",
-      "NOC",
-      "RTX"
-    ],
-    "sentiment": "positive",
-    "time_sensitivity": "short-term",
-    "key_points": [
-      "BWX Technologies has outperformed the market by 14.29% annually over the past 5 years",
-      "The company has a market capitalization of $18.45 billion",
-      "Strong financial performance could attract investor interest in the aerospace and defense sectors",
-      "Positive news about a major defense contractor could have a ripple effect on other industry players",
-      "Investors may view this as a sign of strength in the overall defense and aerospace sectors"
-    ],
-    "news_title": "Here's How Much You Would Have Made Owning BWX Technologies Stock In The Last 5 Years - BWX Technologies  ( NYSE:BWXT ) ",
-    "news_url": "https://www.benzinga.com/insights/news/25/10/48332500/heres-how-much-you-would-have-made-owning-bwx-technologies-stock-in-the-last-5-years",
-    "news_source": "Benzinga",
-    "published_at": "20251021T154546",
-    "analyzed_at": "2025-10-21T12:46:42.963049"
-  },
-  {
-    "importance": 2,
-    "impact_summary": "Thyssenkrupp warship spinoff TKMS taps into Europe’s defense boom with Frankfurt IPO",
-    "affected_sectors": [],
-    "affected_stocks": [],
-    "sentiment": "neutral",
-    "time_sensitivity": "short-term",
-    "key_points": [],
-    "news_title": "Thyssenkrupp warship spinoff TKMS taps into Europe’s defense boom with Frankfurt IPO",
-    "news_url": "https://www.cnbc.com/2025/10/20/tkms-taps-into-europes-defense-boom-with-frankfurt-ipo.html",
-    "news_source": "CNBC",
-    "published_at": "2025-10-20T14:16:45Z",
-    "analyzed_at": "2025-10-21T12:45:40.798568",
-    "analysis_method": "fallback"
-  },
-  {
-    "importance": 2,
-    "impact_summary": "이 뉴스는 캐나다 브리티시 컬럼비아 주에서 신규 암호화폐 마이닝 사이트 영구 금지를 발표한 것으로, 이는 주로 지역 수준의 영향을 미칠 것으로 예상됩니다.",
-    "affected_sectors": [
-      "기술",
-      "에너지"
-    ],
-    "affected_stocks": [
-      "RIOT",
-      "MARA",
-      "HVBT"
-    ],
-    "sentiment": "negative",
-    "time_sensitivity": "short-term",
-    "key_points": [
-      "브리티시 컬럼비아 주가 신규 암호화폐 마이닝 사이트 영구 금지를 발표했습니다.",
-      "이는 브리티시 컬럼비아 주 내 청정 에너지 자원을 일반 산업과 일자리 창출에 활용하기 위한 조치입니다.",
-      "이번 결정은 암호화폐 마이닝 기업들에게 단기적으로 부정적인 영향을 줄 수 있습니다.",
-      "하지만 장기적으로는 청정 에너지 정책이 다른 지역에도 영향을 미칠 수 있어 더 넓은 범위의 주요 섹터에 영향을 줄 수 있습니다.",
-      "이번 조치는 특히 브리티시 컬럼비아 주 내 주요 암호화폐 마이닝 기업들에 직접적인 영향을 줄 것으로 보입니다."
-    ],
-    "news_title": "British Columbia Wants to Permanently Ban New Crypto Mining Sites",
-    "news_url": "https://decrypt.co/345209/british-columbia-ban-crypto-mining-projects",
-    "news_source": "Decrypt.co",
-    "published_at": "20251021T163716",
-    "analyzed_at": "2025-10-21T12:45:54.557439"
-  },
-  {
-    "importance": 2,
-    "impact_summary": "이 뉴스는 전반적으로 주식 시장에 미치는 영향이 제한적일 것으로 보입니다. 주요 기업 경영진의 변화는 해당 기업에 단기적인 영향을 줄 수 있지만, 전체 시장에 미치는 영향은 크지 않을 것으로 예상됩니다.",
-    "affected_sectors": [
-      "소비재",
-      "비영리단체"
-    ],
-    "affected_stocks": [
-      "NWHM"
-    ],
-    "sentiment": "neutral",
-    "time_sensitivity": "short-term",
-    "key_points": [
-      "국립여성역사박물관이 새로운 이사진을 선임했다는 소식",
-      "이사진 추가 선임은 해당 기관의 운영과 활동에 영향을 줄 수 있지만, 전반적인 주식 시장에 미치는 영향은 크지 않을 것으로 예상됩니다.",
-      "이 뉴스는 박물관 운영과 관련된 기관 및 단체에 가장 직접적인 영향을 줄 것으로 보입니다.",
-      "개별 기업 수준에서는 관련 기관과 거래하는 기업들의 주가에 단기적인 영향이 있을 수 있습니다.",
-      "전반적으로 주식 시장 전체에 미치는 영향은 제한적일 것으로 판단됩니다."
-    ],
-    "news_title": "National Women's History Museum Appoints Strategic Leaders Scott Hefter and Joyce Winnecke to Board of Directors",
-    "news_url": "https://www.benzinga.com/pressreleases/25/10/n48333778/national-womens-history-museum-appoints-strategic-leaders-scott-hefter-and-joyce-winnecke-to-board",
-    "news_source": "Benzinga",
-    "published_at": "20251021T162400",
-    "analyzed_at": "2025-10-21T12:45:59.594582"
-  },
-  {
-    "importance": 2,
-    "impact_summary": "이 뉴스는 기업 간 기술 통합에 관한 내용으로, 배경 확인 산업에 영향을 줄 수 있지만 전체 주식 시장에는 제한적인 영향을 미칠 것으로 예상됩니다.",
-    "affected_sectors": [
-      "IT 서비스",
-      "전문 서비스"
-    ],
-    "affected_stocks": [
-      "RDVT"
-    ],
-    "sentiment": "positive",
-    "time_sensitivity": "short-term",
-    "key_points": [
-      "IDI와 TazWorks 간의 새로운 기술 통합 발표",
-      "IDI의 ID 검증 및 리스크 관리 기술을 TazWorks 플랫폼에 제공",
-      "배경 확인 산업에서 IDI의 제품 접근성 확대",
-      "RDVT 주가에 단기적인 긍정적 영향 예상",
-      "전체 주식 시장에는 제한적인 영향"
-    ],
-    "news_title": "IDI Announces Integration with TazWorks to Expand Access to IDI's Best-in-Class Identity Intelligence in the Background Screening Industry",
-    "news_url": "https://www.globenewswire.com/news-release/2025/10/21/3170521/0/en/IDI-Announces-Integration-with-TazWorks-to-Expand-Access-to-IDI-s-Best-in-Class-Identity-Intelligence-in-the-Background-Screening-Industry.html",
-    "news_source": "GlobeNewswire",
-    "published_at": "20251021T162100",
-    "analyzed_at": "2025-10-21T12:46:04.108546"
-  },
-  {
-    "importance": 2,
-    "impact_summary": "이 뉴스는 엔터테인먼트 및 광고 산업에서 새로운 기술 개발에 관한 것으로, 관련 기업들에 경미한 긍정적인 영향을 줄 것으로 보입니다.",
-    "affected_sectors": [
-      "엔터테인먼트",
-      "광고"
-    ],
-    "affected_stocks": [
+      "AAPL",
+      "MSFT",
       "NVDA",
-      "GOOGL",
-      "FB"
+      "LMT",
+      "BA",
+      "GM",
+      "F"
+    ],
+    "sentiment": "negative",
+    "time_sensitivity": "short-term",
+    "key_points": [
+      "China has expanded its export rules on rare earths, requiring foreign firms to get approval for exporting products containing even small amounts of China-originated materials.",
+      "This move is seen as retaliation against the United States in the ongoing trade war, as the US relies heavily on China for rare earth supplies.",
+      "Rare earths are critical for the production of many high-tech and defense-related products, including smartphones, electric vehicles, and military equipment.",
+      "The new regulations could disrupt global supply chains and increase costs for companies that rely on these materials, potentially leading to higher prices for consumers.",
+      "The US and other countries may need to accelerate efforts to diversify their rare earth supply sources and develop alternative technologies to reduce their dependence on China."
+    ],
+    "news_title": "To hit back at the United States in their trade war, China borrows from the US playbook - ABC News - Breaking News, Latest News and Videos",
+    "news_url": "https://abcnews.go.com/Business/wireStory/hit-back-united-states-trade-war-china-borrows-126667971",
+    "news_source": "ABC News",
+    "published_at": "2025-10-20T06:30:55Z",
+    "analyzed_at": "2025-10-21T13:11:42.907343"
+  },
+  {
+    "importance": 4,
+    "impact_summary": "The ECB president's comments suggest that the impact of global trade tensions and tariffs on the global economy has not yet been fully realized, which could lead to further market volatility and uncertainty.",
+    "affected_sectors": [
+      "Industrials",
+      "Materials",
+      "Technology",
+      "Financials"
+    ],
+    "affected_stocks": [
+      "GE",
+      "CAT",
+      "BA",
+      "MMM",
+      "AAPL",
+      "MSFT",
+      "JPM",
+      "BAC"
+    ],
+    "sentiment": "negative",
+    "time_sensitivity": "short-term",
+    "key_points": [
+      "The ECB president believes the global economy has not yet fully felt the pain of tariffs and trade tensions.",
+      "Tariffs and technological advancements are transforming the global economy, according to the ECB president.",
+      "The comments suggest further market volatility and uncertainty as the impact of trade tensions continues to play out.",
+      "Sectors and companies with exposure to global trade, such as industrials, materials, technology, and financials, may be affected.",
+      "The short-term impact is likely to be negative as investors react to the uncertainty surrounding the economic outlook."
+    ],
+    "news_title": "Global economy 'yet to feel the pain' from tariffs, European Central Bank president says - Politico",
+    "news_url": "https://www.politico.com/news/2025/10/19/global-economy-trump-tariffs-ecb-lagarde-00615067",
+    "news_source": "Politico",
+    "published_at": "2025-10-19T21:38:28Z",
+    "analyzed_at": "2025-10-21T13:11:52.680871"
+  },
+  {
+    "importance": 4,
+    "impact_summary": "The successful trial results from AstraZeneca and Gilead in triple-negative breast cancer could lead to new treatment options and increased competition in this market, impacting the pharmaceutical and healthcare sectors.",
+    "affected_sectors": [
+      "Pharmaceuticals",
+      "Healthcare"
+    ],
+    "affected_stocks": [
+      "AZN",
+      "GILD"
     ],
     "sentiment": "positive",
     "time_sensitivity": "short-term",
     "key_points": [
-      "헬리-D와 닌자 가이든 4 게임에서 새로운 비디오 스크린 기술이 사용됨",
-      "이 기술은 엔터테인먼트, 스포츠, 광고 분야에 새로운 시각적 기회를 제공함",
-      "관련 기술 기업들의 주가에 일시적인 상승 효과가 있을 것으로 예상됨"
+      "AstraZeneca and Gilead both reported positive trial results for new treatments in triple-negative breast cancer, a hard-to-treat form of the disease.",
+      "The successful trials could lead to new FDA approvals and expanded treatment options for patients, increasing competition in this market.",
+      "The news is positive for both AstraZeneca and Gilead, as it could drive increased sales and market share for their respective treatments.",
+      "The pharmaceutical and healthcare sectors are likely to be affected, as the new treatments could impact existing standards of care and market dynamics.",
+      "Investors may view the news as a positive catalyst for the affected companies and sectors in the short term."
     ],
-    "news_title": "HELI-D and NINJA GAIDEN 4 Take Digital Entertainment to the Skies with Record-Breaking Campaign",
-    "news_url": "https://www.benzinga.com/pressreleases/25/10/n48333053/heli-d-and-ninja-gaiden-4-take-digital-entertainment-to-the-skies-with-record-breaking-campaign",
-    "news_source": "Benzinga",
-    "published_at": "20251021T160200",
-    "analyzed_at": "2025-10-21T12:46:08.527295"
+    "news_title": "At ESMO, AstraZeneca and Gilead square off in triple-negative breast cancer - statnews.com",
+    "news_url": "https://www.statnews.com/2025/10/19/esmo-astrazeneca-gilead-trodelvy-datroway-triple-negative-breast-cancer-adcs/",
+    "news_source": "STAT",
+    "published_at": "2025-10-19T09:14:41Z",
+    "analyzed_at": "2025-10-21T13:11:55.151869"
   },
   {
-    "importance": 2,
-    "impact_summary": "Pegasystems Inc의 주식 거래량 증가로 인해 단기적으로 해당 기업의 주가가 영향을 받을 수 있습니다.",
+    "importance": 4,
+    "impact_summary": "The new tariffs imposed by the US government will likely lead to increased costs for major retail companies, which may result in higher prices for consumers and a negative impact on the stock market.",
     "affected_sectors": [
-      "기술"
+      "Retail",
+      "Consumer Discretionary"
     ],
     "affected_stocks": [
-      "PEGA"
+      "WMT",
+      "TGT",
+      "AMZN",
+      "COST"
     ],
-    "sentiment": "neutral",
+    "sentiment": "negative",
     "time_sensitivity": "short-term",
     "key_points": [
-      "Pegasystems Inc의 주식 거래량이 증가했다.",
-      "주식 거래량 증가는 단기적으로 해당 기업 주가에 영향을 미칠 수 있다.",
-      "기술 섹터에 속한 Pegasystems Inc의 주가가 변동될 수 있다."
+      "The new tariffs will increase the costs of goods for major retailers like Walmart, Target, Amazon, and Costco.",
+      "Retailers may have to pass these increased costs on to consumers, leading to higher prices and potentially lower consumer spending.",
+      "The increased costs and potential impact on consumer spending could negatively affect the stock prices of these major retail companies.",
+      "The tariffs will have an immediate impact on the retail sector and could continue to affect it in the short-term as the situation evolves.",
+      "The overall impact on the broader stock market may be limited, as the retail sector is just one component of the market, but it could contribute to increased volatility and uncertainty in the near term."
     ],
-    "news_title": "What Does the Market Think About Pegasystems Inc? - Pegasystems  ( NASDAQ:PEGA ) ",
-    "news_url": "https://www.benzinga.com/insights/short-sellers/25/10/48332917/what-does-the-market-think-about-pegasystems-inc",
-    "news_source": "Benzinga",
-    "published_at": "20251021T160050",
-    "analyzed_at": "2025-10-21T12:46:12.646386"
+    "news_title": "The costs of new tariffs are no joke - TheStreet",
+    "news_url": "https://www.thestreet.com/economy/the-costs-of-new-tariffs-are-no-joke",
+    "news_source": "TheStreet",
+    "published_at": "2025-10-19T08:19:37Z",
+    "analyzed_at": "2025-10-21T13:12:00.143497"
   },
   {
-    "importance": 2,
-    "impact_summary": "Zeta Global Holdings' short interest decrease may indicate a more positive market sentiment towards the stock, which could potentially have a modest impact on the overall market.",
+    "importance": 3,
+    "impact_summary": "The federal government shutdown and mixed economic signals from the Fed could create short-term volatility in the market.",
+    "affected_sectors": [
+      "Government/Public Sector",
+      "Finance",
+      "Consumer Discretionary"
+    ],
+    "affected_stocks": [
+      "SPY",
+      "QQQ",
+      "DIA",
+      "JPM",
+      "BAC",
+      "WFC"
+    ],
+    "sentiment": "negative",
+    "time_sensitivity": "short-term",
+    "key_points": [
+      "The federal government has been shut down since the start of the month, which could become the longest shutdown in U.S. history.",
+      "The Fed's Beige Book reported mixed economic signals, with some areas of growth but also concerns about trade tensions and rising interest rates.",
+      "Despite the market choppiness, stocks pushed higher this past week, indicating investor uncertainty.",
+      "The government shutdown and mixed economic signals could create short-term volatility in the market, particularly in sectors like government, finance, and consumer discretionary.",
+      "Investors should closely monitor developments and be prepared for potential market swings in the near term."
+    ],
+    "news_title": "Investors have reasons to be nervous about markets right now. How to separate the warning signs from the noise. - MarketWatch",
+    "news_url": "https://www.marketwatch.com/story/investors-have-reasons-to-be-nervous-about-markets-right-now-how-to-separate-the-warning-signs-from-the-noise-69d8eed3",
+    "news_source": "MarketWatch",
+    "published_at": "2025-10-19T14:00:00Z",
+    "analyzed_at": "2025-10-21T13:11:13.599246"
+  },
+  {
+    "importance": 3,
+    "impact_summary": "The positive outlook on Apple's stock performance during the last 3 months of the year could have a positive impact on the technology sector and broader stock market.",
     "affected_sectors": [
       "Technology"
     ],
     "affected_stocks": [
-      "ZETA"
+      "AAPL"
     ],
     "sentiment": "positive",
     "time_sensitivity": "short-term",
     "key_points": [
-      "Zeta Global Holdings' short interest has decreased by 9.03% since the last report.",
-      "The current short interest is 11.49% of the company's float, indicating a reduction in bearish sentiment.",
-      "This news may have a modest impact on the technology sector and Zeta Global Holdings' stock price in the short term."
+      "Apple's stock is near a record high as the company's earnings report is looming.",
+      "Evercore analysts predict that Apple's shares tend to rise during the last 3 months of the year.",
+      "The positive tone in the overall market suggests investors have shrugged off recent concerns about credit and trade issues.",
+      "The potential for a positive performance by Apple's stock could have a positive impact on the technology sector and broader market.",
+      "Investors may want to consider options trades to take advantage of the expected rise in Apple's stock price."
     ],
-    "news_title": "Is the Market Bullish or Bearish on Zeta Global Holdings Corp? - Zeta Global Holdings  ( NYSE:ZETA ) ",
-    "news_url": "https://www.benzinga.com/insights/short-sellers/25/10/48332912/is-the-market-bullish-or-bearish-on-zeta-global-holdings-corp",
-    "news_source": "Benzinga",
-    "published_at": "20251021T160045",
-    "analyzed_at": "2025-10-21T12:46:15.403110"
+    "news_title": "With Apple stock near a record high as earnings loom, here’s the options trade to make - MarketWatch",
+    "news_url": "https://www.marketwatch.com/story/with-apple-stock-near-a-record-high-as-earnings-loom-heres-the-options-trade-to-make-73ef26ae",
+    "news_source": "MarketWatch",
+    "published_at": "2025-10-20T11:02:00Z",
+    "analyzed_at": "2025-10-21T13:11:16.009268"
   },
   {
-    "importance": 2,
-    "impact_summary": "이번 뉴스는 Beamr Imaging의 CEO가 Loop Capital과의 전문가 통화 참여에 관한 내용이며, 개별 기업 수준의 뉴스로 전반적인 주식 시장에 미치는 영향은 제한적일 것으로 보입니다.",
+    "importance": 3,
+    "impact_summary": "The Dow Jones Industrial Average jumped 500 points, driven by a rise in Apple shares, as investors looked ahead to a potential resolution of the U.S. government shutdown and upcoming earnings reports.",
     "affected_sectors": [
-      "기술"
+      "Technology",
+      "Consumer Electronics"
     ],
     "affected_stocks": [
-      "BMR"
+      "AAPL",
+      "MSFT",
+      "AMZN",
+      "GOOGL"
     ],
     "sentiment": "positive",
     "time_sensitivity": "short-term",
     "key_points": [
-      "Beamr Imaging이 비디오 최적화 기술 분야의 리더라고 언급",
-      "Beamr Imaging의 CEO가 Loop Capital과의 전문가 통화에 참여했다는 내용",
-      "기술 섹터 내 개별 기업에 관한 뉴스"
+      "The Dow Jones Industrial Average gained over 500 points, or 1.9%, on Monday.",
+      "The rally was largely driven by a rise in Apple (AAPL) shares, which climbed over 3%.",
+      "Investors are hopeful that the ongoing U.S. government shutdown may soon be resolved, which could provide a boost to the markets.",
+      "Upcoming earnings reports from major companies are also generating optimism among investors.",
+      "The positive sentiment in the market follows a volatile trading week, which saw flaring trade tensions, regional bank losses, and declines in some hot AI stocks."
     ],
-    "news_title": "Beamr Announces Participation in Expert Call with Loop Capital",
-    "news_url": "https://www.globenewswire.com/news-release/2025/10/21/3170492/0/en/Beamr-Announces-Participation-in-Expert-Call-with-Loop-Capital.html",
-    "news_source": "GlobeNewswire",
-    "published_at": "20251021T160000",
-    "analyzed_at": "2025-10-21T12:46:18.224854"
+    "news_title": "Dow jumps 500 points as rally accelerates Monday on the back of Apple: Live updates - CNBC",
+    "news_url": "https://www.cnbc.com/2025/10/19/stock-market-today-live-updates.html",
+    "news_source": "CNBC",
+    "published_at": "2025-10-20T18:38:00Z",
+    "analyzed_at": "2025-10-21T13:11:22.174567"
   },
   {
-    "importance": 2,
-    "impact_summary": "이 뉴스는 FLYE 그룹의 투자자들에게 직접적인 영향을 미칠 수 있지만, 전반적인 주식 시장에는 제한적인 영향을 줄 것으로 보입니다.",
+    "importance": 3,
+    "impact_summary": "The AWS outage disrupted operations for several major companies, potentially affecting their revenues and stock performance in the short term.",
     "affected_sectors": [
-      "금융"
+      "Technology",
+      "Consumer Discretionary",
+      "Communication Services"
     ],
     "affected_stocks": [
-      "FLYE"
+      "AMZN",
+      "SNAP",
+      "ATVI",
+      "MSFT"
     ],
     "sentiment": "negative",
     "time_sensitivity": "short-term",
     "key_points": [
-      "FLYE 그룹의 투자자들이 손실을 입은 것으로 나타남",
-      "FLYE 그룹에 대한 집단소송이 제기됨",
-      "이 뉴스는 FLYE 주식 가격에 부정적인 영향을 줄 수 있음",
-      "금융 섹터 내 다른 기업들에는 제한적인 영향만 있을 것으로 예상됨",
-      "단기적으로 FLYE 주가에 부정적인 영향이 있을 것으로 예상됨"
+      "The AWS outage affected a wide range of companies and services, including e-commerce giant Amazon, social media platforms like Snapchat, and gaming companies like Epic Games (Fortnite).",
+      "Disruptions to these services could lead to lost revenue and reputational damage for the affected companies, potentially impacting their stock prices in the short term.",
+      "The outage highlights the reliance of many businesses on cloud infrastructure provided by a small number of providers, making them vulnerable to widespread system failures.",
+      "The cause of the outage is currently unclear, but it underscores the importance of robust backup and redundancy plans for companies that rely on cloud services.",
+      "The impact of the outage is likely to be felt most acutely in the technology, consumer discretionary, and communication services sectors, as these were the most directly affected."
     ],
-    "news_title": "FLYE INVESTOR ALERT: Bronstein, Gewirtz & Grossman LLC Announces that Fly-E Group, Inc. Investors with Substantial Losses Have Opportunity to Lead Class Action Lawsuit - Fly-E Group  ( NASDAQ:FLYE ) ",
-    "news_url": "https://www.benzinga.com/pressreleases/25/10/g48332862/flye-investor-alert-bronstein-gewirtz-grossman-llc-announces-that-fly-e-group-inc-investors-with-s",
-    "news_source": "Benzinga",
-    "published_at": "20251021T160000",
-    "analyzed_at": "2025-10-21T12:46:21.660562"
+    "news_title": "Major AWS outage took down Fortnite, Alexa, Snapchat, and more - The Verge",
+    "news_url": "https://www.theverge.com/news/802486/aws-outage-alexa-fortnite-snapchat-offline",
+    "news_source": "The Verge",
+    "published_at": "2025-10-20T16:41:13Z",
+    "analyzed_at": "2025-10-21T13:11:25.962988"
   },
   {
-    "importance": 2,
-    "impact_summary": "Worldline's Q3 2025 revenue performance is in line with expectations, indicating minimal impact on the overall US stock market.",
+    "importance": 3,
+    "impact_summary": "The news of Replimune's successful BLA resubmission to the FDA is likely to have a positive impact on the company's stock and the biotechnology sector.",
     "affected_sectors": [
-      "Information Technology",
-      "Financial Services"
+      "Biotechnology"
     ],
     "affected_stocks": [
-      "WLN.PA"
-    ],
-    "sentiment": "neutral",
-    "time_sensitivity": "short-term",
-    "key_points": [
-      "Worldline reported Q3 2025 revenue of €1,149 million, down 0.8% organically, which is in line with expectations.",
-      "Worldline is a French payment services company, so its performance is more relevant to the European and financial services sectors.",
-      "The news does not suggest any major disruption or surprise that would significantly impact the broader US stock market."
-    ],
-    "news_title": "Worldline : Q3 2025 revenue - press release",
-    "news_url": "https://www.globenewswire.com/news-release/2025/10/21/3170486/0/en/Worldline-Q3-2025-revenue-press-release.html",
-    "news_source": "GlobeNewswire",
-    "published_at": "20251021T160000",
-    "analyzed_at": "2025-10-21T12:46:24.127360"
-  },
-  {
-    "importance": 2,
-    "impact_summary": "EverCommerce의 3분기 실적 발표 예정이 주식 시장에 미치는 영향은 제한적일 것으로 예상됩니다.",
-    "affected_sectors": [
-      "소프트웨어",
-      "IT 서비스"
-    ],
-    "affected_stocks": [
-      "EVCM"
-    ],
-    "sentiment": "neutral",
-    "time_sensitivity": "short-term",
-    "key_points": [
-      "EverCommerce는 SaaS 솔루션 제공업체로, 소규모 서비스 기업을 대상으로 합니다.",
-      "3분기 실적 발표 예정이지만, 전체 시장에 미치는 영향은 제한적일 것으로 보입니다.",
-      "EverCommerce 주식(EVCM)과 관련 IT 서비스 섹터에 단기적인 영향이 있을 수 있습니다.",
-      "이번 뉴스는 기업 실적 발표에 해당하므로 중요도는 보통 수준입니다.",
-      "투자자들은 EverCommerce의 실적과 전망을 면밀히 모니터링할 필요가 있습니다."
-    ],
-    "news_title": "EverCommerce Announces Date of Third Quarter 2025 Earnings Call - EverCommerce  ( NASDAQ:EVCM ) ",
-    "news_url": "https://www.benzinga.com/pressreleases/25/10/g48332861/evercommerce-announces-date-of-third-quarter-2025-earnings-call",
-    "news_source": "Benzinga",
-    "published_at": "20251021T160000",
-    "analyzed_at": "2025-10-21T12:46:27.729064"
-  },
-  {
-    "importance": 2,
-    "impact_summary": "이 뉴스는 DTEX 기업의 새로운 특허 획득에 관한 것이며, 주로 사이버 보안 관련 기업들에 영향을 미칠 수 있습니다.",
-    "affected_sectors": [
-      "사이버 보안",
-      "정보기술"
-    ],
-    "affected_stocks": [
-      "DTEX",
-      "CYBR",
-      "PANW",
-      "CRWD"
+      "REPL"
     ],
     "sentiment": "positive",
     "time_sensitivity": "short-term",
     "key_points": [
-      "DTEX가 AI 기반 리스크 관리 기술에 대한 특허를 받음",
-      "이는 사이버 보안 기업들의 기술 혁신 경쟁에 기여할 수 있음",
-      "DTEX의 성과는 해당 기업 및 관련 섹터에 긍정적인 영향을 줄 것으로 예상됨",
-      "단기적으로 DTEX와 유사한 사이버 보안 기업들의 주가에 긍정적인 영향을 미칠 수 있음",
-      "장기적으로는 사이버 보안 기술 발전이 전체 IT 산업에 긍정적인 영향을 줄 것으로 기대됨"
+      "Replimune stock gained over 105% on Monday due to the company's successful resubmission of a Biologics License Application (BLA) to the FDA.",
+      "The BLA resubmission is a crucial step in the regulatory approval process for Replimune's potential new drug or treatment.",
+      "Successful regulatory approvals can lead to increased investor confidence and potential future revenue for the company.",
+      "The biotechnology sector, which includes Replimune, may see a positive sentiment shift due to this news.",
+      "Investors should closely monitor Replimune's progress through the FDA approval process and any potential impact on the broader biotechnology sector."
     ],
-    "news_title": "DTEX Awarded U.S. Patent for Adaptive Data Protection as AI-Driven Risks Rise",
-    "news_url": "https://www.benzinga.com/pressreleases/25/10/g48332865/dtex-awarded-u-s-patent-for-adaptive-data-protection-as-ai-driven-risks-rise",
-    "news_source": "Benzinga",
-    "published_at": "20251021T160000",
-    "analyzed_at": "2025-10-21T12:46:32.076705"
+    "news_title": "Why Is Replimune Stock (REPL) Up 105% Today? - TipRanks",
+    "news_url": "https://www.tipranks.com/news/why-is-replimune-stock-repl-up-105-today",
+    "news_source": "Tipranks.com",
+    "published_at": "2025-10-20T13:19:59Z",
+    "analyzed_at": "2025-10-21T13:11:28.631057"
+  },
+  {
+    "importance": 3,
+    "impact_summary": "Strong demand for both the cheapest and most expensive iPhone 17 models could positively impact Apple's financial performance and stock price.",
+    "affected_sectors": [
+      "Technology",
+      "Telecommunications"
+    ],
+    "affected_stocks": [
+      "AAPL"
+    ],
+    "sentiment": "positive",
+    "time_sensitivity": "short-term",
+    "key_points": [
+      "Both the base iPhone 17 and the most expensive iPhone 17 model are seeing strong sales demand.",
+      "Strong demand for the iPhone 17 line could boost Apple's revenue and profits, leading to a positive impact on its stock price.",
+      "The iPhone is a critical product for Apple, and its performance can significantly influence the company's overall financial results.",
+      "The news suggests that Apple's pricing strategy for the iPhone 17 lineup is resonating with consumers, which could be a positive sign for the company's future prospects.",
+      "Investors may closely monitor Apple's upcoming earnings reports and guidance to gauge the impact of the iPhone 17 sales performance on the company's financial outlook."
+    ],
+    "news_title": "Cheapest and most expensive iPhone 17 models reportedly seeing strong sales - 9to5Mac",
+    "news_url": "https://9to5mac.com/2025/10/20/cheapest-and-most-expensive-iphone-17-models-reportedly-seeing-strong-sales/",
+    "news_source": "9to5Mac",
+    "published_at": "2025-10-20T11:18:00Z",
+    "analyzed_at": "2025-10-21T13:11:34.402891"
   },
   {
     "importance": 2,
-    "impact_summary": "EverCommerce의 2025년 3분기 실적 발표 예정은 해당 기업에 직접적인 영향을 미치겠지만 전체 주식 시장에 미치는 영향은 제한적일 것으로 예상됩니다.",
+    "impact_summary": "This news about the expected 2026 Social Security cost-of-living adjustment (COLA) could impact the personal finances and consumer spending of retirees aged 62-80, potentially affecting certain consumer-focused sectors.",
     "affected_sectors": [
-      "IT 서비스",
-      "SaaS"
+      "Consumer Discretionary",
+      "Consumer Staples"
     ],
     "affected_stocks": [
-      "EVCM"
+      "WMT",
+      "MCD",
+      "DIS",
+      "TGT"
     ],
     "sentiment": "neutral",
     "time_sensitivity": "short-term",
     "key_points": [
-      "EverCommerce의 2025년 3분기 실적 발표 예정",
-      "EverCommerce는 서비스 SMB 업체를 위한 SaaS 솔루션 제공 업체",
-      "실적 발표는 해당 기업에 직접적인 영향을 미칠 것으로 보이나 전체 시장에 미치는 영향은 제한적"
+      "The Social Security COLA for 2026 is projected to be significant, which could provide a boost in income for retirees aged 62-80.",
+      "This increase in disposable income for retirees may lead to increased consumer spending, potentially benefiting sectors and companies that cater to this demographic.",
+      "However, the impact is likely to be limited to specific consumer-focused sectors and companies, rather than having a market-wide effect.",
+      "The long-term implications of the 2026 COLA will depend on broader economic conditions and the overall financial health of retirees in that time frame.",
+      "Investors should monitor the potential effects on consumer spending and consider the exposure of their portfolio holdings to the affected sectors and companies."
     ],
-    "news_title": "EverCommerce Announces Date of Third Quarter 2025 Earnings Call",
-    "news_url": "https://www.globenewswire.com/news-release/2025/10/21/3170490/0/en/EverCommerce-Announces-Date-of-Third-Quarter-2025-Earnings-Call.html",
-    "news_source": "GlobeNewswire",
-    "published_at": "20251021T160000",
-    "analyzed_at": "2025-10-21T12:46:34.882464"
+    "news_title": "Social Security's 2026 COLA Forecast: What Retirees Ages 62 to 80 Should Expect - Yahoo Finance",
+    "news_url": "https://www.fool.com/retirement/2025/10/19/social-securitys-2026-cola-forecast-what-retirees/",
+    "news_source": "Motley Fool",
+    "published_at": "2025-10-19T23:00:00Z",
+    "analyzed_at": "2025-10-21T13:11:10.399022"
   },
   {
     "importance": 2,
-    "impact_summary": "이 뉴스는 F5 주식에 대한 투자자 소송 제기 가능성을 암시하며, 단기적으로 F5 주가에 부정적인 영향을 미칠 수 있습니다.",
+    "impact_summary": "The discontinuation of the Cadillac CT6 and Chevy Bolt models by General Motors may have a modest impact on the company's stock price and the broader automotive sector.",
     "affected_sectors": [
-      "정보기술"
+      "Automotive",
+      "Consumer Discretionary"
     ],
     "affected_stocks": [
-      "FFIV"
+      "GM"
+    ],
+    "sentiment": "Negative",
+    "time_sensitivity": "Short-term",
+    "key_points": [
+      "General Motors discontinued the Cadillac CT6 and Chevy Bolt models, which the company's president has now admitted were 'tough decisions' that they regret.",
+      "The discontinuation of these models may impact GM's sales and revenue in the short term, as they were part of the company's product lineup.",
+      "The news may also have a negative impact on consumer sentiment towards GM and the broader automotive sector, as it signals the company's willingness to discontinue models that may have been well-received by the market.",
+      "However, the impact is likely to be modest, as the CT6 and Bolt were not the company's flagship or best-selling models.",
+      "The long-term impact will depend on GM's ability to introduce new and innovative models that can offset the loss of these discontinued vehicles."
+    ],
+    "news_title": "GM Regrets Killing the Cadillac CT6 - Motor1.com",
+    "news_url": "https://www.motor1.com/news/776294/gm-regrets-killing-cadillac-ct6/",
+    "news_source": "Motor1 ",
+    "published_at": "2025-10-20T09:44:00Z",
+    "analyzed_at": "2025-10-21T13:11:37.426988"
+  },
+  {
+    "importance": 2,
+    "impact_summary": "This news article suggests that employee loyalty is still valued, which could impact companies' hiring and retention strategies, particularly in competitive labor markets.",
+    "affected_sectors": [
+      "Human Resources",
+      "Staffing and Recruiting",
+      "Workforce Management"
+    ],
+    "affected_stocks": [
+      "MSFT",
+      "GOOGL",
+      "AMZN",
+      "WMT"
+    ],
+    "sentiment": "positive",
+    "time_sensitivity": "short-term",
+    "key_points": [
+      "The article suggests that employees still value loyalty from their employers, even if they are offered more money elsewhere.",
+      "This could lead companies to focus more on building a loyal workforce through better treatment, respect, and honesty.",
+      "Affected sectors include those that rely on skilled labor, such as technology, retail, and professional services.",
+      "Stocks of major employers in these sectors may be impacted as they adjust their employee retention strategies.",
+      "The impact is likely to be short-term as companies adapt their policies and practices to address employee loyalty."
+    ],
+    "news_title": "Workplace loyalty isn't dead - businessinsider.com",
+    "news_url": "https://www.businessinsider.com/white-collar-employees-want-loyalty-more-than-money-2025-10",
+    "news_source": "Business Insider",
+    "published_at": "2025-10-20T08:19:00Z",
+    "analyzed_at": "2025-10-21T13:11:40.029784"
+  },
+  {
+    "importance": 2,
+    "impact_summary": "This news highlights the challenges faced by small farmers and suppliers in the agriculture industry, which could impact the revenues and profitability of related companies.",
+    "affected_sectors": [
+      "Agriculture",
+      "Food and Beverage"
+    ],
+    "affected_stocks": [
+      "ADM",
+      "DE",
+      "COST",
+      "WMT"
     ],
     "sentiment": "negative",
     "time_sensitivity": "short-term",
     "key_points": [
-      "F5에 대한 투자자 소송 제기 가능성 있음",
-      "투자자들의 피해 사실이 주장되고 있음",
-      "투자자들이 직접 소송에 참여할 수 있음"
+      "A small-scale farmer in California had a major portion of his grape harvest rejected by his sole customer, a local winery, resulting in a loss of $10,000 to $15,000.",
+      "The rejection was due to a minor quality issue, highlighting the fragility of the relationship between small producers and their customers in the agriculture industry.",
+      "This incident could impact the revenues and profitability of companies in the agriculture and food and beverage sectors, as they may face similar challenges with their supply chains.",
+      "The news reflects the broader challenges faced by small farmers and suppliers in the industry, including the lack of bargaining power and the vulnerability to sudden changes in customer demand.",
+      "Investors may want to monitor the performance of companies in the affected sectors, as this news could be indicative of broader trends and challenges in the industry."
     ],
-    "news_title": "F5 ALERT: Bragar Eagel & Squire, P.C. is Investigating F5, Inc. on Behalf of F5 Stockholders and Encourages Investors to Contact the Firm - F5  ( NASDAQ:FFIV ) ",
-    "news_url": "https://www.benzinga.com/pressreleases/25/10/g48332639/f5-alert-bragar-eagel-squire-p-c-is-investigating-f5-inc-on-behalf-of-f5-stockholders-and-encourag",
-    "news_source": "Benzinga",
-    "published_at": "20251021T154950",
-    "analyzed_at": "2025-10-21T12:46:37.369573"
+    "news_title": "California farmer watches in pain as local winery dumps truckloads of his grapes. Why his only customer rejected him - Yahoo Finance",
+    "news_url": "https://finance.yahoo.com/news/california-farmer-watches-pain-local-000300742.html",
+    "news_source": "Yahoo Entertainment",
+    "published_at": "2025-10-20T00:03:00Z",
+    "analyzed_at": "2025-10-21T13:11:45.810248"
+  },
+  {
+    "importance": 2,
+    "impact_summary": "The reported assault incident at a Jack in the Box restaurant in Sacramento is unlikely to have a significant impact on the overall US stock market.",
+    "affected_sectors": [
+      "Consumer Discretionary"
+    ],
+    "affected_stocks": [
+      "YUM",
+      "JACK"
+    ],
+    "sentiment": "neutral",
+    "time_sensitivity": "short-term",
+    "key_points": [
+      "The incident involves a reported assault at a single Jack in the Box location, which is a relatively isolated and localized event.",
+      "The fast-food industry is a highly competitive and fragmented sector, and this type of incident is not uncommon and unlikely to have a broader impact.",
+      "The incident may have a minor impact on the stock price of Jack in the Box (JACK) or its parent company Yum! Brands (YUM) in the short term, but is not expected to have a significant or long-lasting effect on the overall US stock market.",
+      "Investors and the market are more likely to be focused on broader economic indicators, industry trends, and company-specific financial performance when evaluating the performance of stocks in the consumer discretionary sector.",
+      "The news is unlikely to have any meaningful impact on investor sentiment or trading activity in the US stock market beyond the companies directly involved."
+    ],
+    "news_title": "Man dies after reported fight at Sacramento County Jack in the Box, deputies say - CBS News",
+    "news_url": "https://www.cbsnews.com/sacramento/news/arden-arcade-jack-in-the-box-deadly-assault/",
+    "news_source": "CBS News",
+    "published_at": "2025-10-19T23:35:00Z",
+    "analyzed_at": "2025-10-21T13:11:50.025020"
   }
 ]

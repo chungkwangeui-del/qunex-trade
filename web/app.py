@@ -265,7 +265,7 @@ def news():
 
 @app.route('/api/news/refresh')
 def api_refresh_news():
-    """Refresh news data (collects and analyzes latest news)"""
+    """Refresh news data (collects and analyzes latest news - focus on government/Fed news)"""
     import sys
     import os
 
@@ -276,24 +276,103 @@ def api_refresh_news():
         from src.news_collector import NewsCollector
         from src.news_analyzer import NewsAnalyzer
 
-        # Collect news
+        # Collect news (prioritized by government/Fed news)
         collector = NewsCollector()
         news_list = collector.collect_all_news(hours=24)
 
         if not news_list:
             return jsonify({'success': False, 'message': 'No news collected'})
 
-        # Analyze news
+        # Analyze news (increased to 50 items)
         analyzer = NewsAnalyzer()
-        analyzed_news = analyzer.analyze_news_batch(news_list, max_items=20)
+        analyzed_news = analyzer.analyze_news_batch(news_list, max_items=50)
 
         # Save analysis
         analyzer.save_analysis(analyzed_news)
 
+        # Count high-impact news (4-5 stars)
+        high_impact_count = len([n for n in analyzed_news if n.get('importance', 0) >= 4])
+
         return jsonify({
             'success': True,
-            'message': f'{len(analyzed_news)} news items analyzed',
+            'message': f'{len(analyzed_news)} news items analyzed ({high_impact_count} high-impact)',
+            'total_analyzed': len(analyzed_news),
+            'high_impact_count': high_impact_count,
             'data': analyzed_news
+        })
+
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)})
+
+@app.route('/api/news/search')
+def api_search_news():
+    """Search news by stock ticker or keyword"""
+    import json
+    import os
+
+    ticker = request.args.get('ticker', '').upper()
+    keyword = request.args.get('keyword', '').lower()
+
+    try:
+        # Load analyzed news from JSON file
+        news_file = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'data', 'news_analysis.json')
+
+        if not os.path.exists(news_file):
+            return jsonify({'success': False, 'message': 'No news data available'})
+
+        with open(news_file, 'r', encoding='utf-8') as f:
+            news_data = json.load(f)
+
+        # Filter news
+        filtered_news = []
+        for news_item in news_data:
+            # Filter by ticker
+            if ticker:
+                affected_stocks = [s.upper() for s in news_item.get('affected_stocks', [])]
+                if ticker not in affected_stocks:
+                    continue
+
+            # Filter by keyword
+            if keyword:
+                title = news_item.get('news_title', '').lower()
+                summary = news_item.get('impact_summary', '').lower()
+                if keyword not in title and keyword not in summary:
+                    continue
+
+            filtered_news.append(news_item)
+
+        return jsonify({
+            'success': True,
+            'count': len(filtered_news),
+            'data': filtered_news
+        })
+
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)})
+
+@app.route('/api/news/critical')
+def api_critical_news():
+    """Get critical news (5-star importance only)"""
+    import json
+    import os
+
+    try:
+        # Load analyzed news from JSON file
+        news_file = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'data', 'news_analysis.json')
+
+        if not os.path.exists(news_file):
+            return jsonify({'success': False, 'message': 'No news data available'})
+
+        with open(news_file, 'r', encoding='utf-8') as f:
+            news_data = json.load(f)
+
+        # Filter for 5-star news only
+        critical_news = [n for n in news_data if n.get('importance', 0) == 5]
+
+        return jsonify({
+            'success': True,
+            'count': len(critical_news),
+            'data': critical_news
         })
 
     except Exception as e:

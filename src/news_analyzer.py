@@ -1,8 +1,8 @@
 """
-AI 기반 뉴스 영향도 분석 시스템
-- GPT API를 사용하여 뉴스의 시장 영향도 분석
-- 중요도 평가 (1-5 stars)
-- 영향받는 주식/섹터 식별
+AI-powered News Impact Analysis System
+- Analyzes market impact of news using Claude API
+- Importance rating (1-5 stars)
+- Identifies affected stocks and sectors
 """
 
 import os
@@ -16,26 +16,26 @@ from dotenv import load_dotenv
 load_dotenv()
 
 class NewsAnalyzer:
-    """뉴스 영향도 분석기"""
+    """News Impact Analyzer"""
 
     def __init__(self):
         self.api_key = os.getenv('ANTHROPIC_API_KEY', '')
 
         if not self.api_key:
-            print("[경고] ANTHROPIC_API_KEY가 설정되지 않았습니다.")
+            print("[WARNING] ANTHROPIC_API_KEY is not configured.")
 
-        # 중요도 평가 기준
+        # Importance rating criteria
         self.importance_criteria = {
-            5: "전체 시장에 즉각적이고 광범위한 영향 (금리 결정, 대규모 경기 지표)",
-            4: "특정 섹터 전체에 큰 영향 (규제 변화, 섹터별 주요 뉴스)",
-            3: "중요 기업 또는 중간 규모 영향 (주요 기업 실적, M&A)",
-            2: "소규모 영향 또는 단일 종목 (개별 기업 뉴스)",
-            1: "최소한의 영향 (루머, 경미한 뉴스)"
+            5: "Immediate and broad market-wide impact (interest rate decisions, major economic indicators)",
+            4: "Major impact on entire sector (regulatory changes, sector-specific major news)",
+            3: "Important companies or medium-scale impact (major company earnings, M&A)",
+            2: "Small-scale impact or single stock (individual company news)",
+            1: "Minimal impact (rumors, minor news)"
         }
 
     def analyze_news_impact(self, news_item: Dict) -> Dict:
         """
-        단일 뉴스 항목의 영향도를 AI로 분석
+        Analyze the impact of a single news item using AI
         """
         if not self.api_key:
             return self._fallback_analysis(news_item)
@@ -87,10 +87,10 @@ Importance rating criteria:
                 ]
             )
 
-            # 응답 파싱
+            # Parse response
             response_text = message.content[0].text
 
-            # JSON 추출 (```json ``` 태그 제거)
+            # Extract JSON (remove ```json ``` tags)
             if '```json' in response_text:
                 response_text = response_text.split('```json')[1].split('```')[0].strip()
             elif '```' in response_text:
@@ -98,7 +98,7 @@ Importance rating criteria:
 
             analysis = json.loads(response_text)
 
-            # 원본 뉴스 정보 추가
+            # Add original news information
             analysis['news_title'] = title
             analysis['news_url'] = news_item.get('url', '')
             analysis['news_source'] = news_item.get('source', 'Unknown')
@@ -165,7 +165,7 @@ Importance rating criteria:
             'analysis_method': 'fallback'
         }
 
-    def analyze_news_batch(self, news_list: List[Dict], max_items: int = 20) -> List[Dict]:
+    def analyze_news_batch(self, news_list: List[Dict], max_items: int = 50) -> List[Dict]:
         """
         Batch analyze multiple news items
         """
@@ -201,10 +201,10 @@ Importance rating criteria:
 
 
 if __name__ == '__main__':
-    # 테스트
+    # Test
     analyzer = NewsAnalyzer()
 
-    # 샘플 뉴스
+    # Sample news
     sample_news = {
         'title': 'Federal Reserve cuts interest rates by 0.25%',
         'description': 'The Federal Reserve announced a quarter-point interest rate cut today, citing cooling inflation and economic stability.',
@@ -214,6 +214,6 @@ if __name__ == '__main__':
     }
 
     analysis = analyzer.analyze_news_impact(sample_news)
-    print("\n분석 결과:")
+    print("\nAnalysis Result:")
     print(json.dumps(analysis, indent=2, ensure_ascii=False))
-    print(f"\n중요도: {analyzer.get_stars_display(analysis.get('importance', 1))}")
+    print(f"\nImportance: {analyzer.get_stars_display(analysis.get('importance', 1))}")

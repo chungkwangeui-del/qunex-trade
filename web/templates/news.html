@@ -186,6 +186,34 @@
             gap: 15px;
         }
 
+        .search-box {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .search-input {
+            padding: 10px 15px;
+            border: 1px solid var(--border);
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            border-radius: 10px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.95em;
+            min-width: 200px;
+            transition: all 0.3s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 10px rgba(0, 217, 255, 0.2);
+        }
+
+        .search-input::placeholder {
+            color: var(--text-secondary);
+        }
+
         .filter-buttons {
             display: flex;
             gap: 10px;
@@ -435,6 +463,11 @@
                 <button class="filter-btn" onclick="filterByImportance(4, this)">⭐⭐⭐⭐ High</button>
                 <button class="filter-btn" onclick="filterByImportance(3, this)">⭐⭐⭐ Medium</button>
             </div>
+            <div class="search-box">
+                <input type="text" id="search-ticker" class="search-input" placeholder="Search by ticker (e.g., AAPL)" onkeyup="handleSearch()">
+                <input type="text" id="search-keyword" class="search-input" placeholder="Search by keyword" onkeyup="handleSearch()">
+                <button class="btn-primary" onclick="clearSearch()">Clear</button>
+            </div>
         </div>
 
         <!-- News Grid -->
@@ -555,6 +588,50 @@
                     card.style.display = importance >= level ? 'block' : 'none';
                 }
             });
+        }
+
+        function handleSearch() {
+            const tickerInput = document.getElementById('search-ticker').value.toUpperCase().trim();
+            const keywordInput = document.getElementById('search-keyword').value.toLowerCase().trim();
+            const cards = document.querySelectorAll('.news-card');
+
+            cards.forEach(card => {
+                const cardText = card.textContent.toLowerCase();
+                const stockTags = card.querySelectorAll('.tag:not(.sector)');
+                const stocks = Array.from(stockTags).map(tag => tag.textContent.toUpperCase());
+
+                let showCard = true;
+
+                // Filter by ticker
+                if (tickerInput && !stocks.some(stock => stock.includes(tickerInput))) {
+                    showCard = false;
+                }
+
+                // Filter by keyword
+                if (keywordInput && !cardText.includes(keywordInput)) {
+                    showCard = false;
+                }
+
+                card.style.display = showCard ? 'block' : 'none';
+            });
+
+            // If searching, deactivate importance filter buttons
+            if (tickerInput || keywordInput) {
+                document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            }
+        }
+
+        function clearSearch() {
+            document.getElementById('search-ticker').value = '';
+            document.getElementById('search-keyword').value = '';
+
+            // Show all cards
+            const cards = document.querySelectorAll('.news-card');
+            cards.forEach(card => card.style.display = 'block');
+
+            // Reset to "All News" filter
+            const allButton = document.querySelector('.filter-btn');
+            allButton.classList.add('active');
         }
 
         // Update last update time
