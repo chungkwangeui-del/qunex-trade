@@ -378,6 +378,45 @@ def api_critical_news():
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)})
 
+@app.route('/api/economic-calendar')
+def api_economic_calendar():
+    """Get economic calendar events"""
+    import json
+    import os
+    from datetime import datetime, timedelta
+
+    try:
+        # Load calendar from JSON file
+        calendar_file = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'data', 'economic_calendar.json')
+
+        if not os.path.exists(calendar_file):
+            return jsonify({'success': False, 'message': 'Calendar not available'})
+
+        with open(calendar_file, 'r', encoding='utf-8') as f:
+            events = json.load(f)
+
+        # Filter for upcoming events only (within next 60 days)
+        today = datetime.now()
+        future_date = today + timedelta(days=60)
+
+        upcoming_events = []
+        for event in events:
+            event_date = datetime.strptime(event['date'], '%Y-%m-%d')
+            if today <= event_date <= future_date:
+                upcoming_events.append(event)
+
+        # Sort by date
+        upcoming_events.sort(key=lambda x: x['date'])
+
+        return jsonify({
+            'success': True,
+            'count': len(upcoming_events),
+            'events': upcoming_events
+        })
+
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)})
+
 @app.route('/api/signals/today')
 def api_today_signals():
     """Today's signals API (requires authentication for full access)"""
