@@ -405,14 +405,95 @@ Best regards,
 Qunex Trade Team
 '''
         msg.html = f'''
+<!DOCTYPE html>
 <html>
-<body style="font-family: Arial, sans-serif; color: #333;">
-    <h2 style="color: #00f5ff;">Welcome to Qunex Trade!</h2>
-    <p>Your verification code is:</p>
-    <h1 style="background: linear-gradient(135deg, #00f5ff 0%, #7c3aed 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-size: 48px; letter-spacing: 10px; text-align: center;">{code}</h1>
-    <p style="color: #999; font-size: 0.9em;">This code will expire in 10 minutes.</p>
-    <p style="margin-top: 30px; color: #999; font-size: 0.85em;">If you didn't request this code, please ignore this email.</p>
-    <p style="margin-top: 20px;">Best regards,<br><strong>Qunex Trade Team</strong></p>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verification Code</title>
+</head>
+<body style="margin: 0; padding: 0; background: #f5f7fa; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="background: #f5f7fa; padding: 40px 20px;">
+        <tr>
+            <td align="center">
+                <!-- Main Container -->
+                <table width="600" cellpadding="0" cellspacing="0" style="background: #ffffff; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); overflow: hidden;">
+                    <!-- Header with Gradient -->
+                    <tr>
+                        <td style="background: linear-gradient(135deg, #00d9ff 0%, #7c3aed 100%); padding: 40px 40px 30px 40px; text-align: center;">
+                            <div style="background: rgba(255,255,255,0.2); width: 60px; height: 60px; border-radius: 12px; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center;">
+                                <span style="font-size: 32px; font-weight: 700; color: white;">Q</span>
+                            </div>
+                            <h1 style="margin: 0; color: white; font-size: 28px; font-weight: 700; letter-spacing: -0.5px;">Welcome to Qunex Trade</h1>
+                            <p style="margin: 8px 0 0 0; color: rgba(255,255,255,0.9); font-size: 16px;">Your AI-Powered Trading Platform</p>
+                        </td>
+                    </tr>
+
+                    <!-- Content -->
+                    <tr>
+                        <td style="padding: 40px 40px 30px 40px;">
+                            <p style="margin: 0 0 24px 0; color: #1a202c; font-size: 16px; line-height: 1.6;">
+                                Thank you for joining Qunex Trade! To complete your registration, please use the verification code below:
+                            </p>
+
+                            <!-- Code Box -->
+                            <table width="100%" cellpadding="0" cellspacing="0" style="margin: 30px 0;">
+                                <tr>
+                                    <td align="center" style="background: linear-gradient(135deg, #f0f9ff 0%, #f3f0ff 100%); border: 2px solid #00d9ff; border-radius: 12px; padding: 24px;">
+                                        <p style="margin: 0 0 8px 0; color: #4a5568; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">Your Verification Code</p>
+                                        <div style="font-size: 42px; font-weight: 700; letter-spacing: 8px; color: #1a202c; font-family: 'Courier New', monospace;">{code}</div>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <!-- Info Box -->
+                            <table width="100%" cellpadding="0" cellspacing="0" style="margin: 24px 0; background: #fff8e6; border-left: 4px solid #ffc107; border-radius: 8px; padding: 16px 20px;">
+                                <tr>
+                                    <td>
+                                        <p style="margin: 0; color: #856404; font-size: 14px; line-height: 1.6;">
+                                            ⏱️ <strong>Expires in 10 minutes</strong><br/>
+                                            This code is valid for a single use only.
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <p style="margin: 24px 0 0 0; color: #4a5568; font-size: 14px; line-height: 1.6;">
+                                If you didn't request this code, you can safely ignore this email. Someone may have entered your email address by mistake.
+                            </p>
+                        </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                        <td style="background: #f8f9fa; padding: 30px 40px; border-top: 1px solid #e2e8f0;">
+                            <p style="margin: 0 0 12px 0; color: #1a202c; font-size: 14px; font-weight: 600;">
+                                Best regards,<br/>
+                                <span style="background: linear-gradient(135deg, #00d9ff 0%, #7c3aed 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-size: 16px; font-weight: 700;">Qunex Trade Team</span>
+                            </p>
+                            <p style="margin: 16px 0 0 0; color: #718096; font-size: 12px; line-height: 1.5;">
+                                This is an automated message, please do not reply to this email.<br/>
+                                © 2025 Qunex Trade. All rights reserved.
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+
+                <!-- Footer Links -->
+                <table width="600" cellpadding="0" cellspacing="0" style="margin-top: 20px;">
+                    <tr>
+                        <td align="center">
+                            <p style="margin: 0; color: #718096; font-size: 12px;">
+                                <a href="https://qunextrade.com" style="color: #00d9ff; text-decoration: none; margin: 0 8px;">Website</a> •
+                                <a href="https://qunextrade.com/about" style="color: #00d9ff; text-decoration: none; margin: 0 8px;">About</a> •
+                                <a href="https://qunextrade.com/payments/pricing" style="color: #00d9ff; text-decoration: none; margin: 0 8px;">Pricing</a>
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
 </body>
 </html>
 '''
