@@ -62,6 +62,18 @@
             border-radius: 20px;
             padding: 50px 40px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .logo-container {
@@ -121,13 +133,18 @@
             color: var(--text-primary);
             font-size: 1em;
             font-family: 'Space Grotesk', sans-serif;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
         }
 
         input:focus {
             outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(0, 217, 255, 0.1);
+            box-shadow: 0 0 0 3px rgba(0, 217, 255, 0.1), 0 0 20px rgba(0, 217, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        input:hover:not(:focus) {
+            border-color: rgba(0, 217, 255, 0.3);
         }
 
         .remember-me {
@@ -153,13 +170,34 @@
             font-size: 1.1em;
             font-weight: 700;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
             font-family: 'Space Grotesk', sans-serif;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
         }
 
         .btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 10px 30px rgba(0, 217, 255, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
         }
 
         .divider {
@@ -225,7 +263,7 @@
             font-size: 1em;
             font-weight: 500;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
             font-family: 'Space Grotesk', sans-serif;
             display: flex;
             align-items: center;
@@ -237,6 +275,11 @@
         .btn-google:hover {
             background: #f8f9fa;
             box-shadow: 0 1px 2px 0 rgba(60,64,67,.3), 0 1px 3px 1px rgba(60,64,67,.15);
+            transform: translateY(-2px);
+        }
+
+        .btn-google:active {
+            transform: translateY(0);
         }
 
         .google-icon {
@@ -306,5 +349,9 @@
             </div>
         </div>
     </div>
+
+    <!-- UI Enhancement Scripts -->
+    <script src="{{ url_for('static', filename='toast.js') }}"></script>
+    <script src="{{ url_for('static', filename='ui-enhancements.js') }}"></script>
 </body>
 </html>
