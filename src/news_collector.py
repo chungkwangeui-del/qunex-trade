@@ -21,7 +21,7 @@ class NewsCollector:
         self.newsapi_key = os.getenv('NEWSAPI_KEY', '')
         self.alphavantage_key = os.getenv('ALPHAVANTAGE_KEY', '')
 
-        # 뉴스 카테고리 키워드
+        # Market news category keywords
         self.market_keywords = [
             'Federal Reserve', 'Fed', 'interest rate', 'inflation',
             'GDP', 'unemployment', 'job report', 'CPI', 'PPI',
@@ -35,12 +35,12 @@ class NewsCollector:
         NewsAPI에서 뉴스 수집
         """
         if not self.newsapi_key:
-            print("[경고] NEWSAPI_KEY가 설정되지 않았습니다.")
+            print("[WARNING] NEWSAPI_KEY is not configured.")
             return []
 
         url = 'https://newsapi.org/v2/everything'
 
-        # 시간 범위 설정
+        # Set time range
         to_date = datetime.now()
         from_date = to_date - timedelta(hours=hours)
 
@@ -75,11 +75,11 @@ class NewsCollector:
                 }
                 news_list.append(news_item)
 
-            print(f"[NewsAPI] {len(news_list)}개 뉴스 수집 완료")
+            print(f"[NewsAPI] Collected {len(news_list)} news items")
             return news_list
 
         except Exception as e:
-            print(f"[오류] NewsAPI 수집 실패: {e}")
+            print(f"[ERROR] NewsAPI collection failed: {e}")
             return []
 
     def collect_alpha_vantage_news(self, tickers: Optional[List[str]] = None) -> List[Dict]:
@@ -87,17 +87,17 @@ class NewsCollector:
         Alpha Vantage News API에서 뉴스 수집
         """
         if not self.alphavantage_key:
-            print("[경고] ALPHAVANTAGE_KEY가 설정되지 않았습니다.")
+            print("[WARNING] ALPHAVANTAGE_KEY is not configured.")
             return []
 
         url = 'https://www.alphavantage.co/query'
 
-        # 티커가 없으면 전체 시장 뉴스
+        # Use general market news if no tickers provided
         topics = tickers if tickers else ['technology', 'finance', 'economy']
 
         news_list = []
 
-        for topic in topics[:5]:  # API 호출 제한 고려
+        for topic in topics[:5]:  # Consider API call limits
             params = {
                 'function': 'NEWS_SENTIMENT',
                 'tickers' if tickers else 'topics': topic,
@@ -128,10 +128,10 @@ class NewsCollector:
                     news_list.append(news_item)
 
             except Exception as e:
-                print(f"[오류] Alpha Vantage 수집 실패 ({topic}): {e}")
+                print(f"[ERROR] Alpha Vantage collection failed ({topic}): {e}")
                 continue
 
-        print(f"[Alpha Vantage] {len(news_list)}개 뉴스 수집 완료")
+        print(f"[Alpha Vantage] Collected {len(news_list)} news items")
         return news_list
 
     def get_yahoo_finance_news(self, ticker: str = '^GSPC') -> List[Dict]:
@@ -144,7 +144,7 @@ class NewsCollector:
 
     def collect_all_news(self, hours: int = 24) -> List[Dict]:
         """
-        모든 소스에서 뉴스 수집
+        Collect news from all sources
         """
         all_news = []
 
@@ -156,7 +156,7 @@ class NewsCollector:
         alphavantage_news = self.collect_alpha_vantage_news()
         all_news.extend(alphavantage_news)
 
-        # 중복 제거 (URL 기준)
+        # Remove duplicates (based on URL)
         seen_urls = set()
         unique_news = []
 
@@ -166,19 +166,19 @@ class NewsCollector:
                 seen_urls.add(url)
                 unique_news.append(news)
 
-        print(f"\n총 {len(unique_news)}개 고유 뉴스 수집 완료")
+        print(f"\nTotal {len(unique_news)} unique news items collected")
         return unique_news
 
     def save_news(self, news_list: List[Dict], filepath: str = 'data/news.json'):
         """
-        수집한 뉴스를 JSON 파일로 저장
+        Save collected news to JSON file
         """
         os.makedirs(os.path.dirname(filepath), exist_ok=True)
 
         with open(filepath, 'w', encoding='utf-8') as f:
             json.dump(news_list, f, ensure_ascii=False, indent=2)
 
-        print(f"뉴스 저장 완료: {filepath}")
+        print(f"News saved: {filepath}")
 
 
 if __name__ == '__main__':
