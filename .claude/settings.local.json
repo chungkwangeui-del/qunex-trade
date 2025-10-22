@@ -34,7 +34,21 @@
       "Bash(git push)",
       "Bash(git commit -m \"$(cat <<''EOF''\nAdd real-time market news analysis feature\n\n- Implement news collection from NewsAPI and Alpha Vantage\n- Add AI-powered news impact analysis using Claude API\n- Create importance rating system (1-5 stars)\n- Identify affected stocks and sectors automatically\n- Add beautiful news page with filtering and real-time updates\n- Integrate news section into main navigation\n- Update environment variables and dependencies\n\nFeatures:\n- Real-time news collection from multiple sources\n- AI analysis of market impact and sentiment\n- Star-based importance rating (5 stars = critical, 1 star = minor)\n- Automatic stock/sector correlation\n- Key points extraction\n- Time sensitivity classification\n- Beautiful responsive UI with gradients and animations\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
       "Bash(pip install:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(timeout 300 python:*)",
+      "Bash(curl:*)",
+      "Bash(timeout 600 python:*)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(Get-Process python -ErrorAction SilentlyContinue)",
+      "Bash(Stop-Process -Force)",
+      "Bash(taskkill:*)",
+      "Bash(find:*)",
+      "Bash(git reset:*)",
+      "Bash(timeout 30 python:*)",
+      "Bash(timeout 60 python:*)",
+      "Bash(set:*)",
+      "Bash(export PYTHONIOENCODING=utf-8)"
     ],
     "deny": [],
     "ask": []

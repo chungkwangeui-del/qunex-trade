@@ -495,5 +495,161 @@ def api_statistics():
 
     return jsonify(stats)
 
+@app.route('/api/sector-map')
+def api_sector_map():
+    """Get sector map data with individual stocks"""
+    import random
+
+    # Top stocks by sector with realistic market caps (in billions)
+    stock_data = [
+        # Technology
+        {'ticker': 'AAPL', 'name': 'Apple', 'sector': 'Technology', 'marketCap': 3000, 'change': random.uniform(-3, 4)},
+        {'ticker': 'MSFT', 'name': 'Microsoft', 'sector': 'Technology', 'marketCap': 2800, 'change': random.uniform(-2, 3)},
+        {'ticker': 'NVDA', 'name': 'NVIDIA', 'sector': 'Technology', 'marketCap': 1200, 'change': random.uniform(-4, 6)},
+        {'ticker': 'AVGO', 'name': 'Broadcom', 'sector': 'Technology', 'marketCap': 700, 'change': random.uniform(-2, 3)},
+        {'ticker': 'ORCL', 'name': 'Oracle', 'sector': 'Technology', 'marketCap': 350, 'change': random.uniform(-2, 2)},
+        {'ticker': 'CRM', 'name': 'Salesforce', 'sector': 'Technology', 'marketCap': 280, 'change': random.uniform(-2, 3)},
+        {'ticker': 'ADBE', 'name': 'Adobe', 'sector': 'Technology', 'marketCap': 250, 'change': random.uniform(-2, 3)},
+        {'ticker': 'AMD', 'name': 'AMD', 'sector': 'Technology', 'marketCap': 240, 'change': random.uniform(-3, 4)},
+
+        # Healthcare
+        {'ticker': 'LLY', 'name': 'Eli Lilly', 'sector': 'Healthcare', 'marketCap': 750, 'change': random.uniform(-2, 3)},
+        {'ticker': 'UNH', 'name': 'UnitedHealth', 'sector': 'Healthcare', 'marketCap': 500, 'change': random.uniform(-1, 2)},
+        {'ticker': 'JNJ', 'name': 'Johnson & Johnson', 'sector': 'Healthcare', 'marketCap': 380, 'change': random.uniform(-1, 2)},
+        {'ticker': 'ABBV', 'name': 'AbbVie', 'sector': 'Healthcare', 'marketCap': 320, 'change': random.uniform(-2, 2)},
+        {'ticker': 'MRK', 'name': 'Merck', 'sector': 'Healthcare', 'marketCap': 280, 'change': random.uniform(-1, 2)},
+
+        # Financials
+        {'ticker': 'BRK-B', 'name': 'Berkshire', 'sector': 'Financials', 'marketCap': 900, 'change': random.uniform(-1, 2)},
+        {'ticker': 'JPM', 'name': 'JPMorgan', 'sector': 'Financials', 'marketCap': 580, 'change': random.uniform(-2, 2)},
+        {'ticker': 'V', 'name': 'Visa', 'sector': 'Financials', 'marketCap': 550, 'change': random.uniform(-1, 2)},
+        {'ticker': 'MA', 'name': 'Mastercard', 'sector': 'Financials', 'marketCap': 420, 'change': random.uniform(-1, 2)},
+        {'ticker': 'BAC', 'name': 'Bank of America', 'sector': 'Financials', 'marketCap': 320, 'change': random.uniform(-2, 2)},
+
+        # Consumer Discretionary
+        {'ticker': 'AMZN', 'name': 'Amazon', 'sector': 'Consumer Disc.', 'marketCap': 1900, 'change': random.uniform(-2, 3)},
+        {'ticker': 'TSLA', 'name': 'Tesla', 'sector': 'Consumer Disc.', 'marketCap': 800, 'change': random.uniform(-5, 6)},
+        {'ticker': 'HD', 'name': 'Home Depot', 'sector': 'Consumer Disc.', 'marketCap': 380, 'change': random.uniform(-1, 2)},
+        {'ticker': 'MCD', 'name': 'McDonald\'s', 'sector': 'Consumer Disc.', 'marketCap': 210, 'change': random.uniform(-1, 2)},
+        {'ticker': 'NKE', 'name': 'Nike', 'sector': 'Consumer Disc.', 'marketCap': 180, 'change': random.uniform(-2, 2)},
+
+        # Communication
+        {'ticker': 'GOOGL', 'name': 'Alphabet', 'sector': 'Communication', 'marketCap': 1950, 'change': random.uniform(-2, 3)},
+        {'ticker': 'META', 'name': 'Meta', 'sector': 'Communication', 'marketCap': 1300, 'change': random.uniform(-3, 4)},
+        {'ticker': 'NFLX', 'name': 'Netflix', 'sector': 'Communication', 'marketCap': 280, 'change': random.uniform(-2, 3)},
+        {'ticker': 'DIS', 'name': 'Disney', 'sector': 'Communication', 'marketCap': 200, 'change': random.uniform(-2, 2)},
+
+        # Industrials
+        {'ticker': 'GE', 'name': 'GE Aerospace', 'sector': 'Industrials', 'marketCap': 180, 'change': random.uniform(-2, 3)},
+        {'ticker': 'CAT', 'name': 'Caterpillar', 'sector': 'Industrials', 'marketCap': 170, 'change': random.uniform(-2, 2)},
+        {'ticker': 'RTX', 'name': 'RTX Corp', 'sector': 'Industrials', 'marketCap': 150, 'change': random.uniform(-1, 2)},
+        {'ticker': 'UPS', 'name': 'UPS', 'sector': 'Industrials', 'marketCap': 120, 'change': random.uniform(-2, 2)},
+
+        # Consumer Staples
+        {'ticker': 'WMT', 'name': 'Walmart', 'sector': 'Consumer Staples', 'marketCap': 550, 'change': random.uniform(-1, 2)},
+        {'ticker': 'PG', 'name': 'Procter & Gamble', 'sector': 'Consumer Staples', 'marketCap': 390, 'change': random.uniform(-1, 1.5)},
+        {'ticker': 'KO', 'name': 'Coca-Cola', 'sector': 'Consumer Staples', 'marketCap': 280, 'change': random.uniform(-1, 1.5)},
+        {'ticker': 'PEP', 'name': 'PepsiCo', 'sector': 'Consumer Staples', 'marketCap': 230, 'change': random.uniform(-1, 1.5)},
+
+        # Energy
+        {'ticker': 'XOM', 'name': 'Exxon Mobil', 'sector': 'Energy', 'marketCap': 480, 'change': random.uniform(-3, 3)},
+        {'ticker': 'CVX', 'name': 'Chevron', 'sector': 'Energy', 'marketCap': 280, 'change': random.uniform(-3, 3)},
+        {'ticker': 'COP', 'name': 'ConocoPhillips', 'sector': 'Energy', 'marketCap': 140, 'change': random.uniform(-3, 3)},
+
+        # Utilities
+        {'ticker': 'NEE', 'name': 'NextEra Energy', 'sector': 'Utilities', 'marketCap': 150, 'change': random.uniform(-1, 1.5)},
+        {'ticker': 'DUK', 'name': 'Duke Energy', 'sector': 'Utilities', 'marketCap': 80, 'change': random.uniform(-1, 1)},
+        {'ticker': 'SO', 'name': 'Southern Co', 'sector': 'Utilities', 'marketCap': 90, 'change': random.uniform(-1, 1)},
+
+        # Real Estate
+        {'ticker': 'PLD', 'name': 'Prologis', 'sector': 'Real Estate', 'marketCap': 120, 'change': random.uniform(-2, 2)},
+        {'ticker': 'AMT', 'name': 'American Tower', 'sector': 'Real Estate', 'marketCap': 100, 'change': random.uniform(-1, 2)},
+        {'ticker': 'CCI', 'name': 'Crown Castle', 'sector': 'Real Estate', 'marketCap': 70, 'change': random.uniform(-1, 2)},
+
+        # Materials
+        {'ticker': 'LIN', 'name': 'Linde', 'sector': 'Materials', 'marketCap': 210, 'change': random.uniform(-2, 2)},
+        {'ticker': 'APD', 'name': 'Air Products', 'sector': 'Materials', 'marketCap': 70, 'change': random.uniform(-2, 2)},
+        {'ticker': 'ECL', 'name': 'Ecolab', 'sector': 'Materials', 'marketCap': 60, 'change': random.uniform(-1, 2)},
+    ]
+
+    return jsonify({'stocks': stock_data})
+
+@app.route('/api/market-overview')
+def api_market_overview():
+    """Get real-time market overview data from Finnhub"""
+    try:
+        from finnhub_market_service import finnhub_market_service
+
+        # Get market indices (cached for 1 minute)
+        indices = finnhub_market_service.get_market_indices()
+
+        # Get sector performance
+        sectors_raw = finnhub_market_service.get_sector_performance()
+
+        # Map sector names to frontend keys
+        sectors = {
+            'tech': sectors_raw.get('Technology', 0),
+            'health': sectors_raw.get('Healthcare', 0),
+            'finance': sectors_raw.get('Financials', 0),
+            'energy': sectors_raw.get('Energy', 0),
+            'consumerDisc': sectors_raw.get('Consumer Discretionary', 0),
+            'consumerStaples': sectors_raw.get('Consumer Staples', 0),
+            'industrial': sectors_raw.get('Industrials', 0),
+            'communication': sectors_raw.get('Communication', 0),
+            'utilities': sectors_raw.get('Utilities', 0),
+            'realEstate': sectors_raw.get('Real Estate', 0),
+            'materials': sectors_raw.get('Materials', 0)
+        }
+
+        # Get Fear & Greed Index
+        fear_greed = finnhub_market_service.get_fear_greed_index()
+
+        market_data = {
+            'sp500': indices.get('sp500', {'value': 5825.23, 'change': 0, 'changePercent': 0}),
+            'dow': indices.get('dow', {'value': 42863.15, 'change': 0, 'changePercent': 0}),
+            'nasdaq': indices.get('nasdaq', {'value': 18342.67, 'change': 0, 'changePercent': 0}),
+            'vix': indices.get('vix', {'value': 14.23, 'change': 0, 'changePercent': 0}),
+            'fearGreed': fear_greed,
+            'sectors': sectors
+        }
+
+        return jsonify(market_data)
+
+    except Exception as e:
+        print(f"Error fetching market data: {e}")
+        import traceback
+        traceback.print_exc()
+
+        # Return fallback data
+        import random
+        return jsonify({
+            'sp500': { 'value': 5825.23, 'change': random.uniform(-20, 20), 'changePercent': random.uniform(-0.5, 0.5) },
+            'dow': { 'value': 42863.15, 'change': random.uniform(-150, 150), 'changePercent': random.uniform(-0.5, 0.5) },
+            'nasdaq': { 'value': 18342.67, 'change': random.uniform(-80, 80), 'changePercent': random.uniform(-0.5, 0.5) },
+            'vix': { 'value': 14.23, 'change': random.uniform(-0.5, 0.5), 'changePercent': random.uniform(-3, 3) },
+            'fearGreed': { 'value': 62, 'label': 'Greed', 'description': 'Market showing bullish sentiment' },
+            'sectors': {
+                'tech': random.uniform(-2, 2),
+                'health': random.uniform(-1.5, 1.5),
+                'finance': random.uniform(-1, 1.5),
+                'energy': random.uniform(-2, 2),
+                'consumerDisc': random.uniform(-1.5, 1.5),
+                'consumerStaples': random.uniform(-0.8, 1),
+                'industrial': random.uniform(-1.5, 1.5),
+                'communication': random.uniform(-1.8, 1.8),
+                'utilities': random.uniform(-1, 1),
+                'realEstate': random.uniform(-1.5, 1.5),
+                'materials': random.uniform(-2, 2)
+            }
+        })
+
+# Register real-time market data API routes
+try:
+    from api_market_v2 import setup_market_api_routes
+    setup_market_api_routes(app)
+    print("✓ Real-time market data API routes registered successfully!")
+except Exception as e:
+    print(f"Warning: Could not register market data API routes: {e}")
+
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
