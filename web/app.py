@@ -292,6 +292,7 @@ def api_refresh_news():
     """Refresh news data (collects and analyzes latest news - focus on government/Fed news)"""
     import sys
     import os
+    import traceback
 
     # Add parent directory to path
     sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -300,9 +301,13 @@ def api_refresh_news():
         from src.news_collector import NewsCollector
         from src.news_analyzer import NewsAnalyzer
 
+        print("[API] Starting news refresh...")
+
         # Collect news (prioritized by government/Fed news)
         collector = NewsCollector()
         news_list = collector.collect_all_news(hours=24)
+
+        print(f"[API] Collected {len(news_list)} news items")
 
         if not news_list:
             return jsonify({'success': False, 'message': 'No news collected'})
@@ -311,11 +316,15 @@ def api_refresh_news():
         analyzer = NewsAnalyzer()
         analyzed_news = analyzer.analyze_news_batch(news_list, max_items=50)
 
+        print(f"[API] Analyzed {len(analyzed_news)} news items")
+
         # Save analysis
         analyzer.save_analysis(analyzed_news)
 
         # Count high-impact news (4-5 stars)
         high_impact_count = len([n for n in analyzed_news if n.get('importance', 0) >= 4])
+
+        print(f"[API] Success! {len(analyzed_news)} analyzed ({high_impact_count} high-impact)")
 
         return jsonify({
             'success': True,
@@ -326,7 +335,10 @@ def api_refresh_news():
         })
 
     except Exception as e:
-        return jsonify({'success': False, 'message': str(e)})
+        error_msg = str(e)
+        print(f"[API ERROR] {error_msg}")
+        traceback.print_exc()
+        return jsonify({'success': False, 'message': error_msg})
 
 @app.route('/api/news/search')
 def api_search_news():

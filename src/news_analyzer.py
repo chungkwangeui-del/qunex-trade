@@ -182,10 +182,15 @@ Importance rating criteria:
 
         return analyzed_news
 
-    def save_analysis(self, analyzed_news: List[Dict], filepath: str = 'data/news_analysis.json'):
+    def save_analysis(self, analyzed_news: List[Dict], filepath: str = None):
         """
         Save analysis results
         """
+        # Use absolute path to project root's data directory
+        if filepath is None:
+            project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            filepath = os.path.join(project_root, 'data', 'news_analysis.json')
+
         os.makedirs(os.path.dirname(filepath), exist_ok=True)
 
         with open(filepath, 'w', encoding='utf-8') as f:

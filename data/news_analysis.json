@@ -1,512 +1,747 @@
 [
   {
     "importance": 4,
-    "impact_summary": "The news suggests that potential legal challenges to Trump's tariffs and the prospect of continued Fed rate cuts could provide a positive boost to the US stock market.",
+    "impact_summary": "The release of a critical inflation report during the U.S. government shutdown could raise doubts about the reliability and accuracy of the data, leading to increased market volatility.",
     "affected_sectors": [
-      "Industrials",
-      "Materials",
-      "Energy"
-    ],
-    "affected_stocks": [
-      "XLI",
-      "XLB",
-      "XLE"
-    ],
-    "sentiment": "positive",
-    "time_sensitivity": "short-term",
-    "key_points": [
-      "Investors are increasingly convinced that the Fed will continue to cut interest rates, which is seen as a positive for equities.",
-      "The possibility of the US Supreme Court ruling Trump's tariffs as illegal would be a further boost to the stock market.",
-      "Strong economic growth in China and a new pro-stimulus government in Japan are also contributing to the positive market sentiment.",
-      "Sectors like Industrials, Materials, and Energy, which have been impacted by the trade war, could see a rebound if the tariffs are lifted.",
-      "The impact on the stock market is likely to be felt in the short-term as investors react to the potential policy changes."
-    ],
-    "news_title": "Stock traders are delighted at the prospect of Trump losing his tariff war - Fortune",
-    "news_url": "https://fortune.com/2025/10/20/stocks-trump-tariff-trade-war/",
-    "news_source": "Fortune",
-    "published_at": "2025-10-20T11:06:00Z",
-    "analyzed_at": "2025-10-21T13:11:07.162563"
-  },
-  {
-    "importance": 4,
-    "impact_summary": "This week's events, including US-China trade negotiations and Tesla's earnings report, could have a significant impact on the US stock market as investors look for signs of progress in resolving trade tensions and the performance of a major technology company.",
-    "affected_sectors": [
-      "Technology",
-      "Automotive",
-      "Industrial",
-      "Materials"
-    ],
-    "affected_stocks": [
-      "TSLA",
-      "AAPL",
-      "MSFT",
-      "INTC",
-      "CAT",
-      "DE",
-      "LMT",
-      "X",
-      "NUE"
-    ],
-    "sentiment": "neutral",
-    "time_sensitivity": "immediate",
-    "key_points": [
-      "US-China trade negotiations resume this week, with investors hoping for diplomatic progress that could ease tensions over rare-earth export restrictions and the retaliation measures",
-      "Tesla is scheduled to report its Q1 2023 earnings, which will be closely watched by investors as a barometer for the electric vehicle industry",
-      "Potential market impact from the outcome of the trade talks and Tesla's earnings report, as they could affect sentiment and performance across several key sectors",
-      "Investors will be monitoring the negotiations and earnings report for clues on the broader economic and market conditions",
-      "The timing of these events makes them particularly time-sensitive, as they could influence immediate market movements and investor sentiment"
-    ],
-    "news_title": "China Talk, Tesla Earnings And Other Can't Miss Items This Week - Barchart.com",
-    "news_url": "https://www.barchart.com/story/news/35550490/china-talk-tesla-earnings-and-other-can-t-miss-items-this-week",
-    "news_source": "Barchart.com",
-    "published_at": "2025-10-19T17:00:02Z",
-    "analyzed_at": "2025-10-21T13:11:19.077574"
-  },
-  {
-    "importance": 4,
-    "impact_summary": "The slowdown in China's economic growth due to the ongoing trade war with the US is likely to negatively impact sectors and companies with significant exposure to the Chinese market.",
-    "affected_sectors": [
-      "Manufacturing",
-      "Technology",
-      "Commodities",
-      "Consumer Discretionary"
-    ],
-    "affected_stocks": [
-      "AAPL",
-      "MSFT",
-      "AMZN",
-      "XOM",
-      "CAT"
-    ],
-    "sentiment": "negative",
-    "time_sensitivity": "short-term",
-    "key_points": [
-      "China's GDP growth slowed to 4.8% in Q3 2022, the lowest in a year, due to the ongoing trade tensions with the US",
-      "The slowdown is a concern for Chinese Communist Party leaders as they prepare for an important planning meeting",
-      "Sectors with significant exposure to the Chinese market, such as manufacturing, technology, commodities, and consumer discretionary, are likely to be negatively affected",
-      "Major US companies with strong business ties to China, such as Apple, Microsoft, Amazon, Exxon Mobil, and Caterpillar, may see their stock prices decline in the short term",
-      "The news underscores the continued uncertainty and challenges posed by the US-China trade war, which has been an ongoing concern for the global markets"
-    ],
-    "news_title": "China’s economy grows at slowest pace in a year as trade war bites - The Washington Post",
-    "news_url": "https://www.washingtonpost.com/world/2025/10/20/china-economy-gdp-growth/",
-    "news_source": "The Washington Post",
-    "published_at": "2025-10-20T12:14:31Z",
-    "analyzed_at": "2025-10-21T13:11:31.507156"
-  },
-  {
-    "importance": 4,
-    "impact_summary": "China's new export rules on rare earths could disrupt global supply chains, particularly for high-tech and defense industries that rely on these critical materials.",
-    "affected_sectors": [
-      "Technology",
-      "Aerospace and Defense",
-      "Automotive"
-    ],
-    "affected_stocks": [
-      "AAPL",
-      "MSFT",
-      "NVDA",
-      "LMT",
-      "BA",
-      "GM",
-      "F"
-    ],
-    "sentiment": "negative",
-    "time_sensitivity": "short-term",
-    "key_points": [
-      "China has expanded its export rules on rare earths, requiring foreign firms to get approval for exporting products containing even small amounts of China-originated materials.",
-      "This move is seen as retaliation against the United States in the ongoing trade war, as the US relies heavily on China for rare earth supplies.",
-      "Rare earths are critical for the production of many high-tech and defense-related products, including smartphones, electric vehicles, and military equipment.",
-      "The new regulations could disrupt global supply chains and increase costs for companies that rely on these materials, potentially leading to higher prices for consumers.",
-      "The US and other countries may need to accelerate efforts to diversify their rare earth supply sources and develop alternative technologies to reduce their dependence on China."
-    ],
-    "news_title": "To hit back at the United States in their trade war, China borrows from the US playbook - ABC News - Breaking News, Latest News and Videos",
-    "news_url": "https://abcnews.go.com/Business/wireStory/hit-back-united-states-trade-war-china-borrows-126667971",
-    "news_source": "ABC News",
-    "published_at": "2025-10-20T06:30:55Z",
-    "analyzed_at": "2025-10-21T13:11:42.907343"
-  },
-  {
-    "importance": 4,
-    "impact_summary": "The ECB president's comments suggest that the impact of global trade tensions and tariffs on the global economy has not yet been fully realized, which could lead to further market volatility and uncertainty.",
-    "affected_sectors": [
-      "Industrials",
-      "Materials",
-      "Technology",
-      "Financials"
-    ],
-    "affected_stocks": [
-      "GE",
-      "CAT",
-      "BA",
-      "MMM",
-      "AAPL",
-      "MSFT",
-      "JPM",
-      "BAC"
-    ],
-    "sentiment": "negative",
-    "time_sensitivity": "short-term",
-    "key_points": [
-      "The ECB president believes the global economy has not yet fully felt the pain of tariffs and trade tensions.",
-      "Tariffs and technological advancements are transforming the global economy, according to the ECB president.",
-      "The comments suggest further market volatility and uncertainty as the impact of trade tensions continues to play out.",
-      "Sectors and companies with exposure to global trade, such as industrials, materials, technology, and financials, may be affected.",
-      "The short-term impact is likely to be negative as investors react to the uncertainty surrounding the economic outlook."
-    ],
-    "news_title": "Global economy 'yet to feel the pain' from tariffs, European Central Bank president says - Politico",
-    "news_url": "https://www.politico.com/news/2025/10/19/global-economy-trump-tariffs-ecb-lagarde-00615067",
-    "news_source": "Politico",
-    "published_at": "2025-10-19T21:38:28Z",
-    "analyzed_at": "2025-10-21T13:11:52.680871"
-  },
-  {
-    "importance": 4,
-    "impact_summary": "The successful trial results from AstraZeneca and Gilead in triple-negative breast cancer could lead to new treatment options and increased competition in this market, impacting the pharmaceutical and healthcare sectors.",
-    "affected_sectors": [
-      "Pharmaceuticals",
-      "Healthcare"
-    ],
-    "affected_stocks": [
-      "AZN",
-      "GILD"
-    ],
-    "sentiment": "positive",
-    "time_sensitivity": "short-term",
-    "key_points": [
-      "AstraZeneca and Gilead both reported positive trial results for new treatments in triple-negative breast cancer, a hard-to-treat form of the disease.",
-      "The successful trials could lead to new FDA approvals and expanded treatment options for patients, increasing competition in this market.",
-      "The news is positive for both AstraZeneca and Gilead, as it could drive increased sales and market share for their respective treatments.",
-      "The pharmaceutical and healthcare sectors are likely to be affected, as the new treatments could impact existing standards of care and market dynamics.",
-      "Investors may view the news as a positive catalyst for the affected companies and sectors in the short term."
-    ],
-    "news_title": "At ESMO, AstraZeneca and Gilead square off in triple-negative breast cancer - statnews.com",
-    "news_url": "https://www.statnews.com/2025/10/19/esmo-astrazeneca-gilead-trodelvy-datroway-triple-negative-breast-cancer-adcs/",
-    "news_source": "STAT",
-    "published_at": "2025-10-19T09:14:41Z",
-    "analyzed_at": "2025-10-21T13:11:55.151869"
-  },
-  {
-    "importance": 4,
-    "impact_summary": "The new tariffs imposed by the US government will likely lead to increased costs for major retail companies, which may result in higher prices for consumers and a negative impact on the stock market.",
-    "affected_sectors": [
-      "Retail",
-      "Consumer Discretionary"
-    ],
-    "affected_stocks": [
-      "WMT",
-      "TGT",
-      "AMZN",
-      "COST"
-    ],
-    "sentiment": "negative",
-    "time_sensitivity": "short-term",
-    "key_points": [
-      "The new tariffs will increase the costs of goods for major retailers like Walmart, Target, Amazon, and Costco.",
-      "Retailers may have to pass these increased costs on to consumers, leading to higher prices and potentially lower consumer spending.",
-      "The increased costs and potential impact on consumer spending could negatively affect the stock prices of these major retail companies.",
-      "The tariffs will have an immediate impact on the retail sector and could continue to affect it in the short-term as the situation evolves.",
-      "The overall impact on the broader stock market may be limited, as the retail sector is just one component of the market, but it could contribute to increased volatility and uncertainty in the near term."
-    ],
-    "news_title": "The costs of new tariffs are no joke - TheStreet",
-    "news_url": "https://www.thestreet.com/economy/the-costs-of-new-tariffs-are-no-joke",
-    "news_source": "TheStreet",
-    "published_at": "2025-10-19T08:19:37Z",
-    "analyzed_at": "2025-10-21T13:12:00.143497"
-  },
-  {
-    "importance": 3,
-    "impact_summary": "The federal government shutdown and mixed economic signals from the Fed could create short-term volatility in the market.",
-    "affected_sectors": [
-      "Government/Public Sector",
-      "Finance",
-      "Consumer Discretionary"
+      "Consumer Discretionary",
+      "Consumer Staples",
+      "Financial Services",
+      "Real Estate"
     ],
     "affected_stocks": [
       "SPY",
-      "QQQ",
       "DIA",
-      "JPM",
-      "BAC",
-      "WFC"
+      "QQQ",
+      "IVV"
+    ],
+    "sentiment": "negative",
+    "time_sensitivity": "immediate",
+    "key_points": [
+      "The report on inflation data will be issued during the U.S. government shutdown, which could impact the data's reliability and accuracy.",
+      "Analysts are raising doubts about the inflation data, which is a critical economic indicator that can influence Federal Reserve policy and investor sentiment.",
+      "The potential for inaccurate or questionable inflation data could lead to increased market volatility, as investors may be unsure about the true state of the economy.",
+      "Sectors and stocks that are sensitive to inflation and interest rate changes, such as consumer-related industries and financials, may be particularly affected.",
+      "The immediate release of the report during the government shutdown heightens the time sensitivity and potential impact on the markets."
+    ],
+    "news_title": "Analysts Raise Doubts About Inflation Data Ahead of Critical Report - TipRanks",
+    "news_url": "https://www.tipranks.com/news/analysts-raise-doubts-about-inflation-data-ahead-of-critical-report",
+    "news_source": "Tipranks.com",
+    "published_at": "2025-10-22T14:30:52Z",
+    "analyzed_at": "2025-10-23T18:23:21.973749"
+  },
+  {
+    "importance": 4,
+    "impact_summary": "This news suggests potential strain on AI and other leading stocks, which could have a significant impact on the broader tech sector and the US stock market.",
+    "affected_sectors": [
+      "Technology",
+      "Artificial Intelligence"
+    ],
+    "affected_stocks": [
+      "TSLA",
+      "AI-related stocks"
+    ],
+    "sentiment": "negative",
+    "time_sensitivity": "immediate",
+    "key_points": [
+      "Tesla (TSLA) earnings missed expectations, which could negatively impact the stock and the broader electric vehicle (EV) sector.",
+      "Elon Musk, Tesla's CEO, is expected to provide updates, which could influence investor sentiment.",
+      "AI-related stocks are under pressure, which could signal broader weakness in the technology and AI sectors.",
+      "The major indexes have come off their lows, but the overall market is showing signs of strain.",
+      "Investors should closely monitor the performance of AI and other leading tech stocks as they may be indicative of broader market trends."
+    ],
+    "news_title": "Dow Jones Futures: Tesla Earnings Miss, Elon Musk Due; AI Stocks Under Pressure - Investor's Business Daily",
+    "news_url": "https://www.investors.com/market-trend/stock-market-today/dow-jones-futures-tesla-earnings-miss-elon-musk-due-ai-stocks-under-pressure/",
+    "news_source": "Investor's Business Daily",
+    "published_at": "2025-10-22T21:30:00Z",
+    "analyzed_at": "2025-10-23T18:23:33.209703"
+  },
+  {
+    "importance": 4,
+    "impact_summary": "The rising U.S. national debt and ongoing government shutdown could undermine confidence in the economy and lead to increased market volatility.",
+    "affected_sectors": [
+      "Government",
+      "Financials",
+      "Industrials"
+    ],
+    "affected_stocks": [
+      "SPY",
+      "DIA",
+      "QQQ",
+      "XLF",
+      "XLI"
     ],
     "sentiment": "negative",
     "time_sensitivity": "short-term",
     "key_points": [
-      "The federal government has been shut down since the start of the month, which could become the longest shutdown in U.S. history.",
-      "The Fed's Beige Book reported mixed economic signals, with some areas of growth but also concerns about trade tensions and rising interest rates.",
-      "Despite the market choppiness, stocks pushed higher this past week, indicating investor uncertainty.",
-      "The government shutdown and mixed economic signals could create short-term volatility in the market, particularly in sectors like government, finance, and consumer discretionary.",
-      "Investors should closely monitor developments and be prepared for potential market swings in the near term."
+      "The U.S. national debt has surpassed $38 trillion for the first time, indicating a rapidly growing debt burden.",
+      "The government shutdown is disrupting the economy and adding to the fiscal challenges faced by the government.",
+      "Experts warn that the growing debt could undermine confidence in the economy and lead to increased market volatility.",
+      "The affected sectors include government, financials, and industrials, as they are closely tied to the government's fiscal policies and economic conditions.",
+      "The impact is expected to be felt in the short-term as the market reacts to the news, but the long-term implications could be more significant if the debt issues persist."
     ],
-    "news_title": "Investors have reasons to be nervous about markets right now. How to separate the warning signs from the noise. - MarketWatch",
-    "news_url": "https://www.marketwatch.com/story/investors-have-reasons-to-be-nervous-about-markets-right-now-how-to-separate-the-warning-signs-from-the-noise-69d8eed3",
-    "news_source": "MarketWatch",
-    "published_at": "2025-10-19T14:00:00Z",
-    "analyzed_at": "2025-10-21T13:11:13.599246"
+    "news_title": "U.S. debt tops $38 trillion for the first time, worsened by government shutdown - CBS News",
+    "news_url": "https://www.cbsnews.com/news/us-debt-38-trillion-government-shutdown-2025/",
+    "news_source": "CBS News",
+    "published_at": "2025-10-22T22:06:00Z",
+    "analyzed_at": "2025-10-23T18:23:49.576981"
+  },
+  {
+    "importance": 4,
+    "impact_summary": "The lawsuit against OpenAI over the death of a teenager after using ChatGPT could lead to increased regulatory scrutiny and potential financial liabilities for the company, impacting the tech sector.",
+    "affected_sectors": [
+      "Technology",
+      "Software and Services"
+    ],
+    "affected_stocks": [
+      "OPEN"
+    ],
+    "sentiment": "negative",
+    "time_sensitivity": "short-term",
+    "key_points": [
+      "OpenAI is being sued for wrongful death after a teenager allegedly took his own life following conversations with ChatGPT about his mental health.",
+      "The lawsuit could lead to increased regulatory scrutiny and potential financial liabilities for OpenAI, which may impact the company's operations and stock performance.",
+      "The case raises concerns about the potential risks and responsibilities associated with the development and use of AI-powered chatbots, especially when dealing with vulnerable individuals.",
+      "The tech sector, particularly companies involved in AI and chatbot technologies, may face heightened investor scrutiny and potential regulatory actions in the wake of this lawsuit.",
+      "The outcome of the lawsuit and any resulting regulatory changes could have significant implications for the future development and deployment of AI-powered conversational interfaces."
+    ],
+    "news_title": "OpenAI requested memorial attendee list in ChatGPT suicide lawsuit - TechCrunch",
+    "news_url": "https://techcrunch.com/2025/10/22/openai-requested-memorial-attendee-list-in-chatgpt-suicide-lawsuit/",
+    "news_source": "TechCrunch",
+    "published_at": "2025-10-22T20:49:19Z",
+    "analyzed_at": "2025-10-23T18:23:53.505732"
+  },
+  {
+    "importance": 4,
+    "impact_summary": "A potential acquisition of Warner Bros. Discovery by Paramount could significantly reshape the media and entertainment landscape, potentially impacting the broader stock market.",
+    "affected_sectors": [
+      "Media",
+      "Entertainment",
+      "Communication Services"
+    ],
+    "affected_stocks": [
+      "PARA",
+      "WBD",
+      "DIS",
+      "NFLX",
+      "T"
+    ],
+    "sentiment": "Positive",
+    "time_sensitivity": "Short-term",
+    "key_points": [
+      "The potential acquisition could create a media powerhouse, combining the assets of Paramount and Warner Bros. Discovery.",
+      "A merged entity would have a significant presence across film, television, and streaming, potentially impacting the competitive landscape.",
+      "The deal could lead to cost synergies and increased bargaining power, which could benefit the combined company's financial performance.",
+      "Regulatory scrutiny and antitrust concerns may arise, potentially posing challenges to the completion of the deal.",
+      "The acquisition could spur further consolidation in the media and entertainment industry as companies seek to gain scale and market share."
+    ],
+    "news_title": "What Happens if Paramount Acquires Warner Bros. Discovery? - Variety",
+    "news_url": "https://variety.com/2025/biz/news/what-happens-if-paramount-buys-warner-bros-discovery-merger-1236558865/",
+    "news_source": "Variety",
+    "published_at": "2025-10-22T19:23:00Z",
+    "analyzed_at": "2025-10-23T18:24:13.916775"
+  },
+  {
+    "importance": 4,
+    "impact_summary": "The extended AWS outage highlights the fragility and interdependencies of the cloud infrastructure, which could lead to widespread disruptions across various sectors.",
+    "affected_sectors": [
+      "Technology",
+      "Finance",
+      "Healthcare",
+      "Education",
+      "Communication"
+    ],
+    "affected_stocks": [
+      "AMZN",
+      "MSFT",
+      "GOOG",
+      "AAPL",
+      "JPM",
+      "CVS",
+      "LMT",
+      "DIS"
+    ],
+    "sentiment": "negative",
+    "time_sensitivity": "short-term",
+    "key_points": [
+      "The AWS outage on Monday disrupted a wide range of services and businesses that rely on Amazon's cloud infrastructure.",
+      "The duration of the outage, which lasted for several hours, underscores the complexity and fragility of the cloud ecosystem.",
+      "The incident highlights the risk of over-reliance on a single cloud provider and the need for businesses to have robust disaster recovery and business continuity plans.",
+      "The impact of the outage was felt across multiple sectors, including technology, finance, healthcare, and communication, as many services and applications were rendered unavailable.",
+      "The news may prompt companies to reevaluate their cloud strategies and consider diversifying their cloud infrastructure to mitigate the risk of such widespread disruptions in the future."
+    ],
+    "news_title": "The Long Tail of the AWS Outage - WIRED",
+    "news_url": "https://www.wired.com/story/aws-cloud-outage-long-tail/",
+    "news_source": "Wired",
+    "published_at": "2025-10-22T16:31:00Z",
+    "analyzed_at": "2025-10-23T18:24:25.907407"
   },
   {
     "importance": 3,
-    "impact_summary": "The positive outlook on Apple's stock performance during the last 3 months of the year could have a positive impact on the technology sector and broader stock market.",
+    "impact_summary": "This lawsuit could impact the use of web scraping and data collection practices by AI companies, potentially affecting their business models and operations.",
+    "affected_sectors": [
+      "Technology",
+      "Artificial Intelligence"
+    ],
+    "affected_stocks": [
+      "PERX",
+      "OXLY"
+    ],
+    "sentiment": "negative",
+    "time_sensitivity": "short-term",
+    "key_points": [
+      "Reddit is suing Perplexity AI and three other entities for allegedly scraping user comments for commercial gain without permission.",
+      "The lawsuit alleges an 'industrial-scale, unlawful economy' around the scraping of data from social media platforms.",
+      "This could lead to increased scrutiny and potential legal challenges for AI companies that rely on web scraping practices.",
+      "The outcome of the lawsuit could impact the business models and operations of AI companies, especially those that rely on user-generated data.",
+      "The short-term impact is likely to be negative for the affected companies and could potentially spill over to the broader AI and technology sectors."
+    ],
+    "news_title": "Reddit sues AI company Perplexity and others for 'industrial-scale' scraping of user comments - AP News",
+    "news_url": "https://apnews.com/article/reddit-perplexity-ai-copyright-scraping-lawsuit-3ad8968550dd7e11bcd285a74fb6e2ff",
+    "news_source": "Associated Press",
+    "published_at": "2025-10-22T20:41:00Z",
+    "analyzed_at": "2025-10-23T18:23:19.120953"
+  },
+  {
+    "importance": 3,
+    "impact_summary": "Netflix's earnings miss could negatively impact the stock and the broader technology and consumer discretionary sectors.",
+    "affected_sectors": [
+      "Technology",
+      "Consumer Discretionary"
+    ],
+    "affected_stocks": [
+      "NFLX"
+    ],
+    "sentiment": "negative",
+    "time_sensitivity": "immediate",
+    "key_points": [
+      "Netflix reported lower-than-expected earnings, missing analyst estimates for the first quarter of 2023.",
+      "The earnings miss is surprising, as Netflix is typically known for meeting or exceeding expectations.",
+      "The news may indicate broader challenges in the streaming industry, such as increased competition and subscriber growth concerns.",
+      "The drop in Netflix's stock price could have a ripple effect on other technology and consumer discretionary stocks.",
+      "Investors will be closely watching for further updates from Netflix and the streaming industry to gauge the long-term impact."
+    ],
+    "news_title": "Netflix Earnings Aren’t Supposed to Come in Short. Here’s Why the Stock Is Dropping. - Barron's",
+    "news_url": "https://www.barrons.com/articles/netflix-stock-price-earnings-a5356cf1",
+    "news_source": "Barron's",
+    "published_at": "2025-10-22T11:48:00Z",
+    "analyzed_at": "2025-10-23T18:23:25.475205"
+  },
+  {
+    "importance": 3,
+    "impact_summary": "The rising cost of job-based health insurance for families could impact consumer spending and put pressure on companies to manage healthcare costs.",
+    "affected_sectors": [
+      "Healthcare",
+      "Insurance",
+      "Consumer Discretionary"
+    ],
+    "affected_stocks": [
+      "UNH",
+      "CVS",
+      "WMT",
+      "TGT"
+    ],
+    "sentiment": "negative",
+    "time_sensitivity": "short-term",
+    "key_points": [
+      "The annual cost of covering a family of four under job-based health insurance rose by 6% or more for three consecutive years, reaching $27,000 in 2025.",
+      "This increase in healthcare costs could force families to make trade-offs between purchasing a new car and affording health insurance.",
+      "The rising healthcare costs could put pressure on companies to manage their healthcare expenses, potentially impacting their profitability.",
+      "The news could affect consumer spending in the healthcare and consumer discretionary sectors, as families may have to prioritize healthcare over other purchases.",
+      "The impact could be felt in the short-term as families and companies adjust to the higher healthcare costs."
+    ],
+    "news_title": "A New Car vs. Health Insurance? Average Family Job-Based Coverage Hits $27K - KFF Health News",
+    "news_url": "https://kffhealthnews.org/news/article/workplace-health-insurance-premiums-family-plans-kff-survey/",
+    "news_source": "Kffhealthnews.org",
+    "published_at": "2025-10-22T09:01:00Z",
+    "analyzed_at": "2025-10-23T18:23:29.397925"
+  },
+  {
+    "importance": 3,
+    "impact_summary": "IBM's earnings beat and positive AI demand outlook may not be enough to offset the stock's decline, indicating potential near-term volatility for the tech sector.",
+    "affected_sectors": [
+      "Technology",
+      "Information Technology"
+    ],
+    "affected_stocks": [
+      "IBM",
+      "MSFT",
+      "AAPL",
+      "AMZN",
+      "GOOG"
+    ],
+    "sentiment": "negative",
+    "time_sensitivity": "short-term",
+    "key_points": [
+      "IBM reported better-than-expected Q3 earnings, beating estimates on both revenue and earnings per share.",
+      "The company also boosted its full-year sales forecast, citing strong demand for its AI and cloud computing services.",
+      "However, IBM stock fell after the earnings release, indicating the market may have expected even stronger results or guidance.",
+      "The negative market reaction suggests near-term volatility for IBM and potentially the broader tech sector, as investors weigh the impact of economic conditions and AI/cloud adoption.",
+      "Other major tech stocks like Microsoft, Apple, Amazon, and Google may also be affected by the perceived weakness in IBM's stock performance despite the positive earnings."
+    ],
+    "news_title": "IBM Stock Slides Despite Earnings Beat, Boost To Sales Forecast - Investor's Business Daily",
+    "news_url": "https://www.investors.com/news/technology/ibm-stock-q3-2025-earnings-news-ai/",
+    "news_source": "Investor's Business Daily",
+    "published_at": "2025-10-22T20:56:00Z",
+    "analyzed_at": "2025-10-23T18:23:38.212801"
+  },
+  {
+    "importance": 3,
+    "impact_summary": "The positive earnings report from Southwest Airlines is likely to have a positive impact on the airline and related travel sectors, as it signals stronger-than-expected demand for air travel.",
+    "affected_sectors": [
+      "Airline",
+      "Travel & Leisure"
+    ],
+    "affected_stocks": [
+      "LUV",
+      "UAL",
+      "AAL",
+      "DAL"
+    ],
+    "sentiment": "positive",
+    "time_sensitivity": "short-term",
+    "key_points": [
+      "Southwest Airlines reported a surprise profit for the third quarter, beating earnings estimates.",
+      "The company forecasts strong demand for air travel in the last three months of the year, with expectations of record sales.",
+      "The positive earnings report and strong demand outlook are likely to have a positive impact on the airline sector and related travel stocks.",
+      "The news signals a continued recovery in the travel industry, which was heavily impacted by the COVID-19 pandemic.",
+      "Investors may view this as a sign of a stronger-than-expected rebound in air travel demand, which could lead to increased optimism and investment in the sector."
+    ],
+    "news_title": "Southwest beats earnings estimates, forecasts strong demand for rest of the year - CNBC",
+    "news_url": "https://www.cnbc.com/2025/10/22/southwest-airlines-luv-earnings-q3-2025.html",
+    "news_source": "CNBC",
+    "published_at": "2025-10-22T20:30:41Z",
+    "analyzed_at": "2025-10-23T18:23:42.049498"
+  },
+  {
+    "importance": 3,
+    "impact_summary": "This positive analyst report on Amazon's stock ahead of earnings could drive investor optimism and lead to a short-term boost in Amazon's share price.",
+    "affected_sectors": [
+      "Technology",
+      "E-commerce"
+    ],
+    "affected_stocks": [
+      "AMZN"
+    ],
+    "sentiment": "positive",
+    "time_sensitivity": "short-term",
+    "key_points": [
+      "The analyst is bullish on Amazon's stock, signaling confidence in the company's performance ahead of earnings.",
+      "Amazon Web Services (AWS), the company's cloud computing division, is cited as a critical driver of Amazon's share price.",
+      "The report comes ahead of Amazon's upcoming earnings release, which could further impact the stock's performance.",
+      "Positive analyst commentary can sway investor sentiment and lead to short-term price movements in a stock.",
+      "The technology and e-commerce sectors may see broader impact due to Amazon's size and influence in the market."
+    ],
+    "news_title": "Top Analyst Pounds the Table on Amazon Stock (AMZN) Ahead of Earnings - TipRanks",
+    "news_url": "https://www.tipranks.com/news/top-analyst-pounds-the-table-on-amazon-stock-amzn-ahead-of-earnings",
+    "news_source": "Tipranks.com",
+    "published_at": "2025-10-22T15:20:20Z",
+    "analyzed_at": "2025-10-23T18:23:45.791313"
+  },
+  {
+    "importance": 3,
+    "impact_summary": "The surge in Beyond Meat's stock price driven by retail traders could lead to increased volatility in the plant-based meat sector and broader consumer discretionary stocks.",
+    "affected_sectors": [
+      "Consumer Discretionary",
+      "Food & Beverage"
+    ],
+    "affected_stocks": [
+      "BYND",
+      "APRN",
+      "CVGW",
+      "INGR"
+    ],
+    "sentiment": "positive",
+    "time_sensitivity": "short-term",
+    "key_points": [
+      "Beyond Meat's stock price has surged over 1,000% in just four days, driven by a surge in retail investor interest.",
+      "The company's fundamentals remain shaky, with concerns about its long-term growth and profitability.",
+      "The stock's volatility could impact other plant-based meat and consumer discretionary companies as retail traders seek to capitalize on the momentum.",
+      "This type of speculative trading activity is often short-lived and could lead to a correction in Beyond Meat's stock price in the near term.",
+      "Investors should be cautious about chasing momentum stocks and focus on the underlying business fundamentals."
+    ],
+    "news_title": "Why Beyond Meat shares have surged 1,000% in four days - BBC",
+    "news_url": "https://www.bbc.com/news/articles/cew4kqg09j8o",
+    "news_source": "BBC News",
+    "published_at": "2025-10-22T20:37:56Z",
+    "analyzed_at": "2025-10-23T18:24:01.280843"
+  },
+  {
+    "importance": 3,
+    "impact_summary": "Google's quantum computing breakthrough could potentially threaten the security of Bitcoin and other cryptocurrencies, raising concerns for the crypto market.",
+    "affected_sectors": [
+      "Technology",
+      "Cryptocurrency"
+    ],
+    "affected_stocks": [
+      "BTC-USD",
+      "ETH-USD",
+      "COIN"
+    ],
+    "sentiment": "negative",
+    "time_sensitivity": "long-term",
+    "key_points": [
+      "Google's Willow processor has achieved a verified quantum speed-up, outpacing classical supercomputers.",
+      "This marks a step towards fault-tolerant quantum systems that could potentially break the encryption used to secure cryptocurrencies like Bitcoin.",
+      "The news raises concerns about the long-term security of Bitcoin and other cryptocurrencies, which could impact the crypto market.",
+      "The development of quantum computing could eventually threaten the cryptographic algorithms that underpin the security of Bitcoin and other digital assets.",
+      "The impact on the US stock market is likely to be felt more in the cryptocurrency and technology sectors, as investors assess the potential risks and implications of this quantum computing breakthrough."
+    ],
+    "news_title": "Quantum Threat to Bitcoin Grows as Google Reveals Latest Breakthrough - Decrypt",
+    "news_url": "https://decrypt.co/345472/quantum-threat-bitcoin-grows-google-latest-breakthrough",
+    "news_source": "Decrypt",
+    "published_at": "2025-10-22T20:27:04Z",
+    "analyzed_at": "2025-10-23T18:24:05.313867"
+  },
+  {
+    "importance": 3,
+    "impact_summary": "The news suggests that the loan fraud issue at Western Alliance is isolated, potentially easing concerns about broader problems in the regional banking sector.",
+    "affected_sectors": [
+      "Banking",
+      "Financial Services"
+    ],
+    "affected_stocks": [
+      "WAL",
+      "ZION",
+      "regional bank stocks"
+    ],
+    "sentiment": "positive",
+    "time_sensitivity": "short-term",
+    "key_points": [
+      "Western Alliance CEO says the loan fraud issue is an isolated incident and not indicative of broader problems in the regional banking sector",
+      "Regional banks like Western Alliance and Zions reported results that did not include any new loan meltdowns, providing a reprieve for the sector",
+      "The news suggests that the concerns over loans made to non-bank financial players may be easing, at least in the case of Western Alliance",
+      "Investors may view this as a positive sign for the regional banking sector, which has faced significant challenges in recent weeks",
+      "The impact is likely to be felt in the short-term as the market assesses the potential implications for the regional banking sector"
+    ],
+    "news_title": "Western Alliance CEO says alleged loan fraud is 'incredibly frustrating' but isolated issue - CNBC",
+    "news_url": "https://www.cnbc.com/2025/10/22/western-alliance-ceo-alleged-loan-fraud-isolated.html",
+    "news_source": "CNBC",
+    "published_at": "2025-10-22T17:57:42Z",
+    "analyzed_at": "2025-10-23T18:24:17.662619"
+  },
+  {
+    "importance": 3,
+    "impact_summary": "This innovation by Amazon could improve the efficiency and cost-effectiveness of its delivery operations, potentially leading to cost savings and improved profitability for the company.",
+    "affected_sectors": [
+      "E-commerce",
+      "Logistics",
+      "Technology"
+    ],
+    "affected_stocks": [
+      "AMZN",
+      "FDX",
+      "UPS"
+    ],
+    "sentiment": "positive",
+    "time_sensitivity": "short-term",
+    "key_points": [
+      "Amazon is developing AI-powered delivery glasses that provide real-time navigation and delivery instructions to drivers, reducing their reliance on smartphones.",
+      "This technology could improve the efficiency and safety of Amazon's delivery operations by allowing drivers to focus more on their surroundings.",
+      "The innovation could lead to cost savings for Amazon, as it may reduce the need for extensive smartphone usage and associated data plans.",
+      "Improved delivery efficiency and cost savings could positively impact Amazon's profitability and stock price.",
+      "The technology may also have applications in the broader logistics and delivery industry, potentially affecting competitors like FedEx and UPS."
+    ],
+    "news_title": "Amazon’s delivery glasses: The newest innovation designed to enhance the delivery experience - about Amazon",
+    "news_url": "https://www.aboutamazon.com/news/transportation/smart-glasses-amazon-delivery-drivers",
+    "news_source": "Aboutamazon.com",
+    "published_at": "2025-10-22T17:26:19Z",
+    "analyzed_at": "2025-10-23T18:24:21.717896"
+  },
+  {
+    "importance": 3,
+    "impact_summary": "GM's adoption of Gemini-powered AI assistant in its vehicles starting in 2026 could enhance the in-car user experience and increase consumer appeal, potentially impacting the automotive sector.",
+    "affected_sectors": [
+      "Automotive"
+    ],
+    "affected_stocks": [
+      "GM"
+    ],
+    "sentiment": "positive",
+    "time_sensitivity": "long-term",
+    "key_points": [
+      "GM is integrating a conversational AI assistant powered by Google Gemini into its vehicles starting in 2026.",
+      "The AI assistant aims to provide a more natural-sounding and responsive experience for drivers and passengers.",
+      "This move aligns with the broader trend of automakers incorporating advanced AI-based technologies to enhance the in-car user experience.",
+      "The integration of Gemini-powered AI could differentiate GM's vehicles and potentially increase consumer appeal, impacting the company's sales and market position.",
+      "The long-term impact on the automotive sector and GM's stock performance will depend on the technology's reception and integration into the broader consumer driving experience."
+    ],
+    "news_title": "GM is bringing Google Gemini-powered AI assistant to cars in 2026 - TechCrunch",
+    "news_url": "https://techcrunch.com/2025/10/22/gm-is-bringing-google-gemini-powered-ai-assistant-to-cars-in-2026/",
+    "news_source": "TechCrunch",
+    "published_at": "2025-10-22T15:51:03Z",
+    "analyzed_at": "2025-10-23T18:24:29.629114"
+  },
+  {
+    "importance": 3,
+    "impact_summary": "The potential devaluation of the Argentine peso following the upcoming elections could negatively impact companies and sectors with exposure to the Argentine market.",
+    "affected_sectors": [
+      "Financials",
+      "Consumer Discretionary",
+      "Industrials"
+    ],
+    "affected_stocks": [
+      "GS",
+      "JPM",
+      "MCD",
+      "AMZN",
+      "CAT"
+    ],
+    "sentiment": "negative",
+    "time_sensitivity": "immediate",
+    "key_points": [
+      "Investors are betting on a 12% decline in the Argentine peso despite a $40 billion US support package",
+      "The upcoming elections in Argentina are seen as a potential trigger for the peso devaluation",
+      "Companies and sectors with significant exposure to the Argentine market, such as financials, consumer discretionary, and industrials, could be negatively impacted",
+      "The immediate impact could be felt in the stock prices of companies with Argentine operations or revenue",
+      "The long-term impact will depend on the extent of the peso devaluation and the policy responses from the Argentine government and the US"
+    ],
+    "news_title": "Investors bet on Argentine peso devaluation after weekend elections - Financial Times",
+    "news_url": "https://www.ft.com/content/a4ac78be-ad69-4e54-8e8b-9692d11d07e6",
+    "news_source": "Financial Times",
+    "published_at": "2025-10-22T15:45:48Z",
+    "analyzed_at": "2025-10-23T18:24:34.291817"
+  },
+  {
+    "importance": 3,
+    "impact_summary": "The recall of nearly 13,000 Tesla vehicles due to a battery pack issue could lead to production disruptions and impact the company's sales and reputation in the short-term.",
+    "affected_sectors": [
+      "Automotive",
+      "Electric Vehicles"
+    ],
+    "affected_stocks": [
+      "TSLA"
+    ],
+    "sentiment": "negative",
+    "time_sensitivity": "short-term",
+    "key_points": [
+      "Tesla is recalling about 13,000 newer Model Y and Model 3 vehicles due to a battery pack issue that could cause loss of drive power while driving.",
+      "The recall affects 2025 Model Y and 2026 Model 3 vehicles, which are relatively new models in Tesla's lineup.",
+      "Production disruptions and recalls can impact Tesla's sales and reputation, potentially leading to short-term stock price volatility.",
+      "The issue highlights the importance of quality control and safety for electric vehicle manufacturers, as battery-related problems can have significant consequences.",
+      "Investors will be watching how Tesla handles the recall and whether it leads to any further production or delivery delays."
+    ],
+    "news_title": "Tesla Recalls About 13,000 Newer Cars Over Battery Issue That Can Cause Power Loss While Driving - Forbes",
+    "news_url": "https://www.forbes.com/sites/zacharyfolk/2025/10/22/tesla-recalls-about-13000-newer-cars-over-battery-issue-that-can-cause-power-loss-while-driving/",
+    "news_source": "Forbes",
+    "published_at": "2025-10-22T14:36:51Z",
+    "analyzed_at": "2025-10-23T18:24:38.450079"
+  },
+  {
+    "importance": 3,
+    "impact_summary": "The correction in gold prices could impact the performance of gold-related stocks and sectors, as well as investor sentiment towards safe-haven assets.",
+    "affected_sectors": [
+      "Precious Metals",
+      "Mining",
+      "Financial Services"
+    ],
+    "affected_stocks": [
+      "GLD",
+      "GOLD",
+      "NEM",
+      "ABX"
+    ],
+    "sentiment": "negative",
+    "time_sensitivity": "short-term",
+    "key_points": [
+      "Gold prices have been in a bull run this year, outperforming even the AI-driven stock market rally.",
+      "However, gold is now experiencing a correction, which could signal the end of the metal's recent bull run.",
+      "The correction in gold prices could have a negative impact on gold-related stocks and sectors, as well as investor sentiment towards safe-haven assets.",
+      "Investors may start to shift their focus back to riskier assets, such as equities, if the gold correction continues.",
+      "The short-term impact on the US stock market is likely to be negative, as the gold correction could lead to a broader risk-off sentiment."
+    ],
+    "news_title": "Gold is suddenly going through a correction. Is the metal's bull run in danger? - CNBC",
+    "news_url": "https://www.cnbc.com/2025/10/22/gold-is-suddenly-going-through-a-correction-is-the-metals-bull-run-in-danger.html",
+    "news_source": "CNBC",
+    "published_at": "2025-10-22T13:23:11Z",
+    "analyzed_at": "2025-10-23T18:24:42.512313"
+  },
+  {
+    "importance": 3,
+    "impact_summary": "The high compensation of Microsoft's CEO could raise concerns about executive pay and may negatively impact investor sentiment towards the company in the short term.",
     "affected_sectors": [
       "Technology"
     ],
     "affected_stocks": [
-      "AAPL"
-    ],
-    "sentiment": "positive",
-    "time_sensitivity": "short-term",
-    "key_points": [
-      "Apple's stock is near a record high as the company's earnings report is looming.",
-      "Evercore analysts predict that Apple's shares tend to rise during the last 3 months of the year.",
-      "The positive tone in the overall market suggests investors have shrugged off recent concerns about credit and trade issues.",
-      "The potential for a positive performance by Apple's stock could have a positive impact on the technology sector and broader market.",
-      "Investors may want to consider options trades to take advantage of the expected rise in Apple's stock price."
-    ],
-    "news_title": "With Apple stock near a record high as earnings loom, here’s the options trade to make - MarketWatch",
-    "news_url": "https://www.marketwatch.com/story/with-apple-stock-near-a-record-high-as-earnings-loom-heres-the-options-trade-to-make-73ef26ae",
-    "news_source": "MarketWatch",
-    "published_at": "2025-10-20T11:02:00Z",
-    "analyzed_at": "2025-10-21T13:11:16.009268"
-  },
-  {
-    "importance": 3,
-    "impact_summary": "The Dow Jones Industrial Average jumped 500 points, driven by a rise in Apple shares, as investors looked ahead to a potential resolution of the U.S. government shutdown and upcoming earnings reports.",
-    "affected_sectors": [
-      "Technology",
-      "Consumer Electronics"
-    ],
-    "affected_stocks": [
-      "AAPL",
-      "MSFT",
-      "AMZN",
-      "GOOGL"
-    ],
-    "sentiment": "positive",
-    "time_sensitivity": "short-term",
-    "key_points": [
-      "The Dow Jones Industrial Average gained over 500 points, or 1.9%, on Monday.",
-      "The rally was largely driven by a rise in Apple (AAPL) shares, which climbed over 3%.",
-      "Investors are hopeful that the ongoing U.S. government shutdown may soon be resolved, which could provide a boost to the markets.",
-      "Upcoming earnings reports from major companies are also generating optimism among investors.",
-      "The positive sentiment in the market follows a volatile trading week, which saw flaring trade tensions, regional bank losses, and declines in some hot AI stocks."
-    ],
-    "news_title": "Dow jumps 500 points as rally accelerates Monday on the back of Apple: Live updates - CNBC",
-    "news_url": "https://www.cnbc.com/2025/10/19/stock-market-today-live-updates.html",
-    "news_source": "CNBC",
-    "published_at": "2025-10-20T18:38:00Z",
-    "analyzed_at": "2025-10-21T13:11:22.174567"
-  },
-  {
-    "importance": 3,
-    "impact_summary": "The AWS outage disrupted operations for several major companies, potentially affecting their revenues and stock performance in the short term.",
-    "affected_sectors": [
-      "Technology",
-      "Consumer Discretionary",
-      "Communication Services"
-    ],
-    "affected_stocks": [
-      "AMZN",
-      "SNAP",
-      "ATVI",
       "MSFT"
     ],
     "sentiment": "negative",
     "time_sensitivity": "short-term",
     "key_points": [
-      "The AWS outage affected a wide range of companies and services, including e-commerce giant Amazon, social media platforms like Snapchat, and gaming companies like Epic Games (Fortnite).",
-      "Disruptions to these services could lead to lost revenue and reputational damage for the affected companies, potentially impacting their stock prices in the short term.",
-      "The outage highlights the reliance of many businesses on cloud infrastructure provided by a small number of providers, making them vulnerable to widespread system failures.",
-      "The cause of the outage is currently unclear, but it underscores the importance of robust backup and redundancy plans for companies that rely on cloud services.",
-      "The impact of the outage is likely to be felt most acutely in the technology, consumer discretionary, and communication services sectors, as these were the most directly affected."
+      "Microsoft CEO Satya Nadella's compensation reached $96.5 million, a 480:1 ratio compared to the average employee.",
+      "High executive compensation can be viewed negatively by investors and the public, potentially leading to reputational damage for the company.",
+      "The news may raise broader discussions about the appropriate balance between executive pay and employee compensation.",
+      "Investors may be concerned about the allocation of company resources and how it impacts Microsoft's financial performance and competitiveness.",
+      "The news could lead to increased scrutiny of executive pay practices at other technology companies, potentially affecting investor sentiment in the sector."
     ],
-    "news_title": "Major AWS outage took down Fortnite, Alexa, Snapchat, and more - The Verge",
-    "news_url": "https://www.theverge.com/news/802486/aws-outage-alexa-fortnite-snapchat-offline",
-    "news_source": "The Verge",
-    "published_at": "2025-10-20T16:41:13Z",
-    "analyzed_at": "2025-10-21T13:11:25.962988"
+    "news_title": "AI bubble inflates Microsoft CEO pay to $96.5M - theregister.com",
+    "news_url": "https://www.theregister.com/2025/10/22/microsoft_nadella_pay/",
+    "news_source": "Theregister.com",
+    "published_at": "2025-10-22T11:23:00Z",
+    "analyzed_at": "2025-10-23T18:24:46.457519"
   },
   {
     "importance": 3,
-    "impact_summary": "The news of Replimune's successful BLA resubmission to the FDA is likely to have a positive impact on the company's stock and the biotechnology sector.",
-    "affected_sectors": [
-      "Biotechnology"
-    ],
-    "affected_stocks": [
-      "REPL"
-    ],
-    "sentiment": "positive",
-    "time_sensitivity": "short-term",
-    "key_points": [
-      "Replimune stock gained over 105% on Monday due to the company's successful resubmission of a Biologics License Application (BLA) to the FDA.",
-      "The BLA resubmission is a crucial step in the regulatory approval process for Replimune's potential new drug or treatment.",
-      "Successful regulatory approvals can lead to increased investor confidence and potential future revenue for the company.",
-      "The biotechnology sector, which includes Replimune, may see a positive sentiment shift due to this news.",
-      "Investors should closely monitor Replimune's progress through the FDA approval process and any potential impact on the broader biotechnology sector."
-    ],
-    "news_title": "Why Is Replimune Stock (REPL) Up 105% Today? - TipRanks",
-    "news_url": "https://www.tipranks.com/news/why-is-replimune-stock-repl-up-105-today",
-    "news_source": "Tipranks.com",
-    "published_at": "2025-10-20T13:19:59Z",
-    "analyzed_at": "2025-10-21T13:11:28.631057"
-  },
-  {
-    "importance": 3,
-    "impact_summary": "Strong demand for both the cheapest and most expensive iPhone 17 models could positively impact Apple's financial performance and stock price.",
-    "affected_sectors": [
-      "Technology",
-      "Telecommunications"
-    ],
-    "affected_stocks": [
-      "AAPL"
-    ],
-    "sentiment": "positive",
-    "time_sensitivity": "short-term",
-    "key_points": [
-      "Both the base iPhone 17 and the most expensive iPhone 17 model are seeing strong sales demand.",
-      "Strong demand for the iPhone 17 line could boost Apple's revenue and profits, leading to a positive impact on its stock price.",
-      "The iPhone is a critical product for Apple, and its performance can significantly influence the company's overall financial results.",
-      "The news suggests that Apple's pricing strategy for the iPhone 17 lineup is resonating with consumers, which could be a positive sign for the company's future prospects.",
-      "Investors may closely monitor Apple's upcoming earnings reports and guidance to gauge the impact of the iPhone 17 sales performance on the company's financial outlook."
-    ],
-    "news_title": "Cheapest and most expensive iPhone 17 models reportedly seeing strong sales - 9to5Mac",
-    "news_url": "https://9to5mac.com/2025/10/20/cheapest-and-most-expensive-iphone-17-models-reportedly-seeing-strong-sales/",
-    "news_source": "9to5Mac",
-    "published_at": "2025-10-20T11:18:00Z",
-    "analyzed_at": "2025-10-21T13:11:34.402891"
-  },
-  {
-    "importance": 2,
-    "impact_summary": "This news about the expected 2026 Social Security cost-of-living adjustment (COLA) could impact the personal finances and consumer spending of retirees aged 62-80, potentially affecting certain consumer-focused sectors.",
-    "affected_sectors": [
-      "Consumer Discretionary",
-      "Consumer Staples"
-    ],
-    "affected_stocks": [
-      "WMT",
-      "MCD",
-      "DIS",
-      "TGT"
-    ],
-    "sentiment": "neutral",
-    "time_sensitivity": "short-term",
-    "key_points": [
-      "The Social Security COLA for 2026 is projected to be significant, which could provide a boost in income for retirees aged 62-80.",
-      "This increase in disposable income for retirees may lead to increased consumer spending, potentially benefiting sectors and companies that cater to this demographic.",
-      "However, the impact is likely to be limited to specific consumer-focused sectors and companies, rather than having a market-wide effect.",
-      "The long-term implications of the 2026 COLA will depend on broader economic conditions and the overall financial health of retirees in that time frame.",
-      "Investors should monitor the potential effects on consumer spending and consider the exposure of their portfolio holdings to the affected sectors and companies."
-    ],
-    "news_title": "Social Security's 2026 COLA Forecast: What Retirees Ages 62 to 80 Should Expect - Yahoo Finance",
-    "news_url": "https://www.fool.com/retirement/2025/10/19/social-securitys-2026-cola-forecast-what-retirees/",
-    "news_source": "Motley Fool",
-    "published_at": "2025-10-19T23:00:00Z",
-    "analyzed_at": "2025-10-21T13:11:10.399022"
-  },
-  {
-    "importance": 2,
-    "impact_summary": "The discontinuation of the Cadillac CT6 and Chevy Bolt models by General Motors may have a modest impact on the company's stock price and the broader automotive sector.",
+    "impact_summary": "Uber's move to incentivize its drivers to switch to EVs could positively impact the adoption of electric vehicles, benefiting the EV industry and related sectors.",
     "affected_sectors": [
       "Automotive",
-      "Consumer Discretionary"
+      "Transportation"
     ],
     "affected_stocks": [
-      "GM"
-    ],
-    "sentiment": "Negative",
-    "time_sensitivity": "Short-term",
-    "key_points": [
-      "General Motors discontinued the Cadillac CT6 and Chevy Bolt models, which the company's president has now admitted were 'tough decisions' that they regret.",
-      "The discontinuation of these models may impact GM's sales and revenue in the short term, as they were part of the company's product lineup.",
-      "The news may also have a negative impact on consumer sentiment towards GM and the broader automotive sector, as it signals the company's willingness to discontinue models that may have been well-received by the market.",
-      "However, the impact is likely to be modest, as the CT6 and Bolt were not the company's flagship or best-selling models.",
-      "The long-term impact will depend on GM's ability to introduce new and innovative models that can offset the loss of these discontinued vehicles."
-    ],
-    "news_title": "GM Regrets Killing the Cadillac CT6 - Motor1.com",
-    "news_url": "https://www.motor1.com/news/776294/gm-regrets-killing-cadillac-ct6/",
-    "news_source": "Motor1 ",
-    "published_at": "2025-10-20T09:44:00Z",
-    "analyzed_at": "2025-10-21T13:11:37.426988"
-  },
-  {
-    "importance": 2,
-    "impact_summary": "This news article suggests that employee loyalty is still valued, which could impact companies' hiring and retention strategies, particularly in competitive labor markets.",
-    "affected_sectors": [
-      "Human Resources",
-      "Staffing and Recruiting",
-      "Workforce Management"
-    ],
-    "affected_stocks": [
-      "MSFT",
-      "GOOGL",
-      "AMZN",
-      "WMT"
+      "TSLA",
+      "LCID",
+      "RIVN",
+      "PLUG",
+      "CHPT"
     ],
     "sentiment": "positive",
     "time_sensitivity": "short-term",
     "key_points": [
-      "The article suggests that employees still value loyalty from their employers, even if they are offered more money elsewhere.",
-      "This could lead companies to focus more on building a loyal workforce through better treatment, respect, and honesty.",
-      "Affected sectors include those that rely on skilled labor, such as technology, retail, and professional services.",
-      "Stocks of major employers in these sectors may be impacted as they adjust their employee retention strategies.",
-      "The impact is likely to be short-term as companies adapt their policies and practices to address employee loyalty."
+      "Uber's $4,000 grants to drivers to switch from gas-powered to electric vehicles could accelerate the adoption of EVs.",
+      "The decision was motivated by the expiration of the federal EV tax credit, which made EVs more expensive for Uber drivers.",
+      "The move could benefit EV manufacturers, charging infrastructure providers, and other companies in the electric vehicle ecosystem.",
+      "The impact is likely to be felt in the short-term as more Uber drivers make the switch to EVs.",
+      "The news could contribute to positive sentiment and potentially drive increased investment in EV-related stocks."
     ],
-    "news_title": "Workplace loyalty isn't dead - businessinsider.com",
-    "news_url": "https://www.businessinsider.com/white-collar-employees-want-loyalty-more-than-money-2025-10",
-    "news_source": "Business Insider",
-    "published_at": "2025-10-20T08:19:00Z",
-    "analyzed_at": "2025-10-21T13:11:40.029784"
+    "news_title": "Uber will pay drivers $4,000 to switch to EVs - The Verge",
+    "news_url": "https://www.theverge.com/news/802983/uber-electric-ev-driver-4000-grant-price",
+    "news_source": "The Verge",
+    "published_at": "2025-10-22T11:00:00Z",
+    "analyzed_at": "2025-10-23T18:24:54.560970"
   },
   {
-    "importance": 2,
-    "impact_summary": "This news highlights the challenges faced by small farmers and suppliers in the agriculture industry, which could impact the revenues and profitability of related companies.",
+    "importance": 3,
+    "impact_summary": "This news could create uncertainty around NASA's Artemis program and impact SpaceX's standing as a key contractor, potentially affecting the company's stock performance.",
     "affected_sectors": [
-      "Agriculture",
-      "Food and Beverage"
+      "Aerospace & Defense",
+      "Government Contracting"
     ],
     "affected_stocks": [
-      "ADM",
-      "DE",
-      "COST",
-      "WMT"
+      "TSLA"
     ],
     "sentiment": "negative",
     "time_sensitivity": "short-term",
     "key_points": [
-      "A small-scale farmer in California had a major portion of his grape harvest rejected by his sole customer, a local winery, resulting in a loss of $10,000 to $15,000.",
-      "The rejection was due to a minor quality issue, highlighting the fragility of the relationship between small producers and their customers in the agriculture industry.",
-      "This incident could impact the revenues and profitability of companies in the agriculture and food and beverage sectors, as they may face similar challenges with their supply chains.",
-      "The news reflects the broader challenges faced by small farmers and suppliers in the industry, including the lack of bargaining power and the vulnerability to sudden changes in customer demand.",
-      "Investors may want to monitor the performance of companies in the affected sectors, as this news could be indicative of broader trends and challenges in the industry."
+      "Elon Musk, CEO of SpaceX, criticized NASA's acting administrator amid a debate over the Artemis lunar lander program.",
+      "SpaceX is a key contractor for the Artemis program, responsible for developing the lunar lander, and any delays or issues could impact the program's progress.",
+      "The criticisms from Musk towards NASA's leadership could create uncertainty and tensions, potentially affecting SpaceX's standing as a trusted government contractor.",
+      "The news could have a short-term negative impact on Tesla's stock (TSLA) as Musk's involvement and public statements can influence investor sentiment.",
+      "The ongoing leadership and contract disputes within the Artemis program could introduce volatility in the aerospace and defense sector, particularly for companies involved in government space contracts."
     ],
-    "news_title": "California farmer watches in pain as local winery dumps truckloads of his grapes. Why his only customer rejected him - Yahoo Finance",
-    "news_url": "https://finance.yahoo.com/news/california-farmer-watches-pain-local-000300742.html",
-    "news_source": "Yahoo Entertainment",
-    "published_at": "2025-10-20T00:03:00Z",
-    "analyzed_at": "2025-10-21T13:11:45.810248"
+    "news_title": "Musk criticizes Duffy amid NASA leadership debate - SpaceNews",
+    "news_url": "http://spacenews.com/musk-criticizes-duffy-amid-nasa-leadership-debate/",
+    "news_source": "SpaceNews",
+    "published_at": "2025-10-22T10:44:48Z",
+    "analyzed_at": "2025-10-23T18:24:58.881333"
+  },
+  {
+    "importance": 3,
+    "impact_summary": "This news could impact pharmaceutical companies and healthcare sector stocks as it introduces a new payment model for medications that bypasses insurance, which may affect drug pricing and sales.",
+    "affected_sectors": [
+      "Healthcare",
+      "Pharmaceuticals"
+    ],
+    "affected_stocks": [
+      "PFE",
+      "LLY",
+      "ABBV",
+      "JNJ"
+    ],
+    "sentiment": "Positive",
+    "time_sensitivity": "Short-term",
+    "key_points": [
+      "Companies are pitching a new payment model for employers to help their workers pay for medications directly, without using insurance.",
+      "This model aims to lower costs for both employers and employees by bypassing the traditional insurance system.",
+      "The initiative is being driven by pharma companies and the Trump administration's efforts to sell branded medications directly to cash-paying consumers.",
+      "This could impact drug pricing and sales for pharmaceutical companies, as well as the overall healthcare sector.",
+      "The new payment model presents a potential business opportunity for the companies involved in promoting it."
+    ],
+    "news_title": "Companies tout a novel payment model for obesity drugs, other medications in drive to lower costs - statnews.com",
+    "news_url": "https://www.statnews.com/2025/10/22/startups-mix-lower-insurance-premiums-with-subsidized-cash-drug-purchases/",
+    "news_source": "STAT",
+    "published_at": "2025-10-22T08:33:58Z",
+    "analyzed_at": "2025-10-23T18:25:02.677311"
   },
   {
     "importance": 2,
-    "impact_summary": "The reported assault incident at a Jack in the Box restaurant in Sacramento is unlikely to have a significant impact on the overall US stock market.",
+    "impact_summary": "The NHL's deal with prediction market platforms Kalshi and Polymarket may increase competition and pressure on traditional sports betting companies.",
     "affected_sectors": [
-      "Consumer Discretionary"
+      "Sports Betting",
+      "Gaming"
     ],
     "affected_stocks": [
-      "YUM",
-      "JACK"
+      "DKNG",
+      "CZR",
+      "PENN"
     ],
     "sentiment": "neutral",
     "time_sensitivity": "short-term",
     "key_points": [
-      "The incident involves a reported assault at a single Jack in the Box location, which is a relatively isolated and localized event.",
-      "The fast-food industry is a highly competitive and fragmented sector, and this type of incident is not uncommon and unlikely to have a broader impact.",
-      "The incident may have a minor impact on the stock price of Jack in the Box (JACK) or its parent company Yum! Brands (YUM) in the short term, but is not expected to have a significant or long-lasting effect on the overall US stock market.",
-      "Investors and the market are more likely to be focused on broader economic indicators, industry trends, and company-specific financial performance when evaluating the performance of stocks in the consumer discretionary sector.",
-      "The news is unlikely to have any meaningful impact on investor sentiment or trading activity in the US stock market beyond the companies directly involved."
+      "The NHL has partnered with prediction market platforms Kalshi and Polymarket to offer fans new ways to engage with the league.",
+      "This deal could increase competition and pressure on traditional sports betting companies like DraftKings, Caesars, and Penn National Gaming.",
+      "Prediction markets offer a different product compared to traditional sports betting, which may appeal to some sports fans.",
+      "However, the impact on the stock prices of affected companies is likely to be modest, as the deal is still relatively small in scale.",
+      "The long-term implications will depend on the adoption and growth of prediction markets in the sports betting industry."
     ],
-    "news_title": "Man dies after reported fight at Sacramento County Jack in the Box, deputies say - CBS News",
-    "news_url": "https://www.cbsnews.com/sacramento/news/arden-arcade-jack-in-the-box-deadly-assault/",
+    "news_title": "NHL Deal With Kalshi, Polymarket Adds to Pressure on Sports-Betting Companies - The Wall Street Journal",
+    "news_url": "https://www.wsj.com/finance/investing/nhl-deal-with-kalshi-polymarket-adds-to-pressure-on-sports-betting-companies-2b06ebeb",
+    "news_source": "The Wall Street Journal",
+    "published_at": "2025-10-22T20:38:00Z",
+    "analyzed_at": "2025-10-23T18:23:57.358331"
+  },
+  {
+    "importance": 2,
+    "impact_summary": "The surge in wholesale turkey prices ahead of Thanksgiving may impact consumer spending and profits for companies in the food and retail sectors.",
+    "affected_sectors": [
+      "Food & Beverage",
+      "Retail"
+    ],
+    "affected_stocks": [
+      "WMT",
+      "TGT",
+      "KR",
+      "CAG",
+      "HRL"
+    ],
+    "sentiment": "negative",
+    "time_sensitivity": "short-term",
+    "key_points": [
+      "Wholesale prices for frozen turkeys are expected to increase by 40% compared to last year, reaching $1.32 per pound.",
+      "The price surge is due to a combination of factors, including supply chain disruptions, labor shortages, and higher feed and transportation costs.",
+      "The higher wholesale prices may lead to higher retail prices for consumers, potentially impacting their Thanksgiving meal budgets and spending in the retail sector.",
+      "Companies in the food and retail sectors, such as Walmart, Target, Kroger, ConAgra, and Hormel, may see pressure on profit margins due to the increased turkey costs.",
+      "The impact is expected to be short-term, as it is focused on the Thanksgiving holiday period and may not have a lasting effect on the broader stock market."
+    ],
+    "news_title": "Wholesale turkey prices soar ahead of Thanksgiving. Here's what's behind the surge. - CBS News",
+    "news_url": "https://www.cbsnews.com/news/turkey-price-increase-thanksgiving-2025/",
     "news_source": "CBS News",
-    "published_at": "2025-10-19T23:35:00Z",
-    "analyzed_at": "2025-10-21T13:11:50.025020"
+    "published_at": "2025-10-22T20:07:00Z",
+    "analyzed_at": "2025-10-23T18:24:10.095220"
+  },
+  {
+    "importance": 2,
+    "impact_summary": "This news could raise concerns about potential conflicts of interest and impact the public perception of the Trump administration's crypto-related activities.",
+    "affected_sectors": [
+      "Financial Services",
+      "Cryptocurrency"
+    ],
+    "affected_stocks": [
+      "COIN",
+      "RIOT",
+      "MARA"
+    ],
+    "sentiment": "negative",
+    "time_sensitivity": "short-term",
+    "key_points": [
+      "Senate Democrats are demanding details on Trump advisor Steve Witkoff's personal crypto investments and lack of divestment.",
+      "Witkoff, who serves as a special envoy to the Middle East, reported in August that he still owned a Trump-linked cryptocurrency.",
+      "This raises questions about potential conflicts of interest and the Trump administration's handling of cryptocurrency-related matters.",
+      "The news could impact public perception of the administration's credibility and transparency, particularly regarding its dealings in the crypto space.",
+      "While not a major market-moving event, this news could lead to increased scrutiny and volatility in the cryptocurrency sector in the short term."
+    ],
+    "news_title": "Exclusive: Senate Democrats demand top Trump advisor Steve Witkoff provide details on crypto investments, lack of divestment - Fortune",
+    "news_url": "https://fortune.com/crypto/2025/10/22/adam-schiff-senators-steve-witkoff-trump-uae-world-liberty-financial/",
+    "news_source": "Fortune",
+    "published_at": "2025-10-22T11:00:00Z",
+    "analyzed_at": "2025-10-23T18:24:50.505032"
   }
 ]

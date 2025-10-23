@@ -48,7 +48,8 @@
       "Bash(timeout 30 python:*)",
       "Bash(timeout 60 python:*)",
       "Bash(set:*)",
-      "Bash(export PYTHONIOENCODING=utf-8)"
+      "Bash(export PYTHONIOENCODING=utf-8)",
+      "Bash(timeout 180 python:*)"
     ],
     "deny": [],
     "ask": []
