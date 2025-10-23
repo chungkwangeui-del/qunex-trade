@@ -44,6 +44,10 @@ data/*.parquet
 *.db
 *.sqlite
 
+# News data (generated dynamically)
+web/data/
+data/news_analysis.json
+
 # Model files (tracked with Git LFS)
 # models/*.pkl is tracked via LFS
 models/*.h5
