@@ -179,8 +179,8 @@ class NewsCollector:
         Prioritize news items based on keyword importance
         """
         def get_priority_score(news_item):
-            title = news_item.get('title', '').lower()
-            description = news_item.get('description', news_item.get('summary', '')).lower()
+            title = (news_item.get('title') or '').lower()
+            description = (news_item.get('description') or news_item.get('summary') or '').lower()
             full_text = f"{title} {description}"
 
             # High priority: government/Fed news = score 3
