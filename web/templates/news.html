@@ -882,21 +882,35 @@
         function refreshNews() {
             const btn = event.target;
             btn.disabled = true;
-            btn.textContent = '🔄 Refreshing...';
+            btn.textContent = '🔄 Refreshing... (this may take 1-2 minutes)';
 
-            fetch('/api/news/refresh')
-                .then(response => response.json())
+            // Add timeout of 3 minutes
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 180000);
+
+            fetch('/api/news/refresh', { signal: controller.signal })
+                .then(response => {
+                    clearTimeout(timeoutId);
+                    return response.json();
+                })
                 .then(data => {
                     if (data.success) {
+                        alert(`✓ Success! ${data.total_analyzed} news analyzed (${data.high_impact_count} high-impact)`);
                         location.reload();
                     } else {
-                        alert('Failed to refresh news: ' + data.message);
+                        alert('Failed to collect news: ' + data.message + '\n\nPlease try again in a few minutes.');
                         btn.disabled = false;
                         btn.textContent = '🔄 Refresh News';
                     }
                 })
                 .catch(error => {
-                    alert('Error: ' + error);
+                    clearTimeout(timeoutId);
+                    if (error.name === 'AbortError') {
+                        alert('Request timed out. News collection takes time.\n\nPlease wait a few minutes and refresh the page.');
+                    } else {
+                        alert('Error collecting news: ' + error + '\n\nCheck console for details.');
+                        console.error('News refresh error:', error);
+                    }
                     btn.disabled = false;
                     btn.textContent = '🔄 Refresh News';
                 });

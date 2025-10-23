@@ -576,5 +576,44 @@ def api_sector_map():
 
 # Market data API routes removed
 
+# Auto-refresh news every hour in background
+import threading
+import time
+
+def auto_refresh_news():
+    """Background thread to refresh news every hour"""
+    while True:
+        try:
+            time.sleep(3600)  # Wait 1 hour
+            print("[AUTO-REFRESH] Starting news collection...")
+
+            import sys
+            sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+            from src.news_collector import NewsCollector
+            from src.news_analyzer import NewsAnalyzer
+
+            # Collect and analyze news
+            collector = NewsCollector()
+            news_list = collector.collect_all_news(hours=24)
+
+            if news_list:
+                analyzer = NewsAnalyzer()
+                analyzed_news = analyzer.analyze_news_batch(news_list, max_items=50)
+                analyzer.save_analysis(analyzed_news)
+
+                high_impact = len([n for n in analyzed_news if n.get('importance', 0) >= 4])
+                print(f"[AUTO-REFRESH] ✓ {len(analyzed_news)} news analyzed ({high_impact} high-impact)")
+            else:
+                print("[AUTO-REFRESH] No news collected")
+
+        except Exception as e:
+            print(f"[AUTO-REFRESH] Error: {e}")
+
+# Start background news refresh thread
+news_thread = threading.Thread(target=auto_refresh_news, daemon=True)
+news_thread.start()
+print("✓ Auto-refresh news thread started (refreshes every 1 hour)")
+
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
