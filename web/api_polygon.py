@@ -4,8 +4,12 @@ Real-time market data routes for frontend
 """
 
 from flask import Blueprint, jsonify, request
-from web.polygon_service import get_polygon_service
 from datetime import datetime, timedelta
+
+try:
+    from polygon_service import get_polygon_service
+except ImportError:
+    from web.polygon_service import get_polygon_service
 
 api_polygon = Blueprint('api_polygon', __name__)
 
