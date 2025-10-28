@@ -83,3 +83,8 @@ nul
 
 # Flask instance
 instance/
+# ML Training and Database
+train_FINAL.py
+models_FINAL/
+backtest/database/*.csv
+backtest/database/*.txt

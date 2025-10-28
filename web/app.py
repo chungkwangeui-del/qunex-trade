@@ -94,9 +94,11 @@ login_manager.login_view = 'auth.login'
 try:
     from auth import auth, oauth
     from payments import payments
+    from api_polygon import api_polygon
 except ImportError:
     from web.auth import auth, oauth
     from web.payments import payments
+    from web.api_polygon import api_polygon
 
 # Initialize OAuth with app
 oauth.init_app(app)
@@ -104,6 +106,7 @@ oauth.init_app(app)
 # Register blueprints
 app.register_blueprint(auth, url_prefix='/auth')
 app.register_blueprint(payments, url_prefix='/payments')
+app.register_blueprint(api_polygon)
 
 # Apply rate limiting to auth routes (after blueprint registration)
 limiter.limit("10 per minute")(app.view_functions['auth.login'])
@@ -507,86 +510,7 @@ def api_statistics():
 
     return jsonify(stats)
 
-@app.route('/api/sector-map')
-def api_sector_map():
-    """Get sector map data with individual stocks"""
-    import random
-
-    # Top stocks by sector with realistic market caps (in billions)
-    stock_data = [
-        # Technology
-        {'ticker': 'AAPL', 'name': 'Apple', 'sector': 'Technology', 'marketCap': 3000, 'change': random.uniform(-3, 4)},
-        {'ticker': 'MSFT', 'name': 'Microsoft', 'sector': 'Technology', 'marketCap': 2800, 'change': random.uniform(-2, 3)},
-        {'ticker': 'NVDA', 'name': 'NVIDIA', 'sector': 'Technology', 'marketCap': 1200, 'change': random.uniform(-4, 6)},
-        {'ticker': 'AVGO', 'name': 'Broadcom', 'sector': 'Technology', 'marketCap': 700, 'change': random.uniform(-2, 3)},
-        {'ticker': 'ORCL', 'name': 'Oracle', 'sector': 'Technology', 'marketCap': 350, 'change': random.uniform(-2, 2)},
-        {'ticker': 'CRM', 'name': 'Salesforce', 'sector': 'Technology', 'marketCap': 280, 'change': random.uniform(-2, 3)},
-        {'ticker': 'ADBE', 'name': 'Adobe', 'sector': 'Technology', 'marketCap': 250, 'change': random.uniform(-2, 3)},
-        {'ticker': 'AMD', 'name': 'AMD', 'sector': 'Technology', 'marketCap': 240, 'change': random.uniform(-3, 4)},
-
-        # Healthcare
-        {'ticker': 'LLY', 'name': 'Eli Lilly', 'sector': 'Healthcare', 'marketCap': 750, 'change': random.uniform(-2, 3)},
-        {'ticker': 'UNH', 'name': 'UnitedHealth', 'sector': 'Healthcare', 'marketCap': 500, 'change': random.uniform(-1, 2)},
-        {'ticker': 'JNJ', 'name': 'Johnson & Johnson', 'sector': 'Healthcare', 'marketCap': 380, 'change': random.uniform(-1, 2)},
-        {'ticker': 'ABBV', 'name': 'AbbVie', 'sector': 'Healthcare', 'marketCap': 320, 'change': random.uniform(-2, 2)},
-        {'ticker': 'MRK', 'name': 'Merck', 'sector': 'Healthcare', 'marketCap': 280, 'change': random.uniform(-1, 2)},
-
-        # Financials
-        {'ticker': 'BRK-B', 'name': 'Berkshire', 'sector': 'Financials', 'marketCap': 900, 'change': random.uniform(-1, 2)},
-        {'ticker': 'JPM', 'name': 'JPMorgan', 'sector': 'Financials', 'marketCap': 580, 'change': random.uniform(-2, 2)},
-        {'ticker': 'V', 'name': 'Visa', 'sector': 'Financials', 'marketCap': 550, 'change': random.uniform(-1, 2)},
-        {'ticker': 'MA', 'name': 'Mastercard', 'sector': 'Financials', 'marketCap': 420, 'change': random.uniform(-1, 2)},
-        {'ticker': 'BAC', 'name': 'Bank of America', 'sector': 'Financials', 'marketCap': 320, 'change': random.uniform(-2, 2)},
-
-        # Consumer Discretionary
-        {'ticker': 'AMZN', 'name': 'Amazon', 'sector': 'Consumer Disc.', 'marketCap': 1900, 'change': random.uniform(-2, 3)},
-        {'ticker': 'TSLA', 'name': 'Tesla', 'sector': 'Consumer Disc.', 'marketCap': 800, 'change': random.uniform(-5, 6)},
-        {'ticker': 'HD', 'name': 'Home Depot', 'sector': 'Consumer Disc.', 'marketCap': 380, 'change': random.uniform(-1, 2)},
-        {'ticker': 'MCD', 'name': 'McDonald\'s', 'sector': 'Consumer Disc.', 'marketCap': 210, 'change': random.uniform(-1, 2)},
-        {'ticker': 'NKE', 'name': 'Nike', 'sector': 'Consumer Disc.', 'marketCap': 180, 'change': random.uniform(-2, 2)},
-
-        # Communication
-        {'ticker': 'GOOGL', 'name': 'Alphabet', 'sector': 'Communication', 'marketCap': 1950, 'change': random.uniform(-2, 3)},
-        {'ticker': 'META', 'name': 'Meta', 'sector': 'Communication', 'marketCap': 1300, 'change': random.uniform(-3, 4)},
-        {'ticker': 'NFLX', 'name': 'Netflix', 'sector': 'Communication', 'marketCap': 280, 'change': random.uniform(-2, 3)},
-        {'ticker': 'DIS', 'name': 'Disney', 'sector': 'Communication', 'marketCap': 200, 'change': random.uniform(-2, 2)},
-
-        # Industrials
-        {'ticker': 'GE', 'name': 'GE Aerospace', 'sector': 'Industrials', 'marketCap': 180, 'change': random.uniform(-2, 3)},
-        {'ticker': 'CAT', 'name': 'Caterpillar', 'sector': 'Industrials', 'marketCap': 170, 'change': random.uniform(-2, 2)},
-        {'ticker': 'RTX', 'name': 'RTX Corp', 'sector': 'Industrials', 'marketCap': 150, 'change': random.uniform(-1, 2)},
-        {'ticker': 'UPS', 'name': 'UPS', 'sector': 'Industrials', 'marketCap': 120, 'change': random.uniform(-2, 2)},
-
-        # Consumer Staples
-        {'ticker': 'WMT', 'name': 'Walmart', 'sector': 'Consumer Staples', 'marketCap': 550, 'change': random.uniform(-1, 2)},
-        {'ticker': 'PG', 'name': 'Procter & Gamble', 'sector': 'Consumer Staples', 'marketCap': 390, 'change': random.uniform(-1, 1.5)},
-        {'ticker': 'KO', 'name': 'Coca-Cola', 'sector': 'Consumer Staples', 'marketCap': 280, 'change': random.uniform(-1, 1.5)},
-        {'ticker': 'PEP', 'name': 'PepsiCo', 'sector': 'Consumer Staples', 'marketCap': 230, 'change': random.uniform(-1, 1.5)},
-
-        # Energy
-        {'ticker': 'XOM', 'name': 'Exxon Mobil', 'sector': 'Energy', 'marketCap': 480, 'change': random.uniform(-3, 3)},
-        {'ticker': 'CVX', 'name': 'Chevron', 'sector': 'Energy', 'marketCap': 280, 'change': random.uniform(-3, 3)},
-        {'ticker': 'COP', 'name': 'ConocoPhillips', 'sector': 'Energy', 'marketCap': 140, 'change': random.uniform(-3, 3)},
-
-        # Utilities
-        {'ticker': 'NEE', 'name': 'NextEra Energy', 'sector': 'Utilities', 'marketCap': 150, 'change': random.uniform(-1, 1.5)},
-        {'ticker': 'DUK', 'name': 'Duke Energy', 'sector': 'Utilities', 'marketCap': 80, 'change': random.uniform(-1, 1)},
-        {'ticker': 'SO', 'name': 'Southern Co', 'sector': 'Utilities', 'marketCap': 90, 'change': random.uniform(-1, 1)},
-
-        # Real Estate
-        {'ticker': 'PLD', 'name': 'Prologis', 'sector': 'Real Estate', 'marketCap': 120, 'change': random.uniform(-2, 2)},
-        {'ticker': 'AMT', 'name': 'American Tower', 'sector': 'Real Estate', 'marketCap': 100, 'change': random.uniform(-1, 2)},
-        {'ticker': 'CCI', 'name': 'Crown Castle', 'sector': 'Real Estate', 'marketCap': 70, 'change': random.uniform(-1, 2)},
-
-        # Materials
-        {'ticker': 'LIN', 'name': 'Linde', 'sector': 'Materials', 'marketCap': 210, 'change': random.uniform(-2, 2)},
-        {'ticker': 'APD', 'name': 'Air Products', 'sector': 'Materials', 'marketCap': 70, 'change': random.uniform(-2, 2)},
-        {'ticker': 'ECL', 'name': 'Ecolab', 'sector': 'Materials', 'marketCap': 60, 'change': random.uniform(-1, 2)},
-    ]
-
-    return jsonify({'stocks': stock_data})
-
-# Market data API routes removed
+# Sector map moved to /api/market/sector-map (Polygon.io)
 
 # Auto-refresh news every hour in background
 import threading
@@ -615,7 +539,7 @@ def auto_refresh_news():
                 analyzer.save_analysis(analyzed_news)
 
                 high_impact = len([n for n in analyzed_news if n.get('importance', 0) >= 4])
-                print(f"[AUTO-REFRESH] ✓ {len(analyzed_news)} news analyzed ({high_impact} high-impact)")
+                print(f"[AUTO-REFRESH] [OK] {len(analyzed_news)} news analyzed ({high_impact} high-impact)")
             else:
                 print("[AUTO-REFRESH] No news collected")
 
@@ -625,7 +549,7 @@ def auto_refresh_news():
 # Start background news refresh thread
 news_thread = threading.Thread(target=auto_refresh_news, daemon=True)
 news_thread.start()
-print("✓ Auto-refresh news thread started (refreshes every 1 hour)")
+print("[OK] Auto-refresh news thread started (refreshes every 1 hour)")
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
