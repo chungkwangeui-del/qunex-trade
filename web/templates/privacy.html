@@ -30,6 +30,60 @@
             line-height: 1.8;
         }
 
+        nav {
+            background: var(--bg-card);
+            padding: 20px 40px;
+            margin-bottom: 40px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.5em;
+            font-weight: 700;
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+
+        .logo {
+            width: 35px;
+            height: 35px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+
+        .brand-text {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
         .container {
             max-width: 900px;
             margin: 0 auto;
@@ -82,6 +136,21 @@
     </style>
 </head>
 <body>
+    <nav>
+        <a href="/" class="nav-brand">
+            <div class="logo">Q</div>
+            <span class="brand-text">Qunex Trade</span>
+        </a>
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/market">Market</a>
+            <a href="/screener">Screener</a>
+            <a href="/calendar">Calendar</a>
+            <a href="/news">News</a>
+            <a href="/about">About</a>
+        </div>
+    </nav>
+
     <div class="container">
         <h1>Privacy Policy</h1>
         <p class="last-updated">Last Updated: January 2025</p>
