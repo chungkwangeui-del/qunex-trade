@@ -49,35 +49,38 @@ class NewsCollector:
 
         news_items = []
 
-        # PRIORITY 1: Macro/Policy news (affects entire market)
+        # PRIORITY 1: Macro/Policy news (REAL EVENTS - affects entire market)
         macro_keywords = [
-            'Trump policy', 'Trump tariff', 'Biden administration',
-            'Federal Reserve', 'Fed', 'Jerome Powell', 'FOMC',
-            'interest rate', 'rate cut', 'rate hike',
-            'inflation', 'CPI', 'PCE inflation',
-            'GDP', 'economic growth', 'recession',
-            'unemployment', 'jobless claims', 'NFP',
-            'Treasury', 'Treasury yield', 'bond market',
-            'government shutdown', 'debt ceiling',
-            'tax policy', 'fiscal policy', 'stimulus'
+            'Trump announces', 'Trump signs', 'Biden signs',
+            'Federal Reserve announces', 'Fed announces', 'Fed cuts', 'Fed raises',
+            'FOMC decision', 'Jerome Powell speech',
+            'rate decision', 'interest rate decision',
+            'CPI data', 'inflation data', 'PCE data',
+            'GDP report', 'GDP data', 'economic data',
+            'unemployment data', 'jobs report', 'NFP data',
+            'Treasury announces', 'government announces',
+            'Congress passes', 'Senate approves',
+            'tariff imposed', 'sanctions announced'
         ]
 
-        # PRIORITY 2: Market-moving events
+        # PRIORITY 2: Market-moving EVENTS (not predictions)
         market_keywords = [
-            'stock market crash', 'market crash', 'market selloff',
-            'market rally', 'bull market', 'bear market',
-            'S&P 500', 'Nasdaq', 'Dow Jones',
-            'VIX', 'volatility', 'market correction'
+            'market crash', 'market plunge', 'market selloff',
+            'market surge', 'market rally', 'record high',
+            'S&P 500 hits', 'Nasdaq closes', 'Dow Jones',
+            'trading halted', 'circuit breaker', 'volatility spike'
         ]
 
-        # PRIORITY 3: Sector/Company news
-        sector_keywords = [
-            'tech earnings', 'bank earnings', 'energy sector',
-            'semiconductor', 'AI stocks', 'crypto regulation'
+        # PRIORITY 3: Major company EVENTS (actual events, not analysis)
+        company_keywords = [
+            'reports earnings', 'announces merger', 'acquires',
+            'CEO resigns', 'CEO appointed', 'layoffs announced',
+            'bankruptcy filed', 'IPO launches', 'dividend announced',
+            'recall announced', 'lawsuit filed', 'settles lawsuit'
         ]
 
         # Combine all keywords (macro gets priority)
-        keywords = macro_keywords + market_keywords + sector_keywords
+        keywords = macro_keywords + market_keywords + company_keywords
 
         for keyword in keywords:
             try:
@@ -186,7 +189,8 @@ class NewsCollector:
 
     def _is_quality_news(self, article: Dict) -> bool:
         """
-        Filter out low-quality news
+        Filter out low-quality news and analyst opinions
+        Focus on REAL EVENTS and DATA only
         """
         title = article.get('title', '')
         description = article.get('description', '')
@@ -198,11 +202,33 @@ class NewsCollector:
         if not description or len(description) < 50:
             return False
 
-        # Remove promotional content
-        spam_keywords = ['subscribe', 'click here', 'limited time', 'buy now',
-                        'discount', 'free trial', 'advertisement']
-
         title_lower = title.lower()
+        desc_lower = description.lower()
+        combined_text = title_lower + ' ' + desc_lower
+
+        # FILTER OUT: Analyst opinions, predictions, recommendations
+        analyst_keywords = [
+            'analyst says', 'analyst predicts', 'analyst expects',
+            'should you buy', 'should you sell', 'time to buy',
+            'stock to watch', 'stocks to buy', 'top picks',
+            'buy rating', 'sell rating', 'upgrade', 'downgrade',
+            'price target', 'bull case', 'bear case',
+            'my prediction', 'i think', 'could reach',
+            'may hit', 'might see', 'potential upside',
+            'investor alert', 'opportunity', 'hot stock'
+        ]
+
+        for keyword in analyst_keywords:
+            if keyword in combined_text:
+                return False
+
+        # FILTER OUT: Promotional and spam content
+        spam_keywords = [
+            'subscribe', 'click here', 'limited time', 'buy now',
+            'discount', 'free trial', 'advertisement', 'sponsored',
+            'webinar', 'register now', 'sign up'
+        ]
+
         for keyword in spam_keywords:
             if keyword in title_lower:
                 return False

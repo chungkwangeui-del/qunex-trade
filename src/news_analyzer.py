@@ -58,16 +58,28 @@ Provide your analysis in the following JSON format:
     "reasoning": "<1-2 sentences explaining the importance score>"
 }}
 
-IMPORTANT CRITERIA:
-- Only give 5 stars to: Federal Reserve decisions, Trump/government policy changes, major economic data (CPI, GDP, jobs), market crashes/rallies, geopolitical crises
-- Give 4 stars to: Significant earnings, major company news, important economic indicators, sector-wide events
+IMPORTANT CRITERIA - REAL EVENTS ONLY:
+- Only give 5 stars to: ACTUAL Federal Reserve decisions, ACTUAL Trump/government policy changes, ACTUAL economic data releases (CPI, GDP, jobs), ACTUAL market crashes/rallies, ACTUAL geopolitical crises
+- Give 4 stars to: ACTUAL significant earnings reports, ACTUAL major company announcements (mergers, acquisitions, CEO changes), ACTUAL important economic indicators
 - Give 3 stars to: Regular earnings, moderate company news, sector updates
-- Give 2 stars or below to: Minor news, speculation, opinion pieces, low-impact events
+- Give 2 stars or below to: Analyst opinions, predictions, recommendations, speculation, "should you buy", price targets
+
+CRITICAL: Automatically give 1-2 stars to:
+- Analyst predictions or opinions ("analyst says", "expected to", "could reach")
+- Investment recommendations ("should you buy", "time to buy", "buy rating")
+- Speculation ("may", "might", "could", "potential")
+- Opinion pieces (not factual reporting)
+
+ONLY give 4-5 stars to FACTUAL EVENTS that ALREADY HAPPENED:
+- "Fed cuts rates by 25bps" ✓ (real event)
+- "Analyst expects Fed to cut rates" ✗ (opinion/prediction)
+- "Apple reports Q3 earnings $1.5B" ✓ (real data)
+- "Apple stock could hit $200" ✗ (prediction)
 
 - market_wide_impact should be TRUE for: Fed policy, Trump/Biden policy, GDP, inflation, unemployment, Treasury yields, market crashes, government decisions
 - market_wide_impact should be FALSE for: Individual company earnings, stock-specific news, sector-specific news
 
-- Credibility depends on source reputation and factual content (not speculation or opinion)
+- Credibility depends on source reputation and FACTUAL REPORTING (not speculation or opinion)
 
 Respond ONLY with valid JSON, no additional text."""
 
