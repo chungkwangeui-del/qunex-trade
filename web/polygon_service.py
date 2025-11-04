@@ -354,18 +354,35 @@ class PolygonService:
 
         result = {}
         for ticker, name in indices.items():
-            data = self.get_previous_close(ticker)
-            if data:
-                result[ticker] = {
-                    'name': name,
-                    'price': data['close'],
-                    'open': data['open'],
-                    'high': data['high'],
-                    'low': data['low'],
-                    'volume': data.get('volume', 0),
-                    'change': data['close'] - data['open'],
-                    'change_percent': ((data['close'] - data['open']) / data['open'] * 100) if data['open'] else 0
-                }
+            # Get snapshot data which includes current price and previous close
+            endpoint = f'/v2/snapshot/locale/us/markets/stocks/tickers/{ticker}'
+            snapshot = self._make_request(endpoint)
+
+            if snapshot and snapshot.get('status') == 'OK':
+                ticker_data = snapshot.get('ticker', {})
+                day = ticker_data.get('day', {})
+                prev_day = ticker_data.get('prevDay', {})
+                last_trade = ticker_data.get('lastTrade', {})
+
+                # Use last trade price if available, otherwise use day close
+                current_price = last_trade.get('p') or day.get('c')
+                prev_close = prev_day.get('c')
+
+                if current_price and prev_close:
+                    change = current_price - prev_close
+                    change_percent = (change / prev_close * 100) if prev_close else 0
+
+                    result[ticker] = {
+                        'name': name,
+                        'price': current_price,
+                        'open': day.get('o'),
+                        'high': day.get('h'),
+                        'low': day.get('l'),
+                        'volume': day.get('v', 0),
+                        'prev_close': prev_close,
+                        'change': change,
+                        'change_percent': change_percent
+                    }
 
         return result
 
@@ -387,17 +404,32 @@ class PolygonService:
 
         result = []
         for ticker, name in sectors.items():
-            data = self.get_previous_close(ticker)
-            if data:
-                change_pct = ((data['close'] - data['open']) / data['open'] * 100) if data['open'] else 0
-                result.append({
-                    'ticker': ticker,
-                    'sector': name,
-                    'price': data['close'],
-                    'change': data['close'] - data['open'],
-                    'change_percent': change_pct,
-                    'volume': data['volume']
-                })
+            # Get snapshot data which includes current price and previous close
+            endpoint = f'/v2/snapshot/locale/us/markets/stocks/tickers/{ticker}'
+            snapshot = self._make_request(endpoint)
+
+            if snapshot and snapshot.get('status') == 'OK':
+                ticker_data = snapshot.get('ticker', {})
+                day = ticker_data.get('day', {})
+                prev_day = ticker_data.get('prevDay', {})
+                last_trade = ticker_data.get('lastTrade', {})
+
+                # Use last trade price if available, otherwise use day close
+                current_price = last_trade.get('p') or day.get('c')
+                prev_close = prev_day.get('c')
+
+                if current_price and prev_close:
+                    change = current_price - prev_close
+                    change_percent = (change / prev_close * 100) if prev_close else 0
+
+                    result.append({
+                        'ticker': ticker,
+                        'sector': name,
+                        'price': current_price,
+                        'change': change,
+                        'change_percent': change_percent,
+                        'volume': day.get('v', 0)
+                    })
 
         # Sort by performance
         result.sort(key=lambda x: x['change_percent'], reverse=True)
