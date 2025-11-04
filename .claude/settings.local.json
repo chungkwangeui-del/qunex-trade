@@ -94,7 +94,8 @@
       "Bash(timeout 1200 python:*)",
       "Bash(then cp -r models_FINAL models_FINAL_BACKUP)",
       "Bash(else echo \"No models_FINAL folder found\")",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "Bash(mkdir:*)"
     ],
     "deny": [],
     "ask": []

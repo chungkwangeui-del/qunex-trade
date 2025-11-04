@@ -1,747 +1,533 @@
 [
   {
     "importance": 4,
-    "impact_summary": "The release of a critical inflation report during the U.S. government shutdown could raise doubts about the reliability and accuracy of the data, leading to increased market volatility.",
-    "affected_sectors": [
-      "Consumer Discretionary",
-      "Consumer Staples",
-      "Financial Services",
-      "Real Estate"
-    ],
+    "credibility": 5,
+    "impact_summary": "The acquisition of Motors & Armatures Parts by CSW Industrials is expected to drive above-market growth and diversify its repair and replacement solutions in the HVAC/R industry.",
     "affected_stocks": [
-      "SPY",
-      "DIA",
-      "QQQ",
-      "IVV"
+      "CSWI"
     ],
-    "sentiment": "negative",
-    "time_sensitivity": "immediate",
-    "key_points": [
-      "The report on inflation data will be issued during the U.S. government shutdown, which could impact the data's reliability and accuracy.",
-      "Analysts are raising doubts about the inflation data, which is a critical economic indicator that can influence Federal Reserve policy and investor sentiment.",
-      "The potential for inaccurate or questionable inflation data could lead to increased market volatility, as investors may be unsure about the true state of the economy.",
-      "Sectors and stocks that are sensitive to inflation and interest rate changes, such as consumer-related industries and financials, may be particularly affected.",
-      "The immediate release of the report during the government shutdown heightens the time sensitivity and potential impact on the markets."
-    ],
-    "news_title": "Analysts Raise Doubts About Inflation Data Ahead of Critical Report - TipRanks",
-    "news_url": "https://www.tipranks.com/news/analysts-raise-doubts-about-inflation-data-ahead-of-critical-report",
-    "news_source": "Tipranks.com",
-    "published_at": "2025-10-22T14:30:52Z",
-    "analyzed_at": "2025-10-23T18:23:21.973749"
-  },
-  {
-    "importance": 4,
-    "impact_summary": "This news suggests potential strain on AI and other leading stocks, which could have a significant impact on the broader tech sector and the US stock market.",
     "affected_sectors": [
-      "Technology",
-      "Artificial Intelligence"
+      "Industrials",
+      "HVAC"
     ],
-    "affected_stocks": [
-      "TSLA",
-      "AI-related stocks"
-    ],
-    "sentiment": "negative",
-    "time_sensitivity": "immediate",
-    "key_points": [
-      "Tesla (TSLA) earnings missed expectations, which could negatively impact the stock and the broader electric vehicle (EV) sector.",
-      "Elon Musk, Tesla's CEO, is expected to provide updates, which could influence investor sentiment.",
-      "AI-related stocks are under pressure, which could signal broader weakness in the technology and AI sectors.",
-      "The major indexes have come off their lows, but the overall market is showing signs of strain.",
-      "Investors should closely monitor the performance of AI and other leading tech stocks as they may be indicative of broader market trends."
-    ],
-    "news_title": "Dow Jones Futures: Tesla Earnings Miss, Elon Musk Due; AI Stocks Under Pressure - Investor's Business Daily",
-    "news_url": "https://www.investors.com/market-trend/stock-market-today/dow-jones-futures-tesla-earnings-miss-elon-musk-due-ai-stocks-under-pressure/",
-    "news_source": "Investor's Business Daily",
-    "published_at": "2025-10-22T21:30:00Z",
-    "analyzed_at": "2025-10-23T18:23:33.209703"
-  },
-  {
-    "importance": 4,
-    "impact_summary": "The rising U.S. national debt and ongoing government shutdown could undermine confidence in the economy and lead to increased market volatility.",
-    "affected_sectors": [
-      "Government",
-      "Financials",
-      "Industrials"
-    ],
-    "affected_stocks": [
-      "SPY",
-      "DIA",
-      "QQQ",
-      "XLF",
-      "XLI"
-    ],
-    "sentiment": "negative",
+    "sentiment": "bullish",
     "time_sensitivity": "short-term",
     "key_points": [
-      "The U.S. national debt has surpassed $38 trillion for the first time, indicating a rapidly growing debt burden.",
-      "The government shutdown is disrupting the economy and adding to the fiscal challenges faced by the government.",
-      "Experts warn that the growing debt could undermine confidence in the economy and lead to increased market volatility.",
-      "The affected sectors include government, financials, and industrials, as they are closely tied to the government's fiscal policies and economic conditions.",
-      "The impact is expected to be felt in the short-term as the market reacts to the news, but the long-term implications could be more significant if the debt issues persist."
+      "CSW Industrials acquired Motors & Armatures Parts for $650 million",
+      "The acquisition expands CSW's HVAC/R product portfolio and adds approximately 200 new employees",
+      "The acquisition is expected to drive above-market growth and diversify repair and replacement solutions",
+      "The acquisition is complementary and synergistic to CSW's existing business"
     ],
-    "news_title": "U.S. debt tops $38 trillion for the first time, worsened by government shutdown - CBS News",
-    "news_url": "https://www.cbsnews.com/news/us-debt-38-trillion-government-shutdown-2025/",
-    "news_source": "CBS News",
-    "published_at": "2025-10-22T22:06:00Z",
-    "analyzed_at": "2025-10-23T18:23:49.576981"
+    "reasoning": "The acquisition of Motors & Armatures Parts is a significant and strategic move for CSW Industrials, as it expands its product portfolio and capabilities in the HVAC/R industry. The acquisition is expected to drive above-market growth and diversify the company's repair and replacement solutions, which could have a positive impact on its financial performance and market position.",
+    "news_title": "CSW Industrials Completes Previously Announced Accretive, Complementary, and Synergistic Acquisition of Motors & Armatures Parts",
+    "news_url": "https://www.globenewswire.com/news-release/2025/11/04/3180742/37075/en/CSW-Industrials-Completes-Previously-Announced-Accretive-Complementary-and-Synergistic-Acquisition-of-Motors-Armatures-Parts.html",
+    "news_source": "GlobeNewswire Inc.",
+    "published_at": "2025-11-04T18:00:00Z",
+    "image_url": "https://ml.globenewswire.com/Resource/Download/af2a340d-df41-434e-8151-ff5c8b27db35",
+    "analyzed_at": "2025-11-04T14:52:29.871435"
   },
   {
     "importance": 4,
-    "impact_summary": "The lawsuit against OpenAI over the death of a teenager after using ChatGPT could lead to increased regulatory scrutiny and potential financial liabilities for the company, impacting the tech sector.",
-    "affected_sectors": [
-      "Technology",
-      "Software and Services"
-    ],
+    "credibility": 4,
+    "impact_summary": "This report highlights a significant gender gap in health outcomes in Canada, which could have substantial economic implications if not addressed. Increased investment in women's health research and care could help close this gap.",
     "affected_stocks": [
-      "OPEN"
+      "WELL",
+      "DOC",
+      "CRON"
     ],
-    "sentiment": "negative",
-    "time_sensitivity": "short-term",
-    "key_points": [
-      "OpenAI is being sued for wrongful death after a teenager allegedly took his own life following conversations with ChatGPT about his mental health.",
-      "The lawsuit could lead to increased regulatory scrutiny and potential financial liabilities for OpenAI, which may impact the company's operations and stock performance.",
-      "The case raises concerns about the potential risks and responsibilities associated with the development and use of AI-powered chatbots, especially when dealing with vulnerable individuals.",
-      "The tech sector, particularly companies involved in AI and chatbot technologies, may face heightened investor scrutiny and potential regulatory actions in the wake of this lawsuit.",
-      "The outcome of the lawsuit and any resulting regulatory changes could have significant implications for the future development and deployment of AI-powered conversational interfaces."
-    ],
-    "news_title": "OpenAI requested memorial attendee list in ChatGPT suicide lawsuit - TechCrunch",
-    "news_url": "https://techcrunch.com/2025/10/22/openai-requested-memorial-attendee-list-in-chatgpt-suicide-lawsuit/",
-    "news_source": "TechCrunch",
-    "published_at": "2025-10-22T20:49:19Z",
-    "analyzed_at": "2025-10-23T18:23:53.505732"
-  },
-  {
-    "importance": 4,
-    "impact_summary": "A potential acquisition of Warner Bros. Discovery by Paramount could significantly reshape the media and entertainment landscape, potentially impacting the broader stock market.",
-    "affected_sectors": [
-      "Media",
-      "Entertainment",
-      "Communication Services"
-    ],
-    "affected_stocks": [
-      "PARA",
-      "WBD",
-      "DIS",
-      "NFLX",
-      "T"
-    ],
-    "sentiment": "Positive",
-    "time_sensitivity": "Short-term",
-    "key_points": [
-      "The potential acquisition could create a media powerhouse, combining the assets of Paramount and Warner Bros. Discovery.",
-      "A merged entity would have a significant presence across film, television, and streaming, potentially impacting the competitive landscape.",
-      "The deal could lead to cost synergies and increased bargaining power, which could benefit the combined company's financial performance.",
-      "Regulatory scrutiny and antitrust concerns may arise, potentially posing challenges to the completion of the deal.",
-      "The acquisition could spur further consolidation in the media and entertainment industry as companies seek to gain scale and market share."
-    ],
-    "news_title": "What Happens if Paramount Acquires Warner Bros. Discovery? - Variety",
-    "news_url": "https://variety.com/2025/biz/news/what-happens-if-paramount-buys-warner-bros-discovery-merger-1236558865/",
-    "news_source": "Variety",
-    "published_at": "2025-10-22T19:23:00Z",
-    "analyzed_at": "2025-10-23T18:24:13.916775"
-  },
-  {
-    "importance": 4,
-    "impact_summary": "The extended AWS outage highlights the fragility and interdependencies of the cloud infrastructure, which could lead to widespread disruptions across various sectors.",
-    "affected_sectors": [
-      "Technology",
-      "Finance",
-      "Healthcare",
-      "Education",
-      "Communication"
-    ],
-    "affected_stocks": [
-      "AMZN",
-      "MSFT",
-      "GOOG",
-      "AAPL",
-      "JPM",
-      "CVS",
-      "LMT",
-      "DIS"
-    ],
-    "sentiment": "negative",
-    "time_sensitivity": "short-term",
-    "key_points": [
-      "The AWS outage on Monday disrupted a wide range of services and businesses that rely on Amazon's cloud infrastructure.",
-      "The duration of the outage, which lasted for several hours, underscores the complexity and fragility of the cloud ecosystem.",
-      "The incident highlights the risk of over-reliance on a single cloud provider and the need for businesses to have robust disaster recovery and business continuity plans.",
-      "The impact of the outage was felt across multiple sectors, including technology, finance, healthcare, and communication, as many services and applications were rendered unavailable.",
-      "The news may prompt companies to reevaluate their cloud strategies and consider diversifying their cloud infrastructure to mitigate the risk of such widespread disruptions in the future."
-    ],
-    "news_title": "The Long Tail of the AWS Outage - WIRED",
-    "news_url": "https://www.wired.com/story/aws-cloud-outage-long-tail/",
-    "news_source": "Wired",
-    "published_at": "2025-10-22T16:31:00Z",
-    "analyzed_at": "2025-10-23T18:24:25.907407"
-  },
-  {
-    "importance": 3,
-    "impact_summary": "This lawsuit could impact the use of web scraping and data collection practices by AI companies, potentially affecting their business models and operations.",
-    "affected_sectors": [
-      "Technology",
-      "Artificial Intelligence"
-    ],
-    "affected_stocks": [
-      "PERX",
-      "OXLY"
-    ],
-    "sentiment": "negative",
-    "time_sensitivity": "short-term",
-    "key_points": [
-      "Reddit is suing Perplexity AI and three other entities for allegedly scraping user comments for commercial gain without permission.",
-      "The lawsuit alleges an 'industrial-scale, unlawful economy' around the scraping of data from social media platforms.",
-      "This could lead to increased scrutiny and potential legal challenges for AI companies that rely on web scraping practices.",
-      "The outcome of the lawsuit could impact the business models and operations of AI companies, especially those that rely on user-generated data.",
-      "The short-term impact is likely to be negative for the affected companies and could potentially spill over to the broader AI and technology sectors."
-    ],
-    "news_title": "Reddit sues AI company Perplexity and others for 'industrial-scale' scraping of user comments - AP News",
-    "news_url": "https://apnews.com/article/reddit-perplexity-ai-copyright-scraping-lawsuit-3ad8968550dd7e11bcd285a74fb6e2ff",
-    "news_source": "Associated Press",
-    "published_at": "2025-10-22T20:41:00Z",
-    "analyzed_at": "2025-10-23T18:23:19.120953"
-  },
-  {
-    "importance": 3,
-    "impact_summary": "Netflix's earnings miss could negatively impact the stock and the broader technology and consumer discretionary sectors.",
-    "affected_sectors": [
-      "Technology",
-      "Consumer Discretionary"
-    ],
-    "affected_stocks": [
-      "NFLX"
-    ],
-    "sentiment": "negative",
-    "time_sensitivity": "immediate",
-    "key_points": [
-      "Netflix reported lower-than-expected earnings, missing analyst estimates for the first quarter of 2023.",
-      "The earnings miss is surprising, as Netflix is typically known for meeting or exceeding expectations.",
-      "The news may indicate broader challenges in the streaming industry, such as increased competition and subscriber growth concerns.",
-      "The drop in Netflix's stock price could have a ripple effect on other technology and consumer discretionary stocks.",
-      "Investors will be closely watching for further updates from Netflix and the streaming industry to gauge the long-term impact."
-    ],
-    "news_title": "Netflix Earnings Aren’t Supposed to Come in Short. Here’s Why the Stock Is Dropping. - Barron's",
-    "news_url": "https://www.barrons.com/articles/netflix-stock-price-earnings-a5356cf1",
-    "news_source": "Barron's",
-    "published_at": "2025-10-22T11:48:00Z",
-    "analyzed_at": "2025-10-23T18:23:25.475205"
-  },
-  {
-    "importance": 3,
-    "impact_summary": "The rising cost of job-based health insurance for families could impact consumer spending and put pressure on companies to manage healthcare costs.",
     "affected_sectors": [
       "Healthcare",
-      "Insurance",
-      "Consumer Discretionary"
+      "Pharmaceuticals",
+      "Biotechnology"
     ],
-    "affected_stocks": [
-      "UNH",
-      "CVS",
-      "WMT",
-      "TGT"
-    ],
-    "sentiment": "negative",
-    "time_sensitivity": "short-term",
-    "key_points": [
-      "The annual cost of covering a family of four under job-based health insurance rose by 6% or more for three consecutive years, reaching $27,000 in 2025.",
-      "This increase in healthcare costs could force families to make trade-offs between purchasing a new car and affording health insurance.",
-      "The rising healthcare costs could put pressure on companies to manage their healthcare expenses, potentially impacting their profitability.",
-      "The news could affect consumer spending in the healthcare and consumer discretionary sectors, as families may have to prioritize healthcare over other purchases.",
-      "The impact could be felt in the short-term as families and companies adjust to the higher healthcare costs."
-    ],
-    "news_title": "A New Car vs. Health Insurance? Average Family Job-Based Coverage Hits $27K - KFF Health News",
-    "news_url": "https://kffhealthnews.org/news/article/workplace-health-insurance-premiums-family-plans-kff-survey/",
-    "news_source": "Kffhealthnews.org",
-    "published_at": "2025-10-22T09:01:00Z",
-    "analyzed_at": "2025-10-23T18:23:29.397925"
-  },
-  {
-    "importance": 3,
-    "impact_summary": "IBM's earnings beat and positive AI demand outlook may not be enough to offset the stock's decline, indicating potential near-term volatility for the tech sector.",
-    "affected_sectors": [
-      "Technology",
-      "Information Technology"
-    ],
-    "affected_stocks": [
-      "IBM",
-      "MSFT",
-      "AAPL",
-      "AMZN",
-      "GOOG"
-    ],
-    "sentiment": "negative",
-    "time_sensitivity": "short-term",
-    "key_points": [
-      "IBM reported better-than-expected Q3 earnings, beating estimates on both revenue and earnings per share.",
-      "The company also boosted its full-year sales forecast, citing strong demand for its AI and cloud computing services.",
-      "However, IBM stock fell after the earnings release, indicating the market may have expected even stronger results or guidance.",
-      "The negative market reaction suggests near-term volatility for IBM and potentially the broader tech sector, as investors weigh the impact of economic conditions and AI/cloud adoption.",
-      "Other major tech stocks like Microsoft, Apple, Amazon, and Google may also be affected by the perceived weakness in IBM's stock performance despite the positive earnings."
-    ],
-    "news_title": "IBM Stock Slides Despite Earnings Beat, Boost To Sales Forecast - Investor's Business Daily",
-    "news_url": "https://www.investors.com/news/technology/ibm-stock-q3-2025-earnings-news-ai/",
-    "news_source": "Investor's Business Daily",
-    "published_at": "2025-10-22T20:56:00Z",
-    "analyzed_at": "2025-10-23T18:23:38.212801"
-  },
-  {
-    "importance": 3,
-    "impact_summary": "The positive earnings report from Southwest Airlines is likely to have a positive impact on the airline and related travel sectors, as it signals stronger-than-expected demand for air travel.",
-    "affected_sectors": [
-      "Airline",
-      "Travel & Leisure"
-    ],
-    "affected_stocks": [
-      "LUV",
-      "UAL",
-      "AAL",
-      "DAL"
-    ],
-    "sentiment": "positive",
-    "time_sensitivity": "short-term",
-    "key_points": [
-      "Southwest Airlines reported a surprise profit for the third quarter, beating earnings estimates.",
-      "The company forecasts strong demand for air travel in the last three months of the year, with expectations of record sales.",
-      "The positive earnings report and strong demand outlook are likely to have a positive impact on the airline sector and related travel stocks.",
-      "The news signals a continued recovery in the travel industry, which was heavily impacted by the COVID-19 pandemic.",
-      "Investors may view this as a sign of a stronger-than-expected rebound in air travel demand, which could lead to increased optimism and investment in the sector."
-    ],
-    "news_title": "Southwest beats earnings estimates, forecasts strong demand for rest of the year - CNBC",
-    "news_url": "https://www.cnbc.com/2025/10/22/southwest-airlines-luv-earnings-q3-2025.html",
-    "news_source": "CNBC",
-    "published_at": "2025-10-22T20:30:41Z",
-    "analyzed_at": "2025-10-23T18:23:42.049498"
-  },
-  {
-    "importance": 3,
-    "impact_summary": "This positive analyst report on Amazon's stock ahead of earnings could drive investor optimism and lead to a short-term boost in Amazon's share price.",
-    "affected_sectors": [
-      "Technology",
-      "E-commerce"
-    ],
-    "affected_stocks": [
-      "AMZN"
-    ],
-    "sentiment": "positive",
-    "time_sensitivity": "short-term",
-    "key_points": [
-      "The analyst is bullish on Amazon's stock, signaling confidence in the company's performance ahead of earnings.",
-      "Amazon Web Services (AWS), the company's cloud computing division, is cited as a critical driver of Amazon's share price.",
-      "The report comes ahead of Amazon's upcoming earnings release, which could further impact the stock's performance.",
-      "Positive analyst commentary can sway investor sentiment and lead to short-term price movements in a stock.",
-      "The technology and e-commerce sectors may see broader impact due to Amazon's size and influence in the market."
-    ],
-    "news_title": "Top Analyst Pounds the Table on Amazon Stock (AMZN) Ahead of Earnings - TipRanks",
-    "news_url": "https://www.tipranks.com/news/top-analyst-pounds-the-table-on-amazon-stock-amzn-ahead-of-earnings",
-    "news_source": "Tipranks.com",
-    "published_at": "2025-10-22T15:20:20Z",
-    "analyzed_at": "2025-10-23T18:23:45.791313"
-  },
-  {
-    "importance": 3,
-    "impact_summary": "The surge in Beyond Meat's stock price driven by retail traders could lead to increased volatility in the plant-based meat sector and broader consumer discretionary stocks.",
-    "affected_sectors": [
-      "Consumer Discretionary",
-      "Food & Beverage"
-    ],
-    "affected_stocks": [
-      "BYND",
-      "APRN",
-      "CVGW",
-      "INGR"
-    ],
-    "sentiment": "positive",
-    "time_sensitivity": "short-term",
-    "key_points": [
-      "Beyond Meat's stock price has surged over 1,000% in just four days, driven by a surge in retail investor interest.",
-      "The company's fundamentals remain shaky, with concerns about its long-term growth and profitability.",
-      "The stock's volatility could impact other plant-based meat and consumer discretionary companies as retail traders seek to capitalize on the momentum.",
-      "This type of speculative trading activity is often short-lived and could lead to a correction in Beyond Meat's stock price in the near term.",
-      "Investors should be cautious about chasing momentum stocks and focus on the underlying business fundamentals."
-    ],
-    "news_title": "Why Beyond Meat shares have surged 1,000% in four days - BBC",
-    "news_url": "https://www.bbc.com/news/articles/cew4kqg09j8o",
-    "news_source": "BBC News",
-    "published_at": "2025-10-22T20:37:56Z",
-    "analyzed_at": "2025-10-23T18:24:01.280843"
-  },
-  {
-    "importance": 3,
-    "impact_summary": "Google's quantum computing breakthrough could potentially threaten the security of Bitcoin and other cryptocurrencies, raising concerns for the crypto market.",
-    "affected_sectors": [
-      "Technology",
-      "Cryptocurrency"
-    ],
-    "affected_stocks": [
-      "BTC-USD",
-      "ETH-USD",
-      "COIN"
-    ],
-    "sentiment": "negative",
+    "sentiment": "bullish",
     "time_sensitivity": "long-term",
     "key_points": [
-      "Google's Willow processor has achieved a verified quantum speed-up, outpacing classical supercomputers.",
-      "This marks a step towards fault-tolerant quantum systems that could potentially break the encryption used to secure cryptocurrencies like Bitcoin.",
-      "The news raises concerns about the long-term security of Bitcoin and other cryptocurrencies, which could impact the crypto market.",
-      "The development of quantum computing could eventually threaten the cryptographic algorithms that underpin the security of Bitcoin and other digital assets.",
-      "The impact on the US stock market is likely to be felt more in the cryptocurrency and technology sectors, as investors assess the potential risks and implications of this quantum computing breakthrough."
+      "Canadian women spend 24% more time in poor health than men",
+      "This could cost the Canadian economy $37 billion annually by 2040",
+      "Women's Health Collective Canada advocates for increased investment in women's health research and care",
+      "The report highlights a significant gender gap in health outcomes that needs to be addressed",
+      "Closing this gap could have positive economic and social implications"
     ],
-    "news_title": "Quantum Threat to Bitcoin Grows as Google Reveals Latest Breakthrough - Decrypt",
-    "news_url": "https://decrypt.co/345472/quantum-threat-bitcoin-grows-google-latest-breakthrough",
-    "news_source": "Decrypt",
-    "published_at": "2025-10-22T20:27:04Z",
-    "analyzed_at": "2025-10-23T18:24:05.313867"
+    "reasoning": "This report highlights a significant gender gap in health outcomes in Canada, which could have substantial economic implications if not addressed. The potential cost of $37 billion annually by 2040 makes this an important issue that warrants increased attention and investment. The credibility of the report, coming from the McKinsey Health Institute, also supports the importance of this news.",
+    "news_title": "Women’s Health Collective Canada and Partners Call for Bold Investment in Women’s Health to Close the Gap Once and for All",
+    "news_url": "https://www.globenewswire.com/news-release/2025/11/04/3180773/0/en/Women-s-Health-Collective-Canada-and-Partners-Call-for-Bold-Investment-in-Women-s-Health-to-Close-the-Gap-Once-and-for-All.html",
+    "news_source": "GlobeNewswire Inc.",
+    "published_at": "2025-11-04T19:50:00Z",
+    "image_url": "https://ml.globenewswire.com/Resource/Download/669af2b2-a5eb-433a-b6da-54ef95a7977b",
+    "analyzed_at": "2025-11-04T14:51:54.518444"
   },
   {
-    "importance": 3,
-    "impact_summary": "The news suggests that the loan fraud issue at Western Alliance is isolated, potentially easing concerns about broader problems in the regional banking sector.",
-    "affected_sectors": [
-      "Banking",
-      "Financial Services"
-    ],
+    "importance": 4,
+    "credibility": 4,
+    "impact_summary": "The sharp correction in Palantir's stock price despite strong Q3 performance reflects a broader market rotation from high-growth AI/tech stocks to more value-oriented investments, driven by concerns over valuation and macroeconomic uncertainty.",
     "affected_stocks": [
-      "WAL",
-      "ZION",
-      "regional bank stocks"
+      "PLTR"
     ],
-    "sentiment": "positive",
+    "affected_sectors": [
+      "Technology",
+      "Artificial Intelligence"
+    ],
+    "sentiment": "bearish",
     "time_sensitivity": "short-term",
     "key_points": [
-      "Western Alliance CEO says the loan fraud issue is an isolated incident and not indicative of broader problems in the regional banking sector",
-      "Regional banks like Western Alliance and Zions reported results that did not include any new loan meltdowns, providing a reprieve for the sector",
-      "The news suggests that the concerns over loans made to non-bank financial players may be easing, at least in the case of Western Alliance",
-      "Investors may view this as a positive sign for the regional banking sector, which has faced significant challenges in recent weeks",
-      "The impact is likely to be felt in the short-term as the market assesses the potential implications for the regional banking sector"
+      "Palantir experienced a significant stock correction despite reporting strong Q3 financial results",
+      "The correction was driven by concerns over the company's valuation and the bearish put options taken by investor Michael Burry",
+      "However, Palantir continues to show robust growth in its AI platform across government and commercial sectors",
+      "The correction reflects a broader market rotation from high-growth tech/AI stocks to more value-oriented investments",
+      "This shift in investor sentiment is driven by macroeconomic uncertainty and a focus on disciplined valuation"
     ],
-    "news_title": "Western Alliance CEO says alleged loan fraud is 'incredibly frustrating' but isolated issue - CNBC",
-    "news_url": "https://www.cnbc.com/2025/10/22/western-alliance-ceo-alleged-loan-fraud-isolated.html",
-    "news_source": "CNBC",
-    "published_at": "2025-10-22T17:57:42Z",
-    "analyzed_at": "2025-10-23T18:24:17.662619"
+    "reasoning": "This news is important as it provides insight into the broader market dynamics and investor sentiment shift, which could have significant implications for the technology and AI sectors. The credibility is high given the reputable source and the factual nature of the reporting.",
+    "news_title": "Palantir Correction Reflects Rotation From AI Momentum to Valuation Discipline",
+    "news_url": "https://www.investing.com/analysis/palantir-correction-reflects-rotation-from-ai-momentum-to-valuation-discipline-200669629",
+    "news_source": "Investing.com",
+    "published_at": "2025-11-04T19:26:00Z",
+    "image_url": "https://i-invdn-com.investing.com/redesign/images/seo/investingcom_analysis_og.jpg",
+    "analyzed_at": "2025-11-04T14:52:06.507903"
   },
   {
-    "importance": 3,
-    "impact_summary": "This innovation by Amazon could improve the efficiency and cost-effectiveness of its delivery operations, potentially leading to cost savings and improved profitability for the company.",
+    "importance": 4,
+    "credibility": 4,
+    "impact_summary": "This lawsuit alleging misleading financial statements by Fluor Corporation could have a significant impact on the company's stock price and reputation, potentially affecting the broader engineering and construction sector.",
+    "affected_stocks": [
+      "FLR"
+    ],
     "affected_sectors": [
-      "E-commerce",
-      "Logistics",
+      "Engineering & Construction"
+    ],
+    "sentiment": "bearish",
+    "time_sensitivity": "short-term",
+    "key_points": [
+      "Fluor Corporation faces a class action lawsuit alleging misleading financial statements during Q2 2025",
+      "The lawsuit follows a 27% drop in Fluor's stock price after the company revealed project cost overruns and economic uncertainties",
+      "The lawsuit could result in financial penalties, legal costs, and reputational damage for Fluor",
+      "The engineering and construction sector may be affected due to potential investor concerns about similar issues in the industry",
+      "Investors who lost money due to the stock price drop are being urged to join the lawsuit against Fluor"
+    ],
+    "reasoning": "This news is considered very important as it involves a significant legal issue for a major engineering and construction company, which could have broader implications for the sector. The credibility is high as the news is reported by a reputable source and provides specific details about the lawsuit and its potential impact.",
+    "news_title": "Deadline Alert: Fluor Corporation (FLR) Shareholders Who Lost Money Urged To Contact Glancy Prongay & Murray LLP About Securities Fraud Lawsuit",
+    "news_url": "https://www.globenewswire.com/news-release/2025/11/04/3180756/34548/en/Deadline-Alert-Fluor-Corporation-FLR-Shareholders-Who-Lost-Money-Urged-To-Contact-Glancy-Prongay-Murray-LLP-About-Securities-Fraud-Lawsuit.html",
+    "news_source": "GlobeNewswire Inc.",
+    "published_at": "2025-11-04T18:45:00Z",
+    "image_url": "https://ml.globenewswire.com/Resource/Download/dca1d463-f40e-41ea-a1d6-f8a47b633445",
+    "analyzed_at": "2025-11-04T14:52:18.137028"
+  },
+  {
+    "importance": 4,
+    "credibility": 4,
+    "impact_summary": "AMD's strong AI momentum, highlighted by a major GPU deal with OpenAI and potential significant revenue expansion in data center and AI infrastructure markets, could drive upbeat Q3 earnings and positively impact the stock.",
+    "affected_stocks": [
+      "AMD"
+    ],
+    "affected_sectors": [
+      "Technology",
+      "Semiconductors"
+    ],
+    "sentiment": "bullish",
+    "time_sensitivity": "short-term",
+    "key_points": [
+      "AMD has secured a major GPU deal with OpenAI, indicating strong AI momentum",
+      "Potential for significant revenue expansion in data center and AI infrastructure markets",
+      "Upbeat Q3 earnings expected, driven by AI-related growth",
+      "AMD's positioning in the AI market could be a key catalyst for the stock",
+      "Investors will closely watch the company's AI-related performance and guidance"
+    ],
+    "reasoning": "This news is considered very important as it highlights AMD's strong positioning in the growing AI market, which could drive significant revenue growth and positively impact the company's stock performance. The credibility is high as the information is sourced from a reputable financial news outlet.",
+    "news_title": "AMD Q3 Earnings Preview: AI Momentum Fuels Upbeat Setup",
+    "news_url": "https://www.investing.com/analysis/amd-q3-earnings-preview-ai-momentum-fuels-upbeat-setup-200669621",
+    "news_source": "Investing.com",
+    "published_at": "2025-11-04T18:22:00Z",
+    "image_url": "https://i-invdn-com.investing.com/redesign/images/seo/investingcom_analysis_og.jpg",
+    "analyzed_at": "2025-11-04T14:52:20.462550"
+  },
+  {
+    "importance": 4,
+    "credibility": 4,
+    "impact_summary": "The growing prevalence of chronic pain and the shift away from opioid-based treatments are expected to drive significant growth in the global pain management devices market over the next decade.",
+    "affected_stocks": [
+      "MDT",
+      "ABT",
+      "BSX",
+      "GKOS",
+      "NURO"
+    ],
+    "affected_sectors": [
+      "Healthcare",
+      "Medical Devices",
+      "Pharmaceuticals"
+    ],
+    "sentiment": "bullish",
+    "time_sensitivity": "long-term",
+    "key_points": [
+      "The global pain management devices market is projected to grow from $5.2 billion in 2024 to $9.3 billion by 2032, a CAGR of ~8%.",
+      "The growth is driven by increasing chronic pain prevalence, technological innovations, and a shift away from opioid-based treatments.",
+      "The market includes devices such as spinal cord stimulators, radiofrequency ablation devices, and neurostimulation devices.",
+      "Key players in the market include Medtronic, Abbott, Boston Scientific, and Nevro Corp.",
+      "The trend towards minimally invasive solutions is a major driver for the market."
+    ],
+    "reasoning": "This news is important as it highlights a significant growth opportunity in the pain management devices market, which could have a substantial impact on related healthcare and medical device companies. The credibility is high given the reputable source and the detailed market projections and drivers provided.",
+    "news_title": "Global Pain Management Devices Market Set to Expand Rapidly at a CAGR of ~8% by 2032 Amid Growing Preference for Minimally Invasive Solutions | DelveInsight",
+    "news_url": "https://www.globenewswire.com/news-release/2025/11/04/3180741/0/en/Global-Pain-Management-Devices-Market-Set-to-Expand-Rapidly-at-a-CAGR-of-8-by-2032-Amid-Growing-Preference-for-Minimally-Invasive-Solutions-DelveInsight.html",
+    "news_source": "GlobeNewswire Inc.",
+    "published_at": "2025-11-04T18:00:00Z",
+    "image_url": "https://ml.globenewswire.com/Resource/Download/dbcddd65-71dd-4559-8875-ae89ac4f96db",
+    "analyzed_at": "2025-11-04T14:52:32.391908"
+  },
+  {
+    "importance": 4,
+    "credibility": 4,
+    "impact_summary": "The expansion of Henry Schein's partnership with KKR and the raised fiscal 2025 guidance are positive signals for the company's growth prospects, which could have a favorable impact on its stock performance.",
+    "affected_stocks": [
+      "HSIC"
+    ],
+    "affected_sectors": [
+      "Healthcare"
+    ],
+    "sentiment": "bullish",
+    "time_sensitivity": "short-term",
+    "key_points": [
+      "Henry Schein reported strong Q3 earnings, beating consensus estimates",
+      "The company expanded its strategic partnership with KKR",
+      "Henry Schein raised its fiscal 2025 guidance for earnings and sales",
+      "The news indicates positive growth prospects for the company"
+    ],
+    "reasoning": "This news is considered very important as it signals significant growth potential for Henry Schein, a leading healthcare distribution company. The expanded partnership with KKR and the raised guidance suggest the company is well-positioned to capitalize on market opportunities, which could have a positive impact on its stock performance.",
+    "news_title": "Henry Schein Expands Strategic Partnership With KKR, Raises Annual Outlook",
+    "news_url": "https://www.benzinga.com/markets/earnings/25/11/48630233/henry-schein-expands-strategic-partnership-with-kkr-raises-annual-outlook?utm_source=benzinga_taxonomy&utm_medium=rss_feed_free&utm_content=taxonomy_rss&utm_campaign=channel",
+    "news_source": "Benzinga",
+    "published_at": "2025-11-04T17:56:49Z",
+    "image_url": "https://cdn.benzinga.com/files/images/story/2025/11/04/Henry-Schein-Inc_0.jpeg?width=1200&height=800&fit=crop",
+    "analyzed_at": "2025-11-04T14:52:39.759368"
+  },
+  {
+    "importance": 4,
+    "credibility": 4,
+    "impact_summary": "This exclusive license agreement between Datavault AI and Scilex Holding Company could enable the secure trading and monetization of valuable biotech data, representing a significant market opportunity in the genomics and pharmaceutical industries.",
+    "affected_stocks": [
+      "DVLT",
+      "SLCX"
+    ],
+    "affected_sectors": [
+      "Biotechnology",
       "Technology"
     ],
-    "affected_stocks": [
-      "AMZN",
-      "FDX",
-      "UPS"
-    ],
-    "sentiment": "positive",
+    "sentiment": "bullish",
     "time_sensitivity": "short-term",
     "key_points": [
-      "Amazon is developing AI-powered delivery glasses that provide real-time navigation and delivery instructions to drivers, reducing their reliance on smartphones.",
-      "This technology could improve the efficiency and safety of Amazon's delivery operations by allowing drivers to focus more on their surroundings.",
-      "The innovation could lead to cost savings for Amazon, as it may reduce the need for extensive smartphone usage and associated data plans.",
-      "Improved delivery efficiency and cost savings could positively impact Amazon's profitability and stock price.",
-      "The technology may also have applications in the broader logistics and delivery industry, potentially affecting competitors like FedEx and UPS."
+      "Datavault AI granted a worldwide exclusive license to Scilex Holding Company for its AI-driven biotech asset tokenization technology",
+      "The technology enables secure trading and monetization of genomic, DNA, and pharmaceutical data",
+      "The potential market opportunity is estimated at $2.0 trillion",
+      "This partnership could unlock new revenue streams and value for both companies in the biotech and genomics sectors",
+      "Investors may see this as a positive development for the affected companies and sectors"
     ],
-    "news_title": "Amazon’s delivery glasses: The newest innovation designed to enhance the delivery experience - about Amazon",
-    "news_url": "https://www.aboutamazon.com/news/transportation/smart-glasses-amazon-delivery-drivers",
-    "news_source": "Aboutamazon.com",
-    "published_at": "2025-10-22T17:26:19Z",
-    "analyzed_at": "2025-10-23T18:24:21.717896"
+    "reasoning": "This news is rated as 'very important' due to the significant market potential and the strategic partnership between the two companies, which could have a meaningful impact on their respective businesses and the broader biotech and technology sectors.",
+    "news_title": "Datavault AI Inc. Announces a $10M Worldwide Exclusive License Agreement with Scilex Holding Company for Tokenization and Monetization of Real-World Assets (RWA) in Genomic, DNA Data, Diagnostics, Therapeutics, Genetic, and Drug Information",
+    "news_url": "https://www.globenewswire.com/news-release/2025/11/04/3180735/0/en/Datavault-AI-Inc-Announces-a-10M-Worldwide-Exclusive-License-Agreement-with-Scilex-Holding-Company-for-Tokenization-and-Monetization-of-Real-World-Assets-RWA-in-Genomic-DNA-Data-Di.html",
+    "news_source": "GlobeNewswire Inc.",
+    "published_at": "2025-11-04T17:52:00Z",
+    "image_url": "https://ml.globenewswire.com/Resource/Download/12e53b1e-96b6-498a-bd26-0cd0cc0c1d4c",
+    "analyzed_at": "2025-11-04T14:52:47.352262"
   },
   {
-    "importance": 3,
-    "impact_summary": "GM's adoption of Gemini-powered AI assistant in its vehicles starting in 2026 could enhance the in-car user experience and increase consumer appeal, potentially impacting the automotive sector.",
+    "importance": 4,
+    "credibility": 4,
+    "impact_summary": "The potential acquisition of SambaNova Systems by Intel would strengthen Intel's position in the growing AI inference market, which is expected to be a trillion-dollar opportunity.",
+    "affected_stocks": [
+      "INTC"
+    ],
+    "affected_sectors": [
+      "Technology",
+      "Semiconductors"
+    ],
+    "sentiment": "bullish",
+    "time_sensitivity": "short-term",
+    "key_points": [
+      "Intel is in early discussions to acquire AI chip designer SambaNova Systems",
+      "The acquisition would strategically position Intel in the trillion-dollar AI inference market",
+      "SambaNova Systems has a purpose-built technology platform for AI inference",
+      "The deal would strengthen Intel's capabilities in the fast-growing AI market",
+      "The news is likely to have a positive impact on Intel's stock and the semiconductor sector"
+    ],
+    "reasoning": "This news is considered very important as it would significantly impact Intel's position in the AI inference market, which is a key growth area for the semiconductor industry. The credibility is high as the information is coming from a reputable source, Investing.com.",
+    "news_title": "Intel: SambaNova Play Isn’t an Acquisition, It’s an Ambush",
+    "news_url": "https://www.investing.com/analysis/intel-sambanova-play-isnt-an-acquisition-its-an-ambush-200669623",
+    "news_source": "Investing.com",
+    "published_at": "2025-11-04T17:34:00Z",
+    "image_url": "https://i-invdn-com.investing.com/redesign/images/seo/investingcom_analysis_og.jpg",
+    "analyzed_at": "2025-11-04T14:52:51.629982"
+  },
+  {
+    "importance": 4,
+    "credibility": 4,
+    "impact_summary": "The surge in D-Wave Quantum's stock price indicates increased investor confidence in the company's growth prospects, driven by potential investments and industry recognition.",
+    "affected_stocks": [
+      "QBTS"
+    ],
+    "affected_sectors": [
+      "Technology",
+      "Quantum Computing"
+    ],
+    "sentiment": "bullish",
+    "time_sensitivity": "short-term",
+    "key_points": [
+      "D-Wave Quantum's stock price increased by 49.9% in October 2022",
+      "The stock surge was driven by positive developments, including a potential JPMorgan Chase investment, a technology innovation award, and a 10 million euro commitment from Swiss Quantum Technology",
+      "There are also speculative reports about potential U.S. government investment in the company",
+      "The news indicates growing investor interest and confidence in the quantum computing sector",
+      "The stock price movement and positive developments suggest D-Wave Quantum is well-positioned to capitalize on the growing demand for quantum computing solutions"
+    ],
+    "reasoning": "The news is important as it highlights significant positive developments for D-Wave Quantum, a leading player in the quantum computing industry. The potential investments and industry recognition suggest the company is gaining traction and could be well-positioned for future growth, which could have a meaningful impact on the stock price and the broader quantum computing sector.",
+    "news_title": "Why D-Wave Quantum Stock Spiked 50% in October",
+    "news_url": "https://www.fool.com/investing/2025/11/04/why-d-wave-quantum-stock-spiked-50-in-october/?source=iedfolrf0000001",
+    "news_source": "The Motley Fool",
+    "published_at": "2025-11-04T17:32:00Z",
+    "image_url": "https://g.foolcdn.com/editorial/images/841365/gettyimages-2172249360-1200x675-128554e.jpg",
+    "analyzed_at": "2025-11-04T14:52:54.378796"
+  },
+  {
+    "importance": 4,
+    "credibility": 4,
+    "impact_summary": "This merger positions PEDEVCO as a major player in the Rockies oil and gas market, with significant production and acreage. It could lead to increased investment and activity in the region.",
+    "affected_stocks": [
+      "PED"
+    ],
+    "affected_sectors": [
+      "Oil & Gas"
+    ],
+    "sentiment": "bullish",
+    "time_sensitivity": "short-term",
+    "key_points": [
+      "PEDEVCO completed a merger with Juniper Capital Advisors' portfolio companies",
+      "The transaction gives PEDEVCO over 6,500 BOEPD production and 328,000 net acres in the Northern DJ and Powder River Basins",
+      "This positions PEDEVCO as a premier Rockies-focused oil and gas operator",
+      "The merger is a transformative event that could drive increased investment and activity in the Rockies region"
+    ],
+    "reasoning": "This is an important and credible announcement that could have a significant impact on PEDEVCO and the broader Rockies oil and gas sector. The merger gives the company a substantial production and acreage footprint, making it a major player in the region.",
+    "news_title": "PEDEVCO Announces Closing of Transformative Merger to Become Premier Rockies Operator",
+    "news_url": "https://www.benzinga.com/pressreleases/25/11/g48629304/pedevco-announces-closing-of-transformative-merger-to-become-premier-rockies-operator?utm_source=benzinga_taxonomy&utm_medium=rss_feed_free&utm_content=taxonomy_rss&utm_campaign=channel",
+    "news_source": "Benzinga",
+    "published_at": "2025-11-04T17:31:59Z",
+    "image_url": "https://www.benzinga.com/next-assets/images/benzinga-schema-image-default.png",
+    "analyzed_at": "2025-11-04T14:52:56.829530"
+  },
+  {
+    "importance": 4,
+    "credibility": 4,
+    "impact_summary": "The strong Q3 earnings and analyst upgrades for Roblox suggest a potential buying opportunity for the stock, which could positively impact the gaming and entertainment sectors.",
+    "affected_stocks": [
+      "RBLX"
+    ],
+    "affected_sectors": [
+      "Gaming",
+      "Entertainment"
+    ],
+    "sentiment": "bullish",
+    "time_sensitivity": "short-term",
+    "key_points": [
+      "Roblox reported 24% revenue growth and 70% increase in bookings in Q3",
+      "Despite a stock pullback, analysts remain optimistic with Goldman Sachs setting a new high price target of $180",
+      "The potential 75% upside represents a significant opportunity for investors",
+      "The strong performance and positive analyst sentiment could drive near-term gains in the stock"
+    ],
+    "reasoning": "The news of Roblox's strong Q3 earnings and positive analyst coverage is an important development that could significantly impact the company's stock price and the broader gaming/entertainment sectors. The potential 75% upside identified by Goldman Sachs suggests this is a meaningful opportunity for investors, warranting an importance score of 4.",
+    "news_title": "Roblox Pullback After Q3 Looks Like a Buying Opportunity Amid Analyst Upgrades",
+    "news_url": "https://www.investing.com/analysis/roblox-pullback-after-q3-looks-like-a-buying-opportunity-amid-analyst-upgrades-200669622",
+    "news_source": "Investing.com",
+    "published_at": "2025-11-04T17:31:00Z",
+    "image_url": "https://i-invdn-com.investing.com/redesign/images/seo/investingcom_analysis_og.jpg",
+    "analyzed_at": "2025-11-04T14:52:59.268653"
+  },
+  {
+    "importance": 4,
+    "credibility": 4,
+    "impact_summary": "Pony AI's expansion of its robotaxi fleet signals progress in autonomous driving technology, which could positively impact companies in the self-driving and electric vehicle sectors.",
+    "affected_stocks": [
+      "TSLA",
+      "GOOGL",
+      "UBER"
+    ],
+    "affected_sectors": [
+      "Automotive",
+      "Technology"
+    ],
+    "sentiment": "bullish",
+    "time_sensitivity": "short-term",
+    "key_points": [
+      "Pony AI has expanded its robotaxi fleet to 300 units and aims to reach 1,000 by 2025",
+      "Analysts project nearly 60% upside potential for Pony AI within 12 months",
+      "Expansion of Pony AI's fleet signals progress in autonomous driving technology",
+      "Companies in the self-driving and electric vehicle sectors could be positively impacted"
+    ],
+    "reasoning": "This news is important as it indicates significant progress in autonomous driving technology, which could have a positive impact on companies in the self-driving and electric vehicle sectors. The credibility is high as the information is coming from a reputable source, The Motley Fool.",
+    "news_title": "Could Pony AI 10X By 2030?",
+    "news_url": "https://www.fool.com/investing/2025/11/04/could-pony-ai-10x-by-2030/?source=iedfolrf0000001",
+    "news_source": "The Motley Fool",
+    "published_at": "2025-11-04T17:11:56Z",
+    "image_url": "https://g.foolcdn.com/editorial/images/837575/pony-ai-thumbnail-1-1.png",
+    "analyzed_at": "2025-11-04T14:53:06.933426"
+  },
+  {
+    "importance": 4,
+    "credibility": 4,
+    "impact_summary": "The failure of Sarepta's Phase 3 study for Duchenne muscular dystrophy treatments is a significant setback for the company, raising concerns about its drug pipeline and gene therapy safety, which could negatively impact its stock price and the biotechnology sector.",
+    "affected_stocks": [
+      "SRPT"
+    ],
+    "affected_sectors": [
+      "Biotechnology"
+    ],
+    "sentiment": "bearish",
+    "time_sensitivity": "short-term",
+    "key_points": [
+      "Sarepta Therapeutics' stock dropped over 33% after its Phase 3 ESSENCE study for Duchenne muscular dystrophy treatments failed to meet primary endpoints",
+      "The failed study raises concerns about Sarepta's drug pipeline and gene therapy safety",
+      "The news could negatively impact Sarepta's stock price and the broader biotechnology sector",
+      "Sarepta is a key player in the Duchenne muscular dystrophy treatment market, and this setback could affect investor confidence in the company's future",
+      "The short-term impact is likely to be bearish, as investors may be cautious about Sarepta's prospects until further updates on its drug development pipeline"
+    ],
+    "reasoning": "This news is considered very important (4 stars) because it involves a significant setback for a major pharmaceutical company in a critical disease area, which could have broader implications for the biotechnology sector. The credibility is also high (4 stars) as the information comes from a reputable financial news source, Benzinga, and the details provided are factual.",
+    "news_title": "Sarepta Stock Dumps: Pharma Bro Martin Shkreli Still Likes It",
+    "news_url": "https://www.benzinga.com/trading-ideas/movers/25/11/48628604/sarepta-stock-dumps-pharma-bro-martin-shkreli-still-likes-it?utm_source=benzinga_taxonomy&utm_medium=rss_feed_free&utm_content=taxonomy_rss&utm_campaign=channel",
+    "news_source": "Benzinga",
+    "published_at": "2025-11-04T17:11:10Z",
+    "image_url": "https://cdn.benzinga.com/files/images/story/2025/11/04/Konskie--Poland---February-24--2024-Sare.jpeg?width=1200&height=800&fit=crop",
+    "analyzed_at": "2025-11-04T14:53:09.971300"
+  },
+  {
+    "importance": 4,
+    "credibility": 4,
+    "impact_summary": "This positive Phase 3 trial result for a novel obesity drug could have a significant impact on the pharmaceutical and healthcare sectors, potentially leading to increased investor interest and stock price movements for companies involved.",
+    "affected_stocks": [
+      "HNGRY",
+      "KLRA"
+    ],
+    "affected_sectors": [
+      "Pharmaceuticals",
+      "Healthcare"
+    ],
+    "sentiment": "bullish",
+    "time_sensitivity": "short-term",
+    "key_points": [
+      "Hengrui Pharma and Kailera Therapeutics reported positive Phase 3 trial results for their dual GLP-1/GIP receptor agonist HRS9531",
+      "The drug showed significant weight loss of up to 19.2% in a 48-week clinical trial in China",
+      "The safety profile of the drug was reported to be favorable",
+      "This is an important development in the obesity treatment market, as dual GLP-1/GIP receptor agonists represent a novel therapeutic approach",
+      "The positive results could lead to increased investor interest and potential stock price movements for the companies involved"
+    ],
+    "reasoning": "This news is important as it represents a significant development in the obesity treatment market, with a novel drug candidate showing positive Phase 3 results. The potential for this drug to provide substantial weight loss with a favorable safety profile makes it an important advancement in the field, which could have a meaningful impact on the pharmaceutical and healthcare sectors.",
+    "news_title": "Hengrui Pharma and Kailera Therapeutics Announce Additional Data from Phase 3 Obesity Trial in China of Dual GLP-1/GIP Receptor Agonist HRS9531",
+    "news_url": "https://www.globenewswire.com/news-release/2025/11/04/3180679/0/en/Hengrui-Pharma-and-Kailera-Therapeutics-Announce-Additional-Data-from-Phase-3-Obesity-Trial-in-China-of-Dual-GLP-1-GIP-Receptor-Agonist-HRS9531.html",
+    "news_source": "GlobeNewswire Inc.",
+    "published_at": "2025-11-04T17:00:00Z",
+    "image_url": "https://ml.globenewswire.com/Resource/Download/c0b33a3d-0c2b-45b0-ace8-6ff585b41339",
+    "analyzed_at": "2025-11-04T14:53:18.666180"
+  },
+  {
+    "importance": 4,
+    "credibility": 4,
+    "impact_summary": "This class action lawsuit against Fluor Corporation alleging false and misleading statements could have a significant impact on the company's stock and the broader engineering and construction sector.",
+    "affected_stocks": [
+      "FLR"
+    ],
+    "affected_sectors": [
+      "Engineering & Construction"
+    ],
+    "sentiment": "bearish",
+    "time_sensitivity": "short-term",
+    "key_points": [
+      "A class action lawsuit has been filed against Fluor Corporation",
+      "The lawsuit alleges false and misleading statements about project costs, financial guidance, and economic impact",
+      "The class period is from February 18, 2025 to July 31, 2025",
+      "This could lead to financial and reputational damage for Fluor Corporation",
+      "The engineering and construction sector may also be affected"
+    ],
+    "reasoning": "This news is important as it could have a significant impact on Fluor Corporation's stock and the broader engineering and construction sector. The allegations of false and misleading statements are serious and could lead to financial and reputational damage for the company. The credibility of the news is high as it is coming from a reputable source, GlobeNewswire Inc.",
+    "news_title": "FLR INVESTOR ALERT: Bronstein, Gewirtz & Grossman LLC Announces that Fluor Corporation Investors with Substantial Losses Have Opportunity to Lead Class Action Lawsuit",
+    "news_url": "https://www.globenewswire.com/news-release/2025/11/04/3180674/9788/en/FLR-INVESTOR-ALERT-Bronstein-Gewirtz-Grossman-LLC-Announces-that-Fluor-Corporation-Investors-with-Substantial-Losses-Have-Opportunity-to-Lead-Class-Action-Lawsuit.html",
+    "news_source": "GlobeNewswire Inc.",
+    "published_at": "2025-11-04T17:00:00Z",
+    "image_url": "https://ml.globenewswire.com/Resource/Download/1a031130-a9cc-48ff-b281-d1e47c9a91a5",
+    "analyzed_at": "2025-11-04T14:53:22.124226"
+  },
+  {
+    "importance": 4,
+    "credibility": 4,
+    "impact_summary": "This lawsuit alleging design changes to DexCom's critical medical devices could significantly impact the company's reputation and financial performance if the claims are substantiated.",
+    "affected_stocks": [
+      "DXCM"
+    ],
+    "affected_sectors": [
+      "Healthcare"
+    ],
+    "sentiment": "bearish",
+    "time_sensitivity": "short-term",
+    "key_points": [
+      "A class action lawsuit has been filed against DexCom, a leading manufacturer of continuous glucose monitoring (CGM) devices.",
+      "The lawsuit alleges that DexCom made unauthorized design changes to its G6 and G7 CGM products, potentially compromising user safety and device reliability.",
+      "If the claims are proven true, it could lead to regulatory scrutiny, product recalls, and damage to DexCom's reputation as a trusted medical device provider.",
+      "The lawsuit represents a significant legal and reputational risk for DexCom, which could impact the company's financial performance in the short term.",
+      "Investors with substantial losses in DexCom stock may have the opportunity to lead the class action lawsuit."
+    ],
+    "reasoning": "This news is considered very important as it involves potential safety and reliability issues with a leading medical device manufacturer. The lawsuit could have a significant impact on DexCom's stock price and the broader healthcare sector, warranting a 4-star importance rating.",
+    "news_title": "DXCM INVESTOR ALERT: Bronstein, Gewirtz & Grossman LLC Announces that DexCom, Inc. Investors with Substantial Losses Have Opportunity to Lead Class Action Lawsuit",
+    "news_url": "https://www.globenewswire.com/news-release/2025/11/04/3180677/9788/en/DXCM-INVESTOR-ALERT-Bronstein-Gewirtz-Grossman-LLC-Announces-that-DexCom-Inc-Investors-with-Substantial-Losses-Have-Opportunity-to-Lead-Class-Action-Lawsuit.html",
+    "news_source": "GlobeNewswire Inc.",
+    "published_at": "2025-11-04T17:00:00Z",
+    "image_url": "https://ml.globenewswire.com/Resource/Download/1a031130-a9cc-48ff-b281-d1e47c9a91a5",
+    "analyzed_at": "2025-11-04T14:53:27.122543"
+  },
+  {
+    "importance": 4,
+    "credibility": 4,
+    "impact_summary": "This collaboration between Chainlink and Validation Cloud could enhance institutional adoption of decentralized finance (DeFi) by improving cross-chain interoperability and leveraging AI-powered asset management capabilities.",
+    "affected_stocks": [
+      "LINK"
+    ],
+    "affected_sectors": [
+      "Cryptocurrency",
+      "Fintech"
+    ],
+    "sentiment": "bullish",
+    "time_sensitivity": "short-term",
+    "key_points": [
+      "Chainlink and Validation Cloud are partnering to integrate Chainlink's Cross-Chain Interoperability Protocol (CCIP) with Validation Cloud's Mavrik AI platform.",
+      "The collaboration aims to improve institutional digital asset management across multiple blockchain networks.",
+      "CCIP will enable seamless cross-chain transactions and data transfers, while Mavrik AI will provide advanced analytics and automation for institutional DeFi applications.",
+      "This integration could drive increased institutional adoption of DeFi by addressing key challenges around interoperability and asset management.",
+      "The news is positive for Chainlink (LINK) as it highlights the growing demand for its cross-chain solutions and the potential for further ecosystem development."
+    ],
+    "reasoning": "This collaboration is an important development in the DeFi space, as it combines Chainlink's leading cross-chain technology with Validation Cloud's AI-powered asset management capabilities. This could significantly enhance the institutional adoption of DeFi, which is a critical factor for the long-term growth of the cryptocurrency and fintech sectors.",
+    "news_title": "Chainlink and Validation Cloud Collaborate to Power Institutional DeFi With Cross-Chain Interoperability and AI",
+    "news_url": "https://www.globenewswire.com/news-release/2025/11/04/3180683/0/en/Chainlink-and-Validation-Cloud-Collaborate-to-Power-Institutional-DeFi-With-Cross-Chain-Interoperability-and-AI.html",
+    "news_source": "GlobeNewswire Inc.",
+    "published_at": "2025-11-04T17:00:00Z",
+    "image_url": "https://ml.globenewswire.com/Resource/Download/c4b95311-4c39-4713-9084-8d7e8c2baf9b",
+    "analyzed_at": "2025-11-04T14:53:36.719672"
+  },
+  {
+    "importance": 4,
+    "credibility": 4,
+    "impact_summary": "The decline in Tesla's stock price due to weak vehicle sales in China and Europe, as well as potential opposition to Elon Musk's pay package, could negatively impact the company's market performance and investor sentiment.",
+    "affected_stocks": [
+      "TSLA"
+    ],
     "affected_sectors": [
       "Automotive"
     ],
-    "affected_stocks": [
-      "GM"
-    ],
-    "sentiment": "positive",
-    "time_sensitivity": "long-term",
-    "key_points": [
-      "GM is integrating a conversational AI assistant powered by Google Gemini into its vehicles starting in 2026.",
-      "The AI assistant aims to provide a more natural-sounding and responsive experience for drivers and passengers.",
-      "This move aligns with the broader trend of automakers incorporating advanced AI-based technologies to enhance the in-car user experience.",
-      "The integration of Gemini-powered AI could differentiate GM's vehicles and potentially increase consumer appeal, impacting the company's sales and market position.",
-      "The long-term impact on the automotive sector and GM's stock performance will depend on the technology's reception and integration into the broader consumer driving experience."
-    ],
-    "news_title": "GM is bringing Google Gemini-powered AI assistant to cars in 2026 - TechCrunch",
-    "news_url": "https://techcrunch.com/2025/10/22/gm-is-bringing-google-gemini-powered-ai-assistant-to-cars-in-2026/",
-    "news_source": "TechCrunch",
-    "published_at": "2025-10-22T15:51:03Z",
-    "analyzed_at": "2025-10-23T18:24:29.629114"
-  },
-  {
-    "importance": 3,
-    "impact_summary": "The potential devaluation of the Argentine peso following the upcoming elections could negatively impact companies and sectors with exposure to the Argentine market.",
-    "affected_sectors": [
-      "Financials",
-      "Consumer Discretionary",
-      "Industrials"
-    ],
-    "affected_stocks": [
-      "GS",
-      "JPM",
-      "MCD",
-      "AMZN",
-      "CAT"
-    ],
-    "sentiment": "negative",
-    "time_sensitivity": "immediate",
-    "key_points": [
-      "Investors are betting on a 12% decline in the Argentine peso despite a $40 billion US support package",
-      "The upcoming elections in Argentina are seen as a potential trigger for the peso devaluation",
-      "Companies and sectors with significant exposure to the Argentine market, such as financials, consumer discretionary, and industrials, could be negatively impacted",
-      "The immediate impact could be felt in the stock prices of companies with Argentine operations or revenue",
-      "The long-term impact will depend on the extent of the peso devaluation and the policy responses from the Argentine government and the US"
-    ],
-    "news_title": "Investors bet on Argentine peso devaluation after weekend elections - Financial Times",
-    "news_url": "https://www.ft.com/content/a4ac78be-ad69-4e54-8e8b-9692d11d07e6",
-    "news_source": "Financial Times",
-    "published_at": "2025-10-22T15:45:48Z",
-    "analyzed_at": "2025-10-23T18:24:34.291817"
-  },
-  {
-    "importance": 3,
-    "impact_summary": "The recall of nearly 13,000 Tesla vehicles due to a battery pack issue could lead to production disruptions and impact the company's sales and reputation in the short-term.",
-    "affected_sectors": [
-      "Automotive",
-      "Electric Vehicles"
-    ],
-    "affected_stocks": [
-      "TSLA"
-    ],
-    "sentiment": "negative",
-    "time_sensitivity": "short-term",
-    "key_points": [
-      "Tesla is recalling about 13,000 newer Model Y and Model 3 vehicles due to a battery pack issue that could cause loss of drive power while driving.",
-      "The recall affects 2025 Model Y and 2026 Model 3 vehicles, which are relatively new models in Tesla's lineup.",
-      "Production disruptions and recalls can impact Tesla's sales and reputation, potentially leading to short-term stock price volatility.",
-      "The issue highlights the importance of quality control and safety for electric vehicle manufacturers, as battery-related problems can have significant consequences.",
-      "Investors will be watching how Tesla handles the recall and whether it leads to any further production or delivery delays."
-    ],
-    "news_title": "Tesla Recalls About 13,000 Newer Cars Over Battery Issue That Can Cause Power Loss While Driving - Forbes",
-    "news_url": "https://www.forbes.com/sites/zacharyfolk/2025/10/22/tesla-recalls-about-13000-newer-cars-over-battery-issue-that-can-cause-power-loss-while-driving/",
-    "news_source": "Forbes",
-    "published_at": "2025-10-22T14:36:51Z",
-    "analyzed_at": "2025-10-23T18:24:38.450079"
-  },
-  {
-    "importance": 3,
-    "impact_summary": "The correction in gold prices could impact the performance of gold-related stocks and sectors, as well as investor sentiment towards safe-haven assets.",
-    "affected_sectors": [
-      "Precious Metals",
-      "Mining",
-      "Financial Services"
-    ],
-    "affected_stocks": [
-      "GLD",
-      "GOLD",
-      "NEM",
-      "ABX"
-    ],
-    "sentiment": "negative",
-    "time_sensitivity": "short-term",
-    "key_points": [
-      "Gold prices have been in a bull run this year, outperforming even the AI-driven stock market rally.",
-      "However, gold is now experiencing a correction, which could signal the end of the metal's recent bull run.",
-      "The correction in gold prices could have a negative impact on gold-related stocks and sectors, as well as investor sentiment towards safe-haven assets.",
-      "Investors may start to shift their focus back to riskier assets, such as equities, if the gold correction continues.",
-      "The short-term impact on the US stock market is likely to be negative, as the gold correction could lead to a broader risk-off sentiment."
-    ],
-    "news_title": "Gold is suddenly going through a correction. Is the metal's bull run in danger? - CNBC",
-    "news_url": "https://www.cnbc.com/2025/10/22/gold-is-suddenly-going-through-a-correction-is-the-metals-bull-run-in-danger.html",
-    "news_source": "CNBC",
-    "published_at": "2025-10-22T13:23:11Z",
-    "analyzed_at": "2025-10-23T18:24:42.512313"
-  },
-  {
-    "importance": 3,
-    "impact_summary": "The high compensation of Microsoft's CEO could raise concerns about executive pay and may negatively impact investor sentiment towards the company in the short term.",
-    "affected_sectors": [
-      "Technology"
-    ],
-    "affected_stocks": [
-      "MSFT"
-    ],
-    "sentiment": "negative",
-    "time_sensitivity": "short-term",
-    "key_points": [
-      "Microsoft CEO Satya Nadella's compensation reached $96.5 million, a 480:1 ratio compared to the average employee.",
-      "High executive compensation can be viewed negatively by investors and the public, potentially leading to reputational damage for the company.",
-      "The news may raise broader discussions about the appropriate balance between executive pay and employee compensation.",
-      "Investors may be concerned about the allocation of company resources and how it impacts Microsoft's financial performance and competitiveness.",
-      "The news could lead to increased scrutiny of executive pay practices at other technology companies, potentially affecting investor sentiment in the sector."
-    ],
-    "news_title": "AI bubble inflates Microsoft CEO pay to $96.5M - theregister.com",
-    "news_url": "https://www.theregister.com/2025/10/22/microsoft_nadella_pay/",
-    "news_source": "Theregister.com",
-    "published_at": "2025-10-22T11:23:00Z",
-    "analyzed_at": "2025-10-23T18:24:46.457519"
-  },
-  {
-    "importance": 3,
-    "impact_summary": "Uber's move to incentivize its drivers to switch to EVs could positively impact the adoption of electric vehicles, benefiting the EV industry and related sectors.",
-    "affected_sectors": [
-      "Automotive",
-      "Transportation"
-    ],
-    "affected_stocks": [
-      "TSLA",
-      "LCID",
-      "RIVN",
-      "PLUG",
-      "CHPT"
-    ],
-    "sentiment": "positive",
-    "time_sensitivity": "short-term",
-    "key_points": [
-      "Uber's $4,000 grants to drivers to switch from gas-powered to electric vehicles could accelerate the adoption of EVs.",
-      "The decision was motivated by the expiration of the federal EV tax credit, which made EVs more expensive for Uber drivers.",
-      "The move could benefit EV manufacturers, charging infrastructure providers, and other companies in the electric vehicle ecosystem.",
-      "The impact is likely to be felt in the short-term as more Uber drivers make the switch to EVs.",
-      "The news could contribute to positive sentiment and potentially drive increased investment in EV-related stocks."
-    ],
-    "news_title": "Uber will pay drivers $4,000 to switch to EVs - The Verge",
-    "news_url": "https://www.theverge.com/news/802983/uber-electric-ev-driver-4000-grant-price",
-    "news_source": "The Verge",
-    "published_at": "2025-10-22T11:00:00Z",
-    "analyzed_at": "2025-10-23T18:24:54.560970"
-  },
-  {
-    "importance": 3,
-    "impact_summary": "This news could create uncertainty around NASA's Artemis program and impact SpaceX's standing as a key contractor, potentially affecting the company's stock performance.",
-    "affected_sectors": [
-      "Aerospace & Defense",
-      "Government Contracting"
-    ],
-    "affected_stocks": [
-      "TSLA"
-    ],
-    "sentiment": "negative",
-    "time_sensitivity": "short-term",
-    "key_points": [
-      "Elon Musk, CEO of SpaceX, criticized NASA's acting administrator amid a debate over the Artemis lunar lander program.",
-      "SpaceX is a key contractor for the Artemis program, responsible for developing the lunar lander, and any delays or issues could impact the program's progress.",
-      "The criticisms from Musk towards NASA's leadership could create uncertainty and tensions, potentially affecting SpaceX's standing as a trusted government contractor.",
-      "The news could have a short-term negative impact on Tesla's stock (TSLA) as Musk's involvement and public statements can influence investor sentiment.",
-      "The ongoing leadership and contract disputes within the Artemis program could introduce volatility in the aerospace and defense sector, particularly for companies involved in government space contracts."
-    ],
-    "news_title": "Musk criticizes Duffy amid NASA leadership debate - SpaceNews",
-    "news_url": "http://spacenews.com/musk-criticizes-duffy-amid-nasa-leadership-debate/",
-    "news_source": "SpaceNews",
-    "published_at": "2025-10-22T10:44:48Z",
-    "analyzed_at": "2025-10-23T18:24:58.881333"
-  },
-  {
-    "importance": 3,
-    "impact_summary": "This news could impact pharmaceutical companies and healthcare sector stocks as it introduces a new payment model for medications that bypasses insurance, which may affect drug pricing and sales.",
-    "affected_sectors": [
-      "Healthcare",
-      "Pharmaceuticals"
-    ],
-    "affected_stocks": [
-      "PFE",
-      "LLY",
-      "ABBV",
-      "JNJ"
-    ],
-    "sentiment": "Positive",
+    "sentiment": "Bearish",
     "time_sensitivity": "Short-term",
     "key_points": [
-      "Companies are pitching a new payment model for employers to help their workers pay for medications directly, without using insurance.",
-      "This model aims to lower costs for both employers and employees by bypassing the traditional insurance system.",
-      "The initiative is being driven by pharma companies and the Trump administration's efforts to sell branded medications directly to cash-paying consumers.",
-      "This could impact drug pricing and sales for pharmaceutical companies, as well as the overall healthcare sector.",
-      "The new payment model presents a potential business opportunity for the companies involved in promoting it."
+      "Tesla stock declined due to weak vehicle sales in China and Europe",
+      "Potential opposition to Elon Musk's pay package from Norway's sovereign wealth fund",
+      "The news could negatively impact Tesla's market performance and investor sentiment",
+      "The impact is expected to be felt in the short-term"
     ],
-    "news_title": "Companies tout a novel payment model for obesity drugs, other medications in drive to lower costs - statnews.com",
-    "news_url": "https://www.statnews.com/2025/10/22/startups-mix-lower-insurance-premiums-with-subsidized-cash-drug-purchases/",
-    "news_source": "STAT",
-    "published_at": "2025-10-22T08:33:58Z",
-    "analyzed_at": "2025-10-23T18:25:02.677311"
-  },
-  {
-    "importance": 2,
-    "impact_summary": "The NHL's deal with prediction market platforms Kalshi and Polymarket may increase competition and pressure on traditional sports betting companies.",
-    "affected_sectors": [
-      "Sports Betting",
-      "Gaming"
-    ],
-    "affected_stocks": [
-      "DKNG",
-      "CZR",
-      "PENN"
-    ],
-    "sentiment": "neutral",
-    "time_sensitivity": "short-term",
-    "key_points": [
-      "The NHL has partnered with prediction market platforms Kalshi and Polymarket to offer fans new ways to engage with the league.",
-      "This deal could increase competition and pressure on traditional sports betting companies like DraftKings, Caesars, and Penn National Gaming.",
-      "Prediction markets offer a different product compared to traditional sports betting, which may appeal to some sports fans.",
-      "However, the impact on the stock prices of affected companies is likely to be modest, as the deal is still relatively small in scale.",
-      "The long-term implications will depend on the adoption and growth of prediction markets in the sports betting industry."
-    ],
-    "news_title": "NHL Deal With Kalshi, Polymarket Adds to Pressure on Sports-Betting Companies - The Wall Street Journal",
-    "news_url": "https://www.wsj.com/finance/investing/nhl-deal-with-kalshi-polymarket-adds-to-pressure-on-sports-betting-companies-2b06ebeb",
-    "news_source": "The Wall Street Journal",
-    "published_at": "2025-10-22T20:38:00Z",
-    "analyzed_at": "2025-10-23T18:23:57.358331"
-  },
-  {
-    "importance": 2,
-    "impact_summary": "The surge in wholesale turkey prices ahead of Thanksgiving may impact consumer spending and profits for companies in the food and retail sectors.",
-    "affected_sectors": [
-      "Food & Beverage",
-      "Retail"
-    ],
-    "affected_stocks": [
-      "WMT",
-      "TGT",
-      "KR",
-      "CAG",
-      "HRL"
-    ],
-    "sentiment": "negative",
-    "time_sensitivity": "short-term",
-    "key_points": [
-      "Wholesale prices for frozen turkeys are expected to increase by 40% compared to last year, reaching $1.32 per pound.",
-      "The price surge is due to a combination of factors, including supply chain disruptions, labor shortages, and higher feed and transportation costs.",
-      "The higher wholesale prices may lead to higher retail prices for consumers, potentially impacting their Thanksgiving meal budgets and spending in the retail sector.",
-      "Companies in the food and retail sectors, such as Walmart, Target, Kroger, ConAgra, and Hormel, may see pressure on profit margins due to the increased turkey costs.",
-      "The impact is expected to be short-term, as it is focused on the Thanksgiving holiday period and may not have a lasting effect on the broader stock market."
-    ],
-    "news_title": "Wholesale turkey prices soar ahead of Thanksgiving. Here's what's behind the surge. - CBS News",
-    "news_url": "https://www.cbsnews.com/news/turkey-price-increase-thanksgiving-2025/",
-    "news_source": "CBS News",
-    "published_at": "2025-10-22T20:07:00Z",
-    "analyzed_at": "2025-10-23T18:24:10.095220"
-  },
-  {
-    "importance": 2,
-    "impact_summary": "This news could raise concerns about potential conflicts of interest and impact the public perception of the Trump administration's crypto-related activities.",
-    "affected_sectors": [
-      "Financial Services",
-      "Cryptocurrency"
-    ],
-    "affected_stocks": [
-      "COIN",
-      "RIOT",
-      "MARA"
-    ],
-    "sentiment": "negative",
-    "time_sensitivity": "short-term",
-    "key_points": [
-      "Senate Democrats are demanding details on Trump advisor Steve Witkoff's personal crypto investments and lack of divestment.",
-      "Witkoff, who serves as a special envoy to the Middle East, reported in August that he still owned a Trump-linked cryptocurrency.",
-      "This raises questions about potential conflicts of interest and the Trump administration's handling of cryptocurrency-related matters.",
-      "The news could impact public perception of the administration's credibility and transparency, particularly regarding its dealings in the crypto space.",
-      "While not a major market-moving event, this news could lead to increased scrutiny and volatility in the cryptocurrency sector in the short term."
-    ],
-    "news_title": "Exclusive: Senate Democrats demand top Trump advisor Steve Witkoff provide details on crypto investments, lack of divestment - Fortune",
-    "news_url": "https://fortune.com/crypto/2025/10/22/adam-schiff-senators-steve-witkoff-trump-uae-world-liberty-financial/",
-    "news_source": "Fortune",
-    "published_at": "2025-10-22T11:00:00Z",
-    "analyzed_at": "2025-10-23T18:24:50.505032"
+    "reasoning": "The news is considered very important as it directly affects Tesla, a major player in the automotive industry. The decline in vehicle sales and potential opposition to Musk's pay package could have a significant impact on the company's financial performance and investor confidence, which is why the importance is rated as 4.",
+    "news_title": "What's Going On With Tesla Stock Today?",
+    "news_url": "https://www.benzinga.com/trading-ideas/movers/25/11/48627471/whats-going-on-with-tesla-stock-today-12?utm_source=benzinga_taxonomy&utm_medium=rss_feed_free&utm_content=taxonomy_rss&utm_campaign=channel",
+    "news_source": "Benzinga",
+    "published_at": "2025-11-04T16:42:10Z",
+    "image_url": "https://cdn.benzinga.com/files/images/story/2025/11/04/Elon-Musk-Tesla-Shutterstock.jpeg?width=1200&height=800&fit=crop",
+    "analyzed_at": "2025-11-04T14:53:41.359097"
   }
 ]
