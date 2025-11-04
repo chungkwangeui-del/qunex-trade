@@ -202,7 +202,7 @@ class PolygonService:
 
     def get_gainers_losers(self, direction: str = 'gainers') -> List[Dict]:
         """
-        Get top gainers or losers
+        Get top gainers or losers (filtered to exclude penny stocks)
 
         Args:
             direction: 'gainers' or 'losers'
@@ -214,16 +214,32 @@ class PolygonService:
             return []
 
         results = data.get('tickers', [])
-        return [{
-            'ticker': r.get('ticker'),
-            'price': r.get('lastTrade', {}).get('p'),
-            'change': r.get('todaysChange'),
-            'change_percent': r.get('todaysChangePerc'),
-            'volume': r.get('day', {}).get('v'),
-            'day_high': r.get('day', {}).get('h'),
-            'day_low': r.get('day', {}).get('l'),
-            'day_open': r.get('day', {}).get('o'),
-        } for r in results[:20]]  # Top 20
+
+        # Filter results: price must be >= $5 and have valid price data
+        filtered = []
+        for r in results:
+            price = r.get('lastTrade', {}).get('p') or r.get('day', {}).get('c')
+
+            # Skip if no price or price < $5 (penny stocks)
+            if not price or price < 5:
+                continue
+
+            filtered.append({
+                'ticker': r.get('ticker'),
+                'price': price,
+                'change': r.get('todaysChange'),
+                'change_percent': r.get('todaysChangePerc'),
+                'volume': r.get('day', {}).get('v'),
+                'day_high': r.get('day', {}).get('h'),
+                'day_low': r.get('day', {}).get('l'),
+                'day_open': r.get('day', {}).get('o'),
+            })
+
+            # Return top 15 after filtering
+            if len(filtered) >= 15:
+                break
+
+        return filtered
 
     def get_market_status(self) -> Optional[Dict]:
         """Get current market status (open/closed)"""
@@ -327,13 +343,13 @@ class PolygonService:
         }
 
     def get_market_indices(self) -> Dict[str, Dict]:
-        """Get major market indices (SPY, QQQ, DIA as proxies)"""
+        """Get major market indices using actual index tickers"""
         indices = {
-            'SPY': 'S&P 500',
-            'QQQ': 'NASDAQ',
-            'DIA': 'Dow Jones',
-            'IWM': 'Russell 2000',
-            'VIX': 'Volatility Index'
+            'I:DJI': 'Dow Jones',
+            'I:NDX': 'NASDAQ 100',
+            'I:SPX': 'S&P 500',
+            'I:RUT': 'Russell 2000',
+            'I:VIX': 'VIX'
         }
 
         result = {}
@@ -346,7 +362,7 @@ class PolygonService:
                     'open': data['open'],
                     'high': data['high'],
                     'low': data['low'],
-                    'volume': data['volume'],
+                    'volume': data.get('volume', 0),
                     'change': data['close'] - data['open'],
                     'change_percent': ((data['close'] - data['open']) / data['open'] * 100) if data['open'] else 0
                 }
