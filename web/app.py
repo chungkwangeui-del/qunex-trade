@@ -251,6 +251,11 @@ def screener():
     """Stock Screener - Filter stocks by criteria"""
     return render_template('screener.html', user=current_user)
 
+@app.route('/calendar')
+def calendar():
+    """Economic Calendar - Major economic events"""
+    return render_template('calendar.html', user=current_user)
+
 @app.route('/news')
 def news():
     """Market News & Analysis (Beta/Developer Only)"""

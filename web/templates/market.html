@@ -159,6 +159,7 @@
             display: flex;
             align-items: center;
             gap: 15px;
+            flex-wrap: wrap;
         }
 
         .status-indicator {
@@ -170,6 +171,18 @@
             border: 1px solid var(--border);
             border-radius: 20px;
             font-size: 0.85em;
+        }
+
+        .last-updated {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            font-size: 0.85em;
+            color: var(--text-secondary);
         }
 
         .status-dot {
@@ -517,6 +530,9 @@
                     <div class="status-dot"></div>
                     <span>Loading...</span>
                 </div>
+                <div class="last-updated" id="last-updated">
+                    <span>Updated: <span id="update-time">Loading...</span></span>
+                </div>
             </div>
         </div>
 
@@ -749,6 +765,18 @@
             loadIndices();
             loadSectors();
             loadMovers();
+            updateLastUpdated();
+        }
+
+        // Update last updated timestamp
+        function updateLastUpdated() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            document.getElementById('update-time').textContent = timeString;
         }
 
         // Initial load
@@ -756,6 +784,9 @@
 
         // Auto-refresh every 60 seconds
         setInterval(loadAllData, 60000);
+
+        // Update timestamp every second
+        setInterval(updateLastUpdated, 1000);
     </script>
 </body>
 </html>
