@@ -741,95 +741,113 @@
             <div class="header-content">
                 <div>
                     <h1>Qunex Trade</h1>
-                    <p class="subtitle">AI-Powered Stock Market Intelligence Platform</p>
+                    <p class="subtitle">Professional Trading Intelligence Platform</p>
                     <div class="model-info">
                         <span class="badge">Real-Time Market Data</span>
                         <span class="badge">AI News Analysis</span>
-                        <span class="badge">Trading Signals</span>
+                        <span class="badge">Advanced Tools</span>
                     </div>
                 </div>
                 <div class="live-badge">
                     <span class="pulse"></span>
-                    <span>LIVE SIGNALS</span>
+                    <span>LIVE DATA</span>
                 </div>
             </div>
         </header>
 
-        <!-- Stats Grid (Trading Signals Performance) -->
+        <!-- Features Grid -->
         <div class="stats-grid">
             <div class="stat-card">
-                <div class="stat-label">Total Signals</div>
-                <div class="stat-value">{{ stats.total_signals }}</div>
+                <div class="stat-label">Market Dashboard</div>
+                <div class="stat-value" style="font-size: 2.5em;">📊</div>
+                <p style="color: var(--text-secondary); margin-top: 10px;">
+                    Real-time indices, sector performance, and market movers
+                </p>
+                <a href="/market" class="btn-secondary" style="margin-top: 15px; display: inline-block;">
+                    View Dashboard →
+                </a>
             </div>
             <div class="stat-card">
-                <div class="stat-label">Success Rate</div>
-                <div class="stat-value success">{{ "%.1f"|format(stats.success_rate) }}%</div>
+                <div class="stat-label">Stock Screener</div>
+                <div class="stat-value" style="font-size: 2.5em;">🔍</div>
+                <p style="color: var(--text-secondary); margin-top: 10px;">
+                    Filter stocks by price, volume, and performance criteria
+                </p>
+                <a href="/screener" class="btn-secondary" style="margin-top: 15px; display: inline-block;">
+                    Screen Stocks →
+                </a>
             </div>
             <div class="stat-card">
-                <div class="stat-label">Win Rate</div>
-                <div class="stat-value success">{{ "%.1f"|format(stats.win_rate) }}%</div>
+                <div class="stat-label">Economic Calendar</div>
+                <div class="stat-value" style="font-size: 2.5em;">📅</div>
+                <p style="color: var(--text-secondary); margin-top: 10px;">
+                    Track major economic events with live countdown timers
+                </p>
+                <a href="/calendar" class="btn-secondary" style="margin-top: 15px; display: inline-block;">
+                    View Calendar →
+                </a>
             </div>
             <div class="stat-card">
-                <div class="stat-label">Average Return</div>
-                <div class="stat-value {% if stats.avg_return >= 50 %}success{% else %}warning{% endif %}">
-                    {{ "%.1f"|format(stats.avg_return) }}%
-                </div>
+                <div class="stat-label">AI News Analysis</div>
+                <div class="stat-value" style="font-size: 2.5em;">🤖</div>
+                <p style="color: var(--text-secondary); margin-top: 10px;">
+                    AI-powered market news with impact analysis and ratings
+                </p>
+                <a href="/news" class="btn-secondary" style="margin-top: 15px; display: inline-block;">
+                    Read News →
+                </a>
             </div>
         </div>
 
-        <!-- Upgrade Banner (for free users) -->
-        {% if show_upgrade_banner %}
-        <div class="upgrade-banner">
-            <div>
-                <h3>Unlock All {{ total_signals }} Signals</h3>
-                <p>You're seeing 3 of {{ total_signals }} high-confidence signals. Upgrade to Pro for unlimited access!</p>
-            </div>
-            <a href="/payments/pricing" class="btn-primary">Upgrade to Pro - $19.99/mo</a>
-        </div>
-        {% endif %}
-
-        <!-- Today's Signals -->
+        <!-- Why Choose Qunex Trade -->
         <div class="section">
             <div class="section-header">
-                <h2>Today's Signals</h2>
-                <span class="badge">{% if user.is_authenticated and user.is_pro() %}All Signals{% else %}Free: 3 Signals{% endif %}</span>
+                <h2>Why Choose Qunex Trade?</h2>
             </div>
 
-            {% if today_signals %}
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Ticker</th>
-                            <th>Probability</th>
-                            <th>Current Price</th>
-                            <th>Volume</th>
-                            <th>RSI (14)</th>
-                            <th>Trade Date</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for signal in today_signals %}
-                        <tr>
-                            <td><span class="ticker">{{ signal.ticker }}</span></td>
-                            <td><span class="probability">{{ "%.1f"|format(signal.predicted_probability * 100) }}%</span></td>
-                            <td>${{ "%.4f"|format(signal.Close) }}</td>
-                            <td>{{ "{:,}".format(signal.Volume|int) }}</td>
-                            <td>{{ "%.1f"|format(signal.rsi_14) if signal.rsi_14 else 'N/A' }}</td>
-                            <td>{{ signal.trade_date }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+            <div class="news-preview-grid">
+                <div class="news-preview-card feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h4>Real-Time Data</h4>
+                    <p>Live market indices, sector performance, gainers, and losers updated every 60 seconds</p>
+                    <p style="color: var(--primary); font-weight: 600; margin-top: 10px;">Powered by Polygon.io</p>
+                </div>
+
+                <div class="news-preview-card feature-card">
+                    <div class="feature-icon">🎯</div>
+                    <h4>Advanced Screening</h4>
+                    <p>Filter stocks by price, volume, and performance with customizable criteria</p>
+                    <p style="color: var(--primary); font-weight: 600; margin-top: 10px;">Find opportunities fast</p>
+                </div>
+
+                <div class="news-preview-card feature-card">
+                    <div class="feature-icon">📰</div>
+                    <h4>AI News Analysis</h4>
+                    <p>Claude AI analyzes market impact, identifies affected stocks and sectors automatically</p>
+                    <p style="color: var(--primary); font-weight: 600; margin-top: 10px;">Stay ahead of the market</p>
+                </div>
+
+                <div class="news-preview-card feature-card">
+                    <div class="feature-icon">⏰</div>
+                    <h4>Event Tracking</h4>
+                    <p>Never miss FOMC meetings, NFP reports, CPI releases with live countdown timers</p>
+                    <p style="color: var(--primary); font-weight: 600; margin-top: 10px;">Time-sensitive alerts</p>
+                </div>
+
+                <div class="news-preview-card feature-card">
+                    <div class="feature-icon">💼</div>
+                    <h4>Professional Grade</h4>
+                    <p>Built for serious traders who need reliable data and powerful analysis tools</p>
+                    <p style="color: var(--primary); font-weight: 600; margin-top: 10px;">Institutional quality</p>
+                </div>
+
+                <div class="news-preview-card feature-card">
+                    <div class="feature-icon">🚀</div>
+                    <h4>Fast & Clean UI</h4>
+                    <p>Modern, responsive interface designed for speed and ease of use across all devices</p>
+                    <p style="color: var(--primary); font-weight: 600; margin-top: 10px;">Built for performance</p>
+                </div>
             </div>
-            {% else %}
-            <div class="empty-state">
-                <div class="empty-state-icon">?</div>
-                <h3>No Signals Today</h3>
-                <p>No high-confidence predictions (90%+) found for next trading day.</p>
-                <p>Signals are generated daily at 4:05 PM ET after market close.</p>
-            </div>
-            {% endif %}
         </div>
 
         <!-- Market News Section -->
@@ -877,42 +895,40 @@
             </div>
         </div>
 
-        <!-- 30 Day Performance -->
+        <!-- Get Started Section -->
         <div class="section">
             <div class="section-header">
-                <h2>Last 30 Days Performance</h2>
+                <h2>Get Started</h2>
             </div>
 
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-label">Tracked</div>
-                    <div class="stat-value">{{ stats_30d.total_tracked }}</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">Success (50%+)</div>
-                    <div class="stat-value success">{{ stats_30d.success_count }}</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">Partial (0-50%)</div>
-                    <div class="stat-value warning">{{ stats_30d.partial_count }}</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">Failed</div>
-                    <div class="stat-value">{{ stats_30d.failed_count }}</div>
+            <div style="text-align: center; padding: 40px;">
+                <h3 style="font-size: 2em; margin-bottom: 20px; background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                    Ready to Level Up Your Trading?
+                </h3>
+                <p style="font-size: 1.2em; color: var(--text-secondary); margin-bottom: 30px;">
+                    Access all professional tools and real-time data. Start making better trading decisions today.
+                </p>
+                <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
+                    <a href="/auth/signup" class="btn-primary" style="font-size: 1.1em; padding: 15px 35px;">
+                        Sign Up Free
+                    </a>
+                    <a href="/market" class="btn-secondary" style="font-size: 1.1em; padding: 15px 35px;">
+                        Try Market Dashboard
+                    </a>
                 </div>
             </div>
         </div>
 
         <!-- Footer -->
         <footer>
-            <p><span class="gradient-text">Qunex Trade</span> - AI-Powered Stock Market Intelligence Platform</p>
-            <p>Real-Time Market Data • AI News Analysis • Trading Signals</p>
+            <p><span class="gradient-text">Qunex Trade</span> - Professional Trading Intelligence Platform</p>
+            <p>Real-Time Market Data • Stock Screener • Economic Calendar • AI News Analysis</p>
             <p style="margin-top: 15px; font-size: 0.9em;">
                 <a href="/terms" style="color: var(--primary); text-decoration: none; margin: 0 10px;">Terms of Service</a> •
                 <a href="/privacy" style="color: var(--primary); text-decoration: none; margin: 0 10px;">Privacy Policy</a>
             </p>
             <p style="margin-top: 10px; font-size: 0.85em; color: var(--text-secondary);">
-                ⚠️ Educational purposes only. Not financial advice. Invest at your own risk.
+                ⚠️ Data provided for informational purposes only. Not financial advice. Trading involves risk of loss.
             </p>
             <p style="margin-top: 10px; font-size: 0.85em;">Last updated: <span id="current-time"></span></p>
         </footer>
