@@ -241,6 +241,16 @@ def privacy():
     """Privacy Policy"""
     return render_template('privacy.html')
 
+@app.route('/market')
+def market():
+    """Market Dashboard - Real-time indices, sectors, and movers"""
+    return render_template('market.html', user=current_user)
+
+@app.route('/screener')
+def screener():
+    """Stock Screener - Filter stocks by criteria"""
+    return render_template('screener.html', user=current_user)
+
 @app.route('/news')
 def news():
     """Market News & Analysis (Beta/Developer Only)"""

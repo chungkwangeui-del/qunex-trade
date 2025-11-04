@@ -268,3 +268,70 @@ def get_batch_quotes():
         'quotes': quotes,
         'timestamp': datetime.now().isoformat()
     })
+
+
+@api_polygon.route('/api/market/indices')
+def get_indices():
+    """Get major market indices (S&P 500, NASDAQ, Dow Jones, etc.)"""
+    polygon = get_polygon_service()
+    indices = polygon.get_market_indices()
+
+    if not indices:
+        return jsonify({'error': 'Indices data not available'}), 500
+
+    return jsonify({
+        'indices': indices,
+        'timestamp': datetime.now().isoformat()
+    })
+
+
+@api_polygon.route('/api/market/sectors')
+def get_sectors():
+    """Get sector performance data"""
+    polygon = get_polygon_service()
+    sectors = polygon.get_sector_performance()
+
+    if not sectors:
+        return jsonify({'error': 'Sector data not available'}), 500
+
+    return jsonify({
+        'sectors': sectors,
+        'count': len(sectors),
+        'timestamp': datetime.now().isoformat()
+    })
+
+
+@api_polygon.route('/api/market/screener')
+def stock_screener():
+    """
+    Screen stocks based on criteria
+    Query params:
+      - min_volume: Minimum volume
+      - min_price: Minimum price
+      - max_price: Maximum price
+      - min_change_percent: Minimum % change
+      - max_change_percent: Maximum % change
+    """
+    criteria = {}
+
+    # Parse criteria from query params
+    if request.args.get('min_volume'):
+        criteria['min_volume'] = int(request.args.get('min_volume'))
+    if request.args.get('min_price'):
+        criteria['min_price'] = float(request.args.get('min_price'))
+    if request.args.get('max_price'):
+        criteria['max_price'] = float(request.args.get('max_price'))
+    if request.args.get('min_change_percent'):
+        criteria['min_change_percent'] = float(request.args.get('min_change_percent'))
+    if request.args.get('max_change_percent'):
+        criteria['max_change_percent'] = float(request.args.get('max_change_percent'))
+
+    polygon = get_polygon_service()
+    results = polygon.screen_stocks(criteria)
+
+    return jsonify({
+        'criteria': criteria,
+        'count': len(results),
+        'results': results,
+        'timestamp': datetime.now().isoformat()
+    })

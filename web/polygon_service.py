@@ -316,6 +316,131 @@ class PolygonService:
             'low_52w': min(closes) if closes else None,
         }
 
+    def get_market_indices(self) -> Dict[str, Dict]:
+        """Get major market indices (SPY, QQQ, DIA as proxies)"""
+        indices = {
+            'SPY': 'S&P 500',
+            'QQQ': 'NASDAQ',
+            'DIA': 'Dow Jones',
+            'IWM': 'Russell 2000',
+            'VIX': 'Volatility Index'
+        }
+
+        result = {}
+        for ticker, name in indices.items():
+            data = self.get_previous_close(ticker)
+            if data:
+                result[ticker] = {
+                    'name': name,
+                    'price': data['close'],
+                    'open': data['open'],
+                    'high': data['high'],
+                    'low': data['low'],
+                    'volume': data['volume'],
+                    'change': data['close'] - data['open'],
+                    'change_percent': ((data['close'] - data['open']) / data['open'] * 100) if data['open'] else 0
+                }
+
+        return result
+
+    def get_sector_performance(self) -> List[Dict]:
+        """Get sector ETF performance as proxy for sector performance"""
+        sectors = {
+            'XLK': 'Technology',
+            'XLF': 'Financial',
+            'XLV': 'Healthcare',
+            'XLE': 'Energy',
+            'XLI': 'Industrial',
+            'XLY': 'Consumer Discretionary',
+            'XLP': 'Consumer Staples',
+            'XLB': 'Materials',
+            'XLRE': 'Real Estate',
+            'XLU': 'Utilities',
+            'XLC': 'Communication'
+        }
+
+        result = []
+        for ticker, name in sectors.items():
+            data = self.get_previous_close(ticker)
+            if data:
+                change_pct = ((data['close'] - data['open']) / data['open'] * 100) if data['open'] else 0
+                result.append({
+                    'ticker': ticker,
+                    'sector': name,
+                    'price': data['close'],
+                    'change': data['close'] - data['open'],
+                    'change_percent': change_pct,
+                    'volume': data['volume']
+                })
+
+        # Sort by performance
+        result.sort(key=lambda x: x['change_percent'], reverse=True)
+        return result
+
+    def screen_stocks(self, criteria: Dict) -> List[Dict]:
+        """
+        Screen stocks based on criteria
+
+        Criteria examples:
+        - min_volume: Minimum volume
+        - min_price: Minimum price
+        - max_price: Maximum price
+        - min_change_percent: Minimum % change
+        - max_change_percent: Maximum % change
+        """
+        # Get all stocks snapshot (this returns active stocks)
+        endpoint = '/v2/snapshot/locale/us/markets/stocks/tickers'
+        data = self._make_request(endpoint)
+
+        if not data or data.get('status') != 'OK':
+            return []
+
+        tickers = data.get('tickers', [])
+        results = []
+
+        for ticker_data in tickers[:500]:  # Limit to 500 for performance
+            ticker = ticker_data.get('ticker', '')
+            day = ticker_data.get('day', {})
+            prev_day = ticker_data.get('prevDay', {})
+            last_trade = ticker_data.get('lastTrade', {})
+
+            if not day or not prev_day:
+                continue
+
+            price = day.get('c', 0)
+            volume = day.get('v', 0)
+            prev_close = prev_day.get('c', 1)
+
+            # Calculate metrics
+            change = price - prev_close
+            change_percent = (change / prev_close * 100) if prev_close else 0
+
+            # Apply criteria
+            if criteria.get('min_volume') and volume < criteria['min_volume']:
+                continue
+            if criteria.get('min_price') and price < criteria['min_price']:
+                continue
+            if criteria.get('max_price') and price > criteria['max_price']:
+                continue
+            if criteria.get('min_change_percent') and change_percent < criteria['min_change_percent']:
+                continue
+            if criteria.get('max_change_percent') and change_percent > criteria['max_change_percent']:
+                continue
+
+            results.append({
+                'ticker': ticker,
+                'price': price,
+                'change': change,
+                'change_percent': change_percent,
+                'volume': volume,
+                'day_high': day.get('h'),
+                'day_low': day.get('l'),
+                'day_open': day.get('o'),
+                'prev_close': prev_close
+            })
+
+        return results
+
 
 # Singleton instance
 _polygon_instance = None
