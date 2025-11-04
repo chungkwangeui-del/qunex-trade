@@ -301,6 +301,33 @@ def get_sectors():
     })
 
 
+@api_polygon.route('/api/market/health')
+def health_check():
+    """Check if Polygon API is configured and working"""
+    import os
+    polygon = get_polygon_service()
+
+    # Check API key
+    api_key_set = bool(os.getenv('POLYGON_API_KEY'))
+    api_key_preview = f"{os.getenv('POLYGON_API_KEY', '')[:8]}..." if api_key_set else "NOT SET"
+
+    # Try a simple API call
+    try:
+        status = polygon.get_market_status()
+        api_working = status is not None
+    except Exception as e:
+        api_working = False
+        status = {'error': str(e)}
+
+    return jsonify({
+        'api_key_configured': api_key_set,
+        'api_key_preview': api_key_preview,
+        'api_working': api_working,
+        'market_status': status,
+        'timestamp': datetime.now().isoformat()
+    })
+
+
 @api_polygon.route('/api/market/screener')
 def stock_screener():
     """

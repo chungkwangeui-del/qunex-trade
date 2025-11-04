@@ -21,6 +21,10 @@ class PolygonService:
     def _make_request(self, endpoint: str, params: Dict = None) -> Dict:
         """Make API request with error handling"""
         try:
+            if not self.api_key:
+                print("[Polygon API Error] API key not set! Check POLYGON_API_KEY environment variable")
+                return None
+
             url = f"{self.base_url}{endpoint}"
             if params is None:
                 params = {}
@@ -28,9 +32,15 @@ class PolygonService:
 
             response = self.session.get(url, params=params, timeout=10)
             response.raise_for_status()
-            return response.json()
+            data = response.json()
+
+            # Log API errors
+            if data.get('status') == 'ERROR':
+                print(f"[Polygon API Error] {endpoint}: {data.get('error', 'Unknown error')}")
+
+            return data
         except requests.exceptions.RequestException as e:
-            print(f"[Polygon API Error] {e}")
+            print(f"[Polygon API Error] {endpoint}: {e}")
             return None
 
     def get_stock_quote(self, ticker: str) -> Optional[Dict]:
