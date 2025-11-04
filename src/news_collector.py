@@ -49,13 +49,35 @@ class NewsCollector:
 
         news_items = []
 
-        # Financial and market keywords (focus on important news)
-        keywords = [
-            'Federal Reserve', 'Fed', 'interest rate', 'inflation', 'CPI',
-            'earnings', 'GDP', 'unemployment', 'Treasury', 'stock market crash',
-            'market rally', 'recession', 'economic data', 'jobless claims',
-            'FOMC', 'Powell', 'S&P 500', 'Nasdaq', 'Dow Jones'
+        # PRIORITY 1: Macro/Policy news (affects entire market)
+        macro_keywords = [
+            'Trump policy', 'Trump tariff', 'Biden administration',
+            'Federal Reserve', 'Fed', 'Jerome Powell', 'FOMC',
+            'interest rate', 'rate cut', 'rate hike',
+            'inflation', 'CPI', 'PCE inflation',
+            'GDP', 'economic growth', 'recession',
+            'unemployment', 'jobless claims', 'NFP',
+            'Treasury', 'Treasury yield', 'bond market',
+            'government shutdown', 'debt ceiling',
+            'tax policy', 'fiscal policy', 'stimulus'
         ]
+
+        # PRIORITY 2: Market-moving events
+        market_keywords = [
+            'stock market crash', 'market crash', 'market selloff',
+            'market rally', 'bull market', 'bear market',
+            'S&P 500', 'Nasdaq', 'Dow Jones',
+            'VIX', 'volatility', 'market correction'
+        ]
+
+        # PRIORITY 3: Sector/Company news
+        sector_keywords = [
+            'tech earnings', 'bank earnings', 'energy sector',
+            'semiconductor', 'AI stocks', 'crypto regulation'
+        ]
+
+        # Combine all keywords (macro gets priority)
+        keywords = macro_keywords + market_keywords + sector_keywords
 
         for keyword in keywords:
             try:

@@ -49,7 +49,8 @@ Provide your analysis in the following JSON format:
     "importance": <1-5 integer, where 5=critical market-moving, 4=very important, 3=important, 2=minor, 1=irrelevant>,
     "credibility": <1-5 integer, where 5=highly credible, 4=credible, 3=somewhat credible, 2=questionable, 1=unreliable>,
     "impact_summary": "<2-3 sentence summary of market impact>",
-    "affected_stocks": ["<stock tickers that will be affected, max 5>"],
+    "market_wide_impact": <true/false - true if affects entire market (Fed policy, Trump policy, GDP, inflation, etc.), false if only specific stocks/sectors>,
+    "affected_stocks": ["<stock tickers that will be affected, max 5. Use 'MARKET-WIDE' if affects entire market>"],
     "affected_sectors": ["<sectors affected, max 3>"],
     "sentiment": "<bullish/bearish/neutral>",
     "time_sensitivity": "<immediate/short-term/long-term>",
@@ -58,10 +59,13 @@ Provide your analysis in the following JSON format:
 }}
 
 IMPORTANT CRITERIA:
-- Only give 5 stars to: Federal Reserve decisions, major economic data (CPI, jobs), market crashes/rallies, major policy changes
-- Give 4 stars to: Significant earnings, major company news, important economic indicators, geopolitical events
+- Only give 5 stars to: Federal Reserve decisions, Trump/government policy changes, major economic data (CPI, GDP, jobs), market crashes/rallies, geopolitical crises
+- Give 4 stars to: Significant earnings, major company news, important economic indicators, sector-wide events
 - Give 3 stars to: Regular earnings, moderate company news, sector updates
 - Give 2 stars or below to: Minor news, speculation, opinion pieces, low-impact events
+
+- market_wide_impact should be TRUE for: Fed policy, Trump/Biden policy, GDP, inflation, unemployment, Treasury yields, market crashes, government decisions
+- market_wide_impact should be FALSE for: Individual company earnings, stock-specific news, sector-specific news
 
 - Credibility depends on source reputation and factual content (not speculation or opinion)
 
@@ -152,14 +156,22 @@ Respond ONLY with valid JSON, no additional text."""
                 print(f"[ERROR] Failed to analyze item {i}: {e}")
                 continue
 
-        # Sort by importance (highest first)
+        # Sort by: market_wide_impact first, then importance, then credibility
         analyzed_news.sort(
-            key=lambda x: (x.get('importance', 0), x.get('credibility', 0)),
+            key=lambda x: (
+                x.get('market_wide_impact', False),  # Market-wide news first
+                x.get('importance', 0),               # Then by importance
+                x.get('credibility', 0)               # Then by credibility
+            ),
             reverse=True
         )
 
+        # Count market-wide vs specific news
+        market_wide_count = len([n for n in analyzed_news if n.get('market_wide_impact', False)])
+
         print(f"\n{'='*60}")
         print(f"[SUCCESS] Analyzed {len(analyzed_news)} important news items")
+        print(f"  - Market-Wide Impact: {market_wide_count}")
         print(f"  - 5 stars: {len([n for n in analyzed_news if n.get('importance') == 5])}")
         print(f"  - 4 stars: {len([n for n in analyzed_news if n.get('importance') == 4])}")
         print(f"{'='*60}\n")

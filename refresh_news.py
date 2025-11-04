@@ -52,21 +52,26 @@ def main():
         analyzer.save_analysis(analyzed_news)
 
         # Step 4: Summary
+        market_wide = [n for n in analyzed_news if n.get('market_wide_impact', False)]
+
         print("\n" + "="*70)
         print("  SUMMARY")
         print("="*70)
         print(f"  Total collected: {len(news_list)} news items")
         print(f"  Important news: {len(analyzed_news)} items")
+        print(f"  Market-Wide Impact: {len(market_wide)} items (Fed, Trump, GDP, etc.)")
         print(f"  Critical (5 stars): {len([n for n in analyzed_news if n.get('importance') == 5])}")
         print(f"  Very Important (4 stars): {len([n for n in analyzed_news if n.get('importance') == 4])}")
-        print("\n  Top 5 Most Important News:")
+        print("\n  Top 5 Most Important News (Market-Wide First):")
         print("  " + "-"*66)
 
         for i, news in enumerate(analyzed_news[:5], 1):
             importance = news.get('importance', 0)
+            market_wide_flag = news.get('market_wide_impact', False)
             title = news.get('news_title', 'N/A')
             stars = '*' * importance
-            print(f"  {i}. [{stars}] {title[:50]}...")
+            label = "[MARKET-WIDE]" if market_wide_flag else "[SPECIFIC]"
+            print(f"  {i}. [{stars}] {label} {title[:40]}...")
 
         print("\n" + "="*70)
         print("  [SUCCESS] News updated and ready to display!")
