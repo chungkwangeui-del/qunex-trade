@@ -215,106 +215,6 @@
             color: var(--text-secondary);
         }
 
-        /* Economic Calendar */
-        .calendar-section {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 15px;
-            padding: 25px 30px;
-            margin-bottom: 30px;
-            position: relative;
-        }
-
-        .calendar-section.blurred .calendar-grid {
-            filter: blur(8px);
-            pointer-events: none;
-            user-select: none;
-        }
-
-        .calendar-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .calendar-title {
-            font-size: 1.3em;
-            font-weight: 700;
-            color: var(--primary);
-        }
-
-        .calendar-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 15px;
-        }
-
-        .calendar-event {
-            background: var(--bg-dark);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 15px;
-            transition: all 0.3s;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .calendar-event:hover {
-            transform: translateY(-3px);
-            border-color: var(--primary);
-            box-shadow: 0 5px 20px rgba(0, 217, 255, 0.15);
-        }
-
-        .calendar-event::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 4px;
-            height: 100%;
-            background: linear-gradient(180deg, var(--primary), var(--secondary));
-        }
-
-        .event-date {
-            font-size: 0.9em;
-            color: var(--primary);
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-
-        .event-time {
-            color: var(--text-secondary);
-            font-size: 0.85em;
-            margin-left: 8px;
-        }
-
-        .event-name {
-            font-size: 1em;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin-bottom: 8px;
-            line-height: 1.4;
-        }
-
-        .event-category {
-            display: inline-block;
-            padding: 4px 10px;
-            border-radius: 6px;
-            font-size: 0.75em;
-            font-weight: 600;
-            background: rgba(0, 217, 255, 0.1);
-            color: var(--primary);
-            border: 1px solid rgba(0, 217, 255, 0.2);
-        }
-
-        .event-countdown {
-            font-size: 0.85em;
-            color: var(--accent);
-            font-weight: 600;
-            margin-top: 8px;
-        }
-
         .filter-buttons {
             display: flex;
             gap: 10px;
@@ -608,43 +508,6 @@
             color: var(--text-secondary);
             font-size: 1.1em;
         }
-
-        /* Light Mode Overrides */
-        .dark-mode .calendar-section,
-        .dark-mode .locked-overlay {
-            background: rgba(232, 240, 247, 0.95);
-        }
-
-        .dark-mode .calendar-section {
-            background: var(--bg-card);
-            border-color: var(--border);
-        }
-
-        .dark-mode .locked-overlay {
-            background: rgba(212, 220, 229, 0.95);
-        }
-
-        .dark-mode .calendar-header h2,
-        .dark-mode .locked-title {
-            color: var(--text-primary);
-        }
-
-        .dark-mode .calendar-event {
-            background: rgba(255, 255, 255, 0.6);
-            border-color: var(--border);
-        }
-
-        .dark-mode .event-date,
-        .dark-mode .event-title,
-        .dark-mode .event-impact,
-        .dark-mode .locked-subtitle,
-        .dark-mode .locked-coming-soon {
-            color: var(--text-primary) !important;
-        }
-
-        .dark-mode .event-description {
-            color: var(--text-secondary) !important;
-        }
     </style>
     <link rel="stylesheet" href="{{ url_for('static', filename='light-mode.css') }}">
 </head>
@@ -683,38 +546,6 @@
             </button>
             <small id="last-update" style="margin-left: 15px; color: var(--text-secondary);"></small>
         </header>
-
-        <!-- Economic Calendar -->
-        <div class="calendar-section">
-            {% if not has_access %}
-            <div class="locked-overlay" style="position: absolute; z-index: 10;">
-                <div class="locked-content">
-                    {% if user_tier in ['pro', 'premium'] %}
-                    <div class="lock-icon">📅</div>
-                    <h3 class="locked-title" style="font-size: 1.5em;">Beta Feature</h3>
-                    <p class="locked-subtitle" style="font-size: 1em;">
-                        Economic Calendar is in beta testing. Coming soon to Pro+!
-                    </p>
-                    {% else %}
-                    <div class="lock-icon">📅</div>
-                    <h3 class="locked-title" style="font-size: 1.5em;">Economic Calendar Locked</h3>
-                    <p class="locked-subtitle" style="font-size: 1em;">
-                        Track critical Fed meetings and economic events - Coming soon!
-                    </p>
-                    {% endif %}
-                </div>
-            </div>
-            {% endif %}
-            <div class="calendar-header">
-                <h2 class="calendar-title">📅 Economic Calendar - Upcoming Critical Events</h2>
-            </div>
-            <div class="calendar-grid" id="calendar-events">
-                <!-- Calendar events will be loaded here -->
-                <div class="calendar-event">
-                    <div class="event-date">Loading calendar...</div>
-                </div>
-            </div>
-        </div>
 
         <!-- Filter Section -->
         <div class="filter-section">
@@ -770,12 +601,12 @@
                             <span>Affected stocks & sectors identification</span>
                         </div>
                         <div class="benefit-item">
-                            <span class="benefit-icon">📅</span>
-                            <span>Economic calendar with Fed meetings</span>
-                        </div>
-                        <div class="benefit-item">
                             <span class="benefit-icon">🔄</span>
                             <span>Real-time news updates</span>
+                        </div>
+                        <div class="benefit-item">
+                            <span class="benefit-icon">⚡</span>
+                            <span>Time-sensitive alerts for critical news</span>
                         </div>
                     </div>
 
@@ -982,67 +813,6 @@
             const allButton = document.querySelector('.filter-btn');
             allButton.classList.add('active');
         }
-
-        // Load Economic Calendar
-        function loadEconomicCalendar() {
-            fetch('/api/economic-calendar')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success && data.events.length > 0) {
-                        renderCalendarEvents(data.events);
-                    } else {
-                        document.getElementById('calendar-events').innerHTML =
-                            '<div class="calendar-event"><div class="event-date">No upcoming events</div></div>';
-                    }
-                })
-                .catch(error => {
-                    console.error('Calendar loading error:', error);
-                    document.getElementById('calendar-events').innerHTML =
-                        '<div class="calendar-event"><div class="event-date">Failed to load calendar</div></div>';
-                });
-        }
-
-        function renderCalendarEvents(events) {
-            const container = document.getElementById('calendar-events');
-            container.innerHTML = '';
-
-            // Show only next 5 events
-            events.slice(0, 5).forEach(event => {
-                const eventDiv = document.createElement('div');
-                eventDiv.className = 'calendar-event';
-
-                // Calculate days until
-                const eventDate = new Date(event.date);
-                const today = new Date();
-                const daysUntil = Math.ceil((eventDate - today) / (1000 * 60 * 60 * 24));
-
-                let countdownText = '';
-                if (daysUntil === 0) {
-                    countdownText = '🔴 TODAY';
-                } else if (daysUntil === 1) {
-                    countdownText = '🔶 Tomorrow';
-                } else if (daysUntil <= 7) {
-                    countdownText = `⚠️ In ${daysUntil} days`;
-                } else {
-                    countdownText = `In ${daysUntil} days`;
-                }
-
-                eventDiv.innerHTML = `
-                    <div class="event-date">
-                        ${event.date}
-                        <span class="event-time">${event.time}</span>
-                    </div>
-                    <div class="event-name">${event.event}</div>
-                    <span class="event-category">${event.category}</span>
-                    <div class="event-countdown">${countdownText}</div>
-                `;
-
-                container.appendChild(eventDiv);
-            });
-        }
-
-        // Load calendar on page load
-        loadEconomicCalendar();
 
         // Update last update time
         {% if news_data and news_data[0].analyzed_at %}

@@ -1,9 +1,18 @@
 /**
  * Light/Dark Mode Toggle
  * Qunex Trade - Theme Switcher
+ * IMPORTANT: This script must be loaded in <head> with defer attribute
  */
 
-// Theme toggle functionality
+// Apply theme IMMEDIATELY to prevent flash (inline in head)
+(function() {
+    const theme = localStorage.getItem('theme') || 'dark';
+    if (theme === 'light') {
+        document.documentElement.classList.add('light-mode');
+    }
+})();
+
+// Main theme toggle functionality (runs when script loads)
 (function() {
     'use strict';
 
@@ -21,6 +30,11 @@
         }
 
         // Update toggle button icon if it exists
+        updateToggleButton(theme);
+    };
+
+    // Update toggle button appearance
+    const updateToggleButton = (theme) => {
         const toggleBtn = document.getElementById('theme-toggle');
         if (toggleBtn) {
             toggleBtn.textContent = theme === 'light' ? '🌙' : '☀️';
@@ -36,22 +50,24 @@
         applyTheme(newTheme);
     };
 
-    // Apply theme on page load (before content paints to avoid flash)
-    applyTheme(getCurrentTheme());
-
     // Setup toggle button when DOM is ready
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', setupToggleButton);
-    } else {
-        setupToggleButton();
-    }
-
-    function setupToggleButton() {
+    const setupToggleButton = () => {
         const toggleBtn = document.getElementById('theme-toggle');
         if (toggleBtn) {
             toggleBtn.addEventListener('click', toggleTheme);
-            applyTheme(getCurrentTheme()); // Update button appearance
+            updateToggleButton(getCurrentTheme());
         }
+    };
+
+    // Initialize on DOM ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            applyTheme(getCurrentTheme());
+            setupToggleButton();
+        });
+    } else {
+        applyTheme(getCurrentTheme());
+        setupToggleButton();
     }
 
     // Expose toggle function globally
