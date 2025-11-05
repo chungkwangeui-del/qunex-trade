@@ -142,6 +142,22 @@
             box-shadow: 0 0 10px var(--glow);
         }
 
+        .btn-secondary {
+            background: transparent;
+            color: var(--primary);
+            padding: 10px 25px;
+            border: 1px solid var(--primary);
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 700;
+            transition: all 0.3s;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(0, 217, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
         /* Header */
         .header {
             margin-bottom: 40px;
@@ -570,9 +586,10 @@
                 <a href="/news" class="nav-link">News</a>
                 <a href="/about" class="nav-link">About</a>
                 {% if user and user.is_authenticated %}
-                    <a href="/auth/logout" class="nav-link">Logout</a>
+                    <a href="/auth/account" class="nav-link">Account</a>
+                    <a href="/auth/logout" class="btn-secondary">Logout</a>
                 {% else %}
-                    <a href="/auth/login" class="nav-link">Login</a>
+                    <a href="/auth/login" class="btn-secondary">Login</a>
                 {% endif %}
             </div>
         </nav>
@@ -971,13 +988,13 @@
                 const response = await fetch('/api/market/sectors');
                 const data = await response.json();
 
-                if (!data || data.length === 0) {
+                if (!data.sectors || data.sectors.length === 0) {
                     console.warn('No sector data available for chart');
                     return;
                 }
 
-                const labels = data.map(s => s.name.replace(' ETF', ''));
-                const percentChanges = data.map(s => s.change_percent || 0);
+                const labels = data.sectors.map(s => s.sector || s.name);
+                const percentChanges = data.sectors.map(s => s.change_percent || 0);
                 const colors = percentChanges.map(val => val >= 0 ? '#10b981' : '#ef4444');
 
                 sectorsChart = new Chart(ctx, {
@@ -1095,9 +1112,9 @@
             if (sectorsChart) {
                 const response = await fetch('/api/market/sectors');
                 const data = await response.json();
-                if (data && data.length > 0) {
-                    const labels = data.map(s => s.name.replace(' ETF', ''));
-                    const percentChanges = data.map(s => s.change_percent || 0);
+                if (data.sectors && data.sectors.length > 0) {
+                    const labels = data.sectors.map(s => s.sector || s.name);
+                    const percentChanges = data.sectors.map(s => s.change_percent || 0);
                     const colors = percentChanges.map(val => val >= 0 ? '#10b981' : '#ef4444');
 
                     sectorsChart.data.labels = labels;
