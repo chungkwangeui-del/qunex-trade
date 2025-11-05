@@ -6,6 +6,16 @@
     <title>Market News - Qunex Trade</title>
     <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
 
+    <!-- Apply theme immediately to prevent flash -->
+    <script>
+        (function() {
+            const theme = localStorage.getItem('theme') || 'dark';
+            if (theme === 'light') {
+                document.documentElement.classList.add('light-mode');
+            }
+        })();
+    </script>
+
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 

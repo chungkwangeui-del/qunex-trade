@@ -104,7 +104,10 @@
       "Bash(pip show:*)",
       "Bash(if [ -f \"data/news_analysis.json\" ])",
       "Bash(then python -c \"import json; data=json.load(open(''data/news_analysis.json'')); print(f''News items: {len(data)}''); print(f''Latest: {data[0][\"\"news_title\"\"] if data else \"\"No news\"\"}'')\")",
-      "Bash(else echo \"No news file\")"
+      "Bash(else echo \"No news file\")",
+      "Bash(for file in index.html market.html screener.html watchlist.html calendar.html about.html)",
+      "Bash(do echo \"=== $file ===\")",
+      "Bash(done)"
     ],
     "deny": [],
     "ask": []
