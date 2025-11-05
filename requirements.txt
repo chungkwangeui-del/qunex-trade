@@ -12,5 +12,5 @@ authlib==1.4.0
 requests==2.32.3
 python-dotenv==1.0.1
 psycopg[binary]==3.2.4
-anthropic==0.39.0
+anthropic>=0.71.0
 schedule==1.2.2

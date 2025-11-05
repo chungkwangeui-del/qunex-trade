@@ -404,51 +404,58 @@ class PolygonService:
         }
 
     def get_market_indices(self) -> Dict[str, Dict]:
-        """Get major market indices using actual index tickers - Cached for 1 minute"""
+        """Get major market indices using ETF proxies - Cached for 1 minute"""
         cache_key = 'market_indices'
         cached = self.cache.get(cache_key)
         if cached is not None:
             return cached
 
+        # Use ETF proxies since Polygon doesn't support index tickers directly
         indices = {
-            'I:DJI': 'Dow Jones',
-            'I:NDX': 'NASDAQ 100',
-            'I:SPX': 'S&P 500',
-            'I:RUT': 'Russell 2000',
-            'I:VIX': 'VIX'
+            'DIA': 'Dow Jones (DIA)',
+            'QQQ': 'NASDAQ 100 (QQQ)',
+            'SPY': 'S&P 500 (SPY)',
+            'IWM': 'Russell 2000 (IWM)',
+            'VXX': 'VIX (VXX)'
         }
 
         result = {}
         for ticker, name in indices.items():
-            # Get snapshot data which includes current price and previous close
-            endpoint = f'/v2/snapshot/locale/us/markets/stocks/tickers/{ticker}'
-            snapshot = self._make_request(endpoint)
+            # Get previous day data for comparison
+            endpoint = f'/v2/aggs/ticker/{ticker}/prev'
+            prev_data = self._make_request(endpoint)
 
-            if snapshot and snapshot.get('status') == 'OK':
-                ticker_data = snapshot.get('ticker', {})
-                day = ticker_data.get('day', {})
-                prev_day = ticker_data.get('prevDay', {})
-                last_trade = ticker_data.get('lastTrade', {})
+            if prev_data and prev_data.get('status') == 'OK' and prev_data.get('results'):
+                prev_result = prev_data['results'][0]
+                prev_close = prev_result.get('c')
 
-                # Use last trade price if available, otherwise use day close
-                current_price = last_trade.get('p') or day.get('c')
-                prev_close = prev_day.get('c')
+                # Get current snapshot
+                snapshot_endpoint = f'/v2/snapshot/locale/us/markets/stocks/tickers/{ticker}'
+                snapshot = self._make_request(snapshot_endpoint)
 
-                if current_price and prev_close:
-                    change = current_price - prev_close
-                    change_percent = (change / prev_close * 100) if prev_close else 0
+                if snapshot and snapshot.get('status') == 'OK':
+                    ticker_data = snapshot.get('ticker', {})
+                    day = ticker_data.get('day', {})
+                    last_trade = ticker_data.get('lastTrade', {})
 
-                    result[ticker] = {
-                        'name': name,
-                        'price': current_price,
-                        'open': day.get('o'),
-                        'high': day.get('h'),
-                        'low': day.get('l'),
-                        'volume': day.get('v', 0),
-                        'prev_close': prev_close,
-                        'change': change,
-                        'change_percent': change_percent
-                    }
+                    # Use last trade price if available, otherwise use day close
+                    current_price = last_trade.get('p') or day.get('c')
+
+                    if current_price and prev_close:
+                        change = current_price - prev_close
+                        change_percent = (change / prev_close * 100) if prev_close else 0
+
+                        result[ticker] = {
+                            'name': name,
+                            'price': current_price,
+                            'open': day.get('o'),
+                            'high': day.get('h'),
+                            'low': day.get('l'),
+                            'volume': day.get('v', 0),
+                            'prev_close': prev_close,
+                            'change': change,
+                            'change_percent': change_percent
+                        }
 
         self.cache.set(cache_key, result, self.cache_ttl['market_indices'])
         return result
