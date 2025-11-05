@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Force Dark Mode - Qunex Trade</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 100px auto;
+            padding: 40px;
+            background: #1a1a1a;
+            color: #ffffff;
+            text-align: center;
+        }
+        h1 { color: #00d9ff; margin-bottom: 30px; }
+        .status {
+            background: #2a2a2a;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #00d9ff;
+        }
+        button {
+            padding: 15px 40px;
+            font-size: 18px;
+            font-weight: bold;
+            margin: 10px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-reset {
+            background: #ff4444;
+            color: white;
+        }
+        .btn-reset:hover {
+            background: #cc0000;
+            transform: scale(1.05);
+        }
+        .btn-home {
+            background: #00d9ff;
+            color: #1a1a1a;
+        }
+        .btn-home:hover {
+            background: #00b8d4;
+            transform: scale(1.05);
+        }
+        .success {
+            color: #00ff00;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔧 Force Dark Mode</h1>
+
+    <div class="status">
+        <p><strong>Current localStorage value:</strong></p>
+        <p id="current-theme" style="font-size: 20px; color: #00d9ff;">Checking...</p>
+    </div>
+
+    <button class="btn-reset" onclick="forceDark()">
+        🌙 FORCE DARK MODE NOW
+    </button>
+
+    <div id="success-message" class="success" style="display: none;">
+        ✅ Dark mode activated! Redirecting to home...
+    </div>
+
+    <script>
+        // Show current theme
+        function updateDisplay() {
+            const theme = localStorage.getItem('theme');
+            document.getElementById('current-theme').textContent =
+                theme ? `"${theme}"` : 'Not set (should be dark by default)';
+        }
+
+        function forceDark() {
+            // Clear everything
+            localStorage.clear();
+
+            // Set dark mode explicitly
+            localStorage.setItem('theme', 'dark');
+
+            // Show success
+            document.getElementById('success-message').style.display = 'block';
+
+            // Redirect to home after 1.5 seconds
+            setTimeout(() => {
+                window.location.href = '/';
+            }, 1500);
+        }
+
+        // Initial display
+        updateDisplay();
+
+        // Auto-redirect if theme is already dark
+        if (localStorage.getItem('theme') === 'dark') {
+            document.getElementById('success-message').textContent =
+                '✅ Theme is already set to dark! Redirecting...';
+            document.getElementById('success-message').style.display = 'block';
+            setTimeout(() => window.location.href = '/', 2000);
+        }
+    </script>
+</body>
+</html>

@@ -272,6 +272,11 @@ def reset_theme():
     """Theme reset utility page"""
     return render_template('reset_theme.html')
 
+@app.route('/force-dark')
+def force_dark():
+    """Force dark mode page - quick fix"""
+    return render_template('FORCE_DARK_MODE.html')
+
 @app.route('/terms')
 def terms():
     """Terms of Service"""
