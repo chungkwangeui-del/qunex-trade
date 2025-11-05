@@ -758,6 +758,7 @@
         .perf-strong-down { background: #d7301f; }
         .perf-extreme-down { background: #a50f15; }
     </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='light-mode.css') }}">
 </head>
 <body>
     <div class="container">
@@ -924,5 +925,11 @@
     <script src="{{ url_for('static', filename='toast.js') }}"></script>
     <script src="{{ url_for('static', filename='ui-enhancements.js') }}"></script>
     <script src="{{ url_for('static', filename='session-timeout.js') }}"></script>
+
+    <!-- Theme Toggle Button -->
+    <button id="theme-toggle" aria-label="Toggle dark/light mode">☀️</button>
+
+    <!-- Theme Toggle Script -->
+    <script src="{{ url_for('static', filename='theme-toggle.js') }}"></script>
 </body>
 </html>

@@ -95,7 +95,16 @@
       "Bash(then cp -r models_FINAL models_FINAL_BACKUP)",
       "Bash(else echo \"No models_FINAL folder found\")",
       "Bash(rm:*)",
-      "Bash(mkdir:*)"
+      "Bash(mkdir:*)",
+      "Bash(timeout 10 python:*)",
+      "Bash(timeout 5 curl:*)",
+      "Bash(timeout 10 curl:*)",
+      "Bash(git ls-tree:*)",
+      "Bash(git fetch:*)",
+      "Bash(pip show:*)",
+      "Bash(if [ -f \"data/news_analysis.json\" ])",
+      "Bash(then python -c \"import json; data=json.load(open(''data/news_analysis.json'')); print(f''News items: {len(data)}''); print(f''Latest: {data[0][\"\"news_title\"\"] if data else \"\"No news\"\"}'')\")",
+      "Bash(else echo \"No news file\")"
     ],
     "deny": [],
     "ask": []
