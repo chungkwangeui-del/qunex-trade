@@ -1,57 +1,162 @@
 [
   {
-    "date": "2025-10-30",
-    "time": "08:30",
-    "event": "GDP (Q3 2025 Advance)",
-    "country": "US",
-    "importance": 5,
-    "emoji": "📈",
-    "category": "Growth",
-    "estimate": "TBD",
-    "previous": "TBD"
-  },
-  {
     "date": "2025-11-06",
-    "time": "14:00",
-    "event": "FOMC Meeting - Interest Rate Decision",
-    "country": "US",
-    "importance": 5,
-    "emoji": "🏦",
+    "title": "FOMC Interest Rate Decision",
     "category": "Fed Policy",
-    "estimate": "TBD",
-    "previous": "TBD"
+    "impact": "High",
+    "country": "US",
+    "description": "Federal Reserve announces interest rate decision and monetary policy outlook"
   },
   {
     "date": "2025-11-07",
-    "time": "08:30",
-    "event": "Nonfarm Payrolls (NFP)",
-    "country": "US",
-    "importance": 5,
-    "emoji": "👔",
+    "title": "Nonfarm Payrolls (NFP)",
     "category": "Employment",
-    "estimate": "TBD",
-    "previous": "TBD"
+    "impact": "High",
+    "country": "US",
+    "description": "Monthly employment report showing job creation and unemployment rate"
+  },
+  {
+    "date": "2025-11-12",
+    "title": "Consumer Price Index (CPI)",
+    "category": "Inflation",
+    "impact": "High",
+    "country": "US",
+    "description": "Monthly inflation data measuring changes in consumer prices"
+  },
+  {
+    "date": "2025-11-13",
+    "title": "Producer Price Index (PPI)",
+    "category": "Inflation",
+    "impact": "Medium",
+    "country": "US",
+    "description": "Measures average change in selling prices received by producers"
+  },
+  {
+    "date": "2025-11-14",
+    "title": "Retail Sales",
+    "category": "Growth",
+    "impact": "Medium",
+    "country": "US",
+    "description": "Monthly retail sales data indicating consumer spending trends"
+  },
+  {
+    "date": "2025-11-15",
+    "title": "Industrial Production",
+    "category": "Growth",
+    "impact": "Low",
+    "country": "US",
+    "description": "Measures output of manufacturing, mining, and utilities sectors"
+  },
+  {
+    "date": "2025-11-20",
+    "title": "FOMC Meeting Minutes",
+    "category": "Fed Policy",
+    "impact": "Medium",
+    "country": "US",
+    "description": "Detailed record of the latest Federal Reserve policy meeting"
+  },
+  {
+    "date": "2025-11-22",
+    "title": "GDP Growth Rate (Q3 Final)",
+    "category": "Growth",
+    "impact": "High",
+    "country": "US",
+    "description": "Final estimate of third quarter economic growth"
+  },
+  {
+    "date": "2025-11-26",
+    "title": "Durable Goods Orders",
+    "category": "Growth",
+    "impact": "Medium",
+    "country": "US",
+    "description": "New orders for manufactured durable goods"
+  },
+  {
+    "date": "2025-11-27",
+    "title": "Consumer Confidence",
+    "category": "Growth",
+    "impact": "Low",
+    "country": "US",
+    "description": "Survey measuring consumer optimism about economic conditions"
+  },
+  {
+    "date": "2025-12-06",
+    "title": "Nonfarm Payrolls (NFP)",
+    "category": "Employment",
+    "impact": "High",
+    "country": "US",
+    "description": "Monthly employment report for November"
+  },
+  {
+    "date": "2025-12-11",
+    "title": "Consumer Price Index (CPI)",
+    "category": "Inflation",
+    "impact": "High",
+    "country": "US",
+    "description": "November inflation data"
   },
   {
     "date": "2025-12-17",
-    "time": "14:00",
-    "event": "FOMC Meeting - Interest Rate Decision",
-    "country": "US",
-    "importance": 5,
-    "emoji": "🏦",
+    "title": "FOMC Interest Rate Decision",
     "category": "Fed Policy",
-    "estimate": "TBD",
-    "previous": "TBD"
+    "impact": "High",
+    "country": "US",
+    "description": "Federal Reserve final rate decision of 2025"
   },
   {
-    "date": "2026-08-11",
-    "time": "08:30",
-    "event": "Consumer Price Index (CPI)",
+    "date": "2025-12-18",
+    "title": "FOMC Press Conference",
+    "category": "Fed Policy",
+    "impact": "High",
     "country": "US",
-    "importance": 5,
-    "emoji": "📊",
+    "description": "Fed Chair Jerome Powell press conference following rate decision"
+  },
+  {
+    "date": "2025-12-20",
+    "title": "GDP Growth Rate (Q3 Third Estimate)",
+    "category": "Growth",
+    "impact": "Medium",
+    "country": "US",
+    "description": "Third and final estimate of Q3 GDP"
+  },
+  {
+    "date": "2025-12-23",
+    "title": "Personal Income and Spending",
+    "category": "Growth",
+    "impact": "Medium",
+    "country": "US",
+    "description": "November personal income and consumer spending data"
+  },
+  {
+    "date": "2026-01-10",
+    "title": "Nonfarm Payrolls (NFP)",
+    "category": "Employment",
+    "impact": "High",
+    "country": "US",
+    "description": "December 2025 employment report"
+  },
+  {
+    "date": "2026-01-14",
+    "title": "Consumer Price Index (CPI)",
     "category": "Inflation",
-    "estimate": "TBD",
-    "previous": "TBD"
+    "impact": "High",
+    "country": "US",
+    "description": "December 2025 inflation data"
+  },
+  {
+    "date": "2026-01-28",
+    "title": "FOMC Interest Rate Decision",
+    "category": "Fed Policy",
+    "impact": "High",
+    "country": "US",
+    "description": "First Federal Reserve rate decision of 2026"
+  },
+  {
+    "date": "2026-01-29",
+    "title": "GDP Growth Rate (Q4 Advance)",
+    "category": "Growth",
+    "impact": "High",
+    "country": "US",
+    "description": "First estimate of Q4 2025 economic growth"
   }
 ]
