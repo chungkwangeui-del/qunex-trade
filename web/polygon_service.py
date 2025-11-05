@@ -9,13 +9,60 @@ from datetime import datetime, timedelta
 from typing import Dict, List, Optional
 import time
 
+class SimpleCache:
+    """Simple in-memory cache with TTL (Time To Live)"""
+
+    def __init__(self):
+        self._cache = {}
+        self._expiry = {}
+
+    def get(self, key: str):
+        """Get value from cache if not expired"""
+        if key not in self._cache:
+            return None
+
+        # Check if expired
+        if datetime.now() > self._expiry[key]:
+            del self._cache[key]
+            del self._expiry[key]
+            return None
+
+        return self._cache[key]
+
+    def set(self, key: str, value, ttl_seconds: int = 60):
+        """Set value in cache with TTL"""
+        self._cache[key] = value
+        self._expiry[key] = datetime.now() + timedelta(seconds=ttl_seconds)
+
+    def clear(self):
+        """Clear all cached data"""
+        self._cache.clear()
+        self._expiry.clear()
+
+    def stats(self):
+        """Get cache statistics"""
+        return {
+            'size': len(self._cache),
+            'keys': list(self._cache.keys())
+        }
+
 class PolygonService:
-    """Polygon.io API wrapper for real-time market data"""
+    """Polygon.io API wrapper for real-time market data with caching"""
 
     def __init__(self, api_key: Optional[str] = None):
         self.api_key = api_key or os.getenv('POLYGON_API_KEY')
         self.base_url = 'https://api.polygon.io'
         self.session = requests.Session()
+        self.cache = SimpleCache()
+        # Cache TTL settings (in seconds)
+        self.cache_ttl = {
+            'market_status': 300,      # 5 minutes
+            'market_indices': 60,       # 1 minute
+            'sectors': 60,              # 1 minute
+            'gainers_losers': 60,       # 1 minute
+            'stock_quote': 60,          # 1 minute
+            'screener': 120             # 2 minutes
+        }
         # Polygon.io uses query params for auth, not headers
 
     def _make_request(self, endpoint: str, params: Dict = None) -> Dict:
@@ -202,11 +249,16 @@ class PolygonService:
 
     def get_gainers_losers(self, direction: str = 'gainers') -> List[Dict]:
         """
-        Get top gainers or losers (filtered to exclude penny stocks)
+        Get top gainers or losers (filtered to exclude penny stocks) - Cached for 1 minute
 
         Args:
             direction: 'gainers' or 'losers'
         """
+        cache_key = f'gainers_losers_{direction}'
+        cached = self.cache.get(cache_key)
+        if cached is not None:
+            return cached
+
         endpoint = f'/v2/snapshot/locale/us/markets/stocks/{direction}'
         data = self._make_request(endpoint)
 
@@ -239,17 +291,23 @@ class PolygonService:
             if len(filtered) >= 15:
                 break
 
+        self.cache.set(cache_key, filtered, self.cache_ttl['gainers_losers'])
         return filtered
 
     def get_market_status(self) -> Optional[Dict]:
-        """Get current market status (open/closed)"""
+        """Get current market status (open/closed) - Cached for 5 minutes"""
+        cache_key = 'market_status'
+        cached = self.cache.get(cache_key)
+        if cached is not None:
+            return cached
+
         endpoint = '/v1/marketstatus/now'
         data = self._make_request(endpoint)
 
         if not data:
             return None
 
-        return {
+        result = {
             'market': data.get('market'),
             'serverTime': data.get('serverTime'),
             'exchanges': {
@@ -262,6 +320,9 @@ class PolygonService:
                 'crypto': data.get('currencies', {}).get('crypto')
             }
         }
+
+        self.cache.set(cache_key, result, self.cache_ttl['market_status'])
+        return result
 
     def search_tickers(self, query: str, limit: int = 10) -> List[Dict]:
         """Search for tickers by name or symbol"""
@@ -343,7 +404,12 @@ class PolygonService:
         }
 
     def get_market_indices(self) -> Dict[str, Dict]:
-        """Get major market indices using actual index tickers"""
+        """Get major market indices using actual index tickers - Cached for 1 minute"""
+        cache_key = 'market_indices'
+        cached = self.cache.get(cache_key)
+        if cached is not None:
+            return cached
+
         indices = {
             'I:DJI': 'Dow Jones',
             'I:NDX': 'NASDAQ 100',
@@ -384,10 +450,16 @@ class PolygonService:
                         'change_percent': change_percent
                     }
 
+        self.cache.set(cache_key, result, self.cache_ttl['market_indices'])
         return result
 
     def get_sector_performance(self) -> List[Dict]:
-        """Get sector ETF performance as proxy for sector performance"""
+        """Get sector ETF performance as proxy for sector performance - Cached for 1 minute"""
+        cache_key = 'sectors'
+        cached = self.cache.get(cache_key)
+        if cached is not None:
+            return cached
+
         sectors = {
             'XLK': 'Technology',
             'XLF': 'Financial',
@@ -433,6 +505,8 @@ class PolygonService:
 
         # Sort by performance
         result.sort(key=lambda x: x['change_percent'], reverse=True)
+
+        self.cache.set(cache_key, result, self.cache_ttl['sectors'])
         return result
 
     def screen_stocks(self, criteria: Dict) -> List[Dict]:

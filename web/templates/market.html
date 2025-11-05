@@ -9,6 +9,9 @@
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 
+    <!-- Chart.js for Data Visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
     <style>
         * {
             margin: 0;
@@ -497,6 +500,57 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        /* Chart Containers */
+        .chart-section {
+            margin: 40px 0;
+        }
+
+        .chart-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            width: 100%;
+        }
+
+        .chart-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .chart-btn {
+            padding: 8px 16px;
+            background: var(--bg-hover);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.9em;
+        }
+
+        .chart-btn:hover {
+            background: var(--bg-card);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .chart-btn.active {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            border-color: transparent;
+            color: white;
+            box-shadow: 0 0 15px var(--glow);
+        }
     </style>
 </head>
 <body>
@@ -549,6 +603,22 @@
             </div>
         </div>
 
+        <!-- Market Indices Chart -->
+        <div class="chart-section">
+            <div class="chart-card">
+                <h3 style="margin-bottom: 20px; color: var(--primary);">📈 Market Indices Performance</h3>
+                <div class="chart-controls">
+                    <button class="chart-btn active" onclick="updateIndexChart('I:DJI')">Dow Jones</button>
+                    <button class="chart-btn" onclick="updateIndexChart('I:SPX')">S&P 500</button>
+                    <button class="chart-btn" onclick="updateIndexChart('I:NDX')">NASDAQ 100</button>
+                    <button class="chart-btn" onclick="updateIndexChart('I:RUT')">Russell 2000</button>
+                </div>
+                <div class="chart-container">
+                    <canvas id="indicesChart"></canvas>
+                </div>
+            </div>
+        </div>
+
         <!-- Sector Performance -->
         <div class="section-header">
             <h2>Sector Performance</h2>
@@ -557,6 +627,16 @@
             <div class="loading">
                 <div class="spinner"></div>
                 <p>Loading sector data...</p>
+            </div>
+        </div>
+
+        <!-- Sector Performance Chart -->
+        <div class="chart-section">
+            <div class="chart-card">
+                <h3 style="margin-bottom: 20px; color: var(--primary);">📊 Sector Comparison</h3>
+                <div class="chart-container">
+                    <canvas id="sectorsChart"></canvas>
+                </div>
             </div>
         </div>
 
@@ -788,6 +868,245 @@
 
         // Update timestamp every second
         setInterval(updateLastUpdated, 1000);
+
+        // ========== CHART.JS INTEGRATION ==========
+
+        // Chart.js global configuration
+        Chart.defaults.color = '#8b92b0';
+        Chart.defaults.borderColor = 'rgba(0, 217, 255, 0.15)';
+        Chart.defaults.font.family = "'Space Grotesk', sans-serif";
+
+        // Initialize charts
+        let indicesChart = null;
+        let sectorsChart = null;
+        let currentIndex = 'I:DJI';
+
+        // Create Indices Line Chart
+        function initIndicesChart() {
+            const ctx = document.getElementById('indicesChart');
+            if (!ctx) return;
+
+            // Generate mock intraday data (simulated - in production, you'd fetch real intraday data)
+            const labels = [];
+            const now = new Date();
+            for (let i = 0; i < 7; i++) {
+                const time = new Date(now - (6 - i) * 60 * 60 * 1000); // Last 7 hours
+                labels.push(time.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }));
+            }
+
+            indicesChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Dow Jones',
+                        data: [42100, 42150, 42080, 42200, 42180, 42250, 42300],
+                        borderColor: '#00d9ff',
+                        backgroundColor: 'rgba(0, 217, 255, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        pointBackgroundColor: '#00d9ff',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(19, 24, 41, 0.95)',
+                            titleColor: '#00d9ff',
+                            bodyColor: '#ffffff',
+                            borderColor: '#00d9ff',
+                            borderWidth: 1,
+                            padding: 12,
+                            displayColors: false,
+                            callbacks: {
+                                label: function(context) {
+                                    return `Price: ${context.parsed.y.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            grid: {
+                                color: 'rgba(0, 217, 255, 0.05)'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toLocaleString();
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Create Sectors Bar Chart
+        async function initSectorsChart() {
+            const ctx = document.getElementById('sectorsChart');
+            if (!ctx) return;
+
+            try {
+                // Fetch sector data
+                const response = await fetch('/api/market/sectors');
+                const data = await response.json();
+
+                if (!data || data.length === 0) {
+                    console.warn('No sector data available for chart');
+                    return;
+                }
+
+                const labels = data.map(s => s.name.replace(' ETF', ''));
+                const percentChanges = data.map(s => s.change_percent || 0);
+                const colors = percentChanges.map(val => val >= 0 ? '#10b981' : '#ef4444');
+
+                sectorsChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Performance (%)',
+                            data: percentChanges,
+                            backgroundColor: colors,
+                            borderColor: colors,
+                            borderWidth: 2,
+                            borderRadius: 8,
+                            borderSkipped: false
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        indexAxis: 'y', // Horizontal bars
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                backgroundColor: 'rgba(19, 24, 41, 0.95)',
+                                titleColor: '#00d9ff',
+                                bodyColor: '#ffffff',
+                                borderColor: '#00d9ff',
+                                borderWidth: 1,
+                                padding: 12,
+                                callbacks: {
+                                    label: function(context) {
+                                        const value = context.parsed.x;
+                                        return `${value >= 0 ? '+' : ''}${value.toFixed(2)}%`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                grid: {
+                                    color: 'rgba(0, 217, 255, 0.05)'
+                                },
+                                ticks: {
+                                    callback: function(value) {
+                                        return value.toFixed(1) + '%';
+                                    }
+                                }
+                            },
+                            y: {
+                                grid: {
+                                    display: false
+                                }
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('Error initializing sectors chart:', error);
+            }
+        }
+
+        // Update index chart when button clicked
+        function updateIndexChart(ticker) {
+            // Update button states
+            document.querySelectorAll('.chart-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            currentIndex = ticker;
+
+            // Map ticker to name
+            const indexNames = {
+                'I:DJI': 'Dow Jones',
+                'I:SPX': 'S&P 500',
+                'I:NDX': 'NASDAQ 100',
+                'I:RUT': 'Russell 2000'
+            };
+
+            // Generate mock data (in production, fetch real data from API)
+            const baseValues = {
+                'I:DJI': 42100,
+                'I:SPX': 5800,
+                'I:NDX': 20500,
+                'I:RUT': 2100
+            };
+
+            const base = baseValues[ticker] || 42100;
+            const mockData = Array.from({length: 7}, (_, i) => {
+                const variance = (Math.random() - 0.5) * (base * 0.01); // ±1% variation
+                return base + variance;
+            });
+
+            // Update chart data
+            indicesChart.data.datasets[0].label = indexNames[ticker];
+            indicesChart.data.datasets[0].data = mockData;
+            indicesChart.update('none'); // Update without animation for smooth transition
+        }
+
+        // Initialize charts after page load
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                initIndicesChart();
+                initSectorsChart();
+            }, 500); // Small delay to ensure DOM is ready
+        });
+
+        // Update sectors chart when sector data is loaded
+        const originalLoadSectors = loadSectors;
+        loadSectors = async function() {
+            await originalLoadSectors();
+            // Update sectors chart with new data
+            if (sectorsChart) {
+                const response = await fetch('/api/market/sectors');
+                const data = await response.json();
+                if (data && data.length > 0) {
+                    const labels = data.map(s => s.name.replace(' ETF', ''));
+                    const percentChanges = data.map(s => s.change_percent || 0);
+                    const colors = percentChanges.map(val => val >= 0 ? '#10b981' : '#ef4444');
+
+                    sectorsChart.data.labels = labels;
+                    sectorsChart.data.datasets[0].data = percentChanges;
+                    sectorsChart.data.datasets[0].backgroundColor = colors;
+                    sectorsChart.data.datasets[0].borderColor = colors;
+                    sectorsChart.update();
+                }
+            }
+        };
     </script>
 </body>
 </html>
