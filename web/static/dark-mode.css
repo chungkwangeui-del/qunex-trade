@@ -1,0 +1,135 @@
+/**
+ * Unified Dark Mode Variables
+ * Qunex Trade - Consistent Dark Theme Across All Pages
+ *
+ * This file ensures EVERY page has the EXACT SAME dark mode colors
+ */
+
+/* Dark Mode Default Variables */
+:root {
+    /* Primary Colors */
+    --primary: #00d9ff;
+    --secondary: #7c3aed;
+    --accent: #ff006e;
+    --success: #10b981;
+    --danger: #ef4444;
+    --warning: #f59e0b;
+
+    /* Background Colors - TRUE BLACK */
+    --bg-dark: #000000;
+    --bg-card: #0a0a0a;
+    --bg-hover: #151515;
+
+    /* Text Colors */
+    --text-primary: #ffffff;
+    --text-secondary: #a0a0a0;
+
+    /* Border & Effects */
+    --border: rgba(0, 217, 255, 0.2);
+    --glow: rgba(0, 217, 255, 0.5);
+}
+
+/* Body Defaults */
+body {
+    background: var(--bg-dark);
+    color: var(--text-primary);
+}
+
+/* Ensure body::before background gradient is consistent */
+body::before {
+    background:
+        radial-gradient(circle at 20% 50%, rgba(0, 217, 255, 0.05) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(124, 58, 237, 0.05) 0%, transparent 50%) !important;
+}
+
+/* Cards and Containers */
+.stat-card,
+.feature-card,
+.news-card,
+.calendar-event,
+.day-cell,
+.watchlist-table,
+.screener-table,
+nav,
+header,
+.filter-section,
+.add-stock-section,
+.empty-state {
+    background: var(--bg-card) !important;
+    border-color: var(--border) !important;
+}
+
+/* Hover States */
+.stat-card:hover,
+.feature-card:hover,
+.news-card:hover,
+.day-cell:hover,
+.watchlist-item:hover {
+    background: var(--bg-hover) !important;
+}
+
+/* Text Colors */
+h1, h2, h3, h4, h5, h6 {
+    color: var(--text-primary) !important;
+}
+
+p, span, div {
+    color: var(--text-primary);
+}
+
+.subtitle,
+.stat-label,
+.text-secondary {
+    color: var(--text-secondary) !important;
+}
+
+/* Links and Buttons */
+.nav-link {
+    color: var(--text-secondary) !important;
+}
+
+.nav-link:hover,
+.nav-link.active {
+    color: var(--primary) !important;
+}
+
+/* Input Fields */
+input,
+select,
+textarea {
+    background: var(--bg-hover) !important;
+    border-color: var(--border) !important;
+    color: var(--text-primary) !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+    color: var(--text-secondary) !important;
+}
+
+/* Gradients for headings */
+.brand-text,
+h1 {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+    width: 12px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-dark);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--bg-hover);
+    border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--primary);
+}
