@@ -1,6 +1,6 @@
 """
-Flask Web Application - Qunex Trade (MAINTENANCE MODE)
-System upgrade in progress - Kiwoom API integration
+Flask Web Application - Qunex Trade
+Professional trading tools with real-time market data
 """
 
 from flask import Flask, render_template, jsonify, request
@@ -10,20 +10,57 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_wtf.csrf import CSRFProtect
 import os
+import sys
+import json
+import threading
+import time
+import traceback
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
 
-# Load environment variables from .env file
+# Load environment variables
 load_dotenv()
 
-# MAINTENANCE MODE FLAG
-MAINTENANCE_MODE = False  # Disabled - show website shell
+# Add parent directory to path for imports (src/)
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+# Configuration Constants
+RATE_LIMITS = {"daily": 200, "hourly": 50, "auth_per_minute": 10}
+NEWS_COLLECTION_HOURS = 24
+NEWS_ANALYSIS_LIMIT = 50
+CALENDAR_DAYS_AHEAD = 60
+AUTO_REFRESH_INTERVAL = 3600  # 1 hour
 
 # Import database first
 try:
     from database import db, User
 except ImportError:
     from web.database import db, User
+
+# Helper Functions
+def load_json_data(filename, default=None):
+    """Load JSON data from data directory"""
+    try:
+        file_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'data', filename)
+        if os.path.exists(file_path):
+            with open(file_path, 'r', encoding='utf-8') as f:
+                return json.load(f)
+    except Exception as e:
+        print(f"Error loading {filename}: {e}")
+    return default or []
+
+def save_json_data(filename, data):
+    """Save JSON data to data directory"""
+    try:
+        data_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'data')
+        os.makedirs(data_dir, exist_ok=True)
+        file_path = os.path.join(data_dir, filename)
+        with open(file_path, 'w', encoding='utf-8') as f:
+            json.dump(data, f, indent=2, ensure_ascii=False)
+        return True
+    except Exception as e:
+        print(f"Error saving {filename}: {e}")
+        return False
 
 app = Flask(__name__)
 
@@ -82,7 +119,7 @@ csrf.exempt('auth.verify_code')
 limiter = Limiter(
     app=app,
     key_func=get_remote_address,
-    default_limits=["200 per day", "50 per hour"],
+    default_limits=[f"{RATE_LIMITS['daily']} per day", f"{RATE_LIMITS['hourly']} per hour"],
     storage_uri="memory://"
 )
 
@@ -112,14 +149,14 @@ app.register_blueprint(api_polygon)
 app.register_blueprint(api_watchlist)
 
 # Apply rate limiting to auth routes (after blueprint registration)
-limiter.limit("10 per minute")(app.view_functions['auth.login'])
+limiter.limit(f"{RATE_LIMITS['auth_per_minute']} per minute")(app.view_functions['auth.login'])
 limiter.limit("5 per minute")(app.view_functions['auth.signup'])
 limiter.limit("3 per minute")(app.view_functions['auth.forgot_password'])
 limiter.limit("5 per minute")(app.view_functions['auth.reset_password'])
 limiter.limit("3 per minute")(app.view_functions['auth.send_verification_code'])
-limiter.limit("10 per minute")(app.view_functions['auth.verify_code'])
-limiter.limit("10 per minute")(app.view_functions['auth.google_login'])
-limiter.limit("10 per minute")(app.view_functions['auth.google_callback'])
+limiter.limit(f"{RATE_LIMITS['auth_per_minute']} per minute")(app.view_functions['auth.verify_code'])
+limiter.limit(f"{RATE_LIMITS['auth_per_minute']} per minute")(app.view_functions['auth.google_login'])
+limiter.limit(f"{RATE_LIMITS['auth_per_minute']} per minute")(app.view_functions['auth.google_callback'])
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -140,11 +177,7 @@ def set_security_headers(response):
     response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self' 'unsafe-inline' https://accounts.google.com https://cdn.jsdelivr.net https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https:; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://accounts.google.com; frame-src 'self' https://accounts.google.com;"
     return response
 
-# Maintenance mode middleware
-@app.before_request
-def check_maintenance():
-    if MAINTENANCE_MODE and not request.path.startswith('/static'):
-        return render_template('maintenance.html')
+# Security and maintenance checks removed - all features active
 
 def load_signals_history():
     """Load signal history - DISABLED (will be re-enabled with Kiwoom API)"""
@@ -268,35 +301,19 @@ def calendar():
 @app.route('/news')
 def news():
     """Market News & Analysis (Beta/Developer Only)"""
-    import json
-    import os
-    import sys
-
-    # Add parent directory to path for imports
-    sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
     # Check user access level
-    # Tier hierarchy: Free < Pro < Premium < Beta Tester < Developer
-    # News Section is in BETA - only Beta Testers and Developers can access
     has_access = False
     user_tier = 'guest'
 
     if current_user.is_authenticated:
         user_tier = current_user.subscription_tier
         # Grant access to Beta Testers and Developers only
-        # Pro and Premium users will see "Coming Soon" overlay
         if user_tier in ['beta', 'developer']:
             has_access = True
 
     try:
-        # Load analyzed news from JSON file
-        news_file = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'data', 'news_analysis.json')
-
-        if os.path.exists(news_file):
-            with open(news_file, 'r', encoding='utf-8') as f:
-                news_data = json.load(f)
-        else:
-            news_data = []
+        # Load analyzed news using helper function
+        news_data = load_json_data('news_analysis.json', [])
 
         # If no access, only show preview (first 3 items, blurred)
         preview_data = news_data[:3] if not has_access else news_data
@@ -308,6 +325,7 @@ def news():
                              user_tier=user_tier)
     except Exception as e:
         print(f"Error loading news: {e}")
+        traceback.print_exc()
         return render_template('news.html',
                              news_data=[],
                              user=current_user,
@@ -316,32 +334,25 @@ def news():
 
 @app.route('/api/news/refresh')
 def api_refresh_news():
-    """Refresh news data (collects and analyzes latest news - focus on government/Fed news)"""
-    import sys
-    import os
-    import traceback
-
-    # Add parent directory to path
-    sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
+    """Refresh news data (collects and analyzes latest news)"""
     try:
         from src.news_collector import NewsCollector
         from src.news_analyzer import NewsAnalyzer
 
         print("[API] Starting news refresh...")
 
-        # Collect news (prioritized by government/Fed news)
+        # Collect news using configured hours
         collector = NewsCollector()
-        news_list = collector.collect_all_news(hours=24)
+        news_list = collector.collect_all_news(hours=NEWS_COLLECTION_HOURS)
 
         print(f"[API] Collected {len(news_list)} news items")
 
         if not news_list:
             return jsonify({'success': False, 'message': 'No news collected'})
 
-        # Analyze news (increased to 50 items)
+        # Analyze news using configured limit
         analyzer = NewsAnalyzer()
-        analyzed_news = analyzer.analyze_news_batch(news_list, max_items=50)
+        analyzed_news = analyzer.analyze_news_batch(news_list, max_items=NEWS_ANALYSIS_LIMIT)
 
         print(f"[API] Analyzed {len(analyzed_news)} news items")
 
@@ -370,21 +381,15 @@ def api_refresh_news():
 @app.route('/api/news/search')
 def api_search_news():
     """Search news by stock ticker or keyword"""
-    import json
-    import os
-
     ticker = request.args.get('ticker', '').upper()
     keyword = request.args.get('keyword', '').lower()
 
     try:
-        # Load analyzed news from JSON file
-        news_file = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'data', 'news_analysis.json')
+        # Load news data using helper
+        news_data = load_json_data('news_analysis.json', [])
 
-        if not os.path.exists(news_file):
+        if not news_data:
             return jsonify({'success': False, 'message': 'No news data available'})
-
-        with open(news_file, 'r', encoding='utf-8') as f:
-            news_data = json.load(f)
 
         # Filter news
         filtered_news = []
@@ -416,18 +421,9 @@ def api_search_news():
 @app.route('/api/news/critical')
 def api_critical_news():
     """Get critical news (5-star importance only)"""
-    import json
-    import os
-
     try:
-        # Load analyzed news from JSON file
-        news_file = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'data', 'news_analysis.json')
-
-        if not os.path.exists(news_file):
-            return jsonify({'success': False, 'message': 'No news data available'})
-
-        with open(news_file, 'r', encoding='utf-8') as f:
-            news_data = json.load(f)
+        # Load news data using helper
+        news_data = load_json_data('news_analysis.json', [])
 
         # Filter for 5-star news only
         critical_news = [n for n in news_data if n.get('importance', 0) == 5]
@@ -444,23 +440,16 @@ def api_critical_news():
 @app.route('/api/economic-calendar')
 def api_economic_calendar():
     """Get economic calendar events"""
-    import json
-    import os
-    from datetime import datetime, timedelta
-
     try:
-        # Load calendar from JSON file
-        calendar_file = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'data', 'economic_calendar.json')
+        # Load calendar using helper
+        events = load_json_data('economic_calendar.json', [])
 
-        if not os.path.exists(calendar_file):
+        if not events:
             return jsonify({'success': False, 'message': 'Calendar not available'})
 
-        with open(calendar_file, 'r', encoding='utf-8') as f:
-            events = json.load(f)
-
-        # Filter for upcoming events only (within next 60 days)
+        # Filter for upcoming events only (configured days ahead)
         today = datetime.now()
-        future_date = today + timedelta(days=60)
+        future_date = today + timedelta(days=CALENDAR_DAYS_AHEAD)
 
         upcoming_events = []
         for event in events:
@@ -537,29 +526,23 @@ def api_statistics():
 # Sector map moved to /api/market/sector-map (Polygon.io)
 
 # Auto-refresh news every hour in background
-import threading
-import time
-
 def auto_refresh_news():
     """Background thread to refresh news every hour"""
     while True:
         try:
-            time.sleep(3600)  # Wait 1 hour
+            time.sleep(AUTO_REFRESH_INTERVAL)
             print("[AUTO-REFRESH] Starting news collection...")
-
-            import sys
-            sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
             from src.news_collector import NewsCollector
             from src.news_analyzer import NewsAnalyzer
 
-            # Collect and analyze news
+            # Collect and analyze news using configured values
             collector = NewsCollector()
-            news_list = collector.collect_all_news(hours=24)
+            news_list = collector.collect_all_news(hours=NEWS_COLLECTION_HOURS)
 
             if news_list:
                 analyzer = NewsAnalyzer()
-                analyzed_news = analyzer.analyze_news_batch(news_list, max_items=50)
+                analyzed_news = analyzer.analyze_news_batch(news_list, max_items=NEWS_ANALYSIS_LIMIT)
                 analyzer.save_analysis(analyzed_news)
 
                 high_impact = len([n for n in analyzed_news if n.get('importance', 0) >= 4])
@@ -569,11 +552,12 @@ def auto_refresh_news():
 
         except Exception as e:
             print(f"[AUTO-REFRESH] Error: {e}")
+            traceback.print_exc()
 
 # Start background news refresh thread
 news_thread = threading.Thread(target=auto_refresh_news, daemon=True)
 news_thread.start()
-print("[OK] Auto-refresh news thread started (refreshes every 1 hour)")
+print(f"[OK] Auto-refresh news thread started (refreshes every {AUTO_REFRESH_INTERVAL//3600} hour(s))")
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
