@@ -5,6 +5,7 @@ Allow: /static/
 # Public pages - Tier 1 Features
 Allow: /market
 Allow: /screener
+Allow: /watchlist
 Allow: /calendar
 Allow: /news
 Allow: /about
