@@ -267,6 +267,11 @@ def about():
     """About page"""
     return render_template('about.html', user=current_user)
 
+@app.route('/reset-theme')
+def reset_theme():
+    """Theme reset utility page"""
+    return render_template('reset_theme.html')
+
 @app.route('/terms')
 def terms():
     """Terms of Service"""
