@@ -522,6 +522,9 @@
             <div class="action-buttons">
                 <button class="btn btn-primary" onclick="runScreener()">Run Screener</button>
                 <button class="btn btn-secondary" onclick="clearFilters()">Clear All</button>
+                <button class="btn btn-secondary" onclick="exportToCSV()" id="export-btn" style="display: none;">
+                    📥 Export to CSV
+                </button>
             </div>
         </div>
 
@@ -688,6 +691,9 @@
 
                 container.innerHTML = tableHTML;
 
+                // Show export button
+                document.getElementById('export-btn').style.display = 'inline-block';
+
             } catch (error) {
                 console.error('Error running screener:', error);
                 container.innerHTML = `
@@ -695,7 +701,29 @@
                         <strong>Error:</strong> Unable to run screener. Please try again.
                     </div>
                 `;
+                document.getElementById('export-btn').style.display = 'none';
             }
+        }
+
+        // Export results to CSV
+        function exportToCSV() {
+            // Build query parameters (same as runScreener)
+            const params = new URLSearchParams();
+
+            const minPrice = document.getElementById('min-price').value;
+            const maxPrice = document.getElementById('max-price').value;
+            const minVolume = document.getElementById('min-volume').value;
+            const minChange = document.getElementById('min-change').value;
+            const maxChange = document.getElementById('max-change').value;
+
+            if (minPrice) params.append('min_price', minPrice);
+            if (maxPrice) params.append('max_price', maxPrice);
+            if (minVolume) params.append('min_volume', minVolume);
+            if (minChange) params.append('min_change_percent', minChange);
+            if (maxChange) params.append('max_change_percent', maxChange);
+
+            // Open CSV download URL
+            window.location.href = `/api/market/screener/export?${params.toString()}`;
         }
 
         // Allow Enter key to run screener

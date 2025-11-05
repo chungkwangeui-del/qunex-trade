@@ -3,8 +3,10 @@ Polygon.io Market Data API Endpoints
 Real-time market data routes for frontend
 """
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, make_response
 from datetime import datetime, timedelta
+import csv
+import io
 
 try:
     from polygon_service import get_polygon_service
@@ -362,3 +364,54 @@ def stock_screener():
         'results': results,
         'timestamp': datetime.now().isoformat()
     })
+
+
+@api_polygon.route('/api/market/screener/export')
+def export_screener_csv():
+    """
+    Export screener results to CSV
+    Same query params as /api/market/screener
+    """
+    criteria = {}
+
+    # Parse criteria from query params
+    if request.args.get('min_volume'):
+        criteria['min_volume'] = int(request.args.get('min_volume'))
+    if request.args.get('min_price'):
+        criteria['min_price'] = float(request.args.get('min_price'))
+    if request.args.get('max_price'):
+        criteria['max_price'] = float(request.args.get('max_price'))
+    if request.args.get('min_change_percent'):
+        criteria['min_change_percent'] = float(request.args.get('min_change_percent'))
+    if request.args.get('max_change_percent'):
+        criteria['max_change_percent'] = float(request.args.get('max_change_percent'))
+
+    polygon = get_polygon_service()
+    results = polygon.screen_stocks(criteria)
+
+    # Create CSV in memory
+    si = io.StringIO()
+    writer = csv.writer(si)
+
+    # Write header
+    writer.writerow(['Ticker', 'Price', 'Change', 'Change %', 'Volume', 'Market Cap', 'Day High', 'Day Low'])
+
+    # Write data
+    for stock in results:
+        writer.writerow([
+            stock.get('ticker', ''),
+            f"${stock.get('price', 0):.2f}",
+            f"{stock.get('change', 0):.2f}",
+            f"{stock.get('change_percent', 0):.2f}%",
+            f"{stock.get('volume', 0):,}",
+            f"${stock.get('market_cap', 0):,.0f}",
+            f"${stock.get('day_high', 0):.2f}",
+            f"${stock.get('day_low', 0):.2f}"
+        ])
+
+    # Create response
+    output = make_response(si.getvalue())
+    output.headers["Content-Disposition"] = f"attachment; filename=screener_results_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+    output.headers["Content-type"] = "text/csv"
+
+    return output
