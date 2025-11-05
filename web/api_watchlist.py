@@ -87,18 +87,8 @@ def add_to_watchlist():
         if existing:
             return jsonify({'error': 'Stock already in watchlist'}), 400
 
-        # Get company name from Polygon if available
-        polygon = get_polygon_service()
-        company_name = data.get('company_name')
-
-        if not company_name:
-            # Try to fetch from Polygon ticker details
-            try:
-                details = polygon.get_ticker_details(ticker)
-                if details:
-                    company_name = details.get('name', ticker)
-            except:
-                company_name = ticker
+        # Get company name (use ticker as fallback)
+        company_name = data.get('company_name', ticker)
 
         # Create watchlist entry
         watchlist_item = Watchlist(
