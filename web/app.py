@@ -95,10 +95,12 @@ try:
     from auth import auth, oauth
     from payments import payments
     from api_polygon import api_polygon
+    from api_watchlist import api_watchlist
 except ImportError:
     from web.auth import auth, oauth
     from web.payments import payments
     from web.api_polygon import api_polygon
+    from web.api_watchlist import api_watchlist
 
 # Initialize OAuth with app
 oauth.init_app(app)
@@ -107,6 +109,7 @@ oauth.init_app(app)
 app.register_blueprint(auth, url_prefix='/auth')
 app.register_blueprint(payments, url_prefix='/payments')
 app.register_blueprint(api_polygon)
+app.register_blueprint(api_watchlist)
 
 # Apply rate limiting to auth routes (after blueprint registration)
 limiter.limit("10 per minute")(app.view_functions['auth.login'])
@@ -250,6 +253,12 @@ def market():
 def screener():
     """Stock Screener - Filter stocks by criteria"""
     return render_template('screener.html', user=current_user)
+
+@app.route('/watchlist')
+@login_required
+def watchlist():
+    """Personal Watchlist - Track favorite stocks"""
+    return render_template('watchlist.html', user=current_user)
 
 @app.route('/calendar')
 def calendar():

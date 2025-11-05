@@ -80,3 +80,55 @@ class Payment(db.Model):
 
     def __repr__(self):
         return f'<Payment {self.id} - ${self.amount}>'
+
+
+class Watchlist(db.Model):
+    """User watchlist for tracking favorite stocks"""
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
+    ticker = db.Column(db.String(10), nullable=False, index=True)
+    company_name = db.Column(db.String(200), nullable=True)
+    added_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    notes = db.Column(db.Text, nullable=True)  # User's personal notes about the stock
+
+    # Price alerts (optional)
+    alert_price_above = db.Column(db.Float, nullable=True)  # Alert when price goes above this
+    alert_price_below = db.Column(db.Float, nullable=True)  # Alert when price goes below this
+
+    user = db.relationship('User', backref=db.backref('watchlist', lazy=True, cascade='all, delete-orphan'))
+
+    # Unique constraint: one ticker per user
+    __table_args__ = (db.UniqueConstraint('user_id', 'ticker', name='unique_user_ticker'),)
+
+    def __repr__(self):
+        return f'<Watchlist {self.user_id} - {self.ticker}>'
+
+
+class SavedScreener(db.Model):
+    """Saved screener criteria for quick access"""
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
+    name = db.Column(db.String(100), nullable=False)  # User-defined name
+    description = db.Column(db.Text, nullable=True)
+
+    # Screening criteria stored as JSON-like fields
+    min_price = db.Column(db.Float, nullable=True)
+    max_price = db.Column(db.Float, nullable=True)
+    min_volume = db.Column(db.Integer, nullable=True)
+    min_market_cap = db.Column(db.Float, nullable=True)
+    max_market_cap = db.Column(db.Float, nullable=True)
+    min_change_percent = db.Column(db.Float, nullable=True)
+    max_change_percent = db.Column(db.Float, nullable=True)
+
+    # Technical indicators
+    rsi_min = db.Column(db.Float, nullable=True)
+    rsi_max = db.Column(db.Float, nullable=True)
+    has_macd_signal = db.Column(db.Boolean, default=False)
+
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    last_used = db.Column(db.DateTime, nullable=True)
+
+    user = db.relationship('User', backref=db.backref('saved_screeners', lazy=True, cascade='all, delete-orphan'))
+
+    def __repr__(self):
+        return f'<SavedScreener {self.name} by User {self.user_id}>'
