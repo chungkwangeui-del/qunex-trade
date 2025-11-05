@@ -7,6 +7,7 @@ __pycache__/
 env/
 venv/
 ENV/
+.venv/
 build/
 develop-eggs/
 dist/
@@ -19,9 +20,31 @@ parts/
 sdist/
 var/
 wheels/
+pip-wheel-metadata/
+share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+MANIFEST
+*.manifest
+*.spec
+
+# PyInstaller
+*.spec
+
+# Unit test / coverage
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
 
 # Jupyter Notebook
 .ipynb_checkpoints
@@ -83,8 +106,38 @@ nul
 
 # Flask instance
 instance/
+*.db
+*.sqlite3
+flask_session/
+
+# Web assets (generated)
+web/static/*.map
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
 # ML Training and Database
 train_FINAL.py
 models_FINAL/
 backtest/database/*.csv
 backtest/database/*.txt
+
+# Secrets & API Keys (double check)
+*.pem
+*.key
+*.cert
+secrets.json
+config.local.json
+
+# macOS
+.AppleDouble
+.LSOverride
+Icon
+._*
+
+# Windows
+ehthumbs.db
+ehthumbs_vista.db
+[Dd]esktop.ini
+$RECYCLE.BIN/

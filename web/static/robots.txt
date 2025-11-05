@@ -1,10 +1,18 @@
 User-agent: *
 Allow: /
+Allow: /static/
+
+# Public pages - Tier 1 Features
+Allow: /market
+Allow: /screener
+Allow: /calendar
+Allow: /news
 Allow: /about
 Allow: /payments/pricing
 Allow: /auth/login
 Allow: /auth/signup
 
+# Private/internal pages
 Disallow: /auth/logout
 Disallow: /auth/account
 Disallow: /admin
