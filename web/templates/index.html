@@ -93,7 +93,11 @@
     <!-- D3.js for Treemap (Local) -->
     <script src="{{ url_for('static', filename='d3.v7.min.js') }}"></script>
 
-    <!-- Stylesheets -->
+    <!-- Theme CSS - MUST load first to define CSS variables -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='dark-mode.css') }}?v=1762427000">
+    <link rel="stylesheet" href="{{ url_for('static', filename='light-mode.css') }}?v=1762427000">
+
+    <!-- Other Stylesheets -->
     <link rel="stylesheet" href="{{ url_for('static', filename='mobile.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='skeleton-loading.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='animations.css') }}">
@@ -759,8 +763,6 @@
         .perf-strong-down { background: #d7301f; }
         .perf-extreme-down { background: #a50f15; }
     </style>
-    <link rel="stylesheet" href="{{ url_for('static', filename='dark-mode.css') }}?v=1762426000">
-    <link rel="stylesheet" href="{{ url_for('static', filename='light-mode.css') }}?v=1762426000">
 </head>
 <body>
     <div class="container">
