@@ -1,11 +1,9 @@
 /**
  * Light Mode Theme
- * Clean override implementation
  */
 
-/* Light mode CSS variables - override when .light-mode class is present */
-html.light-mode,
-html.light-mode body {
+/* Override CSS variables when light-mode class is active */
+html.light-mode {
     --primary: #0077cc;
     --secondary: #6200ea;
     --accent: #d81b60;
@@ -21,7 +19,13 @@ html.light-mode body {
     --glow: rgba(0, 119, 204, 0.3);
 }
 
-/* Theme toggle button styling */
+/* Ensure light mode applies to body */
+html.light-mode body {
+    background: var(--bg-dark);
+    color: var(--text-primary);
+}
+
+/* Theme toggle button */
 #theme-toggle {
     position: fixed;
     bottom: 30px;
@@ -51,7 +55,7 @@ html.light-mode body {
     transform: scale(0.9) rotate(180deg);
 }
 
-/* Light mode specific button styling */
+/* Light mode button styling */
 html.light-mode #theme-toggle {
     background: linear-gradient(135deg, #1a1a2e 0%, #2d2d44 100%);
     border-color: rgba(0, 0, 0, 0.1);
@@ -62,7 +66,7 @@ html.light-mode #theme-toggle:hover {
     box-shadow: 0 12px 48px rgba(0, 0, 0, 0.25);
 }
 
-/* Mobile adjustments */
+/* Mobile */
 @media (max-width: 768px) {
     #theme-toggle {
         bottom: 20px;

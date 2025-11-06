@@ -1,9 +1,8 @@
 /**
  * Dark Mode - Default Theme
- * Clean, simple implementation
  */
 
-/* Dark mode CSS variables - default */
+/* Dark mode CSS variables */
 :root {
     --primary: #00d9ff;
     --secondary: #7c3aed;
@@ -18,4 +17,10 @@
     --text-secondary: #a0a0a0;
     --border: rgba(0, 217, 255, 0.2);
     --glow: rgba(0, 217, 255, 0.5);
+}
+
+/* Ensure dark mode is default */
+body {
+    background: var(--bg-dark);
+    color: var(--text-primary);
 }
