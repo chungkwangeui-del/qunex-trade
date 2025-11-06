@@ -1,198 +1,27 @@
 /**
- * Light Mode Styles
- * Qunex Trade - Professional Light Theme
+ * Light Mode Theme
+ * Clean override implementation
  */
 
-/* Light mode overrides - Using :root for higher specificity */
-:root.light-mode,
+/* Light mode CSS variables - override when .light-mode class is present */
 html.light-mode,
-.light-mode {
-    /* Light mode color scheme */
-    --primary: #0077cc !important;
-    --secondary: #6200ea !important;
-    --accent: #d81b60 !important;
-    --success: #00c853 !important;
-    --danger: #f44336 !important;
-    --bg-dark: #f5f7fa !important;
-    --bg-card: #ffffff !important;
-    --bg-hover: #e8f0f8 !important;
-    --text-primary: #1a1a2e !important;
-    --text-secondary: #546e7a !important;
-    --border: rgba(0, 119, 204, 0.15) !important;
-    --glow: rgba(0, 119, 204, 0.3) !important;
-}
-
-/* Explicit body styling for light mode */
-.light-mode body,
-body.light-mode,
 html.light-mode body {
-    background: var(--bg-dark) !important;
-    color: var(--text-primary) !important;
+    --primary: #0077cc;
+    --secondary: #6200ea;
+    --accent: #d81b60;
+    --success: #00c853;
+    --danger: #f44336;
+    --warning: #f59e0b;
+    --bg-dark: #f5f7fa;
+    --bg-card: #ffffff;
+    --bg-hover: #e8f0f8;
+    --text-primary: #1a1a2e;
+    --text-secondary: #546e7a;
+    --border: rgba(0, 119, 204, 0.15);
+    --glow: rgba(0, 119, 204, 0.3);
 }
 
-/* Background gradients for light mode */
-.light-mode body::before,
-body.light-mode::before,
-html.light-mode body::before {
-    background:
-        radial-gradient(circle at 20% 50%, rgba(0, 119, 204, 0.08) 0%, transparent 50%),
-        radial-gradient(circle at 80% 80%, rgba(98, 0, 234, 0.06) 0%, transparent 50%) !important;
-}
-
-/* Cards and containers */
-.light-mode .stat-card,
-.light-mode .feature-card,
-.light-mode nav,
-.light-mode header,
-.light-mode .filter-section,
-.light-mode .calendar-section,
-.light-mode .news-card,
-.light-mode .watchlist-table,
-.light-mode .add-stock-section,
-.light-mode .empty-state,
-html.light-mode .stat-card,
-html.light-mode .feature-card,
-html.light-mode nav,
-html.light-mode header,
-body.light-mode .stat-card,
-body.light-mode .feature-card,
-body.light-mode nav,
-body.light-mode header {
-    background: var(--bg-card) !important;
-    border-color: var(--border) !important;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
-}
-
-/* Hover effects */
-.light-mode .stat-card:hover,
-.light-mode .feature-card:hover,
-.light-mode .news-card:hover,
-.light-mode .watchlist-item:hover {
-    box-shadow: 0 4px 16px rgba(0, 119, 204, 0.15);
-}
-
-/* Text colors */
-.light-mode h1,
-.light-mode h2,
-.light-mode h3,
-.light-mode .news-title,
-.light-mode .ticker {
-    color: var(--text-primary);
-}
-
-/* Input fields */
-.light-mode input,
-.light-mode select,
-.light-mode textarea {
-    background: #f8fafb;
-    border-color: var(--border);
-    color: var(--text-primary);
-}
-
-.light-mode input:focus,
-.light-mode select:focus,
-.light-mode textarea:focus {
-    background: #ffffff;
-    border-color: var(--primary);
-}
-
-/* Buttons */
-.light-mode .btn-primary {
-    box-shadow: 0 4px 12px rgba(0, 119, 204, 0.3);
-}
-
-.light-mode .btn-secondary {
-    border-color: var(--primary);
-    color: var(--primary);
-}
-
-/* Navigation */
-.light-mode .nav-link {
-    color: var(--text-secondary);
-}
-
-.light-mode .nav-link:hover,
-.light-mode .nav-link.active {
-    color: var(--primary);
-}
-
-/* Charts and data visualization */
-.light-mode .calendar-event,
-.light-mode .day-cell {
-    background: #fafbfc;
-    border-color: var(--border);
-}
-
-.light-mode .day-cell.today {
-    background: rgba(0, 119, 204, 0.08);
-    border-color: var(--primary);
-}
-
-/* Tables */
-.light-mode .watchlist-header,
-.light-mode .screener-header {
-    background: #f0f4f8;
-}
-
-/* Tags and badges */
-.light-mode .tag,
-.light-mode .sentiment-badge,
-.light-mode .event-category {
-    background: rgba(0, 119, 204, 0.1);
-    border-color: rgba(0, 119, 204, 0.25);
-}
-
-/* Locked overlay */
-.light-mode .locked-overlay {
-    background: rgba(245, 247, 250, 0.95);
-}
-
-/* Calendar specific */
-.light-mode .calendar-grid {
-    background: var(--bg-card);
-}
-
-.light-mode .weekday {
-    color: var(--text-primary);
-}
-
-.light-mode .event-high {
-    border-left-color: #f44336;
-}
-
-.light-mode .event-medium {
-    border-left-color: #ff9800;
-}
-
-.light-mode .event-low {
-    border-left-color: #4caf50;
-}
-
-/* Market dashboard */
-.light-mode .market-card,
-.light-mode .sector-card {
-    background: var(--bg-card);
-}
-
-/* News page */
-.light-mode .news-grid.blurred {
-    filter: blur(8px) brightness(0.95);
-}
-
-/* Scrollbar light mode */
-.light-mode ::-webkit-scrollbar-track {
-    background: #e0e0e0;
-}
-
-.light-mode ::-webkit-scrollbar-thumb {
-    background: #9e9e9e;
-}
-
-.light-mode ::-webkit-scrollbar-thumb:hover {
-    background: #757575;
-}
-
-/* Theme toggle button - Enhanced Design */
+/* Theme toggle button styling */
 #theme-toggle {
     position: fixed;
     bottom: 30px;
@@ -205,58 +34,32 @@ body.light-mode header {
     color: white;
     font-size: 28px;
     cursor: pointer;
-    box-shadow:
-        0 8px 32px var(--glow),
-        0 0 0 0 rgba(0, 217, 255, 0.4);
+    box-shadow: 0 8px 32px var(--glow);
     z-index: 1000;
     transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
     display: flex;
     align-items: center;
     justify-content: center;
-    animation: pulse-glow 3s ease-in-out infinite;
-}
-
-@keyframes pulse-glow {
-    0%, 100% {
-        box-shadow:
-            0 8px 32px var(--glow),
-            0 0 0 0 rgba(0, 217, 255, 0.4);
-    }
-    50% {
-        box-shadow:
-            0 8px 32px var(--glow),
-            0 0 0 10px rgba(0, 217, 255, 0);
-    }
 }
 
 #theme-toggle:hover {
     transform: scale(1.15) rotate(180deg);
-    box-shadow:
-        0 12px 48px var(--glow),
-        0 0 0 8px rgba(0, 217, 255, 0.2);
-    border-color: rgba(255, 255, 255, 0.4);
+    box-shadow: 0 12px 48px var(--glow);
 }
 
 #theme-toggle:active {
     transform: scale(0.9) rotate(180deg);
-    box-shadow:
-        0 4px 16px var(--glow),
-        0 0 0 4px rgba(0, 217, 255, 0.3);
 }
 
-/* Light mode specific styling */
-.light-mode #theme-toggle {
+/* Light mode specific button styling */
+html.light-mode #theme-toggle {
     background: linear-gradient(135deg, #1a1a2e 0%, #2d2d44 100%);
     border-color: rgba(0, 0, 0, 0.1);
-    box-shadow:
-        0 8px 32px rgba(0, 0, 0, 0.15),
-        0 0 0 0 rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
 }
 
-.light-mode #theme-toggle:hover {
-    box-shadow:
-        0 12px 48px rgba(0, 0, 0, 0.25),
-        0 0 0 8px rgba(0, 0, 0, 0.05);
+html.light-mode #theme-toggle:hover {
+    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.25);
 }
 
 /* Mobile adjustments */
