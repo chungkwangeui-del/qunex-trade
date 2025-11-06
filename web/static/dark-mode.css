@@ -29,81 +29,90 @@
     --glow: rgba(0, 217, 255, 0.5);
 }
 
-/* Body Defaults */
-body {
+/* Body Defaults - Only apply when NOT in light mode */
+body:not(.light-mode),
+html:not(.light-mode) body {
     background: var(--bg-dark);
     color: var(--text-primary);
 }
 
-/* Ensure body::before background gradient is consistent */
-body::before {
+/* Ensure body::before background gradient is consistent - Only apply when NOT in light mode */
+body:not(.light-mode)::before,
+html:not(.light-mode) body::before {
     background:
         radial-gradient(circle at 20% 50%, rgba(0, 217, 255, 0.05) 0%, transparent 50%),
         radial-gradient(circle at 80% 80%, rgba(124, 58, 237, 0.05) 0%, transparent 50%) !important;
 }
 
-/* Cards and Containers */
-.stat-card,
-.feature-card,
-.news-card,
-.calendar-event,
-.day-cell,
-.watchlist-table,
-.screener-table,
-nav,
-header,
-.filter-section,
-.add-stock-section,
-.empty-state {
+/* Cards and Containers - Only apply when NOT in light mode */
+html:not(.light-mode) .stat-card,
+html:not(.light-mode) .feature-card,
+html:not(.light-mode) .news-card,
+html:not(.light-mode) .calendar-event,
+html:not(.light-mode) .day-cell,
+html:not(.light-mode) .watchlist-table,
+html:not(.light-mode) .screener-table,
+html:not(.light-mode) nav,
+html:not(.light-mode) header,
+html:not(.light-mode) .filter-section,
+html:not(.light-mode) .add-stock-section,
+html:not(.light-mode) .empty-state {
     background: var(--bg-card) !important;
     border-color: var(--border) !important;
 }
 
-/* Hover States */
-.stat-card:hover,
-.feature-card:hover,
-.news-card:hover,
-.day-cell:hover,
-.watchlist-item:hover {
+/* Hover States - Only apply when NOT in light mode */
+html:not(.light-mode) .stat-card:hover,
+html:not(.light-mode) .feature-card:hover,
+html:not(.light-mode) .news-card:hover,
+html:not(.light-mode) .day-cell:hover,
+html:not(.light-mode) .watchlist-item:hover {
     background: var(--bg-hover) !important;
 }
 
-/* Text Colors */
-h1, h2, h3, h4, h5, h6 {
+/* Text Colors - Only apply when NOT in light mode */
+html:not(.light-mode) h1,
+html:not(.light-mode) h2,
+html:not(.light-mode) h3,
+html:not(.light-mode) h4,
+html:not(.light-mode) h5,
+html:not(.light-mode) h6 {
     color: var(--text-primary) !important;
 }
 
-p, span, div {
+html:not(.light-mode) p,
+html:not(.light-mode) span,
+html:not(.light-mode) div {
     color: var(--text-primary);
 }
 
-.subtitle,
-.stat-label,
-.text-secondary {
+html:not(.light-mode) .subtitle,
+html:not(.light-mode) .stat-label,
+html:not(.light-mode) .text-secondary {
     color: var(--text-secondary) !important;
 }
 
-/* Links and Buttons */
-.nav-link {
+/* Links and Buttons - Only apply when NOT in light mode */
+html:not(.light-mode) .nav-link {
     color: var(--text-secondary) !important;
 }
 
-.nav-link:hover,
-.nav-link.active {
+html:not(.light-mode) .nav-link:hover,
+html:not(.light-mode) .nav-link.active {
     color: var(--primary) !important;
 }
 
-/* Input Fields */
-input,
-select,
-textarea {
+/* Input Fields - Only apply when NOT in light mode */
+html:not(.light-mode) input,
+html:not(.light-mode) select,
+html:not(.light-mode) textarea {
     background: var(--bg-hover) !important;
     border-color: var(--border) !important;
     color: var(--text-primary) !important;
 }
 
-input::placeholder,
-textarea::placeholder {
+html:not(.light-mode) input::placeholder,
+html:not(.light-mode) textarea::placeholder {
     color: var(--text-secondary) !important;
 }
 
