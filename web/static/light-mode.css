@@ -3,21 +3,23 @@
  * Qunex Trade - Professional Light Theme
  */
 
-/* Light mode overrides */
+/* Light mode overrides - Using :root for higher specificity */
+:root.light-mode,
+html.light-mode,
 .light-mode {
     /* Light mode color scheme */
-    --primary: #0077cc;
-    --secondary: #6200ea;
-    --accent: #d81b60;
-    --success: #00c853;
-    --danger: #f44336;
-    --bg-dark: #f5f7fa;
-    --bg-card: #ffffff;
-    --bg-hover: #e8f0f8;
-    --text-primary: #1a1a2e;
-    --text-secondary: #546e7a;
-    --border: rgba(0, 119, 204, 0.15);
-    --glow: rgba(0, 119, 204, 0.3);
+    --primary: #0077cc !important;
+    --secondary: #6200ea !important;
+    --accent: #d81b60 !important;
+    --success: #00c853 !important;
+    --danger: #f44336 !important;
+    --bg-dark: #f5f7fa !important;
+    --bg-card: #ffffff !important;
+    --bg-hover: #e8f0f8 !important;
+    --text-primary: #1a1a2e !important;
+    --text-secondary: #546e7a !important;
+    --border: rgba(0, 119, 204, 0.15) !important;
+    --glow: rgba(0, 119, 204, 0.3) !important;
 }
 
 /* Background gradients for light mode */
