@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Theme Debug Script -->
+    <script>
+        console.log('=== THEME DEBUG START ===');
+        console.log('1. localStorage theme:', localStorage.getItem('theme'));
+        console.log('2. Before adding class, html classes:', document.documentElement.className);
+
+        (function() {
+            const theme = localStorage.getItem('theme') || 'dark';
+            console.log('3. Theme to apply:', theme);
+
+            if (theme === 'light') {
+                document.documentElement.classList.add('light-mode');
+                console.log('4. Added light-mode class');
+            } else {
+                console.log('4. Using dark mode (default)');
+            }
+
+            console.log('5. After adding class, html classes:', document.documentElement.className);
+        })();
+
+        // Check CSS variables after page loads
+        window.addEventListener('DOMContentLoaded', function() {
+            const styles = getComputedStyle(document.documentElement);
+            console.log('6. CSS Variables:');
+            console.log('   --bg-dark:', styles.getPropertyValue('--bg-dark'));
+            console.log('   --bg-card:', styles.getPropertyValue('--bg-card'));
+            console.log('   --text-primary:', styles.getPropertyValue('--text-primary'));
+            console.log('   body background:', getComputedStyle(document.body).backgroundColor);
+            console.log('   body color:', getComputedStyle(document.body).color);
+            console.log('=== THEME DEBUG END ===');
+        });
+    </script>
+
+    <meta charset="UTF-8">
+    <title>Theme Debug Test</title>
+
+    <style>
+        :root {
+            --primary: #00d9ff;
+            --bg-dark: #000000;
+            --bg-card: #0a0a0a;
+            --text-primary: #ffffff;
+        }
+
+        html.light-mode {
+            --primary: #0077cc;
+            --bg-dark: #f5f7fa;
+            --bg-card: #ffffff;
+            --text-primary: #1a1a2e;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            padding: 50px;
+            transition: all 0.3s;
+        }
+
+        .card {
+            background: var(--bg-card);
+            padding: 30px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border: 2px solid var(--primary);
+        }
+
+        button {
+            padding: 15px 30px;
+            font-size: 18px;
+            cursor: pointer;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            margin: 10px;
+        }
+
+        .info {
+            background: #333;
+            color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-family: monospace;
+        }
+
+        html.light-mode .info {
+            background: #e0e0e0;
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+    <h1>테마 디버그 테스트</h1>
+
+    <div class="info">
+        <strong>현재 상태:</strong><br>
+        HTML Class: <span id="html-class">로딩중...</span><br>
+        LocalStorage: <span id="local-storage">로딩중...</span><br>
+        Body Background: <span id="body-bg">로딩중...</span><br>
+        CSS Variable --bg-dark: <span id="css-var">로딩중...</span>
+    </div>
+
+    <div class="card">
+        <h2>테스트 카드</h2>
+        <p>이 카드의 색이 바뀌면 테마가 작동하는 것입니다.</p>
+    </div>
+
+    <button onclick="toggleTheme()">테마 토글</button>
+    <button onclick="clearStorage()">LocalStorage 초기화</button>
+    <button onclick="updateInfo()">정보 업데이트</button>
+
+    <script>
+        function updateInfo() {
+            document.getElementById('html-class').textContent = document.documentElement.className || '(없음)';
+            document.getElementById('local-storage').textContent = localStorage.getItem('theme') || '(없음)';
+            document.getElementById('body-bg').textContent = getComputedStyle(document.body).backgroundColor;
+            document.getElementById('css-var').textContent = getComputedStyle(document.documentElement).getPropertyValue('--bg-dark');
+        }
+
+        function toggleTheme() {
+            const currentTheme = localStorage.getItem('theme') || 'dark';
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+
+            console.log('Toggling from', currentTheme, 'to', newTheme);
+            localStorage.setItem('theme', newTheme);
+
+            if (newTheme === 'light') {
+                document.documentElement.classList.add('light-mode');
+            } else {
+                document.documentElement.classList.remove('light-mode');
+            }
+
+            updateInfo();
+        }
+
+        function clearStorage() {
+            localStorage.removeItem('theme');
+            document.documentElement.classList.remove('light-mode');
+            alert('LocalStorage 초기화됨!');
+            updateInfo();
+        }
+
+        // Initial update
+        updateInfo();
+    </script>
+</body>
+</html>

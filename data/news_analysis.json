@@ -1,265 +1,121 @@
 [
   {
-    "importance": 4,
-    "credibility": 5,
-    "impact_summary": "ConocoPhillips' strong Q3 earnings, increased dividend, and production growth indicate a positive outlook for the company and the energy sector.",
+    "importance": 5,
+    "credibility": 4,
+    "impact_summary": "This news indicates strong growth and expansion for IREN Limited, securing a major multi-year cloud services contract with Microsoft and targeting significant AI cloud revenue. This could have a positive impact on the company's stock price and the broader cloud computing and AI sectors.",
     "market_wide_impact": false,
     "affected_stocks": [
-      "COP"
+      "IREN"
     ],
     "affected_sectors": [
-      "Energy"
+      "Cloud Computing",
+      "Artificial Intelligence"
     ],
     "sentiment": "bullish",
     "time_sensitivity": "short-term",
     "key_points": [
-      "ConocoPhillips reported Q3 earnings of $1.7 billion, beating estimates with $1.61 adjusted EPS",
-      "The company increased its quarterly dividend by 8%",
-      "ConocoPhillips raised production to 2,399 MBOED",
-      "The company completed asset sales while managing project costs"
+      "IREN Limited reported record Q1 FY26 financial results",
+      "Secured a $9.7bn multi-year GPU cloud services contract with Microsoft",
+      "Targeting $3.4bn AI Cloud annualized run-rate revenue by end of 2026",
+      "Positive news for the company's growth and expansion in cloud computing and AI"
     ],
-    "reasoning": "This is an important earnings report for ConocoPhillips, a major energy company, indicating strong financial performance and operational improvements. The news is likely to have a positive impact on the company's stock and the broader energy sector, but does not have a market-wide impact.",
-    "news_title": "ConocoPhillips Tops Q3 EPS Estimates, Lifts Dividend 8%, Production Climbs",
-    "news_url": "https://www.benzinga.com/markets/earnings/25/11/48688435/conocophillips-tops-q3-eps-estimates-lifts-dividend-8-production-climbs?utm_source=benzinga_taxonomy&utm_medium=rss_feed_free&utm_content=taxonomy_rss&utm_campaign=channel",
-    "news_source": "Benzinga",
-    "published_at": "2025-11-06T15:01:04Z",
-    "image_url": "https://cdn.benzinga.com/files/images/story/2025/11/06/ConocoPhillips.jpeg?width=1200&height=800&fit=crop",
-    "analyzed_at": "2025-11-06T14:05:12.038910"
-  },
-  {
-    "importance": 4,
-    "credibility": 4,
-    "impact_summary": "The acquisition of Comerica by Fifth Third Bancorp will create the ninth-largest U.S. bank, with $288 billion in assets, and is expected to expand market presence and improve financial performance without diluting tangible book value.",
-    "market_wide_impact": false,
-    "affected_stocks": [
-      "FITB",
-      "CMA"
-    ],
-    "affected_sectors": [
-      "Banking"
-    ],
-    "sentiment": "bullish",
-    "time_sensitivity": "short-term",
-    "key_points": [
-      "Fifth Third Bancorp announced an $11 billion all-stock acquisition of Comerica",
-      "The combined entity will become the ninth-largest U.S. bank with $288 billion in assets",
-      "The deal aims to expand market presence and improve financial performance without diluting tangible book value",
-      "The acquisition is expected to create synergies and cost savings for the combined bank"
-    ],
-    "reasoning": "The acquisition of Comerica by Fifth Third Bancorp is an important event in the banking sector, as it will create a larger, more competitive institution. The deal is expected to have a positive impact on the financial performance of the combined entity, which is why it is rated as an important news item with a credible source.",
-    "news_title": "Fifth Third's $11 Billion Comerica Grab: What It Means for Investors",
-    "news_url": "https://www.fool.com/investing/2025/11/06/fifth-thirds-11-billion-comerica-grab-what-it-mean/?source=iedfolrf0000001",
-    "news_source": "The Motley Fool",
-    "published_at": "2025-11-06T19:06:00Z",
-    "image_url": "https://g.foolcdn.com/editorial/images/836785/handshake-getty.jpg",
-    "analyzed_at": "2025-11-06T14:03:26.044818"
-  },
-  {
-    "importance": 4,
-    "credibility": 4,
-    "impact_summary": "The expected growth in the EV battery testing market from $4 billion in 2025 to $9.4 billion by 2030 indicates significant expansion in the EV industry, which will have a positive impact on related sectors and companies.",
-    "market_wide_impact": false,
-    "affected_stocks": [
-      "MARKET-WIDE"
-    ],
-    "affected_sectors": [
-      "Automotive",
-      "Technology",
-      "Energy"
-    ],
-    "sentiment": "bullish",
-    "time_sensitivity": "long-term",
-    "key_points": [
-      "The global EV battery testing market is expected to grow at a CAGR of 18.4% from 2025 to 2030",
-      "The market size is projected to increase from $4 billion in 2025 to $9.4 billion by 2030",
-      "Growth drivers include increasing EV sales, technological advances, and stringent safety regulations",
-      "This indicates a positive outlook for the EV industry and related sectors",
-      "Companies involved in EV battery testing, manufacturing, and related technologies are likely to benefit"
-    ],
-    "reasoning": "The projected significant growth in the EV battery testing market is an important indicator of the expanding EV industry, which will have a positive impact on related sectors and companies. The credibility of the news source and the factual nature of the report warrant a high importance and credibility score.",
-    "news_title": "EV Battery Testing Market to Grow at 18.4% CAGR Through 2030",
-    "news_url": "https://www.globenewswire.com/news-release/2025/11/06/3182970/0/en/EV-Battery-Testing-Market-to-Grow-at-18-4-CAGR-Through-2030.html",
+    "reasoning": "This news is important as it highlights significant business wins and growth targets for IREN Limited, a major player in the cloud computing and AI sectors. The $9.7bn contract with Microsoft and the $3.4bn AI Cloud revenue target are substantial and could have a positive impact on the company's stock price and the broader industry.",
+    "news_title": "IREN Reports Q1 FY26 Results",
+    "news_url": "https://www.globenewswire.com/news-release/2025/11/06/3183028/0/en/IREN-Reports-Q1-FY26-Results.html",
     "news_source": "GlobeNewswire Inc.",
-    "published_at": "2025-11-06T18:35:00Z",
-    "image_url": "https://ml.globenewswire.com/Resource/Download/c6629cf3-8bc7-4bae-9bf7-bd5bef48bb25",
-    "analyzed_at": "2025-11-06T14:03:37.915316"
+    "published_at": "2025-11-06T21:00:00Z",
+    "image_url": "https://ml.globenewswire.com/Resource/Download/21eaa957-63b1-4e8e-ac88-ee562c8f0827",
+    "analyzed_at": "2025-11-06T16:10:50.552468"
   },
   {
     "importance": 4,
     "credibility": 4,
-    "impact_summary": "Novo Nordisk's reduced 2025 sales and profit guidance due to slower growth in key drug segments and increased competition will likely impact the company's stock and the pharmaceutical sector.",
+    "impact_summary": "The lawsuit against Baxter International regarding defects in its Novum LVP medical device could lead to significant financial and reputational damage for the company, potentially impacting its stock price and the broader medical device sector.",
     "market_wide_impact": false,
     "affected_stocks": [
-      "NVO"
-    ],
-    "affected_sectors": [
-      "Pharmaceuticals"
-    ],
-    "sentiment": "bearish",
-    "time_sensitivity": "short-term",
-    "key_points": [
-      "Novo Nordisk has downgraded its 2025 sales and profit guidance for the fourth time this year",
-      "The company is facing slower growth in its GLP-1 diabetes and obesity drugs",
-      "Novo Nordisk is facing challenges from compounded medications and increased competition from Eli Lilly",
-      "The reduced guidance will likely impact the company's stock price and the pharmaceutical sector"
-    ],
-    "reasoning": "This news is important as it indicates significant challenges for a major pharmaceutical company, which could have a meaningful impact on its stock and the broader sector. The credibility is high as it is reported by a reputable source and based on the company's own guidance update.",
-    "news_title": "Novo Nordisk Has Downgraded Its Outlook for the Fourth Time This Year. Here's What Investors Need to Know.",
-    "news_url": "https://www.fool.com/investing/2025/11/06/novo-nordisk-has-downgraded-its-outlook-for-the-fo/?source=iedfolrf0000001",
-    "news_source": "The Motley Fool",
-    "published_at": "2025-11-06T18:18:08Z",
-    "image_url": "https://g.foolcdn.com/editorial/images/841636/novo_nordisk_flag_with_logo_nvo.jpg",
-    "analyzed_at": "2025-11-06T14:03:42.582375"
-  },
-  {
-    "importance": 4,
-    "credibility": 4,
-    "impact_summary": "The global oxygen therapy equipment market is expected to experience significant growth, driven by rising respiratory disorders and technological advancements, which could present opportunities for companies in the medical device and healthcare sectors.",
-    "market_wide_impact": false,
-    "affected_stocks": [
-      "MARKET-WIDE"
+      "BAX"
     ],
     "affected_sectors": [
       "Healthcare",
       "Medical Devices"
     ],
-    "sentiment": "bullish",
-    "time_sensitivity": "long-term",
+    "sentiment": "bearish",
+    "time_sensitivity": "short-term",
     "key_points": [
-      "The global oxygen therapy equipment market is expected to grow from ~$3 billion in 2024 to ~$6 billion by 2032, a CAGR of ~8%.",
-      "The growth is driven by rising respiratory disorders, increased critical care utilization, and technological advancements in oxygen delivery systems.",
-      "This trend could benefit companies in the medical device and healthcare sectors that are involved in the production and distribution of oxygen therapy equipment.",
-      "The long-term nature of the market growth suggests that this news may have a sustained impact on the relevant sectors and companies."
+      "Lowey Dannenberg has filed a class action lawsuit against Baxter International for alleged securities law violations related to defects in its Novum LVP medical device.",
+      "The defects in the Novum LVP device could potentially expose patients to serious risks, leading to the lawsuit.",
+      "The lawsuit could result in significant financial and reputational damage for Baxter International, potentially impacting its stock price.",
+      "The lawsuit could also have broader implications for the medical device sector, as it highlights the importance of product safety and quality control.",
+      "Investors with more than $250,000 in losses are encouraged to contact the law firm."
     ],
-    "reasoning": "This news provides a detailed market forecast for the global oxygen therapy equipment market, which is an important indicator for the healthcare and medical device sectors. The projected growth rate of ~8% CAGR and the market size increase from ~$3 billion to ~$6 billion by 2032 suggest a significant opportunity for companies in the affected sectors. The credibility of the news is high, as it is sourced from a reputable news outlet (GlobeNewswire Inc.). Therefore, this news is considered important and credible, with the potential to impact the relevant sectors and companies in the long term.",
-    "news_title": "Global Oxygen Therapy Equipment Market is Predicted to Surge at ~8% CAGR by 2032 Owing to the Rising Respiratory Disorders and Technological Advancements | DelveInsight",
-    "news_url": "https://www.globenewswire.com/news-release/2025/11/06/3182954/0/en/Global-Oxygen-Therapy-Equipment-Market-is-Predicted-to-Surge-at-8-CAGR-by-2032-Owing-to-the-Rising-Respiratory-Disorders-and-Technological-Advancements-DelveInsight.html",
+    "reasoning": "The lawsuit against Baxter International is an important development that could have significant financial and reputational consequences for the company, as well as potential ripple effects across the broader medical device sector. While the lawsuit is specific to Baxter, it highlights the importance of product safety and quality control in the industry, which could impact investor sentiment and the performance of related stocks.",
+    "news_title": "Lowey Dannenberg Notifies Baxter International, Inc. (“Baxter” or the “Company”) (NYSE: BAX) Investors of Securities Class Action Lawsuit and Encourages Investors with more than $250,000 in Losses to Contact the Firm",
+    "news_url": "https://www.globenewswire.com/news-release/2025/11/06/3183271/0/en/Lowey-Dannenberg-Notifies-Baxter-International-Inc-Baxter-or-the-Company-NYSE-BAX-Investors-of-Securities-Class-Action-Lawsuit-and-Encourages-Investors-with-more-than-250-000-in-Lo.html",
     "news_source": "GlobeNewswire Inc.",
-    "published_at": "2025-11-06T18:00:00Z",
-    "image_url": "https://ml.globenewswire.com/Resource/Download/dbcddd65-71dd-4559-8875-ae89ac4f96db",
-    "analyzed_at": "2025-11-06T14:03:52.175892"
+    "published_at": "2025-11-06T22:00:00Z",
+    "image_url": "https://ml.globenewswire.com/Resource/Download/38c8d81f-4a6b-4f23-8411-e6be6a60dda1",
+    "analyzed_at": "2025-11-06T16:09:53.173079"
   },
   {
     "importance": 4,
     "credibility": 4,
-    "impact_summary": "NRG Energy's strong Q3 2025 financial results and $3 billion share repurchase program are positive for the company and could have a favorable impact on its stock price and the broader utilities sector.",
+    "impact_summary": "The announcement of an annual cash dividend and a share repurchase program by Abacus Global Management demonstrates the company's confidence in its long-term business model and strong financial performance, which could positively impact the stock price and shareholder returns.",
     "market_wide_impact": false,
     "affected_stocks": [
-      "NRG"
+      "ABCS"
     ],
     "affected_sectors": [
-      "Utilities"
+      "Asset Management"
     ],
     "sentiment": "bullish",
     "time_sensitivity": "short-term",
     "key_points": [
-      "NRG Energy reported better-than-expected Q3 2025 revenue and earnings",
-      "The company approved a $3 billion share repurchase program through 2028",
-      "NRG reaffirmed its annual financial outlook, indicating continued strong performance",
-      "The positive financial results and share buyback program are likely to be well-received by investors"
+      "Abacus Global Management announced an annual cash dividend of $0.20 per share",
+      "The company also announced a $10 million share repurchase program",
+      "The moves demonstrate Abacus' confidence in its long-term business model and strong financial performance",
+      "The news could positively impact the company's stock price and shareholder returns"
     ],
-    "reasoning": "This news is important as it indicates strong financial performance and capital allocation decisions by NRG Energy, a major utilities company. The results and share repurchase program are likely to have a positive impact on the company's stock price and the broader utilities sector, making this a significant announcement.",
-    "news_title": "NRG Energy Tops Q3 Earnings, $3B Share Repurchase Program Extends Through 2028",
-    "news_url": "https://www.benzinga.com/trading-ideas/movers/25/11/48697013/nrg-energy-tops-q3-earnings-3b-share-repurchase-program-extends-through-2028?utm_source=benzinga_taxonomy&utm_medium=rss_feed_free&utm_content=taxonomy_rss&utm_campaign=channel",
+    "reasoning": "The announcement of a dividend and share buyback program is an important and credible corporate action that signals the company's financial strength and commitment to returning value to shareholders. This could have a positive impact on the stock price and shareholder returns in the short term.",
+    "news_title": "Abacus Global Management Enhances Shareholder Returns with Annual Dividend and $10 Million Share Repurchase Program",
+    "news_url": "https://www.benzinga.com/pressreleases/25/11/g48703310/abacus-global-management-enhances-shareholder-returns-with-annual-dividend-and-10-million-share-re?utm_source=benzinga_taxonomy&utm_medium=rss_feed_free&utm_content=taxonomy_rss&utm_campaign=channel",
     "news_source": "Benzinga",
-    "published_at": "2025-11-06T17:51:17Z",
-    "image_url": "https://cdn.benzinga.com/files/images/story/2025/11/06/NRG-Energy--Inc-.jpeg?width=1200&height=800&fit=crop",
-    "analyzed_at": "2025-11-06T14:03:54.602917"
+    "published_at": "2025-11-06T21:06:00Z",
+    "image_url": "https://www.benzinga.com/next-assets/images/benzinga-schema-image-default.png",
+    "analyzed_at": "2025-11-06T16:10:29.325614"
   },
   {
     "importance": 4,
     "credibility": 4,
-    "impact_summary": "The mixed Q3 earnings results from major tech companies and a pharmaceutical giant could impact the broader market sentiment and sector performance in the near term.",
+    "impact_summary": "The preclinical data on INB-619, a novel gamma-delta T cell engager, and the expansion of the INB-100 Phase 1 clinical trial suggest potential advancements in IN8bio's T cell therapy platform, which could have a positive impact on the company's future prospects.",
     "market_wide_impact": false,
     "affected_stocks": [
-      "GOOGL",
-      "AMZN",
-      "MSFT",
-      "META",
-      "LLY"
-    ],
-    "affected_sectors": [
-      "Technology",
-      "Healthcare"
-    ],
-    "sentiment": "mixed",
-    "time_sensitivity": "short-term",
-    "key_points": [
-      "Alphabet (GOOGL) and Amazon (AMZN) reported strong Q3 earnings, while Microsoft (MSFT) and Meta (META) faced challenges",
-      "Eli Lilly (LLY) demonstrated impressive financial results, potentially targeting new stock price milestones",
-      "The mixed earnings performance from major tech companies and a pharmaceutical giant could influence investor sentiment and sector-specific trading in the near future"
-    ],
-    "reasoning": "The news covers significant Q3 earnings reports from major companies across the technology and healthcare sectors, which can have a meaningful impact on the overall market sentiment and sector-specific performance in the short term.",
-    "news_title": "3 Early Q3 Earnings Winners Setting the Tone for the Season Ahead",
-    "news_url": "https://www.investing.com/analysis/3-early-q3-earnings-winners-setting-the-tone-for-the-season-ahead-200669739",
-    "news_source": "Investing.com",
-    "published_at": "2025-11-06T17:12:00Z",
-    "image_url": "https://i-invdn-com.investing.com/redesign/images/seo/investingcom_analysis_og.jpg",
-    "analyzed_at": "2025-11-06T14:04:06.392381"
-  },
-  {
-    "importance": 4,
-    "credibility": 4,
-    "impact_summary": "The sale of Vericel stock by a major institutional investor, Brown Capital Management, could signal a shift in sentiment towards the small-cap biotech company, especially given its strong quarterly revenue growth.",
-    "market_wide_impact": false,
-    "affected_stocks": [
-      "VCEL"
+      "IN8"
     ],
     "affected_sectors": [
       "Biotechnology"
     ],
-    "sentiment": "neutral",
-    "time_sensitivity": "short-term",
-    "key_points": [
-      "Brown Capital Management sold 861,020 shares of Vericel Corporation, reducing its stake in the company",
-      "The sale was worth approximately $31 million in Q3 2025",
-      "Vericel reported strong quarterly revenue growth of 17%",
-      "The sale could indicate a shift in sentiment towards the small-cap biotech company",
-      "The news may impact the stock price of Vericel and the broader biotechnology sector in the short term"
-    ],
-    "reasoning": "The sale of a significant stake by a major institutional investor in a small-cap biotech company that reported strong quarterly results is an important event that could impact the stock price and sentiment towards the company in the short term. This warrants a 4-star importance rating.",
-    "news_title": "Brown Capital Discloses $31 Million Sale of Vericel Stock as Small-Cap Biotech Reports Earnings",
-    "news_url": "https://www.fool.com/coverage/filings/2025/11/06/brown-capital-discloses-usd31-million-sale-of-vericel-stock-as-small-cap-biotech-reports-earnings/?source=iedfolrf0000001",
-    "news_source": "The Motley Fool",
-    "published_at": "2025-11-06T17:02:11Z",
-    "image_url": "https://cdn.content.foolcdn.com/images/1umn9qeh/production/e3267fed451a2561633a53d0f6d2bd8d3aeda145-2667x1500.jpg?w=2667&h=1500",
-    "analyzed_at": "2025-11-06T14:04:11.319038"
-  },
-  {
-    "importance": 4,
-    "credibility": 4,
-    "impact_summary": "The positive results from the STEP UP trial for Wegovy, Novo Nordisk's weight loss drug, demonstrate significant weight loss and cardiovascular health improvements, which could drive increased adoption and sales of the drug.",
-    "market_wide_impact": false,
-    "affected_stocks": [
-      "NVO"
-    ],
-    "affected_sectors": [
-      "Pharmaceuticals"
-    ],
     "sentiment": "bullish",
     "time_sensitivity": "short-term",
     "key_points": [
-      "Wegovy demonstrated an average of 21% body weight loss in obese patients with both the 2.4 mg and 7.2 mg doses",
-      "The drug also showed improvements in cardiovascular health markers",
-      "These results could lead to increased adoption and sales of Wegovy, which is Novo Nordisk's key weight loss drug"
+      "IN8bio reported preclinical data on INB-619, a novel gamma-delta T cell engager, demonstrating potential for deep B cell depletion with minimal adverse effects",
+      "The company expanded its INB-100 Phase 1 clinical trial to The Ohio State University",
+      "IN8bio continues advancing its T cell therapy platform"
     ],
-    "reasoning": "The positive clinical trial results for Wegovy are important for Novo Nordisk, as the drug is a key part of the company's growth strategy in the weight management market. The significant weight loss and cardiovascular benefits shown in the trial could drive increased demand and sales for the drug, making this news important for Novo Nordisk's stock and the pharmaceutical sector.",
-    "news_title": "Higher-Dose Of Wegovy Demonstrates Weight Loss And Cardiovascular Benefits",
-    "news_url": "https://www.benzinga.com/news/health-care/25/11/48694189/higher-dose-of-wegovy-demonstrates-weight-loss-and-cardiovascular-benefits?utm_source=benzinga_taxonomy&utm_medium=rss_feed_free&utm_content=taxonomy_rss&utm_campaign=channel",
-    "news_source": "Benzinga",
-    "published_at": "2025-11-06T16:45:30Z",
-    "image_url": "https://cdn.benzinga.com/files/images/story/2025/11/06/Wegovy.jpeg?width=1200&height=800&fit=crop",
-    "analyzed_at": "2025-11-06T14:04:24.981472"
+    "reasoning": "The news highlights advancements in IN8bio's T cell therapy pipeline, which could be important for the company's future growth and development. The preclinical data on INB-619 and the expansion of the INB-100 clinical trial are significant developments that could positively impact the company's stock performance in the short term.",
+    "news_title": "IN8bio Reports Third Quarter 2025 Financial Results and Recent Business Highlights",
+    "news_url": "https://www.globenewswire.com/news-release/2025/11/06/3183029/0/en/IN8bio-Reports-Third-Quarter-2025-Financial-Results-and-Recent-Business-Highlights.html",
+    "news_source": "GlobeNewswire Inc.",
+    "published_at": "2025-11-06T21:00:00Z",
+    "image_url": "https://ml.globenewswire.com/Resource/Download/ab4056e8-16d0-4c44-9ee8-367a47f6ef78",
+    "analyzed_at": "2025-11-06T16:10:39.277222"
   },
   {
     "importance": 4,
     "credibility": 4,
-    "impact_summary": "Pfizer's increased bid for Metsera and legal challenge to Novo Nordisk's competing proposal could significantly impact the ongoing acquisition battle and the future of the companies involved.",
+    "impact_summary": "The appointment of a new CEO and the compensation terms for the outgoing CEO at Inventiva are important news that could impact the company's stock and the broader pharmaceutical sector.",
     "market_wide_impact": false,
     "affected_stocks": [
-      "PFE",
-      "NVO",
-      "METS"
+      "IVIA"
     ],
     "affected_sectors": [
       "Pharmaceuticals"
@@ -267,79 +123,163 @@
     "sentiment": "neutral",
     "time_sensitivity": "short-term",
     "key_points": [
-      "Delaware Chancery Court denied Pfizer's request to prevent Metsera from terminating their merger agreement in favor of Novo Nordisk's competing proposal",
-      "Pfizer plans to raise its bid for Metsera",
-      "Pfizer is challenging the legality of Novo Nordisk's transaction structure"
+      "Inventiva is holding a Combined General Meeting on November 27, 2025 to appoint a new CEO, Andrew Obenshain",
+      "The meeting will also discuss the compensation terms for the outgoing CEO, Frédéric Cren",
+      "CEO changes can have a significant impact on a company's strategy and performance, affecting its stock price"
     ],
-    "reasoning": "This news is important as it represents a significant development in the ongoing acquisition battle for Metsera, a key player in the pharmaceutical industry. The court's decision and Pfizer's response could have a substantial impact on the future of the companies involved, as well as the broader pharmaceutical sector.",
-    "news_title": "Pfizer To Raise Metsera Bid After Court Denies Attempt To Block Rival Deal",
-    "news_url": "https://www.benzinga.com/m-a/25/11/48693778/pfizer-to-raise-metsera-bid-after-court-denies-attempt-to-block-rival-deal?utm_source=benzinga_taxonomy&utm_medium=rss_feed_free&utm_content=taxonomy_rss&utm_campaign=channel",
-    "news_source": "Benzinga",
-    "published_at": "2025-11-06T16:40:34Z",
-    "image_url": "https://cdn.benzinga.com/files/images/story/2025/11/06/Logo-Pfizer-Inc--Is-An-American-Multinat.jpeg?width=1200&height=800&fit=crop",
-    "analyzed_at": "2025-11-06T14:04:27.393827"
+    "reasoning": "The appointment of a new CEO and the compensation terms for the outgoing CEO are important events that can impact a company's performance and investor sentiment, warranting a 4-star importance score. The news is factual and comes from a reputable source, GlobeNewswire, giving it a 4-star credibility score.",
+    "news_title": "Combined General Meeting of November 27, 2025 - Availability of the preparatory documents",
+    "news_url": "https://www.globenewswire.com/news-release/2025/11/06/3183025/0/en/Combined-General-Meeting-of-November-27-2025-Availability-of-the-preparatory-documents.html",
+    "news_source": "GlobeNewswire Inc.",
+    "published_at": "2025-11-06T21:00:00Z",
+    "image_url": "https://ml-eu.globenewswire.com/Resource/Download/d96e203b-8941-46c7-888a-508900ab9a8b",
+    "analyzed_at": "2025-11-06T16:10:48.220203"
   },
   {
     "importance": 4,
     "credibility": 4,
-    "impact_summary": "Lamar Advertising's strong Q3 2025 performance, driven by national programmatic advertising and digital billboard growth, suggests positive momentum heading into 2026 with potential political advertising tailwinds.",
+    "impact_summary": "The publication of research on enozertinib, a highly selective and brain-penetrant EGFR inhibitor, could have a positive impact on ORIC Pharmaceuticals' pipeline and the treatment of non-small cell lung cancer with intracranial disease.",
     "market_wide_impact": false,
     "affected_stocks": [
-      "LAMR"
+      "ORIC"
     ],
     "affected_sectors": [
-      "Advertising",
-      "Outdoor Media"
+      "Pharmaceuticals",
+      "Biotechnology"
     ],
     "sentiment": "bullish",
     "time_sensitivity": "short-term",
     "key_points": [
-      "Lamar Advertising reported 2.9% acquisition-adjusted revenue growth in Q3 2025",
-      "Strong performance in national programmatic advertising and digital billboards",
-      "Company remains optimistic about 2026 with strong customer commitments and potential political advertising tailwinds"
+      "ORIC Pharmaceuticals published research in Cancer Research on enozertinib, a highly selective EGFR inhibitor targeting non-small cell lung cancer mutations",
+      "Enozertinib has demonstrated potential for treating intracranial disease, which is an important unmet need in non-small cell lung cancer",
+      "The publication of this research could be a positive development for ORIC Pharmaceuticals' pipeline and its efforts to address brain metastases in lung cancer"
     ],
-    "reasoning": "Lamar Advertising's Q3 2025 earnings report is an important update on the company's performance and outlook, which could impact the stock and the broader outdoor advertising sector. The 2.9% revenue growth and optimistic 2026 guidance suggest positive momentum, warranting a 4-star importance rating.",
-    "news_title": "Lamar Advertising (LAMR) Q3 2025 Earnings Call Transcript",
-    "news_url": "https://www.fool.com/earnings/call-transcripts/2025/11/06/lamar-advertising-lamr-q3-2025-earnings-call-transcript/?source=iedfolrf0000001",
-    "news_source": "The Motley Fool",
-    "published_at": "2025-11-06T16:10:45Z",
-    "image_url": "https://cdn.content.foolcdn.com/images/1umn9qeh/production/b4204f36ed605fc54d4ba32e2cb31d1dd892afd6-800x450.jpg?w=800&h=450",
-    "analyzed_at": "2025-11-06T14:04:29.588934"
+    "reasoning": "The publication of research on a novel EGFR inhibitor with potential for treating intracranial disease is an important development for ORIC Pharmaceuticals and the non-small cell lung cancer treatment landscape. This news is likely to have a positive impact on the company's stock and the broader pharmaceutical/biotechnology sector, though the overall market-wide impact is expected to be limited.",
+    "news_title": "ORIC® Pharmaceuticals Announces Publication in Cancer Research on the Discovery and Development of Enozertinib, a Highly Selective, Brain-Penetrant EGFR Inhibitor",
+    "news_url": "https://www.globenewswire.com/news-release/2025/11/06/3183027/0/en/ORIC-Pharmaceuticals-Announces-Publication-in-Cancer-Research-on-the-Discovery-and-Development-of-Enozertinib-a-Highly-Selective-Brain-Penetrant-EGFR-Inhibitor.html",
+    "news_source": "GlobeNewswire Inc.",
+    "published_at": "2025-11-06T21:00:00Z",
+    "image_url": "https://ml.globenewswire.com/Resource/Download/acbc0ad2-7a44-4ee7-b729-ab92d57ffafb",
+    "analyzed_at": "2025-11-06T16:10:53.390903"
   },
   {
     "importance": 4,
     "credibility": 4,
-    "impact_summary": "Dutch Bros' strong Q3 earnings, rapid expansion, and raised guidance indicate continued growth momentum, which could drive investor optimism and positive sentiment for the stock.",
+    "impact_summary": "Tempus AI's strong Q3 performance, including 85% revenue growth and first positive EBITDA quarter, suggests potential upside for the AI genomics and oncology data services company despite recent stock price pullback.",
     "market_wide_impact": false,
     "affected_stocks": [
-      "BROS"
+      "TMPX"
     ],
     "affected_sectors": [
-      "Consumer Discretionary"
+      "Healthcare",
+      "Technology"
     ],
     "sentiment": "bullish",
     "time_sensitivity": "short-term",
     "key_points": [
-      "Dutch Bros reported 25% year-over-year revenue growth in Q3, beating analyst expectations",
-      "The company opened 38 new store locations and raised its full-year guidance",
-      "Dutch Bros continues to rapidly expand with plans to reach 4,000 locations",
-      "The company demonstrates strong brand loyalty and technological innovation"
+      "Tempus AI reported 85% revenue growth in Q3",
+      "Company achieved first positive EBITDA quarter",
+      "Raised year-end guidance",
+      "Analysts see potential upside despite stock price pullback",
+      "Tempus AI provides AI-powered genomics and oncology data services"
     ],
-    "reasoning": "The news of Dutch Bros' strong financial performance, rapid expansion, and raised guidance is important for investors as it indicates the company's growth momentum and potential. This could drive positive sentiment and investor optimism for the stock in the short-term.",
-    "news_title": "Dutch Bros Raises Guidance as Same-Shop Sales and Expansion Fuel Investor Optimism",
-    "news_url": "https://www.investing.com/analysis/dutch-bros-raises-guidance-as-sameshop-sales-and-expansion-fuel-investor-optimism-200669768",
+    "reasoning": "Tempus AI's strong financial performance, including revenue growth and positive EBITDA, is an important indicator of the company's growth and potential. While the stock price has pulled back, analysts see value in the AI genomics and oncology data services provider, making this news important for investors in the healthcare and technology sectors.",
+    "news_title": "Tempus AI: Volatility Equates to Opportunity in AI Leader",
+    "news_url": "https://www.investing.com/analysis/tempus-ai-volatility-equates-to-opportunity-in-ai-leader-200669781",
     "news_source": "Investing.com",
-    "published_at": "2025-11-06T16:02:00Z",
+    "published_at": "2025-11-06T20:34:00Z",
     "image_url": "https://i-invdn-com.investing.com/redesign/images/seo/investingcom_analysis_og.jpg",
-    "analyzed_at": "2025-11-06T14:04:35.198104"
+    "analyzed_at": "2025-11-06T16:11:00.469883"
   },
   {
     "importance": 4,
     "credibility": 4,
-    "impact_summary": "The positive Phase 2 trial results for ProKidney's rilparencel drug could be a significant development in the treatment of chronic kidney disease in diabetic patients, potentially leading to improved patient outcomes and increased revenue for the company.",
+    "impact_summary": "This partnership between Beeline Kazakhstan and Starlink Direct to Cell to provide satellite connectivity across Kazakhstan, starting with messaging services in 2026 and aiming to expand mobile internet coverage in remote areas, could have a significant impact on improving digital infrastructure and connectivity in the country.",
     "market_wide_impact": false,
     "affected_stocks": [
-      "PROKD"
+      "VEON"
+    ],
+    "affected_sectors": [
+      "Telecommunications"
+    ],
+    "sentiment": "bullish",
+    "time_sensitivity": "long-term",
+    "key_points": [
+      "Beeline Kazakhstan is partnering with Starlink Direct to Cell to provide satellite connectivity across Kazakhstan.",
+      "The partnership will start with messaging services in 2026 and aim to expand mobile internet coverage in remote areas.",
+      "The partnership has the support of the Kazakhstan Ministry of Artificial Intelligence and Digital Development.",
+      "This could improve digital infrastructure and connectivity in Kazakhstan, particularly in remote areas.",
+      "The partnership is a strategic move by Beeline Kazakhstan to leverage satellite technology to expand its reach and services."
+    ],
+    "reasoning": "This news is important as it represents a significant partnership between a major telecom operator in Kazakhstan and Starlink to improve satellite connectivity and internet coverage in the country. While it may not have a direct market-wide impact, it could be a positive development for Beeline Kazakhstan and the telecommunications sector in the region, which is why it is rated as a 4 in importance.",
+    "news_title": "VEON’s Beeline Kazakhstan Partners with Starlink Direct to Cell to Launch Satellite Connectivity to Kazakhstan, with Support from Kazakhstan Ministry of Artificial Intelligence and Digital Development",
+    "news_url": "https://www.globenewswire.com/news-release/2025/11/06/3183007/0/en/VEON-s-Beeline-Kazakhstan-Partners-with-Starlink-Direct-to-Cell-to-Launch-Satellite-Connectivity-to-Kazakhstan-with-Support-from-Kazakhstan-Ministry-of-Artificial-Intelligence-and-.html",
+    "news_source": "GlobeNewswire Inc.",
+    "published_at": "2025-11-06T20:00:00Z",
+    "image_url": "https://ml-eu.globenewswire.com/Resource/Download/9f5b64a3-3524-4206-b312-9a570d3ad6d1",
+    "analyzed_at": "2025-11-06T16:11:21.064342"
+  },
+  {
+    "importance": 4,
+    "credibility": 4,
+    "impact_summary": "The improved earnings performance of Kentucky First Federal Bancorp is a positive sign for the regional banking sector, indicating potential growth and profitability in the local market.",
+    "market_wide_impact": false,
+    "affected_stocks": [
+      "KFFB"
+    ],
+    "affected_sectors": [
+      "Regional Banks"
+    ],
+    "sentiment": "bullish",
+    "time_sensitivity": "short-term",
+    "key_points": [
+      "Kentucky First Federal Bancorp reported net income of $344,000 for Q3 2025, a significant improvement from a net loss of $15,000 in the same quarter last year",
+      "The improved earnings were driven by higher net interest income and reduced interest expenses",
+      "The positive earnings report suggests the regional bank is experiencing growth and improved profitability in its local market"
+    ],
+    "reasoning": "The news of Kentucky First Federal Bancorp's improved earnings is an important development for the regional banking sector, as it indicates potential growth and profitability in the local market. While the impact is not market-wide, it is still a significant announcement that could affect the stock price and sentiment towards the company and the regional banking industry.",
+    "news_title": "Kentucky First Federal Bancorp Releases Earnings",
+    "news_url": "https://www.globenewswire.com/news-release/2025/11/06/3183006/14996/en/Kentucky-First-Federal-Bancorp-Releases-Earnings.html",
+    "news_source": "GlobeNewswire Inc.",
+    "published_at": "2025-11-06T19:57:00Z",
+    "image_url": "https://ml.globenewswire.com/Resource/Download/23a82eeb-691f-48dd-8c54-29294a215d2e",
+    "analyzed_at": "2025-11-06T16:11:23.132162"
+  },
+  {
+    "importance": 4,
+    "credibility": 4,
+    "impact_summary": "The class action lawsuit against CarMax alleging failure to disclose material information could have a significant impact on the company's stock price and financial performance.",
+    "market_wide_impact": false,
+    "affected_stocks": [
+      "KMX"
+    ],
+    "affected_sectors": [
+      "Automotive Retail"
+    ],
+    "sentiment": "bearish",
+    "time_sensitivity": "short-term",
+    "key_points": [
+      "CarMax faces a securities class action lawsuit alleging failure to disclose material information during June 20-September 24, 2025",
+      "The company reported decreased sales and lower earnings, causing a 20.07% stock price drop",
+      "The lawsuit could lead to financial penalties, reputational damage, and further stock price declines for CarMax",
+      "Investors with substantial losses may be eligible to serve as lead plaintiffs in the class action"
+    ],
+    "reasoning": "The news of the class action lawsuit against CarMax is important as it could have a significant impact on the company's financial performance and stock price. The allegations of failure to disclose material information are serious and could lead to financial penalties, reputational damage, and further stock price declines for the company. The credibility of the news is high as it is reported by a reputable source, GlobeNewswire Inc.",
+    "news_title": "CarMax Shareholder Alert By Former Louisiana Attorney General: Kahn Swick & Foti, LLC Reminds Investors with Substantial Losses of Lead Plaintiff Deadline in Class Action Lawsuit Against CarMax, Inc. - KMX",
+    "news_url": "https://www.globenewswire.com/news-release/2025/11/06/3183005/6713/en/CarMax-Shareholder-Alert-By-Former-Louisiana-Attorney-General-Kahn-Swick-Foti-LLC-Reminds-Investors-with-Substantial-Losses-of-Lead-Plaintiff-Deadline-in-Class-Action-Lawsuit-Again.html",
+    "news_source": "GlobeNewswire Inc.",
+    "published_at": "2025-11-06T19:55:00Z",
+    "image_url": "https://ml.globenewswire.com/Resource/Download/0434ab48-35bf-4861-9c2d-0da59f482cf0",
+    "analyzed_at": "2025-11-06T16:11:25.796030"
+  },
+  {
+    "importance": 4,
+    "credibility": 4,
+    "impact_summary": "This agreement to reduce prices for obesity and diabetes drugs and expand Medicare/Medicaid coverage will improve affordability and access to these important treatments, potentially benefiting patients and the healthcare sector.",
+    "market_wide_impact": false,
+    "affected_stocks": [
+      "LLY",
+      "NVO"
     ],
     "affected_sectors": [
       "Healthcare",
@@ -348,135 +288,18 @@
     "sentiment": "bullish",
     "time_sensitivity": "short-term",
     "key_points": [
-      "ProKidney presented positive Phase 2 trial results for its chronic kidney disease drug rilparencel",
-      "The drug showed statistically significant improvements in estimated glomerular filtration rate (eGFR) slope in diabetic patients",
-      "No serious adverse events were reported in the trial",
-      "The results could lead to further development and potential approval of the drug, benefiting ProKidney's business",
-      "The news is specific to ProKidney and the healthcare/pharmaceutical sector, with limited market-wide impact"
+      "Eli Lilly and Novo Nordisk have agreed to reduce prices for obesity and diabetes drugs",
+      "Medicare and Medicaid coverage for these drugs will be expanded starting mid-2026",
+      "Patients will pay $245 per month with a $50 copay",
+      "This will improve affordability and access to these important treatments",
+      "The agreement is part of the Trump administration's efforts to lower drug prices"
     ],
-    "reasoning": "The positive Phase 2 trial results for ProKidney's rilparencel drug are an important development in the treatment of chronic kidney disease, a significant unmet medical need. The data showing potential efficacy and safety of the drug could lead to further clinical development and potential regulatory approval, which would be a significant catalyst for ProKidney's business. However, the impact is limited to the company and its sector, rather than the overall market.",
-    "news_title": "ProKidney Presents Full Results from the Phase 2 REGEN-007 Trial of Rilparencel at the American Society of Nephrology Kidney Week 2025",
-    "news_url": "https://www.globenewswire.com/news-release/2025/11/06/3182854/0/en/ProKidney-Presents-Full-Results-from-the-Phase-2-REGEN-007-Trial-of-Rilparencel-at-the-American-Society-of-Nephrology-Kidney-Week-2025.html",
-    "news_source": "GlobeNewswire Inc.",
-    "published_at": "2025-11-06T16:00:00Z",
-    "image_url": "https://ml.globenewswire.com/Resource/Download/7813087f-9f76-4dfa-bb9d-37d4299f3cf8",
-    "analyzed_at": "2025-11-06T14:04:38.252284"
-  },
-  {
-    "importance": 4,
-    "credibility": 4,
-    "impact_summary": "The growing demand for high concentration monoclonal antibody (mAb) products is driving the expansion of the personalized biopharmaceutical therapeutics market, particularly in treating chronic conditions like cancer and autoimmune disorders.",
-    "market_wide_impact": false,
-    "affected_stocks": [
-      "REGN",
-      "AMGN",
-      "GILD",
-      "ABBV",
-      "BMY"
-    ],
-    "affected_sectors": [
-      "Pharmaceuticals",
-      "Biotechnology",
-      "Healthcare"
-    ],
-    "sentiment": "bullish",
-    "time_sensitivity": "long-term",
-    "key_points": [
-      "The high concentration mAb products market is experiencing robust growth",
-      "Driven by increasing demand for personalized therapies targeting disease-related proteins",
-      "Particularly in treating chronic conditions like cancer and autoimmune disorders",
-      "Reflects the advancement of precision biopharmaceutical therapeutics",
-      "Indicates a positive trend in the healthcare and pharmaceutical industries"
-    ],
-    "reasoning": "The news highlights the growing importance of high concentration mAb products in the biopharmaceutical industry, which is a significant development in the healthcare sector. The increased demand for personalized therapies targeting chronic conditions suggests a long-term market opportunity for companies in the pharmaceutical and biotechnology industries.",
-    "news_title": "High Concentration mAb Products Market Advancing Precision Biopharmaceutical Therapeutics – Towards Healthcare",
-    "news_url": "https://www.globenewswire.com/news-release/2025/11/06/3182856/0/en/High-Concentration-mAb-Products-Market-Advancing-Precision-Biopharmaceutical-Therapeutics-Towards-Healthcare.html",
-    "news_source": "GlobeNewswire Inc.",
-    "published_at": "2025-11-06T16:00:00Z",
-    "image_url": "https://ml.globenewswire.com/Resource/Download/01eb1f79-0c67-420b-b423-376619f975cd",
-    "analyzed_at": "2025-11-06T14:04:40.685439"
-  },
-  {
-    "importance": 4,
-    "credibility": 4,
-    "impact_summary": "The growing demand for sustainable packaging solutions is expected to drive significant growth in the plastic-free packaging market over the next decade.",
-    "market_wide_impact": false,
-    "affected_stocks": [
-      "MARKET-WIDE"
-    ],
-    "affected_sectors": [
-      "Consumer Discretionary",
-      "Materials",
-      "Industrials"
-    ],
-    "sentiment": "bullish",
-    "time_sensitivity": "long-term",
-    "key_points": [
-      "The global plastic-free packaging market is projected to grow from $8.97 billion in 2025 to $13.22 billion by 2034.",
-      "Growth is driven by environmental concerns, government regulations, and consumer demand for sustainable packaging.",
-      "The plastic-free packaging market encompasses a wide range of industries, including consumer discretionary, materials, and industrials.",
-      "This long-term trend towards more sustainable packaging solutions is expected to have a positive impact on companies that can adapt and provide innovative alternatives to traditional plastic packaging."
-    ],
-    "reasoning": "The projected growth of the plastic-free packaging market is an important development, as it reflects the increasing focus on environmental sustainability and the shift in consumer preferences. This market-wide trend is likely to have a significant impact on various industries and companies that need to adapt their packaging solutions to meet the growing demand for eco-friendly alternatives.",
-    "news_title": "Plastic Free Packaging Market Size, Segments, Companies, Competitive Analysis, Value Chain & Trade Analysis 2025-2034",
-    "news_url": "https://www.globenewswire.com/news-release/2025/11/06/3182847/0/en/Plastic-Free-Packaging-Market-Size-Segments-Companies-Competitive-Analysis-Value-Chain-Trade-Analysis-2025-2034.html",
-    "news_source": "GlobeNewswire Inc.",
-    "published_at": "2025-11-06T16:00:00Z",
-    "image_url": "https://ml.globenewswire.com/Resource/Download/01eb1f79-0c67-420b-b423-376619f975cd",
-    "analyzed_at": "2025-11-06T14:04:48.188061"
-  },
-  {
-    "importance": 4,
-    "credibility": 4,
-    "impact_summary": "The expansion of PACHA's gluten-free bread products to major retail chains like Albertsons, Whole Foods, and Sprouts Farmers Market is a significant development in the growing demand for healthier and specialized food options, particularly in the gluten-free market.",
-    "market_wide_impact": false,
-    "affected_stocks": [
-      "PACHA"
-    ],
-    "affected_sectors": [
-      "Food & Beverage"
-    ],
-    "sentiment": "bullish",
-    "time_sensitivity": "short-term",
-    "key_points": [
-      "PACHA, a regenerative gluten-free bread company, is expanding its product distribution to Albertsons, Whole Foods Market, and Sprouts Farmers Market.",
-      "This expansion adds 2,400 new retail locations nationwide for PACHA's products.",
-      "PACHA is experiencing 170% year-over-year growth, indicating strong demand for its gluten-free offerings.",
-      "The move aligns with the growing trend of consumers seeking healthier and specialized food options, particularly in the gluten-free market.",
-      "This news is expected to have a positive impact on PACHA's sales and market share in the near term."
-    ],
-    "reasoning": "This news is important as it represents a significant expansion of PACHA's distribution and growth in the gluten-free bread market, which is a rapidly growing segment of the food industry. The credibility of the news is high as it is reported by a reputable source, GlobeNewswire, and provides specific details on the company's expansion plans and performance.",
-    "news_title": "Defying a Stale Bread Market, PACHA Expands Gluten-Free Innovation to Albertsons, Whole Foods Market, and Sprouts Farmers Market",
-    "news_url": "https://www.globenewswire.com/news-release/2025/11/06/3182852/0/en/Defying-a-Stale-Bread-Market-PACHA-Expands-Gluten-Free-Innovation-to-Albertsons-Whole-Foods-Market-and-Sprouts-Farmers-Market.html",
-    "news_source": "GlobeNewswire Inc.",
-    "published_at": "2025-11-06T16:00:00Z",
-    "image_url": "https://ml.globenewswire.com/Resource/Download/73c71de0-b125-4b96-9f29-9d6b4816f312",
-    "analyzed_at": "2025-11-06T14:04:51.496629"
-  },
-  {
-    "importance": 4,
-    "credibility": 4,
-    "impact_summary": "AMD's strong earnings growth is a positive sign, but the stock price drop despite the good performance indicates potential concerns about the company's outlook or valuation.",
-    "market_wide_impact": false,
-    "affected_stocks": [
-      "AMD"
-    ],
-    "affected_sectors": [
-      "Technology"
-    ],
-    "sentiment": "neutral",
-    "time_sensitivity": "short-term",
-    "key_points": [
-      "AMD reported 30% earnings growth in the latest quarter, a strong financial performance",
-      "However, the stock price dropped despite the positive earnings, suggesting potential concerns about the company's outlook or valuation",
-      "The news is specific to AMD and the technology sector, and does not have a broad market-wide impact"
-    ],
-    "reasoning": "This news is important as it provides insights into the financial performance of a major technology company, AMD. The strong earnings growth is a positive sign, but the stock price drop despite the good performance indicates potential concerns that investors should monitor. The news is specific to AMD and the technology sector, so it is not expected to have a broad market-wide impact.",
-    "news_title": "AMD Earnings: The Good and the Bad",
-    "news_url": "https://www.fool.com/investing/2025/11/06/amd-earnings-the-good-and-the-bad/?source=iedfolrf0000001",
-    "news_source": "The Motley Fool",
-    "published_at": "2025-11-06T15:30:00Z",
-    "image_url": "https://g.foolcdn.com/editorial/images/841438/amd-headquarters-santa-clara-with-amd-logo-on-building_amd_advance.jpg",
-    "analyzed_at": "2025-11-06T14:05:07.481204"
+    "reasoning": "This is an important announcement as it will make critical obesity and diabetes treatments more accessible and affordable for patients covered by Medicare and Medicaid. While the impact is primarily on the healthcare and pharmaceutical sectors, it could have broader implications for patient outcomes and healthcare costs.",
+    "news_title": "Eli Lilly, Novo Nordisk Make Weight-Loss Drugs More Affordable Via Medicare, Medicaid, TrumpRx",
+    "news_url": "https://www.benzinga.com/news/contracts/25/11/48699468/eli-lilly-novo-nordisk-make-weight-loss-drugs-more-affordable-via-medicare-medicaid-trumprx?utm_source=benzinga_taxonomy&utm_medium=rss_feed_free&utm_content=taxonomy_rss&utm_campaign=channel",
+    "news_source": "Benzinga",
+    "published_at": "2025-11-06T19:10:21Z",
+    "image_url": "https://cdn.benzinga.com/files/images/story/2025/11/06/Diet-And-Dieting--Beauty-Slim-Female-Bod.jpeg?width=1200&height=800&fit=crop",
+    "analyzed_at": "2025-11-06T16:11:48.691501"
   }
 ]
