@@ -80,7 +80,7 @@ function initDarkMode() {
     }
 
     // Create dark mode toggle button
-    createDarkModeToggle();
+    // createDarkModeToggle(); // DISABLED: Using bottom-right toggle from theme-toggle.js instead
 }
 
 function createDarkModeToggle() {
