@@ -687,7 +687,7 @@
 
         .sector-group {
             position: absolute;
-            border: 2px solid #000;
+            border: 2px solid var(--border);
             box-sizing: border-box;
         }
 
@@ -696,7 +696,7 @@
             top: 0;
             left: 0;
             right: 0;
-            background: rgba(0, 0, 0, 0.7);
+            background: var(--bg-card);
             color: var(--text-primary);
             padding: 4px 8px;
             font-size: 11px;
@@ -711,7 +711,7 @@
 
         .stock-box {
             position: absolute;
-            border: 1px solid rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--border);
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -726,7 +726,7 @@
         .stock-box:hover {
             filter: brightness(1.2);
             z-index: 100;
-            border: 2px solid rgba(255, 255, 255, 0.8);
+            border: 2px solid var(--primary);
         }
 
         .stock-ticker {
@@ -735,7 +735,7 @@
             color: var(--text-primary);
             margin-bottom: 3px;
             text-align: center;
-            text-shadow: 0 1px 4px rgba(0, 0, 0, 1);
+            text-shadow: 0 1px 4px var(--bg-dark);
             letter-spacing: 0.3px;
             line-height: 1.2;
         }
@@ -744,7 +744,7 @@
             font-size: 11px;
             font-weight: 600;
             color: var(--text-primary);
-            text-shadow: 0 1px 4px rgba(0, 0, 0, 1);
+            text-shadow: 0 1px 4px var(--bg-dark);
             line-height: 1.2;
         }
 
@@ -759,8 +759,8 @@
         .perf-strong-down { background: #d7301f; }
         .perf-extreme-down { background: #a50f15; }
     </style>
-    <link rel="stylesheet" href="{{ url_for('static', filename='dark-mode.css') }}?v=1762421000">
-    <link rel="stylesheet" href="{{ url_for('static', filename='light-mode.css') }}?v=1762421000">
+    <link rel="stylesheet" href="{{ url_for('static', filename='dark-mode.css') }}?v=1762422000">
+    <link rel="stylesheet" href="{{ url_for('static', filename='light-mode.css') }}?v=1762422000">
 </head>
 <body>
     <div class="container">
