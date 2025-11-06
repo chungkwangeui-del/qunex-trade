@@ -107,7 +107,10 @@
       "Bash(else echo \"No news file\")",
       "Bash(for file in index.html market.html screener.html watchlist.html calendar.html about.html)",
       "Bash(do echo \"=== $file ===\")",
-      "Bash(done)"
+      "Bash(done)",
+      "Bash(for file in index.html market.html screener.html watchlist.html news.html about.html)",
+      "Bash(do sed -i \"s|<link rel=\"\"stylesheet\"\" href=\"\"{{ url_for(''static'', filename=''light-mode.css'') }}\"\">|<link rel=\"\"stylesheet\"\" href=\"\"{{ url_for(''static'', filename=''dark-mode.css'') }}\"\">\\n    <link rel=\"\"stylesheet\"\" href=\"\"{{ url_for(''static'', filename=''light-mode.css'') }}\"\">|\" \"$file\")",
+      "Bash(echo:*)"
     ],
     "deny": [],
     "ask": []
