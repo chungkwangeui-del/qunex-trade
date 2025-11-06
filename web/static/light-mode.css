@@ -22,11 +22,21 @@ html.light-mode,
     --glow: rgba(0, 119, 204, 0.3) !important;
 }
 
+/* Explicit body styling for light mode */
+.light-mode body,
+body.light-mode,
+html.light-mode body {
+    background: var(--bg-dark) !important;
+    color: var(--text-primary) !important;
+}
+
 /* Background gradients for light mode */
-.light-mode body::before {
+.light-mode body::before,
+body.light-mode::before,
+html.light-mode body::before {
     background:
         radial-gradient(circle at 20% 50%, rgba(0, 119, 204, 0.08) 0%, transparent 50%),
-        radial-gradient(circle at 80% 80%, rgba(98, 0, 234, 0.06) 0%, transparent 50%);
+        radial-gradient(circle at 80% 80%, rgba(98, 0, 234, 0.06) 0%, transparent 50%) !important;
 }
 
 /* Cards and containers */
@@ -39,10 +49,18 @@ html.light-mode,
 .light-mode .news-card,
 .light-mode .watchlist-table,
 .light-mode .add-stock-section,
-.light-mode .empty-state {
-    background: var(--bg-card);
-    border-color: var(--border);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+.light-mode .empty-state,
+html.light-mode .stat-card,
+html.light-mode .feature-card,
+html.light-mode nav,
+html.light-mode header,
+body.light-mode .stat-card,
+body.light-mode .feature-card,
+body.light-mode nav,
+body.light-mode header {
+    background: var(--bg-card) !important;
+    border-color: var(--border) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
 }
 
 /* Hover effects */

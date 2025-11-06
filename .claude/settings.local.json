@@ -110,7 +110,20 @@
       "Bash(done)",
       "Bash(for file in index.html market.html screener.html watchlist.html news.html about.html)",
       "Bash(do sed -i \"s|<link rel=\"\"stylesheet\"\" href=\"\"{{ url_for(''static'', filename=''light-mode.css'') }}\"\">|<link rel=\"\"stylesheet\"\" href=\"\"{{ url_for(''static'', filename=''dark-mode.css'') }}\"\">\\n    <link rel=\"\"stylesheet\"\" href=\"\"{{ url_for(''static'', filename=''light-mode.css'') }}\"\">|\" \"$file\")",
-      "Bash(echo:*)"
+      "Bash(echo:*)",
+      "Bash(if [ -f \".env\" ])",
+      "Bash(then echo \"✓ .env file exists\")",
+      "Bash(else echo \"✗ .env file missing\")",
+      "Bash(timeout:*)",
+      "Bash(then echo \"News data file exists\")",
+      "Bash(else echo \"News data file NOT found\")",
+      "Bash(grep:*)",
+      "Bash(for:*)",
+      "Bash(do sed -i 's/?v=1730868000/?v=1762417197/g' \"$file\")",
+      "Bash(do sed -i 's/?v=1762417197/?v=1762417999/g' \"$file\")",
+      "Bash(do sed -i 's/?v=1762417999/?v=1762420000/g' \"$file\")",
+      "Bash(do sed -i 's/?v=1762420000/?v=1762421000/g' \"$file\")",
+      "Bash(do sed -i 's/?v=1762421000/?v=1762423000/g; s/?v=1762422000/?v=1762423000/g' \"$file\")"
     ],
     "deny": [],
     "ask": []
