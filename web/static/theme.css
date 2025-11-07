@@ -20,6 +20,21 @@
     --glow: rgba(0, 217, 255, 0.5);
 }
 
+/* Body background gradient - DARK MODE */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background:
+        radial-gradient(circle at 20% 50%, rgba(0, 217, 255, 0.05) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(124, 58, 237, 0.05) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+}
+
 /* === LIGHT MODE === */
 html.light-mode {
     --primary: #0077cc;
@@ -35,6 +50,13 @@ html.light-mode {
     --text-secondary: #546e7a;
     --border: rgba(0, 119, 204, 0.15);
     --glow: rgba(0, 119, 204, 0.3);
+}
+
+/* Body background gradient - LIGHT MODE */
+html.light-mode body::before {
+    background:
+        radial-gradient(circle at 20% 50%, rgba(0, 119, 204, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(98, 0, 234, 0.06) 0%, transparent 50%);
 }
 
 /* === THEME TOGGLE BUTTON === */
