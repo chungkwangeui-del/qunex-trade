@@ -1,16 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
-    <!-- Apply theme immediately to prevent flash -->
-    <script>
-        (function() {
-            const theme = localStorage.getItem('theme') || 'dark';
-            if (theme === 'light') {
-                document.documentElement.classList.add('light-mode');
-            }
-        })();
-    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Watchlist - Qunex Trade</title>
@@ -381,7 +371,7 @@
             }
         }
     </style>
-    <link rel="stylesheet" href="{{ url_for('static', filename='theme.css') }}?v=1762432000">
+    <link rel="stylesheet" href="{{ url_for('static', filename='basic.css') }}?v=1762450000">
     
     
 </head>
@@ -633,10 +623,6 @@
         setInterval(updateLastUpdated, 1000);
     </script>
 
-    <!-- Theme Toggle Button -->
-    <button id="theme-toggle" aria-label="Toggle dark/light mode">☀️</button>
 
-    <!-- Theme Toggle Script -->
-    <script src="{{ url_for('static', filename='theme-toggle.js') }}"></script>
 </body>
 </html>
