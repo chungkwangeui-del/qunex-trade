@@ -94,148 +94,14 @@
     <script src="{{ url_for('static', filename='d3.v7.min.js') }}"></script>
 
     <!-- Theme CSS - MUST load first to define CSS variables -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='theme.css') }}?v=1762435000">
+    <link rel="stylesheet" href="{{ url_for('static', filename='theme.css') }}?v=1762440000">
 
     <!-- Other Stylesheets -->
     <link rel="stylesheet" href="{{ url_for('static', filename='mobile.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='skeleton-loading.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='animations.css') }}">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        /* CSS variables moved to dark-mode.css */
-
-        body {
-            font-family: 'Space Grotesk', -apple-system, sans-serif;
-            background: var(--bg-dark);
-            color: var(--text-primary);
-            min-height: 100vh;
-            position: relative;
-            overflow-x: hidden;
-        }
-
-        /* Animated background */
-        }
-
-        .container {
-            max-width: 1600px;
-            margin: 0 auto;
-            padding: 30px;
-            position: relative;
-            z-index: 1;
-        }
-
-        /* Navigation */
-        nav {
-            background: var(--bg-card);
-            padding: 20px 40px;
-            border-radius: 16px;
-            margin-bottom: 40px;
-            border: 1px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            backdrop-filter: blur(10px);
-        }
-
-        .nav-brand {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 1.8em;
-            font-weight: 700;
-            letter-spacing: -1px;
-        }
-
-        .logo {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 1.1em;
-            box-shadow: 0 0 20px var(--glow);
-        }
-
-        .brand-text {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 20px;
-            align-items: center;
-        }
-
-        .nav-links a {
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-weight: 600;
-            transition: all 0.3s;
-            position: relative;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            color: white;
-            padding: 10px 25px;
-            border-radius: 10px;
-            text-decoration: none;
-            font-weight: 700;
-            transition: all 0.3s;
-            box-shadow: 0 4px 15px rgba(0, 217, 255, 0.3);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 25px rgba(0, 217, 255, 0.5);
-        }
-
-        .btn-secondary {
-            background: transparent;
-            color: var(--primary);
-            padding: 10px 25px;
-            border: 1px solid var(--primary);
-            border-radius: 10px;
-            text-decoration: none;
-            font-weight: 700;
-            transition: all 0.3s;
-        }
-
-        .btn-secondary:hover {
-            background: rgba(0, 217, 255, 0.1);
-            transform: translateY(-2px);
-        }
-
-        .nav-links a::after {
-            content: '';
-            position: absolute;
-            bottom: -5px;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-            transition: width 0.3s;
-        }
-
-        .nav-links a:hover,
-        .nav-links a.active {
-            color: var(--primary);
-        }
-
-        .nav-links a:hover::after,
-        .nav-links a.active::after {
-            width: 100%;
-        }
+        /* === INDEX.HTML SPECIFIC STYLES === */
 
         /* Header */
         header {
@@ -396,7 +262,6 @@
             font-family: 'JetBrains Mono', monospace;
         }
 
-        /* Feature icon - for emoji display without gradient */
         .feature-icon-large {
             font-size: 3.5em;
             line-height: 1;
@@ -662,10 +527,9 @@
             .stat-value { font-size: 2.8em; }
             .section { padding: 30px 20px; }
             header { padding: 40px 30px; }
-            nav { padding: 20px; }
         }
 
-        /* Finviz Treemap Styles */
+        /* === TREEMAP STYLES === */
         .sector-map-container {
             background: var(--bg-card);
             border: 1px solid var(--border);
