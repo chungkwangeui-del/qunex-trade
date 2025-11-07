@@ -1,16 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
-    <!-- Apply theme immediately to prevent flash -->
-    <script>
-        (function() {
-            const theme = localStorage.getItem('theme') || 'dark';
-            if (theme === 'light') {
-                document.documentElement.classList.add('light-mode');
-            }
-        })();
-    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
 
@@ -93,8 +83,8 @@
     <!-- D3.js for Treemap (Local) -->
     <script src="{{ url_for('static', filename='d3.v7.min.js') }}"></script>
 
-    <!-- Theme CSS - MUST load first to define CSS variables -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='theme.css') }}?v=1762440000">
+    <!-- Basic CSS - Simple dark theme only -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='basic.css') }}?v=1762450000">
 
     <!-- Other Stylesheets -->
     <link rel="stylesheet" href="{{ url_for('static', filename='mobile.css') }}">
@@ -780,11 +770,5 @@
     <script src="{{ url_for('static', filename='toast.js') }}"></script>
     <script src="{{ url_for('static', filename='ui-enhancements.js') }}"></script>
     <script src="{{ url_for('static', filename='session-timeout.js') }}"></script>
-
-    <!-- Theme Toggle Button -->
-    <button id="theme-toggle" aria-label="Toggle dark/light mode">☀️</button>
-
-    <!-- Theme Toggle Script -->
-    <script src="{{ url_for('static', filename='theme-toggle.js') }}"></script>
 </body>
 </html>
