@@ -59,7 +59,6 @@ let globalStockData = null;
 // Fetch real-time stock data from backend
 async function fetchRealTimeData() {
     try {
-        console.log('Fetching real-time stock data from /api/sector-stocks-v2...');
         const response = await fetch('/api/sector-stocks-v2');
 
         if (!response.ok) {
@@ -67,14 +66,11 @@ async function fetchRealTimeData() {
         }
 
         const data = await response.json();
-        console.log('Real-time data fetched successfully:', data);
-
         globalStockData = data;
         return data;
 
     } catch (error) {
-        console.error('Error fetching real-time data:', error);
-        // Return null to trigger fallback to random data
+        // Error fetching real-time data - will use fallback
         return null;
     }
 }
@@ -85,7 +81,7 @@ async function generateFinvizData() {
     const realtimeData = await fetchRealTimeData();
 
     if (!realtimeData || Object.keys(realtimeData).length === 0) {
-        console.warn('Using fallback random data');
+        // Using fallback data due to API error
         return generateFallbackData();
     }
 

@@ -6,8 +6,6 @@ async function updateMarketOverview() {
         const response = await fetch('/api/market-overview-v2');
         const data = await response.json();
 
-        console.log('Fetched market overview data:', data);
-
         // Update S&P 500
         updateIndexCard('sp500', data.sp500);
 
@@ -31,10 +29,8 @@ async function updateMarketOverview() {
                 fearGreedLabel.textContent = data.fearGreed.label;
             }
         }
-
-        console.log('✓ Market overview updated successfully with real-time data');
     } catch (error) {
-        console.error('Error updating market overview:', error);
+        // Error updating market overview - silent fail
     }
 }
 
@@ -67,16 +63,12 @@ function updateIndexCard(indexKey, indexData) {
 // Load data on page load
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', function() {
-        console.log('Loading market overview real-time data...');
         updateMarketOverview();
-
         // Refresh every 60 seconds
         setInterval(updateMarketOverview, 60000);
     });
 } else {
-    console.log('Loading market overview real-time data...');
     updateMarketOverview();
-
     // Refresh every 60 seconds
     setInterval(updateMarketOverview, 60000);
 }

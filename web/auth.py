@@ -7,10 +7,12 @@ from flask_login import login_user, logout_user, login_required, current_user
 from flask_mail import Message
 from datetime import datetime, timedelta
 from authlib.integrations.flask_client import OAuth
+from typing import Dict, Any, Optional, Tuple, Union
 import os
 import random
 import secrets
 import requests
+import logging
 
 try:
     from database import db, User
@@ -18,6 +20,7 @@ except ImportError:
     from web.database import db, User
 
 auth = Blueprint('auth', __name__)
+logger = logging.getLogger(__name__)
 
 # Initialize OAuth
 oauth = OAuth()
@@ -25,11 +28,21 @@ oauth = OAuth()
 # reCAPTCHA Secret Key (from environment variable)
 RECAPTCHA_SECRET_KEY = os.getenv('RECAPTCHA_SECRET_KEY')
 
-def verify_recaptcha(token):
-    """Verify reCAPTCHA v3 token - TEMPORARILY DISABLED"""
-    # DISABLED: reCAPTCHA v3 causing infinite loading issue on frontend
-    # TODO: Fix recaptcha.js form submission infinite loop before re-enabling
-    print("[INFO] reCAPTCHA verification temporarily disabled")
+def verify_recaptcha(token: Optional[str]) -> bool:
+    """
+    Verify reCAPTCHA v3 token - TEMPORARILY DISABLED.
+
+    Args:
+        token: reCAPTCHA token from client
+
+    Returns:
+        True (always, as verification is disabled)
+
+    Note:
+        reCAPTCHA v3 is currently disabled due to infinite loading issue.
+        TODO: Fix recaptcha.js form submission before re-enabling
+    """
+    logger.info("reCAPTCHA verification temporarily disabled")
     return True
 
 # Google OAuth configuration (only if credentials are set)
@@ -53,13 +66,17 @@ else:
 
 
 @auth.route('/login', methods=['GET', 'POST'])
-def login():
-    """Login page"""
+def login() -> Union[str, Any]:
+    """
+    Login page handler.
+
+    Returns:
+        Rendered login template or redirect response
+    """
     if current_user.is_authenticated:
         return redirect(url_for('index'))
 
     if request.method == 'POST':
-        # Verify reCAPTCHA
         recaptcha_token = request.form.get('recaptcha_token')
         if not verify_recaptcha(recaptcha_token):
             flash('Security verification failed. Please try again.', 'error')
@@ -69,23 +86,23 @@ def login():
         password = request.form.get('password')
         remember = True if request.form.get('remember') else False
 
-        print(f"[DEBUG] Login attempt for email: {email}")
+        logger.info(f"Login attempt for email: {email}")
 
         user = db.session.execute(db.select(User).filter_by(email=email)).scalar_one_or_none()
 
         if not user:
-            print(f"[DEBUG] User not found: {email}")
+            logger.warning(f"User not found: {email}")
             flash('Invalid email or password', 'error')
             return redirect(url_for('auth.login'))
 
-        print(f"[DEBUG] User found: {user.username}, checking password...")
+        logger.debug(f"User found: {user.username}, checking password")
 
         if not user.check_password(password):
-            print(f"[DEBUG] Password check failed for {email}")
+            logger.warning(f"Password check failed for {email}")
             flash('Invalid email or password', 'error')
             return redirect(url_for('auth.login'))
 
-        print(f"[DEBUG] Login successful for {email}")
+        logger.info(f"Login successful for {email}")
         login_user(user, remember=remember)
         next_page = request.args.get('next')
         return redirect(next_page) if next_page else redirect(url_for('index'))
@@ -94,13 +111,17 @@ def login():
 
 
 @auth.route('/signup', methods=['GET', 'POST'])
-def signup():
-    """Signup page"""
+def signup() -> Union[str, Any]:
+    """
+    Signup page handler.
+
+    Returns:
+        Rendered signup template or redirect response
+    """
     if current_user.is_authenticated:
         return redirect(url_for('index'))
 
     if request.method == 'POST':
-        # Verify reCAPTCHA
         recaptcha_token = request.form.get('recaptcha_token')
         if not verify_recaptcha(recaptcha_token):
             flash('Security verification failed. Please try again.', 'error')
@@ -110,27 +131,24 @@ def signup():
         username = request.form.get('username')
         password = request.form.get('password')
 
-        print(f"[DEBUG] Signup attempt - Email: {email}, Username: {username}")
+        logger.info(f"Signup attempt - Email: {email}, Username: {username}")
 
-        # Check if email was verified
         if not session.get('email_verified') or session.get('verified_email') != email:
             flash('Please verify your email first', 'error')
             return redirect(url_for('auth.signup'))
 
-        # Check if user exists
         user = db.session.execute(db.select(User).filter_by(email=email)).scalar_one_or_none()
         if user:
-            print(f"[DEBUG] Email already exists: {email}")
+            logger.warning(f"Email already exists: {email}")
             flash('Email already exists', 'error')
             return redirect(url_for('auth.signup'))
 
         user = db.session.execute(db.select(User).filter_by(username=username)).scalar_one_or_none()
         if user:
-            print(f"[DEBUG] Username already taken: {username}")
+            logger.warning(f"Username already taken: {username}")
             flash('Username already taken', 'error')
             return redirect(url_for('auth.signup'))
 
-        # Create new user
         new_user = User(
             email=email,
             username=username,
@@ -140,14 +158,13 @@ def signup():
         )
         new_user.set_password(password)
 
-        print(f"[DEBUG] Creating new user: {username}")
+        logger.info(f"Creating new user: {username}")
 
         db.session.add(new_user)
         db.session.commit()
 
-        print(f"[DEBUG] User created successfully: {new_user.id}")
+        logger.info(f"User created successfully: {new_user.id}")
 
-        # Clear verification session data
         session.pop('email_verified', None)
         session.pop('verified_email', None)
         session.pop('verification_code', None)
@@ -500,18 +517,15 @@ Qunex Trade Team
         mail.send(msg)
         return jsonify({'success': True, 'message': 'Verification code sent!'})
     except Exception as e:
-        import traceback
-        print(f"❌ Error sending email: {type(e).__name__}: {e}")
-        print(f"Full traceback:\n{traceback.format_exc()}")
+        logger.error(f"Error sending email: {type(e).__name__}: {e}", exc_info=True)
 
         # FALLBACK: Return code in response when email fails
         # This allows signup to work even when email service is unavailable
-        print(f"[FALLBACK] Email sending failed. Returning code in response: {code}")
-        print(f"[FALLBACK] Verification code for {email}: {code}")
+        logger.warning(f"Email sending failed. Returning code in response for {email}")
         return jsonify({
             'success': True,
             'message': f'Email service temporarily unavailable. Your verification code is: {code}',
-            'dev_code': code  # Return code for auto-fill
+            'dev_code': code
         })
 
 
@@ -621,7 +635,7 @@ Qunex Trade Team
 '''
                 mail.send(msg)
             except Exception as e:
-                print(f"Error sending email: {e}")
+                logger.error(f"Error sending password reset email: {e}", exc_info=True)
 
         return redirect(url_for('auth.login'))
 

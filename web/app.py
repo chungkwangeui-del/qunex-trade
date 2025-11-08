@@ -3,7 +3,7 @@ Flask Web Application - Qunex Trade
 Professional trading tools with real-time market data
 """
 
-from flask import Flask, render_template, jsonify, request
+from flask import Flask, render_template, jsonify, request, Response
 from flask_login import LoginManager, login_required, current_user
 from flask_mail import Mail
 from flask_limiter import Limiter
@@ -15,8 +15,10 @@ import json
 import threading
 import time
 import traceback
+import logging
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
+from typing import Dict, List, Any, Optional, Union
 
 # Load environment variables
 load_dotenv()
@@ -37,20 +39,41 @@ try:
 except ImportError:
     from web.database import db, User
 
+# Configure logging
+logger = logging.getLogger(__name__)
+
 # Helper Functions
-def load_json_data(filename, default=None):
-    """Load JSON data from data directory"""
+def load_json_data(filename: str, default: Optional[Any] = None) -> Any:
+    """
+    Load JSON data from data directory.
+
+    Args:
+        filename: Name of the JSON file to load
+        default: Default value to return if file not found or error occurs
+
+    Returns:
+        Loaded JSON data or default value
+    """
     try:
         file_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'data', filename)
         if os.path.exists(file_path):
             with open(file_path, 'r', encoding='utf-8') as f:
                 return json.load(f)
     except Exception as e:
-        print(f"Error loading {filename}: {e}")
+        logger.error(f"Error loading {filename}: {e}")
     return default or []
 
-def save_json_data(filename, data):
-    """Save JSON data to data directory"""
+def save_json_data(filename: str, data: Any) -> bool:
+    """
+    Save JSON data to data directory.
+
+    Args:
+        filename: Name of the JSON file to save
+        data: Data to save as JSON
+
+    Returns:
+        True if successful, False otherwise
+    """
     try:
         data_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'data')
         os.makedirs(data_dir, exist_ok=True)
@@ -59,7 +82,7 @@ def save_json_data(filename, data):
             json.dump(data, f, indent=2, ensure_ascii=False)
         return True
     except Exception as e:
-        print(f"Error saving {filename}: {e}")
+        logger.error(f"Error saving {filename}: {e}")
         return False
 
 app = Flask(__name__)
@@ -159,7 +182,16 @@ limiter.limit(f"{RATE_LIMITS['auth_per_minute']} per minute")(app.view_functions
 limiter.limit(f"{RATE_LIMITS['auth_per_minute']} per minute")(app.view_functions['auth.google_callback'])
 
 @login_manager.user_loader
-def load_user(user_id):
+def load_user(user_id: str) -> Optional[User]:
+    """
+    Load user by ID for Flask-Login.
+
+    Args:
+        user_id: User ID as string
+
+    Returns:
+        User object if found, None otherwise
+    """
     return db.session.get(User, int(user_id))
 
 # Create tables
@@ -168,8 +200,16 @@ with app.app_context():
 
 # Security headers middleware
 @app.after_request
-def set_security_headers(response):
-    """Add security headers to all responses"""
+def set_security_headers(response: Response) -> Response:
+    """
+    Add security headers to all responses.
+
+    Args:
+        response: Flask response object
+
+    Returns:
+        Response with security headers added
+    """
     response.headers['X-Content-Type-Options'] = 'nosniff'
     response.headers['X-Frame-Options'] = 'SAMEORIGIN'
     response.headers['X-XSS-Protection'] = '1; mode=block'
@@ -309,23 +349,23 @@ def calendar():
     return render_template('calendar.html', user=current_user)
 
 @app.route('/news')
-def news():
-    """Market News & Analysis (Beta/Developer Only)"""
-    # Check user access level
+def news() -> str:
+    """
+    Market News & Analysis page (Beta/Developer Only).
+
+    Returns:
+        Rendered news template with access control
+    """
     has_access = False
     user_tier = 'guest'
 
     if current_user.is_authenticated:
         user_tier = current_user.subscription_tier
-        # Grant access to Beta Testers and Developers only
         if user_tier in ['beta', 'developer']:
             has_access = True
 
     try:
-        # Load analyzed news using helper function
         news_data = load_json_data('news_analysis.json', [])
-
-        # If no access, only show preview (first 3 items, blurred)
         preview_data = news_data[:3] if not has_access else news_data
 
         return render_template('news.html',
@@ -334,8 +374,7 @@ def news():
                              has_access=has_access,
                              user_tier=user_tier)
     except Exception as e:
-        print(f"Error loading news: {e}")
-        traceback.print_exc()
+        logger.error(f"Error loading news: {e}", exc_info=True)
         return render_template('news.html',
                              news_data=[],
                              user=current_user,
@@ -343,36 +382,37 @@ def news():
                              user_tier=user_tier)
 
 @app.route('/api/news/refresh')
-def api_refresh_news():
-    """Refresh news data (collects and analyzes latest news)"""
+def api_refresh_news() -> Dict[str, Any]:
+    """
+    Refresh news data by collecting and analyzing latest news.
+
+    Returns:
+        JSON response with refresh results
+    """
     try:
         from src.news_collector import NewsCollector
         from src.news_analyzer import NewsAnalyzer
 
-        print("[API] Starting news refresh...")
+        logger.info("Starting news refresh")
 
-        # Collect news using configured hours
         collector = NewsCollector()
         news_list = collector.collect_all_news(hours=NEWS_COLLECTION_HOURS)
 
-        print(f"[API] Collected {len(news_list)} news items")
+        logger.info(f"Collected {len(news_list)} news items")
 
         if not news_list:
             return jsonify({'success': False, 'message': 'No news collected'})
 
-        # Analyze news using configured limit
         analyzer = NewsAnalyzer()
         analyzed_news = analyzer.analyze_news_batch(news_list, max_items=NEWS_ANALYSIS_LIMIT)
 
-        print(f"[API] Analyzed {len(analyzed_news)} news items")
+        logger.info(f"Analyzed {len(analyzed_news)} news items")
 
-        # Save analysis
         analyzer.save_analysis(analyzed_news)
 
-        # Count high-impact news (4-5 stars)
         high_impact_count = len([n for n in analyzed_news if n.get('importance', 0) >= 4])
 
-        print(f"[API] Success! {len(analyzed_news)} analyzed ({high_impact_count} high-impact)")
+        logger.info(f"News refresh complete: {len(analyzed_news)} analyzed ({high_impact_count} high-impact)")
 
         return jsonify({
             'success': True,
@@ -384,8 +424,7 @@ def api_refresh_news():
 
     except Exception as e:
         error_msg = str(e)
-        print(f"[API ERROR] {error_msg}")
-        traceback.print_exc()
+        logger.error(f"News refresh failed: {error_msg}", exc_info=True)
         return jsonify({'success': False, 'message': error_msg})
 
 @app.route('/api/news/search')
@@ -536,17 +575,20 @@ def api_statistics():
 # Sector map moved to /api/market/sector-map (Polygon.io)
 
 # Auto-refresh news every hour in background
-def auto_refresh_news():
-    """Background thread to refresh news every hour"""
+def auto_refresh_news() -> None:
+    """
+    Background thread to automatically refresh news data.
+
+    Runs continuously with configured interval between refreshes.
+    """
     while True:
         try:
             time.sleep(AUTO_REFRESH_INTERVAL)
-            print("[AUTO-REFRESH] Starting news collection...")
+            logger.info("Starting auto-refresh news collection")
 
             from src.news_collector import NewsCollector
             from src.news_analyzer import NewsAnalyzer
 
-            # Collect and analyze news using configured values
             collector = NewsCollector()
             news_list = collector.collect_all_news(hours=NEWS_COLLECTION_HOURS)
 
@@ -556,18 +598,17 @@ def auto_refresh_news():
                 analyzer.save_analysis(analyzed_news)
 
                 high_impact = len([n for n in analyzed_news if n.get('importance', 0) >= 4])
-                print(f"[AUTO-REFRESH] [OK] {len(analyzed_news)} news analyzed ({high_impact} high-impact)")
+                logger.info(f"Auto-refresh complete: {len(analyzed_news)} news analyzed ({high_impact} high-impact)")
             else:
-                print("[AUTO-REFRESH] No news collected")
+                logger.warning("Auto-refresh: No news collected")
 
         except Exception as e:
-            print(f"[AUTO-REFRESH] Error: {e}")
-            traceback.print_exc()
+            logger.error(f"Auto-refresh error: {e}", exc_info=True)
 
 # Start background news refresh thread
 news_thread = threading.Thread(target=auto_refresh_news, daemon=True)
 news_thread.start()
-print(f"[OK] Auto-refresh news thread started (refreshes every {AUTO_REFRESH_INTERVAL//3600} hour(s))")
+logger.info(f"Auto-refresh news thread started (refreshes every {AUTO_REFRESH_INTERVAL//3600} hour(s))")
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)

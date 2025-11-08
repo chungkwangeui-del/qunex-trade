@@ -5,9 +5,12 @@ Real-time and historical stock market data
 
 import requests
 import os
+import logging
 from datetime import datetime, timedelta
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Any
 import time
+
+logger = logging.getLogger(__name__)
 
 class SimpleCache:
     """Simple in-memory cache with TTL (Time To Live)"""
@@ -65,11 +68,20 @@ class PolygonService:
         }
         # Polygon.io uses query params for auth, not headers
 
-    def _make_request(self, endpoint: str, params: Dict = None) -> Dict:
-        """Make API request with error handling"""
+    def _make_request(self, endpoint: str, params: Optional[Dict] = None) -> Optional[Dict]:
+        """
+        Make API request with error handling.
+
+        Args:
+            endpoint: API endpoint path
+            params: Optional query parameters
+
+        Returns:
+            API response data or None if request fails
+        """
         try:
             if not self.api_key:
-                print("[Polygon API Error] API key not set! Check POLYGON_API_KEY environment variable")
+                logger.error("Polygon API key not set! Check POLYGON_API_KEY environment variable")
                 return None
 
             url = f"{self.base_url}{endpoint}"
@@ -81,13 +93,12 @@ class PolygonService:
             response.raise_for_status()
             data = response.json()
 
-            # Log API errors
             if data.get('status') == 'ERROR':
-                print(f"[Polygon API Error] {endpoint}: {data.get('error', 'Unknown error')}")
+                logger.error(f"Polygon API error for {endpoint}: {data.get('error', 'Unknown error')}")
 
             return data
         except requests.exceptions.RequestException as e:
-            print(f"[Polygon API Error] {endpoint}: {e}")
+            logger.error(f"Polygon API request failed for {endpoint}: {e}")
             return None
 
     def get_stock_quote(self, ticker: str) -> Optional[Dict]:

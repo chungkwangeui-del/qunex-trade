@@ -266,7 +266,9 @@ class SessionTimeout {
             headers: {
                 'Content-Type': 'application/json',
             }
-        }).catch(err => console.error('Session extend failed:', err));
+        }).catch(err => {
+            // Session extend failed - silent fail
+        });
 
         if (window.showToast) {
             showToast('Session extended successfully', 'success');

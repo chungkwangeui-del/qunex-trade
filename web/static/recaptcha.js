@@ -41,7 +41,7 @@ async function executeRecaptcha(action) {
 
         return token;
     } catch (error) {
-        console.error('reCAPTCHA error:', error);
+        // reCAPTCHA error - failed to execute
         return null;
     }
 }
@@ -81,7 +81,6 @@ function protectLoginForm() {
             // Submit form
             this.submit();
         } catch (error) {
-            console.error('Login error:', error);
             if (window.showToast) {
                 showToast('Security verification failed. Please try again.', 'error');
             } else {
@@ -128,7 +127,6 @@ function protectSignupForm() {
             // Submit form
             this.submit();
         } catch (error) {
-            console.error('Signup error:', error);
             if (window.showToast) {
                 showToast('Security verification failed. Please try again.', 'error');
             } else {
@@ -171,7 +169,6 @@ function protectForgotPasswordForm() {
 
             this.submit();
         } catch (error) {
-            console.error('Forgot password error:', error);
             if (window.showToast) {
                 showToast('Security verification failed. Please try again.', 'error');
             } else {

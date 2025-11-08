@@ -8,26 +8,32 @@ from flask_login import login_required, current_user
 from database import db, Watchlist
 from polygon_service import get_polygon_service
 from datetime import datetime
+from typing import Dict, Any, Tuple
+import logging
+
+logger = logging.getLogger(__name__)
 
 api_watchlist = Blueprint('api_watchlist', __name__)
 
 @api_watchlist.route('/api/watchlist', methods=['GET'])
 @login_required
-def get_watchlist():
-    """Get user's watchlist with real-time quotes"""
+def get_watchlist() -> Tuple[Any, int]:
+    """
+    Get user's watchlist with real-time quotes.
+
+    Returns:
+        JSON array of watchlist items with real-time data
+    """
     try:
-        # Get user's watchlist
         watchlist_items = Watchlist.query.filter_by(user_id=current_user.id).order_by(Watchlist.added_at.desc()).all()
 
         if not watchlist_items:
             return jsonify([])
 
-        # Get real-time quotes for all tickers
         polygon = get_polygon_service()
         results = []
 
         for item in watchlist_items:
-            # Get current quote from Polygon
             quote = polygon.get_stock_quote(item.ticker)
 
             stock_data = {
@@ -40,7 +46,6 @@ def get_watchlist():
                 'alert_price_below': item.alert_price_below
             }
 
-            # Add real-time quote data if available
             if quote:
                 stock_data.update({
                     'price': quote.get('price'),
@@ -53,7 +58,6 @@ def get_watchlist():
                     'prev_close': quote.get('prev_close')
                 })
             else:
-                # No quote data available
                 stock_data.update({
                     'price': None,
                     'change': None,
@@ -67,7 +71,7 @@ def get_watchlist():
         return jsonify(results)
 
     except Exception as e:
-        print(f"Error fetching watchlist: {e}")
+        logger.error(f"Error fetching watchlist: {e}", exc_info=True)
         return jsonify({'error': str(e)}), 500
 
 
@@ -113,7 +117,7 @@ def add_to_watchlist():
 
     except Exception as e:
         db.session.rollback()
-        print(f"Error adding to watchlist: {e}")
+        logger.error(f"Error adding to watchlist: {e}", exc_info=True)
         return jsonify({'error': str(e)}), 500
 
 
@@ -138,7 +142,7 @@ def remove_from_watchlist(item_id):
 
     except Exception as e:
         db.session.rollback()
-        print(f"Error removing from watchlist: {e}")
+        logger.error(f"Error removing from watchlist: {e}", exc_info=True)
         return jsonify({'error': str(e)}), 500
 
 
@@ -172,7 +176,7 @@ def update_watchlist_item(item_id):
 
     except Exception as e:
         db.session.rollback()
-        print(f"Error updating watchlist item: {e}")
+        logger.error(f"Error updating watchlist item: {e}", exc_info=True)
         return jsonify({'error': str(e)}), 500
 
 
@@ -236,5 +240,5 @@ def get_watchlist_stats():
         })
 
     except Exception as e:
-        print(f"Error getting watchlist stats: {e}")
+        logger.error(f"Error getting watchlist stats: {e}", exc_info=True)
         return jsonify({'error': str(e)}), 500
