@@ -275,28 +275,73 @@ def filter_signals_by_subscription(signals):
 
 @app.route('/')
 def index():
-    """Main page - Empty state until Kiwoom API integration"""
-    # Empty signals for now
-    today_signals = []
-    filtered_signals = []
-    history = []
+    """Main page - Live market data from Polygon API"""
+    from polygon_service import PolygonService
 
-    # Empty statistics
-    stats = {
-        'total_signals': 0,
-        'success_rate': 0,
-        'win_rate': 0,
-        'avg_return': 0,
-        'total_tracked': 0
-    }
-    stats_30d = stats
+    # Initialize Polygon service
+    polygon = PolygonService()
+
+    # Get market movers (top gainers/losers)
+    try:
+        gainers = polygon.get_gainers_losers('gainers')[:10]  # Top 10 gainers
+        losers = polygon.get_gainers_losers('losers')[:10]   # Top 10 losers
+
+        # Combine and format as signals
+        today_signals = []
+        for stock in gainers:
+            today_signals.append({
+                'ticker': stock.get('ticker', 'N/A'),
+                'name': stock.get('name', 'Unknown'),
+                'price': stock.get('price', 0),
+                'change': stock.get('change_percent', 0),
+                'volume': stock.get('volume', 0),
+                'type': 'GAINER',
+                'signal_strength': min(100, abs(stock.get('change_percent', 0)) * 10)
+            })
+
+        for stock in losers:
+            today_signals.append({
+                'ticker': stock.get('ticker', 'N/A'),
+                'name': stock.get('name', 'Unknown'),
+                'price': stock.get('price', 0),
+                'change': stock.get('change_percent', 0),
+                'volume': stock.get('volume', 0),
+                'type': 'LOSER',
+                'signal_strength': min(100, abs(stock.get('change_percent', 0)) * 10)
+            })
+
+        # Calculate statistics from live data
+        total_signals = len(today_signals)
+        avg_change = sum(abs(s['change']) for s in today_signals) / total_signals if total_signals > 0 else 0
+
+        stats = {
+            'total_signals': total_signals,
+            'gainers': len(gainers),
+            'losers': len(losers),
+            'avg_change': avg_change,
+            'total_tracked': total_signals
+        }
+        stats_30d = stats
+
+    except Exception as e:
+        logger.error(f"Error fetching Polygon data: {e}")
+        # Fallback to empty state
+        today_signals = []
+        stats = {
+            'total_signals': 0,
+            'gainers': 0,
+            'losers': 0,
+            'avg_change': 0,
+            'total_tracked': 0
+        }
+        stats_30d = stats
 
     # No upgrade banner needed
     show_upgrade_banner = False
 
     return render_template('index.html',
-                         today_signals=[],
-                         total_signals=0,
+                         today_signals=today_signals,
+                         total_signals=len(today_signals),
                          stats=stats,
                          stats_30d=stats_30d,
                          show_upgrade_banner=False,
