@@ -574,11 +574,15 @@
             }
         }
     </style>
-    <link rel="stylesheet" href="{{ url_for('static', filename='basic.css') }}?v=1762456000">
+    <link rel="stylesheet" href="{{ url_for('static', filename='basic.css')?v=1762480000">
     
     
 </head>
 <body>
+    <!-- Theme Toggle Button -->
+    <button id="theme-toggle" aria-label="Toggle theme">☀️</button>
+
+
     <div class="container">
         <!-- Navigation -->
         <nav>
@@ -852,5 +856,7 @@
     </script>
 
 
+    <!-- Theme Toggle Script -->
+    <script src="{{ url_for('static', filename='theme-toggle.js') }}" defer></script>
 </body>
 </html>

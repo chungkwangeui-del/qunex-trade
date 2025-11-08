@@ -422,9 +422,13 @@
             }
         }
     </style>
-    <link rel="stylesheet" href="{{ url_for('static', filename='basic.css') }}?v=1762450000">
+    <link rel="stylesheet" href="{{ url_for('static', filename='basic.css')?v=1762480000">
 </head>
 <body>
+    <!-- Theme Toggle Button -->
+    <button id="theme-toggle" aria-label="Toggle theme">‚òÄÔ∏è</button>
+
+
     <div class="container">
         <!-- Navigation -->
         <nav>
@@ -506,7 +510,7 @@
                 <button class="btn btn-primary" onclick="runScreener()">Run Screener</button>
                 <button class="btn btn-secondary" onclick="clearFilters()">Clear All</button>
                 <button class="btn btn-secondary" onclick="exportToCSV()" id="export-btn" style="display: none;">
-                    ?ì• Export to CSV
+                    ? Export to CSV
                 </button>
             </div>
         </div>
@@ -718,5 +722,7 @@
             });
         });
     </script>
+    <!-- Theme Toggle Script -->
+    <script src="{{ url_for('static', filename='theme-toggle.js') }}" defer></script>
 </body>
 </html>

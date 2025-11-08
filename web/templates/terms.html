@@ -16,8 +16,8 @@
         :root {
             --primary: #00d9ff;
             --secondary: #7c3aed;
-            --bg-dark: #0a0e27;
-            --bg-card: #131829;
+            --bg-dark: #000000;
+            --bg-card: #0a0a0a;
             --text-primary: #ffffff;
             --text-secondary: #8b92b0;
             --border: rgba(0, 217, 255, 0.15);
@@ -132,9 +132,13 @@
             border-radius: 8px;
         }
     </style>
-    <link rel="stylesheet" href="{{ url_for('static', filename='basic.css') }}?v=1762456000">
+    <link rel="stylesheet" href="{{ url_for('static', filename='basic.css')?v=1762480000">
 </head>
 <body>
+    <!-- Theme Toggle Button -->
+    <button id="theme-toggle" aria-label="Toggle theme">☀️</button>
+
+
     <nav>
         <a href="/" class="nav-brand">
             <div class="logo">Q</div>
@@ -262,5 +266,7 @@
     <!-- UI Enhancement Scripts -->
     <script src="{{ url_for('static', filename='toast.js') }}"></script>
     <script src="{{ url_for('static', filename='ui-enhancements.js') }}"></script>
+    <!-- Theme Toggle Script -->
+    <script src="{{ url_for('static', filename='theme-toggle.js') }}" defer></script>
 </body>
 </html>

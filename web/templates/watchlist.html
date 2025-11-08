@@ -371,11 +371,15 @@
             }
         }
     </style>
-    <link rel="stylesheet" href="{{ url_for('static', filename='basic.css') }}?v=1762450000">
+    <link rel="stylesheet" href="{{ url_for('static', filename='basic.css')?v=1762480000">
     
     
 </head>
 <body>
+    <!-- Theme Toggle Button -->
+    <button id="theme-toggle" aria-label="Toggle theme">‚òÄÔ∏è</button>
+
+
     <div class="container">
         <!-- Navigation -->
         <nav>
@@ -468,7 +472,7 @@
             } catch (error) {
                 console.error('Error loading watchlist:', error);
                 document.getElementById('watchlist-container').innerHTML =
-                    '<div class="empty-state"><div class="empty-icon">?†Ô∏è</div><h3>Error loading watchlist</h3></div>';
+                    '<div class="empty-state"><div class="empty-icon">?Ô∏è</div><h3>Error loading watchlist</h3></div>';
             }
         }
 
@@ -502,7 +506,7 @@
             if (!stocks || stocks.length === 0) {
                 container.innerHTML = `
                     <div class="empty-state">
-                        <div class="empty-icon">?ìä</div>
+                        <div class="empty-icon">?</div>
                         <h3>Your watchlist is empty</h3>
                         <p style="margin-top: 10px;">Add stocks above to start tracking them</p>
                     </div>
@@ -624,5 +628,7 @@
     </script>
 
 
+    <!-- Theme Toggle Script -->
+    <script src="{{ url_for('static', filename='theme-toggle.js') }}" defer></script>
 </body>
 </html>

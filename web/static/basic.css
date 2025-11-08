@@ -1,6 +1,6 @@
 /**
- * Basic CSS - Simple Dark Theme Only
- * No theme switching, no complexity - just clean dark colors
+ * Basic CSS - Dark & Light Theme Support
+ * Clean dual-theme system with toggle functionality
  */
 
 /* === CSS RESET === */
@@ -10,7 +10,7 @@
     box-sizing: border-box;
 }
 
-/* === CSS VARIABLES - DARK THEME ONLY === */
+/* === CSS VARIABLES - DARK THEME (DEFAULT) === */
 :root {
     /* Primary Colors */
     --primary: #00d9ff;
@@ -36,6 +36,22 @@
     --glow: rgba(0, 217, 255, 0.5);
 }
 
+/* === CSS VARIABLES - LIGHT THEME === */
+:root.light-mode {
+    /* Background Colors */
+    --bg-dark: #ffffff;
+    --bg-card: #f5f5f5;
+    --bg-hover: #e5e5e5;
+
+    /* Text Colors */
+    --text-primary: #1a1a1a;
+    --text-secondary: #666666;
+
+    /* Border & Effects */
+    --border: rgba(0, 217, 255, 0.3);
+    --glow: rgba(0, 217, 255, 0.4);
+}
+
 /* === BODY === */
 body {
     font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -44,6 +60,7 @@ body {
     min-height: 100vh;
     position: relative;
     overflow-x: hidden;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* === CONTAINER === */
@@ -53,6 +70,31 @@ body {
     padding: 30px;
     position: relative;
     z-index: 1;
+}
+
+/* === THEME TOGGLE BUTTON === */
+#theme-toggle {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: var(--bg-card);
+    border: 2px solid var(--border);
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    font-size: 24px;
+    cursor: pointer;
+    z-index: 9999;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(0, 217, 255, 0.2);
+}
+
+#theme-toggle:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px var(--glow);
 }
 
 /* === NAVIGATION === */
@@ -182,5 +224,13 @@ nav {
         font-size: 0.9em;
         flex-wrap: wrap;
         justify-content: center;
+    }
+
+    #theme-toggle {
+        top: 10px;
+        right: 10px;
+        width: 45px;
+        height: 45px;
+        font-size: 20px;
     }
 }
