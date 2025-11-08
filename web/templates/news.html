@@ -9,35 +9,165 @@
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 
-    <!-- Basic CSS - MUST load first -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='basic.css') }}?v=1762455000">
-
     <style>
-        /* === NEWS PAGE SPECIFIC STYLES === */
-        /* Base styles (reset, body, nav, buttons) are in basic.css */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-        /* Header */
-        header {
+        /* CSS variables moved to basic.css */
+
+        body {
+            font-family: 'Space Grotesk', -apple-system, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        }
+
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 30px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Navigation */
+        nav {
             background: var(--bg-card);
-            padding: 40px;
-            border-radius: 20px;
+            padding: 20px 40px;
+            border-radius: 16px;
             margin-bottom: 40px;
             border: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.8em;
+            font-weight: 700;
+            letter-spacing: -1px;
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+
+        .logo {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.1em;
+            box-shadow: 0 0 20px var(--glow);
+        }
+
+        .brand-text {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-link:hover {
+            color: var(--primary);
+        }
+
+        .nav-link.active {
+            color: var(--primary);
+        }
+
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--primary);
+            box-shadow: 0 0 10px var(--glow);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--primary);
+            padding: 10px 25px;
+            border: 1px solid var(--primary);
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 700;
+            transition: all 0.3s;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(0, 217, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 10px 25px;
+            border: none;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 700;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px var(--glow);
+        }
+
+        /* Header */
+        .header {
+            margin-bottom: 40px;
         }
 
         h1 {
             font-size: 3em;
-            font-weight: 700;
+            margin-bottom: 10px;
             background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 10px;
+            background-clip: text;
         }
 
         .subtitle {
             color: var(--text-secondary);
-            font-size: 1.2em;
-            margin-bottom: 20px;
+            font-size: 1.1em;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
         }
 
         /* Filter Section */
@@ -119,88 +249,6 @@
             gap: 25px;
         }
 
-        .news-grid.blurred {
-            filter: blur(10px);
-            pointer-events: none;
-            user-select: none;
-        }
-
-        /* Locked Content Overlay */
-        .locked-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.95);
-            backdrop-filter: blur(10px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 100;
-            border-radius: 20px;
-        }
-
-        .locked-content {
-            text-align: center;
-            max-width: 600px;
-            padding: 50px;
-        }
-
-        .lock-icon {
-            font-size: 4em;
-            margin-bottom: 20px;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.1); opacity: 0.8; }
-        }
-
-        .locked-title {
-            font-size: 2em;
-            font-weight: 700;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 15px;
-        }
-
-        .locked-subtitle {
-            color: var(--text-secondary);
-            font-size: 1.1em;
-            margin-bottom: 30px;
-            line-height: 1.6;
-        }
-
-        .upgrade-benefits {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 15px;
-            padding: 25px;
-            margin: 25px 0;
-            text-align: left;
-        }
-
-        .benefit-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 12px;
-            color: var(--text-primary);
-        }
-
-        .benefit-icon {
-            font-size: 1.3em;
-        }
-
-        .news-grid.blurred {
-            filter: blur(8px);
-            pointer-events: none;
-            user-select: none;
-        }
-
         .news-card {
             background: var(--bg-card);
             border: 1px solid var(--border);
@@ -232,12 +280,6 @@
         .news-card:hover::before {
             opacity: 1;
         }
-
-        .news-card.importance-5::before { background: linear-gradient(180deg, #ff006e, #ff4d94); }
-        .news-card.importance-4::before { background: linear-gradient(180deg, #ff6b35, #ffa94d); }
-        .news-card.importance-3::before { background: linear-gradient(180deg, #ffc107, #ffd93d); }
-        .news-card.importance-2::before { background: linear-gradient(180deg, #00d9ff, #7c3aed); }
-        .news-card.importance-1::before { background: linear-gradient(180deg, #6c757d, #adb5bd); }
 
         .news-meta {
             display: flex;
@@ -330,20 +372,6 @@
             color: var(--secondary);
         }
 
-        .key-points {
-            margin-top: 15px;
-        }
-
-        .key-points ul {
-            margin: 10px 0 0 20px;
-            color: var(--text-secondary);
-        }
-
-        .key-points li {
-            margin-bottom: 8px;
-            font-size: 0.9em;
-        }
-
         .read-more {
             display: inline-block;
             margin-top: 15px;
@@ -375,43 +403,92 @@
             color: var(--text-secondary);
             font-size: 1.1em;
         }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            border-top: 1px solid var(--border);
+            margin-top: 60px;
+            color: var(--text-secondary);
+        }
+
+        footer p {
+            margin: 10px 0;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            nav {
+                padding: 15px 20px;
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .nav-links {
+                gap: 15px;
+                font-size: 0.9em;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .news-grid {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='basic.css') }}?v=1762470000">
 </head>
 <body>
     <div class="container">
         <!-- Navigation -->
         <nav>
-            <a href="/" class="nav-brand" style="text-decoration: none;">
+            <a href="/" class="nav-brand">
                 <div class="logo">Q</div>
                 <span class="brand-text">Qunex Trade</span>
             </a>
             <div class="nav-links">
-                <a href="/">Home</a>
-                <a href="/market">Market</a>
-                <a href="/screener">Screener</a>
-                <a href="/watchlist">Watchlist</a>
-                <a href="/calendar">Calendar</a>
-                <a href="/news" class="active">News</a>
-                <a href="/about">About</a>
-                {% if user.is_authenticated %}
-                <a href="/auth/account">Account</a>
-                <a href="/auth/logout" class="btn-secondary">Logout</a>
+                <a href="/" class="nav-link">Home</a>
+                <a href="/market" class="nav-link">Market</a>
+                <a href="/screener" class="nav-link">Screener</a>
+                <a href="/watchlist" class="nav-link">Watchlist</a>
+                <a href="/calendar" class="nav-link">Calendar</a>
+                <a href="/news" class="nav-link active">News</a>
+                <a href="/about" class="nav-link">About</a>
+                {% if user and user.is_authenticated %}
+                    <a href="/auth/account" class="nav-link">Account</a>
+                    <a href="/auth/logout" class="btn-secondary">Logout</a>
                 {% else %}
-                <a href="/auth/login" class="btn-secondary">Login</a>
-                <a href="/auth/signup" class="btn-primary">Sign Up</a>
+                    <a href="/auth/login" class="btn-secondary">Login</a>
                 {% endif %}
             </div>
         </nav>
 
         <!-- Header -->
-        <header>
+        <div class="header">
             <h1>Market News Analysis</h1>
-            <p class="subtitle">AI-powered real-time news impact analysis for US stock market</p>
-            <button class="btn-primary" onclick="refreshNews()">
-                🔄 Refresh News
-            </button>
-            <small id="last-update" style="margin-left: 15px; color: var(--text-secondary);"></small>
-        </header>
+            <div class="subtitle">
+                AI-powered real-time news impact analysis for US stock market
+                <button class="btn-primary" onclick="refreshNews()">
+                    🔄 Refresh News
+                </button>
+                <small id="last-update" style="color: var(--text-secondary);"></small>
+            </div>
+        </div>
 
         <!-- Filter Section -->
         <div class="filter-section">
@@ -430,66 +507,7 @@
 
         <!-- News Grid -->
         <div class="news-grid-container">
-            {% if not has_access %}
-            <!-- Locked Overlay -->
-            <div class="locked-overlay">
-                <div class="locked-content">
-                    {% if user_tier in ['pro', 'premium'] %}
-                    <!-- Coming Soon for Pro/Premium Users -->
-                    <div class="lock-icon">🚧</div>
-                    <h2 class="locked-title">Feature in Development</h2>
-                    <p class="locked-subtitle">
-                        News Section is currently in beta testing. This feature will be available to all Pro+ subscribers soon!
-                    </p>
-                    <p style="color: var(--text-secondary); font-size: 0.9em; margin-top: 15px;">
-                        Want early access? Contact us to join our Beta Testing program.
-                    </p>
-                    {% else %}
-                    <!-- Locked for Free/Guest Users -->
-                    <div class="lock-icon">🔒</div>
-                    <h2 class="locked-title">Premium Feature Locked</h2>
-                    <p class="locked-subtitle">
-                        Real-time market news analysis with AI-powered insights is coming soon for Pro subscribers!
-                    </p>
-                    {% endif %}
-
-                    <div class="upgrade-benefits">
-                        <div class="benefit-item">
-                            <span class="benefit-icon">📊</span>
-                            <span>AI-powered news impact analysis</span>
-                        </div>
-                        <div class="benefit-item">
-                            <span class="benefit-icon">⭐</span>
-                            <span>1-5 star importance ratings</span>
-                        </div>
-                        <div class="benefit-item">
-                            <span class="benefit-icon">📈</span>
-                            <span>Affected stocks & sectors identification</span>
-                        </div>
-                        <div class="benefit-item">
-                            <span class="benefit-icon">🔄</span>
-                            <span>Real-time news updates</span>
-                        </div>
-                        <div class="benefit-item">
-                            <span class="benefit-icon">⚡</span>
-                            <span>Time-sensitive alerts for critical news</span>
-                        </div>
-                    </div>
-
-                    {% if not user.is_authenticated %}
-                    <a href="/auth/signup" class="btn-primary" style="display: inline-block; padding: 15px 40px; font-size: 1.1em; margin-top: 10px;">
-                        Sign Up to Unlock
-                    </a>
-                    {% elif user_tier == 'free' %}
-                    <a href="/payments/pricing" class="btn-primary" style="display: inline-block; padding: 15px 40px; font-size: 1.1em; margin-top: 10px;">
-                        Upgrade to Pro
-                    </a>
-                    {% endif %}
-                </div>
-            </div>
-            {% endif %}
-
-            <div class="news-grid {% if not has_access %}blurred{% endif %}" id="news-list">
+            <div class="news-grid" id="news-list">
             {% if news_data %}
                 {% for news in news_data %}
                 <div class="news-card importance-{{ news.importance }}" data-importance="{{ news.importance }}">
@@ -538,17 +556,6 @@
                     </div>
                     {% endif %}
 
-                    {% if news.key_points %}
-                    <div class="key-points">
-                        <div class="tag-label">Key Points:</div>
-                        <ul>
-                            {% for point in news.key_points %}
-                            <li>{{ point }}</li>
-                            {% endfor %}
-                        </ul>
-                    </div>
-                    {% endif %}
-
                     {% if news.news_url %}
                     <a href="{{ news.news_url }}" target="_blank" class="read-more">
                         Read Full Article →
@@ -562,12 +569,12 @@
                     <p>Click "Refresh News" to collect and analyze the latest market news.</p>
                 </div>
             {% endif %}
-            </div> <!-- Close news-grid -->
-        </div> <!-- Close news-grid-container -->
+            </div>
+        </div>
 
         <!-- Footer -->
-        <footer style="text-align: center; padding: 40px 20px; border-top: 1px solid var(--border); margin-top: 60px;">
-            <p><span style="background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-weight: 700;">Qunex Trade</span> - AI-Powered Market Intelligence</p>
+        <footer>
+            <p><span class="gradient-text">Qunex Trade</span> - AI-Powered Market Intelligence</p>
             <p style="margin-top: 15px; font-size: 0.9em;">
                 <a href="/terms" style="color: var(--primary); text-decoration: none; margin: 0 10px;">Terms of Service</a> •
                 <a href="/privacy" style="color: var(--primary); text-decoration: none; margin: 0 10px;">Privacy Policy</a>
@@ -585,7 +592,6 @@
             btn.disabled = true;
             btn.textContent = '🔄 Refreshing... (this may take 1-2 minutes)';
 
-            // Add timeout of 3 minutes
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 180000);
 
@@ -621,11 +627,9 @@
             const cards = document.querySelectorAll('.news-card');
             const buttons = document.querySelectorAll('.filter-btn');
 
-            // Update active button
             buttons.forEach(btn => btn.classList.remove('active'));
             button.classList.add('active');
 
-            // Filter cards
             cards.forEach(card => {
                 if (level === 'all') {
                     card.style.display = 'block';
@@ -648,12 +652,10 @@
 
                 let showCard = true;
 
-                // Filter by ticker
                 if (tickerInput && !stocks.some(stock => stock.includes(tickerInput))) {
                     showCard = false;
                 }
 
-                // Filter by keyword
                 if (keywordInput && !cardText.includes(keywordInput)) {
                     showCard = false;
                 }
@@ -661,7 +663,6 @@
                 card.style.display = showCard ? 'block' : 'none';
             });
 
-            // If searching, deactivate importance filter buttons
             if (tickerInput || keywordInput) {
                 document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
             }
@@ -671,26 +672,17 @@
             document.getElementById('search-ticker').value = '';
             document.getElementById('search-keyword').value = '';
 
-            // Show all cards
             const cards = document.querySelectorAll('.news-card');
             cards.forEach(card => card.style.display = 'block');
 
-            // Reset to "All News" filter
             const allButton = document.querySelector('.filter-btn');
             allButton.classList.add('active');
         }
 
-        // Update last update time
         {% if news_data and news_data[0].analyzed_at %}
         document.getElementById('last-update').textContent =
             'Last updated: {{ news_data[0].analyzed_at[:19] }}';
         {% endif %}
     </script>
-
-    <!-- External Scripts -->
-    <script src="{{ url_for('static', filename='toast.js') }}"></script>
-    <script src="{{ url_for('static', filename='ui-enhancements.js') }}"></script>
-
-
 </body>
 </html>

@@ -5,106 +5,214 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>About - Qunex Trade</title>
     <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+
+    <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 
-    <!-- Basic CSS - MUST load first -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='basic.css') }}?v=1762455000">
-
     <style>
-        /* === ABOUT PAGE SPECIFIC STYLES === */
-        /* Base styles (reset, body, nav, buttons) are in basic.css */
-
-        /* Hero Section */
-        .hero {
-            background: var(--bg-card);
-            padding: 80px 60px;
-            border-radius: 24px;
-            margin-bottom: 40px;
-            border: 1px solid var(--border);
-            text-align: center;
-            position: relative;
-            overflow: hidden;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-        .hero::before {
+        /* CSS variables moved to basic.css */
+
+        body {
+            font-family: 'Space Grotesk', -apple-system, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        }
+
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 30px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Navigation */
+        nav {
+            background: var(--bg-card);
+            padding: 20px 40px;
+            border-radius: 16px;
+            margin-bottom: 40px;
+            border: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.8em;
+            font-weight: 700;
+            letter-spacing: -1px;
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+
+        .logo {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.1em;
+            box-shadow: 0 0 20px var(--glow);
+        }
+
+        .brand-text {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-link:hover {
+            color: var(--primary);
+        }
+
+        .nav-link.active {
+            color: var(--primary);
+        }
+
+        .nav-link.active::after {
             content: '';
             position: absolute;
-            top: -50%;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 600px;
-            height: 600px;
-            background: radial-gradient(circle, rgba(0, 217, 255, 0.1) 0%, transparent 70%);
-            pointer-events: none;
+            bottom: -8px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--primary);
+            box-shadow: 0 0 10px var(--glow);
         }
 
-        .hero h1 {
-            font-size: 4.5em;
+        .btn-secondary {
+            background: transparent;
+            color: var(--primary);
+            padding: 10px 25px;
+            border: 1px solid var(--primary);
+            border-radius: 10px;
+            text-decoration: none;
             font-weight: 700;
+            transition: all 0.3s;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(0, 217, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 10px 25px;
+            border: none;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 700;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px var(--glow);
+        }
+
+        /* Header */
+        .header {
+            margin-bottom: 40px;
+            text-align: center;
+            padding: 40px 0;
+        }
+
+        h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
             background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 25px;
-            letter-spacing: -3px;
-            position: relative;
+            background-clip: text;
         }
 
-        .hero p {
-            font-size: 1.4em;
+        .subtitle {
             color: var(--text-secondary);
-            line-height: 1.8;
+            font-size: 1.2em;
+            line-height: 1.6;
             max-width: 900px;
             margin: 0 auto;
-            position: relative;
         }
 
-        /* Content Sections */
+        /* Section */
         .section {
             background: var(--bg-card);
-            padding: 50px;
-            border-radius: 20px;
-            margin-bottom: 40px;
             border: 1px solid var(--border);
-        }
-
-        .section h2 {
-            font-size: 2.5em;
-            font-weight: 700;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            border-radius: 16px;
+            padding: 40px;
             margin-bottom: 30px;
-            letter-spacing: -1px;
         }
 
-        .section h3 {
-            font-size: 1.6em;
-            color: var(--primary);
-            margin: 35px 0 20px 0;
-            font-weight: 600;
+        h2 {
+            font-size: 2em;
+            color: var(--text-primary);
+            margin-bottom: 20px;
         }
 
-        .section p {
+        h3 {
+            font-size: 1.5em;
+            color: var(--text-primary);
+            margin-top: 25px;
+            margin-bottom: 15px;
+        }
+
+        p {
             color: var(--text-secondary);
-            font-size: 1.15em;
-            line-height: 1.9;
-            margin-bottom: 25px;
+            line-height: 1.8;
+            margin-bottom: 15px;
         }
 
-        .section ul {
+        ul {
             list-style: none;
             padding-left: 0;
         }
 
-        .section li {
-            color: var(--text-secondary);
-            font-size: 1.1em;
-            line-height: 2.2;
+        li {
             padding-left: 35px;
             position: relative;
+            margin-bottom: 12px;
+            color: var(--text-secondary);
+            line-height: 1.6;
         }
 
-        .section li::before {
+        li::before {
             content: "→";
             position: absolute;
             left: 0;
@@ -113,7 +221,7 @@
             font-size: 1.2em;
         }
 
-        .section li strong {
+        li strong {
             color: var(--text-primary);
         }
 
@@ -141,62 +249,19 @@
         }
 
         .stat-number {
-            font-size: 3em;
+            font-size: 2.5em;
             font-weight: 700;
             background: linear-gradient(135deg, #00ff88 0%, var(--primary) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            background-clip: text;
             margin-bottom: 10px;
             font-family: 'JetBrains Mono', monospace;
         }
 
         .stat-label {
             color: var(--text-secondary);
-            font-size: 0.9em;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            font-weight: 600;
-        }
-
-        /* Feature Grid */
-        .feature-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 25px;
-            margin-top: 35px;
-        }
-
-        .feature-card {
-            background: var(--bg-dark);
-            padding: 35px;
-            border-radius: 16px;
-            border: 1px solid var(--border);
-            transition: all 0.3s;
-        }
-
-        .feature-card:hover {
-            transform: translateY(-5px);
-            border-color: var(--primary);
-            box-shadow: 0 10px 35px rgba(0, 217, 255, 0.15);
-        }
-
-        .feature-icon {
-            font-size: 3em;
-            margin-bottom: 20px;
-        }
-
-        .feature-card h4 {
-            color: var(--primary);
-            font-size: 1.4em;
-            margin-bottom: 12px;
-            font-weight: 600;
-        }
-
-        .feature-card p {
-            color: var(--text-secondary);
-            font-size: 1.05em;
-            line-height: 1.7;
-            margin: 0;
+            font-size: 1em;
         }
 
         /* Tech Stack */
@@ -239,11 +304,12 @@
             background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            background-clip: text;
             margin-bottom: 20px;
         }
 
         .creator p {
-            font-size: 1.3em;
+            font-size: 1.2em;
             color: var(--text-primary);
             line-height: 1.9;
         }
@@ -254,24 +320,56 @@
             font-size: 1.1em;
         }
 
+        /* Feature Grid */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .feature-card {
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            box-shadow: 0 10px 30px rgba(0, 217, 255, 0.2);
+        }
+
+        .feature-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+
+        .feature-card h4 {
+            font-size: 1.3em;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+        }
+
+        .feature-card p {
+            color: var(--text-secondary);
+            font-size: 0.95em;
+        }
+
         /* Disclaimer */
         .disclaimer-box {
             background: rgba(255, 0, 110, 0.05);
             border: 1px solid rgba(255, 0, 110, 0.3);
             padding: 30px;
             border-radius: 16px;
-            margin-top: 30px;
         }
 
         .warning-icon {
             font-size: 2em;
             margin-bottom: 15px;
-        }
-
-        .disclaimer-box p {
-            color: var(--text-secondary);
-            font-size: 1.05em;
-            line-height: 1.8;
         }
 
         .disclaimer-box p:first-of-type {
@@ -283,63 +381,81 @@
         /* Footer */
         footer {
             text-align: center;
-            padding: 50px 20px;
-            color: var(--text-secondary);
-            margin-top: 60px;
+            padding: 40px 20px;
             border-top: 1px solid var(--border);
+            margin-top: 60px;
+            color: var(--text-secondary);
         }
 
         footer p {
             margin: 10px 0;
-            font-size: 0.95em;
         }
 
         .gradient-text {
             background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            background-clip: text;
             font-weight: 700;
         }
 
         /* Responsive */
         @media (max-width: 768px) {
-            .hero h1 { font-size: 2.8em; }
-            .section { padding: 30px 25px; }
-            nav { padding: 20px; }
-            .hero { padding: 50px 30px; }
+            .container {
+                padding: 15px;
+            }
+
+            nav {
+                padding: 15px 20px;
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .nav-links {
+                gap: 15px;
+                font-size: 0.9em;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .section {
+                padding: 25px;
+            }
         }
     </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='basic.css') }}?v=1762470000">
 </head>
 <body>
     <div class="container">
         <!-- Navigation -->
         <nav>
-            <a href="/" class="nav-brand" style="text-decoration: none;">
+            <a href="/" class="nav-brand">
                 <div class="logo">Q</div>
                 <span class="brand-text">Qunex Trade</span>
             </a>
             <div class="nav-links">
-                <a href="/">Home</a>
-                <a href="/market">Market</a>
-                <a href="/screener">Screener</a>
-                <a href="/watchlist">Watchlist</a>
-                <a href="/calendar">Calendar</a>
-                <a href="/news">News</a>
-                <a href="/about" class="active">About</a>
-                {% if user.is_authenticated %}
-                <a href="/auth/account">Account</a>
-                <a href="/auth/logout" class="btn-secondary">Logout</a>
+                <a href="/" class="nav-link">Home</a>
+                <a href="/market" class="nav-link">Market</a>
+                <a href="/screener" class="nav-link">Screener</a>
+                <a href="/watchlist" class="nav-link">Watchlist</a>
+                <a href="/calendar" class="nav-link">Calendar</a>
+                <a href="/news" class="nav-link">News</a>
+                <a href="/about" class="nav-link active">About</a>
+                {% if user and user.is_authenticated %}
+                    <a href="/auth/account" class="nav-link">Account</a>
+                    <a href="/auth/logout" class="btn-secondary">Logout</a>
                 {% else %}
-                <a href="/auth/login" class="btn-secondary">Login</a>
-                <a href="/auth/signup" class="btn-primary">Sign Up</a>
+                    <a href="/auth/login" class="btn-secondary">Login</a>
                 {% endif %}
             </div>
         </nav>
 
-        <!-- Hero Section -->
-        <div class="hero">
+        <!-- Header -->
+        <div class="header">
             <h1>About Qunex Trade</h1>
-            <p>
+            <p class="subtitle">
                 Professional-grade trading intelligence platform powered by AI.<br>
                 Real-time market news analysis, data-driven insights, and essential tools for serious traders.
             </p>
@@ -407,16 +523,7 @@
                 <li><strong>Hourly Updates:</strong> Fresh analysis every hour, all day long</li>
             </ul>
 
-            <h3>3. Smart News Features</h3>
-            <ul>
-                <li><strong>Stock Ticker Search:</strong> Find all news related to specific stocks (e.g., AAPL, TSLA)</li>
-                <li><strong>Keyword Filtering:</strong> Search by topics like "inflation", "earnings", "merger"</li>
-                <li><strong>Affected Stocks/Sectors:</strong> AI identifies which stocks and sectors are impacted</li>
-                <li><strong>Sentiment Analysis:</strong> Bullish, bearish, or neutral—know the market tone instantly</li>
-                <li><strong>Time Sensitivity:</strong> Immediate, short-term, or long-term impact classification</li>
-            </ul>
-
-            <h3>4. Professional Dashboard</h3>
+            <h3>3. Professional Dashboard</h3>
             <p>
                 Clean, distraction-free interface designed for traders who need information fast.
             </p>
@@ -426,40 +533,6 @@
                 <li><strong>Real-Time Refresh:</strong> One-click update to get latest news</li>
                 <li><strong>Responsive Design:</strong> Works perfectly on desktop, tablet, and mobile</li>
             </ul>
-        </div>
-
-        <!-- How It Works -->
-        <div class="section">
-            <h2>How It Works</h2>
-
-            <h3>Step 1: News Collection</h3>
-            <p>
-                Every hour, our system collects news from multiple reliable sources using advanced keyword targeting.
-                We focus on actionable keywords like "Fed announces", "Trump signs", "CPI data", "reports earnings"—
-                not analyst speculation.
-            </p>
-
-            <h3>Step 2: AI Analysis</h3>
-            <p>
-                Each news article is analyzed by Claude AI (Anthropic) to determine:
-            </p>
-            <ul>
-                <li><strong>Importance (1-5 stars):</strong> Is this Fed decision (5★) or regular company news (3★)?</li>
-                <li><strong>Credibility (1-5 stars):</strong> Is the source Reuters (5★) or a blog (1★)?</li>
-                <li><strong>Market Impact:</strong> Does this affect the entire market or just specific stocks?</li>
-                <li><strong>Factual vs. Opinion:</strong> Is this a real event or analyst speculation?</li>
-            </ul>
-
-            <h3>Step 3: Filtering & Ranking</h3>
-            <p>
-                Only news with 4-5 star importance AND high credibility makes it to your dashboard. News is then
-                sorted by: Market-Wide Impact → Importance → Credibility.
-            </p>
-
-            <h3>Step 4: Delivery</h3>
-            <p>
-                You see only the most important, credible, factual news—saving you hours of research every day.
-            </p>
         </div>
 
         <!-- Key Benefits -->
@@ -589,11 +662,5 @@
             <p style="margin-top: 10px;">© 2025 Qunex Trade. All Rights Reserved.</p>
         </footer>
     </div>
-
-    <!-- UI Enhancement Scripts -->
-    <script src="{{ url_for('static', filename='toast.js') }}"></script>
-    <script src="{{ url_for('static', filename='ui-enhancements.js') }}"></script>
-
-
 </body>
 </html>

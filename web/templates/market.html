@@ -600,7 +600,7 @@
         <!-- Market Indices Chart -->
         <div class="chart-section">
             <div class="chart-card">
-                <h3 style="margin-bottom: 20px; color: var(--primary);">ðŸ“ˆ Market Indices Performance</h3>
+                <h3 style="margin-bottom: 20px; color: var(--primary);">?“ˆ Market Indices Performance</h3>
                 <div class="chart-controls">
                     <button class="chart-btn active" onclick="updateIndexChart('I:DJI')">Dow Jones</button>
                     <button class="chart-btn" onclick="updateIndexChart('I:SPX')">S&P 500</button>
@@ -627,7 +627,7 @@
         <!-- Sector Performance Chart -->
         <div class="chart-section">
             <div class="chart-card">
-                <h3 style="margin-bottom: 20px; color: var(--primary);">ðŸ“Š Sector Comparison</h3>
+                <h3 style="margin-bottom: 20px; color: var(--primary);">?“Š Sector Comparison</h3>
                 <div class="chart-container">
                     <canvas id="sectorsChart"></canvas>
                 </div>
@@ -641,7 +641,7 @@
         <div class="movers-container">
             <div class="movers-card">
                 <div class="movers-header">
-                    <span style="color: var(--success);">â–²</span> Top Gainers
+                    <span style="color: var(--success);">??/span> Top Gainers
                 </div>
                 <div class="movers-list" id="gainers-container">
                     <div class="loading">
@@ -653,7 +653,7 @@
 
             <div class="movers-card">
                 <div class="movers-header">
-                    <span style="color: var(--danger);">â–¼</span> Top Losers
+                    <span style="color: var(--danger);">??/span> Top Losers
                 </div>
                 <div class="movers-list" id="losers-container">
                     <div class="loading">
@@ -711,7 +711,7 @@
                         <div class="index-ticker">${ticker}</div>
                         <div class="index-price">$${(index.price || 0).toFixed(2)}</div>
                         <div class="index-change ${isPositive ? 'change-positive' : 'change-negative'}">
-                            ${isPositive ? 'â–²' : 'â–¼'} ${Math.abs(change).toFixed(2)} (${Math.abs(changePct).toFixed(2)}%)
+                            ${isPositive ? '?? : '??} ${Math.abs(change).toFixed(2)} (${Math.abs(changePct).toFixed(2)}%)
                         </div>
                     `;
                     container.appendChild(card);
