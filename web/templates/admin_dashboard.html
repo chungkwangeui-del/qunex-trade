@@ -13,9 +13,250 @@
             box-sizing: border-box;
         }
 
-        /* CSS variables are loaded from basic.css */
+        :root {
+            --primary: #00d9ff;
+            --secondary: #7c3aed;
+            --accent: #ff006e;
+            --bg-dark: #0a0e27;
+            --bg-card: #131829;
+            --bg-hover: #1a1f3a;
+            --text-primary: #ffffff;
+            --text-secondary: #8b92b0;
+            --border: rgba(0, 217, 255, 0.15);
+            --success: #00ff88;
+            --warning: #fbbf24;
+        }
+
+        body {
+            font-family: 'Space Grotesk', -apple-system, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 30px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            background: var(--bg-card);
+            padding: 40px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            border: 1px solid var(--border);
+        }
+
+        .header h1 {
+            font-size: 3em;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: var(--text-secondary);
+            font-size: 1.2em;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: var(--text-secondary);
+            text-decoration: none;
+            margin-bottom: 20px;
+            font-size: 1.1em;
+            transition: all 0.3s;
+        }
+
+        .back-link:hover {
+            color: var(--primary);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            padding: 30px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
+            font-size: 3em;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .section {
+            background: var(--bg-card);
+            padding: 40px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            border: 1px solid var(--border);
+        }
+
+        .section h2 {
+            font-size: 2em;
+            color: var(--primary);
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        thead {
+            background: var(--bg-dark);
+        }
+
+        th {
+            padding: 20px 15px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            border-bottom: 2px solid var(--primary);
+        }
+
+        td {
+            padding: 20px 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        tbody tr {
+            transition: all 0.2s;
+        }
+
+        tbody tr:hover {
+            background: var(--bg-hover);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 15px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.85em;
+            text-transform: uppercase;
+        }
+
+        .badge.free {
+            background: rgba(139, 146, 176, 0.2);
+            color: var(--text-secondary);
+            border: 1px solid var(--text-secondary);
+        }
+
+        .badge.pro {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+        }
+
+        .badge.premium {
+            background: linear-gradient(135deg, #ff006e 0%, #7c3aed 100%);
+            color: white;
+        }
+
+        .badge.beta {
+            background: linear-gradient(135deg, #ffd93d 0%, #ff6b35 100%);
+            color: white;
+            font-weight: 700;
+            box-shadow: 0 0 10px rgba(255, 107, 53, 0.3);
+        }
+
+        .badge.developer {
+            background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
+            color: #000;
+            font-weight: 800;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+
+        .badge.active {
+            background: rgba(0, 255, 136, 0.2);
+            color: var(--success);
+            border: 1px solid var(--success);
+        }
+
+        .badge.inactive {
+            background: rgba(251, 191, 36, 0.2);
+            color: var(--warning);
+            border: 1px solid var(--warning);
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9em;
+            transition: all 0.3s;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            background: transparent;
+            color: var(--primary);
+        }
+
+        .btn:hover {
+            background: rgba(0, 217, 255, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .email {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--primary);
+        }
+
+        .username {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .date {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-secondary);
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 { font-size: 2em; }
+            .section { padding: 20px; }
+            table { font-size: 0.85em; }
+            th, td { padding: 12px 8px; }
+        }
     </style>
-    <link rel="stylesheet" href="{{ url_for('static', filename='basic.css') }}?v=1762480000">
+    <link rel="stylesheet" href="{{ url_for('static', filename='basic.css') }}?v=1762456000">
 </head>
 <body>
     <!-- Theme Toggle Button -->
