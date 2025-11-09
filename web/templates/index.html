@@ -375,6 +375,66 @@
             </div>
         </div>
 
+
+        <!-- Live Market Movers -->
+        {% if today_signals and today_signals|length > 0 %}
+        <div class="section">
+            <div class="section-header">
+                <h2><span class="gradient-text">Live Market Movers</span></h2>
+                <span style="color: var(--text-secondary);">Powered by Polygon.io</span>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                {% for signal in today_signals[:8] %}
+                <div class="stat-card" style="text-align: left;">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
+                        <div>
+                            <div style="font-size: 1.3em; font-weight: 700; color: var(--text-primary);">
+                                {{ signal.ticker }}
+                            </div>
+                            <div style="font-size: 0.85em; color: var(--text-secondary); margin-top: 2px;">
+                                {{ signal.name[:30] }}{% if signal.name|length > 30 %}...{% endif %}
+                            </div>
+                        </div>
+                        <div style="padding: 4px 12px; border-radius: 6px; font-size: 0.85em; font-weight: 600; 
+                                    {% if signal.type == 'GAINER' %}
+                                    background: rgba(0, 255, 136, 0.15); color: #00ff88; border: 1px solid rgba(0, 255, 136, 0.3);
+                                    {% else %}
+                                    background: rgba(255, 0, 110, 0.15); color: #ff006e; border: 1px solid rgba(255, 0, 110, 0.3);
+                                    {% endif %}">
+                            {{ signal.type }}
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 15px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                            <span style="color: var(--text-secondary);">Price</span>
+                            <span style="font-weight: 600; color: var(--text-primary);">${{ "%.2f"|format(signal.price) }}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                            <span style="color: var(--text-secondary);">Change</span>
+                            <span style="font-weight: 700; 
+                                       {% if signal.change > 0 %}color: #00ff88;{% else %}color: #ff006e;{% endif %}">
+                                {{ "%+.2f"|format(signal.change) }}%
+                            </span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: var(--text-secondary);">Volume</span>
+                            <span style="font-weight: 600; color: var(--text-primary);">
+                                {{ "{:,.0f}".format(signal.volume) }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <div style="text-align: center; margin-top: 30px;">
+                <a href="/market" class="btn-primary">View All Market Data →</a>
+            </div>
+        </div>
+        {% endif %}
+
         <!-- Get Started Section -->
         <div class="section">
             <div class="section-header">
