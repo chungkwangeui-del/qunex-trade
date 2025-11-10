@@ -275,76 +275,47 @@ def filter_signals_by_subscription(signals):
 
 @app.route('/')
 def index():
-    """Main page - Live market data from Polygon API"""
+    """Main page - Market indices overview from Polygon API"""
     from polygon_service import PolygonService
 
     # Initialize Polygon service
     polygon = PolygonService()
 
-    # Get market movers (top gainers/losers)
+    # Get market indices
+    market_data = []
     try:
-        gainers = polygon.get_gainers_losers('gainers')[:10]  # Top 10 gainers
-        losers = polygon.get_gainers_losers('losers')[:10]   # Top 10 losers
-
-        # Combine and format as signals
-        today_signals = []
-        for stock in gainers:
-            today_signals.append({
-                'ticker': stock.get('ticker', 'N/A'),
-                'name': stock.get('name', 'Unknown'),
-                'price': stock.get('price', 0),
-                'change': stock.get('change_percent', 0),
-                'volume': stock.get('volume', 0),
-                'type': 'GAINER',
-                'signal_strength': min(100, abs(stock.get('change_percent', 0)) * 10)
+        indices = polygon.get_market_indices()
+        
+        # Format indices as market_data for display
+        for symbol, data in indices.items():
+            market_data.append({
+                'name': data.get('name', symbol),
+                'symbol': symbol,
+                'price': data.get('price', 0),
+                'change': data.get('change_percent', 0),
+                'change_amount': data.get('change', 0),
+                'volume': data.get('volume', 0),
+                'high': data.get('day_high', 0),
+                'low': data.get('day_low', 0)
             })
-
-        for stock in losers:
-            today_signals.append({
-                'ticker': stock.get('ticker', 'N/A'),
-                'name': stock.get('name', 'Unknown'),
-                'price': stock.get('price', 0),
-                'change': stock.get('change_percent', 0),
-                'volume': stock.get('volume', 0),
-                'type': 'LOSER',
-                'signal_strength': min(100, abs(stock.get('change_percent', 0)) * 10)
-            })
-
-        # Calculate statistics from live data
-        total_signals = len(today_signals)
-        avg_change = sum(abs(s['change']) for s in today_signals) / total_signals if total_signals > 0 else 0
 
         stats = {
-            'total_signals': total_signals,
-            'gainers': len(gainers),
-            'losers': len(losers),
-            'avg_change': avg_change,
-            'total_tracked': total_signals
+            'total_indices': len(market_data),
+            'market_status': 'Active'
         }
-        stats_30d = stats
 
     except Exception as e:
-        logger.error(f"Error fetching Polygon data: {e}")
+        logger.error(f"Error fetching Polygon indices: {e}")
         # Fallback to empty state
-        today_signals = []
+        market_data = []
         stats = {
-            'total_signals': 0,
-            'gainers': 0,
-            'losers': 0,
-            'avg_change': 0,
-            'total_tracked': 0
+            'total_indices': 0,
+            'market_status': 'Unknown'
         }
-        stats_30d = stats
-
-    # No upgrade banner needed
-    show_upgrade_banner = False
 
     return render_template('index.html',
-                         today_signals=today_signals,
-                         total_signals=len(today_signals),
+                         market_data=market_data,
                          stats=stats,
-                         stats_30d=stats_30d,
-                         show_upgrade_banner=False,
                          user=current_user)
 
 @app.route('/about')

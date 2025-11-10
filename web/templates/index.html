@@ -376,25 +376,62 @@
         </div>
 
 
-        <!-- Live Market Movers -->
-        {% if today_signals and today_signals|length > 0 %}
+        
+        <!-- Major Market Indices -->
+        {% if market_data and market_data|length > 0 %}
         <div class="section">
             <div class="section-header">
-                <h2><span class="gradient-text">Live Market Movers</span></h2>
-                <span style="color: var(--text-secondary);">Powered by Polygon.io</span>
+                <h2><span class="gradient-text">Major Market Indices</span></h2>
+                <span style="color: var(--text-secondary);">Live Data • Powered by Polygon.io</span>
             </div>
             
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
-                {% for signal in today_signals[:8] %}
-                <div class="stat-card" style="text-align: left;">
-                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
-                        <div>
-                            <div style="font-size: 1.3em; font-weight: 700; color: var(--text-primary);">
-                                {{ signal.ticker }}
-                            </div>
-                            <div style="font-size: 0.85em; color: var(--text-secondary); margin-top: 2px;">
-                                {{ signal.name[:30] }}{% if signal.name|length > 30 %}...{% endif %}
-                            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+                {% for index in market_data %}
+                <div class="stat-card">
+                    <div style="margin-bottom: 15px;">
+                        <div style="font-size: 0.9em; color: var(--text-secondary); margin-bottom: 5px;">
+                            {{ index.symbol }}
+                        </div>
+                        <div style="font-size: 1.4em; font-weight: 700; color: var(--text-primary);">
+                            {{ index.name }}
+                        </div>
+                    </div>
+                    
+                    <div style="margin: 20px 0;">
+                        <div style="font-size: 2em; font-weight: 700; color: var(--text-primary);">
+                            ${{ "%.2f"|format(index.price) }}
+                        </div>
+                        <div style="font-size: 1.1em; font-weight: 700; margin-top: 8px;
+                                    {% if index.change > 0 %}color: #00ff88;{% else %}color: #ff006e;{% endif %}">
+                            {{ "%+.2f"|format(index.change_amount) }} ({{ "%+.2f"|format(index.change) }}%)
+                        </div>
+                    </div>
+                    
+                    <div style="padding-top: 15px; border-top: 1px solid var(--border);">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                            <span style="color: var(--text-secondary); font-size: 0.9em;">High</span>
+                            <span style="font-weight: 600; color: var(--text-primary); font-size: 0.9em;">
+                                ${{ "%.2f"|format(index.high) }}
+                            </span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: var(--text-secondary); font-size: 0.9em;">Low</span>
+                            <span style="font-weight: 600; color: var(--text-primary); font-size: 0.9em;">
+                                ${{ "%.2f"|format(index.low) }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <div style="text-align: center; margin-top: 30px;">
+                <a href="/market" class="btn-primary">View Full Market Dashboard →</a>
+            </div>
+        </div>
+        {% endif %}
+
+</div>
                         </div>
                         <div style="padding: 4px 12px; border-radius: 6px; font-size: 0.85em; font-weight: 600; 
                                     {% if signal.type == 'GAINER' %}
