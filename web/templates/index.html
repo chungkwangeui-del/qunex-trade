@@ -431,47 +431,6 @@
         </div>
         {% endif %}
 
-</div>
-                        </div>
-                        <div style="padding: 4px 12px; border-radius: 6px; font-size: 0.85em; font-weight: 600; 
-                                    {% if signal.type == 'GAINER' %}
-                                    background: rgba(0, 255, 136, 0.15); color: #00ff88; border: 1px solid rgba(0, 255, 136, 0.3);
-                                    {% else %}
-                                    background: rgba(255, 0, 110, 0.15); color: #ff006e; border: 1px solid rgba(255, 0, 110, 0.3);
-                                    {% endif %}">
-                            {{ signal.type }}
-                        </div>
-                    </div>
-                    
-                    <div style="margin-top: 15px;">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                            <span style="color: var(--text-secondary);">Price</span>
-                            <span style="font-weight: 600; color: var(--text-primary);">${{ "%.2f"|format(signal.price) }}</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                            <span style="color: var(--text-secondary);">Change</span>
-                            <span style="font-weight: 700; 
-                                       {% if signal.change > 0 %}color: #00ff88;{% else %}color: #ff006e;{% endif %}">
-                                {{ "%+.2f"|format(signal.change) }}%
-                            </span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between;">
-                            <span style="color: var(--text-secondary);">Volume</span>
-                            <span style="font-weight: 600; color: var(--text-primary);">
-                                {{ "{:,.0f}".format(signal.volume) }}
-                            </span>
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-            
-            <div style="text-align: center; margin-top: 30px;">
-                <a href="/market" class="btn-primary">View All Market Data →</a>
-            </div>
-        </div>
-        {% endif %}
-
         <!-- Get Started Section -->
         <div class="section">
             <div class="section-header">
