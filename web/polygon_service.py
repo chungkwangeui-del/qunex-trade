@@ -447,10 +447,21 @@ class PolygonService:
                 if snapshot and snapshot.get('status') == 'OK':
                     ticker_data = snapshot.get('ticker', {})
                     day = ticker_data.get('day', {})
-                    last_trade = ticker_data.get('lastTrade', {})
+                    prev_day = ticker_data.get('prevDay', {})
+                    min_data = ticker_data.get('min', {})
 
-                    # Use last trade price if available, otherwise use day close
-                    current_price = last_trade.get('p') or day.get('c')
+                    # Try multiple sources for current price (in order of preference)
+                    current_price = (
+                        min_data.get('c') or  # Minute close
+                        day.get('c') or       # Day close
+                        prev_close            # Fallback to previous close
+                    )
+
+                    # Use prevDay for open/high/low if day data is zeros
+                    open_price = day.get('o') or prev_day.get('o') or 0
+                    high_price = day.get('h') or prev_day.get('h') or 0
+                    low_price = day.get('l') or prev_day.get('l') or 0
+                    volume = day.get('v') or prev_day.get('v') or 0
 
                     if current_price and prev_close:
                         change = current_price - prev_close
@@ -459,13 +470,15 @@ class PolygonService:
                         result[ticker] = {
                             'name': name,
                             'price': current_price,
-                            'open': day.get('o'),
-                            'high': day.get('h'),
-                            'low': day.get('l'),
-                            'volume': day.get('v', 0),
+                            'open': open_price,
+                            'high': high_price,
+                            'low': low_price,
+                            'volume': volume,
                             'prev_close': prev_close,
                             'change': change,
-                            'change_percent': change_percent
+                            'change_percent': change_percent,
+                            'day_high': high_price,
+                            'day_low': low_price
                         }
 
         self.cache.set(cache_key, result, self.cache_ttl['market_indices'])
