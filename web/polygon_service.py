@@ -281,7 +281,7 @@ class PolygonService:
         # Filter results: price must be >= $5 and have valid price data
         filtered = []
         for r in results:
-            price = r.get('lastTrade', {}).get('p') or r.get('day', {}).get('c')
+            price = r.get('min', {}).get('c') or r.get('day', {}).get('c') or r.get('prevDay', {}).get('c')
 
             # Skip if no price or price < $5 (penny stocks)
             if not price or price < 5:
@@ -517,8 +517,13 @@ class PolygonService:
                 prev_day = ticker_data.get('prevDay', {})
                 last_trade = ticker_data.get('lastTrade', {})
 
-                # Use last trade price if available, otherwise use day close
-                current_price = last_trade.get('p') or day.get('c')
+                # Use multiple sources for current price
+                min_data = ticker_data.get('min', {})
+                current_price = (
+                    min_data.get('c') or
+                    day.get('c') or
+                    prev_day.get('c')
+                )
                 prev_close = prev_day.get('c')
 
                 if current_price and prev_close:
