@@ -36,7 +36,7 @@ services:
     plan: free
     branch: main
     schedule: "0 * * * *"  # Every hour at minute 0
-    buildCommand: pip install -r requirements.txt && pip install -r web/requirements.txt
+    buildCommand: bash build.sh
     startCommand: python scripts/refresh_data_cron.py
     runtimeVersion: "3.13.1"
     envVars:
