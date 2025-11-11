@@ -6,8 +6,12 @@ Only keeps credible and important news (4-5 stars)
 
 import os
 import json
+import logging
 from datetime import datetime
 from typing import List, Dict
+
+# Configure logging
+logger = logging.getLogger(__name__)
 from anthropic import Anthropic
 
 
@@ -127,11 +131,11 @@ Respond ONLY with valid JSON, no additional text."""
             return analysis
 
         except json.JSONDecodeError as e:
-            print(f"[ERROR] Failed to parse JSON response: {e}")
-            print(f"Response: {response_text[:200]}")
+            logger.error(f"Failed to parse JSON response in analyze_news: {e}", exc_info=True)
+            logger.error(f"Response: {response_text[:200]}")
             return None
         except Exception as e:
-            print(f"[ERROR] Analysis failed: {e}")
+            logger.error(f"Analysis failed in analyze_news: {e}", exc_info=True)
             return None
 
     def analyze_news_batch(self, news_list: List[Dict], max_items: int = 30) -> List[Dict]:
@@ -165,7 +169,7 @@ Respond ONLY with valid JSON, no additional text."""
                     analyzed_news.append(analysis)
 
             except Exception as e:
-                print(f"[ERROR] Failed to analyze item {i}: {e}")
+                logger.error(f"Failed to analyze item {i} in analyze_news_batch: {e}", exc_info=True)
                 continue
 
         # Sort by: market_wide_impact first, then importance, then credibility
@@ -212,7 +216,7 @@ Respond ONLY with valid JSON, no additional text."""
             print(f"[INFO] Total news items: {len(analyzed_news)}")
 
         except Exception as e:
-            print(f"[ERROR] Failed to save analysis: {e}")
+            logger.error(f"Failed to save analysis in save_analysis: {e}", exc_info=True)
 
 
 if __name__ == '__main__':

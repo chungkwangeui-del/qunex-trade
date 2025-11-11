@@ -70,7 +70,11 @@ async function fetchRealTimeData() {
         return data;
 
     } catch (error) {
-        // Error fetching real-time data - will use fallback
+        console.error('Error fetching real-time data:', error);
+        // Show user-friendly error toast
+        if (typeof showToast === 'function') {
+            showToast('실시간 데이터를 불러오는 데 실패했습니다. 기본 데이터를 사용합니다.', 'warning');
+        }
         return null;
     }
 }

@@ -42,5 +42,20 @@ services:
     envVars:
       # Inherits DATABASE_URL, REDIS_URL, API keys from environment
 
+  # Cron Job - AI Score Update (runs daily at midnight)
+  - type: cron
+    name: qunex-ai-score-update
+    runtime: python
+    env: python
+    region: oregon
+    plan: free
+    branch: main
+    schedule: "0 0 * * *"  # Daily at midnight (00:00)
+    buildCommand: bash build.sh
+    startCommand: python cron_update_ai_scores.py
+    runtimeVersion: "3.13.1"
+    envVars:
+      # Inherits DATABASE_URL, POLYGON_API_KEY from environment
+
 # No databases section - using Supabase PostgreSQL (permanent free tier)
 # Add DATABASE_URL in Render Dashboard pointing to Supabase

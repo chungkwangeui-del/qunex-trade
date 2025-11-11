@@ -5,9 +5,13 @@ Collects credible financial news from multiple reliable sources
 
 import os
 import requests
+import logging
 from datetime import datetime, timedelta
 from typing import List, Dict
 import time
+
+# Configure logging
+logger = logging.getLogger(__name__)
 
 
 class NewsCollector:
@@ -128,7 +132,7 @@ class NewsCollector:
                 time.sleep(0.5)
 
             except Exception as e:
-                print(f"[NewsAPI] Error collecting keyword '{keyword}': {e}")
+                logger.error(f"Error collecting keyword '{keyword}' from NewsAPI: {e}", exc_info=True)
                 continue
 
         # Remove duplicates based on title
@@ -183,7 +187,7 @@ class NewsCollector:
                 print(f"[Polygon] Error {response.status_code}")
 
         except Exception as e:
-            print(f"[Polygon] Error: {e}")
+            logger.error(f"Error collecting from Polygon API: {e}", exc_info=True)
 
         return news_items
 

@@ -226,7 +226,7 @@ def set_security_headers(response: Response) -> Response:
     response.headers['X-Frame-Options'] = 'SAMEORIGIN'
     response.headers['X-XSS-Protection'] = '1; mode=block'
     response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
-    response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self' 'unsafe-inline' https://accounts.google.com https://cdn.jsdelivr.net https://fonts.googleapis.com https://unpkg.com https://s3.tradingview.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://accounts.google.com; frame-src 'self' https://accounts.google.com;"
+    response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self' 'unsafe-inline' https://accounts.google.com https://cdn.jsdelivr.net https://fonts.googleapis.com https://unpkg.com https://s3.tradingview.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://accounts.google.com; frame-src 'self' https://accounts.google.com https://www.tradingview.com https://s.tradingview.com;"
     return response
 
 # Security and maintenance checks removed - all features active
@@ -931,11 +931,10 @@ def api_stock_chart(symbol):
 @app.route('/api/stock/<symbol>/ai-score')
 def api_stock_ai_score(symbol):
     """
-    Calculate Qunex AI Score for a stock using XGBoost model.
+    Get pre-computed Qunex AI Score for a stock.
 
-    Uses machine learning model trained on historical data to predict
-    stock performance. Analyzes technical indicators (RSI, MACD, moving
-    averages) to generate a 0-100 score with buy/sell rating.
+    Returns cached AI score from database (updated daily by cron job).
+    Scores combine technical indicators, fundamental ratios, and news sentiment.
 
     Args:
         symbol (str): Stock ticker symbol
@@ -946,86 +945,44 @@ def api_stock_ai_score(symbol):
             - score (int): AI score (0-100)
             - rating (str): Rating (Strong Buy/Buy/Hold/Sell/Strong Sell)
             - color (str): Hex color code for display
-            - features (dict): Key technical indicators used:
-                - rsi (float): Relative Strength Index
-                - macd (float): MACD indicator
-                - price_to_ma50 (float): Price relative to 50-day MA
+            - features (dict): Enhanced features used (technical + fundamental + sentiment)
+            - updated_at (str): When score was last updated
             - error (str): Error message if failed
 
     Raises:
-        404: Insufficient historical data for analysis
-        500: AI model not available or calculation failed
+        404: Score not available for this ticker
     """
     try:
-        from polygon_service import PolygonService
-        import sys
-        import os
-        sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'ml'))
-        from ai_score_system import AIScoreModel, FeatureEngineer
+        from database import AIScore
 
-        polygon = PolygonService()
+        # Query pre-computed score from database
+        ai_score = AIScore.query.filter_by(ticker=symbol.upper()).first()
 
-        # Load trained model
-        model_path = os.path.join(os.path.dirname(__file__), '..', 'ml', 'models')
-        model = AIScoreModel(model_dir=model_path)
-        if not model.load('ai_score_model.pkl'):
-            return jsonify({'error': 'AI model not available'}), 500
+        if not ai_score:
+            return jsonify({
+                'error': 'AI score not available for this ticker',
+                'message': 'This stock is not in any watchlist. Add it to your watchlist to get AI scores.'
+            }), 404
 
-        # Get recent price data (need ~200 days for technical indicators)
-        from datetime import datetime, timedelta
-        end_date = datetime.now()
-        start_date = end_date - timedelta(days=400)
+        # Determine color based on rating
+        rating_colors = {
+            "Strong Buy": "#00ff88",
+            "Buy": "#00d9ff",
+            "Hold": "#ffd700",
+            "Sell": "#ff8c00",
+            "Strong Sell": "#ff006e"
+        }
 
-        price_data = model._fetch_historical_prices(
-            symbol.upper(),
-            start_date.strftime('%Y-%m-%d'),
-            end_date.strftime('%Y-%m-%d'),
-            polygon
-        )
+        color = rating_colors.get(ai_score.rating, "#ffd700")
 
-        if price_data is None or len(price_data) < 200:
-            return jsonify({'error': 'Insufficient data for AI score'}), 404
+        # Convert to response format
+        response = ai_score.to_dict()
+        response['color'] = color
 
-        # Calculate features
-        features = FeatureEngineer.calculate_technical_features(price_data)
-
-        if not features:
-            return jsonify({'error': 'Could not calculate features'}), 500
-
-        # Predict AI score
-        score = model.predict_score(features)
-
-        # Determine rating
-        if score >= 75:
-            rating = "Strong Buy"
-            color = "#00ff88"
-        elif score >= 60:
-            rating = "Buy"
-            color = "#00d9ff"
-        elif score >= 40:
-            rating = "Hold"
-            color = "#ffd700"
-        elif score >= 25:
-            rating = "Sell"
-            color = "#ff8c00"
-        else:
-            rating = "Strong Sell"
-            color = "#ff006e"
-
-        return jsonify({
-            'symbol': symbol.upper(),
-            'score': score,
-            'rating': rating,
-            'color': color,
-            'features': {
-                'rsi': round(features.get('rsi_14', 0), 2),
-                'macd': round(features.get('macd', 0), 4),
-                'price_to_ma50': round(features.get('price_to_ma50', 0) * 100, 2)
-            }
-        })
+        return jsonify(response)
 
     except Exception as e:
-        logger.error(f"Error calculating AI score for {symbol}: {e}")
+        logger.error(f"Error retrieving AI score for {symbol}: {e}", exc_info=True)
         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/stock/<symbol>/news')

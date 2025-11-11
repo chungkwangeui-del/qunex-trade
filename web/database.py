@@ -216,3 +216,26 @@ class EconomicEvent(db.Model):
             'previous': self.previous,
             'source': self.source
         }
+
+
+class AIScore(db.Model):
+    """Pre-computed AI scores for stocks"""
+    __tablename__ = 'ai_scores'
+
+    id = db.Column(db.Integer, primary_key=True)
+    ticker = db.Column(db.String(10), unique=True, nullable=False, index=True)
+    score = db.Column(db.Integer, nullable=False, index=True)  # 0-100
+    rating = db.Column(db.String(20), nullable=False)  # Strong Buy/Buy/Hold/Sell/Strong Sell
+    features_json = db.Column(db.Text, nullable=True)  # JSON string of features
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, index=True)
+
+    def to_dict(self):
+        """Convert to dictionary for JSON serialization"""
+        import json
+        return {
+            'ticker': self.ticker,
+            'score': self.score,
+            'rating': self.rating,
+            'features': json.loads(self.features_json) if self.features_json else {},
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+        }

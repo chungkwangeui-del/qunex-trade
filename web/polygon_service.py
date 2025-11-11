@@ -8,6 +8,9 @@ import os
 import logging
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Any
+
+# Configure logging
+logger = logging.getLogger(__name__)
 import time
 
 logger = logging.getLogger(__name__)
@@ -98,7 +101,7 @@ class PolygonService:
 
             return data
         except requests.exceptions.RequestException as e:
-            logger.error(f"Polygon API request failed for {endpoint}: {e}")
+            logger.error(f"Polygon API request failed for {endpoint}: {e}", exc_info=True)
             return None
 
     def get_stock_quote(self, ticker: str) -> Optional[Dict]:

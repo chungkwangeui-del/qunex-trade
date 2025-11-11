@@ -30,7 +30,11 @@ async function updateMarketOverview() {
             }
         }
     } catch (error) {
-        // Error updating market overview - silent fail
+        console.error('Error updating market overview:', error);
+        // Show user-friendly error toast
+        if (typeof showToast === 'function') {
+            showToast('데이터를 불러오는 데 실패했습니다.', 'error');
+        }
     }
 }
 
