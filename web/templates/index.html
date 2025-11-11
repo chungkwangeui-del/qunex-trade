@@ -329,6 +329,37 @@
             <div class="subtitle">
                 Professional Trading Intelligence Platform
             </div>
+
+            <!-- Stock Search -->
+            <div style="max-width: 600px; margin: 40px auto 0;">
+                <form onsubmit="event.preventDefault(); searchStock();">
+                    <div style="position: relative;">
+                        <input type="text" id="stock-search" placeholder="Search stock symbol (e.g., AAPL, TSLA, NVDA)..."
+                               style="width: 100%; padding: 18px 60px 18px 25px; font-size: 1.1rem; border: 2px solid var(--border);
+                                      border-radius: 50px; background: var(--bg-card); color: var(--text-primary);
+                                      font-family: 'Space Grotesk', sans-serif; transition: all 0.3s;"
+                               onfocus="this.style.borderColor='var(--primary)'; this.style.boxShadow='0 0 20px rgba(0,217,255,0.3)';"
+                               onblur="this.style.borderColor='var(--border)'; this.style.boxShadow='none';">
+                        <button type="submit"
+                                style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+                                       background: linear-gradient(135deg, var(--primary), var(--accent));
+                                       border: none; padding: 12px 24px; border-radius: 50px; color: var(--bg-dark);
+                                       font-weight: 600; cursor: pointer; transition: all 0.3s;"
+                                onmouseover="this.style.transform='translateY(-50%) scale(1.05)';"
+                                onmouseout="this.style.transform='translateY(-50%) scale(1)';">
+                            Search
+                        </button>
+                    </div>
+                </form>
+                <div style="text-align: center; margin-top: 15px;">
+                    <span style="color: var(--text-secondary); font-size: 0.9rem;">Popular: </span>
+                    <a href="/stock/AAPL" style="color: var(--primary); text-decoration: none; margin: 0 8px; font-weight: 600;">AAPL</a>
+                    <a href="/stock/TSLA" style="color: var(--primary); text-decoration: none; margin: 0 8px; font-weight: 600;">TSLA</a>
+                    <a href="/stock/NVDA" style="color: var(--primary); text-decoration: none; margin: 0 8px; font-weight: 600;">NVDA</a>
+                    <a href="/stock/MSFT" style="color: var(--primary); text-decoration: none; margin: 0 8px; font-weight: 600;">MSFT</a>
+                    <a href="/stock/GOOGL" style="color: var(--primary); text-decoration: none; margin: 0 8px; font-weight: 600;">GOOGL</a>
+                </div>
+            </div>
         </div>
 
         <!-- Features Grid -->
@@ -387,7 +418,10 @@
             
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
                 {% for index in market_data %}
-                <div class="stat-card">
+                <a href="/stock/{{ index.symbol }}" style="text-decoration: none; color: inherit;">
+                <div class="stat-card" style="cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;"
+                     onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 10px 30px rgba(0, 217, 255, 0.3)';"
+                     onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
                     <div style="margin-bottom: 15px;">
                         <div style="font-size: 0.9em; color: var(--text-secondary); margin-bottom: 5px;">
                             {{ index.symbol }}
@@ -422,6 +456,7 @@
                         </div>
                     </div>
                 </div>
+                </a>
                 {% endfor %}
             </div>
             
@@ -497,6 +532,24 @@
         }
         updateTime();
         setInterval(updateTime, 1000);
+
+        // Stock search function
+        function searchStock() {
+            const input = document.getElementById('stock-search');
+            const symbol = input.value.trim().toUpperCase();
+
+            if (symbol) {
+                window.location.href = `/stock/${symbol}`;
+            }
+        }
+
+        // Allow enter key in search
+        document.getElementById('stock-search').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                searchStock();
+            }
+        });
     </script>
     <!-- Theme Toggle Script -->
     <script src="{{ url_for('static', filename='theme-toggle.js') }}" defer></script>
