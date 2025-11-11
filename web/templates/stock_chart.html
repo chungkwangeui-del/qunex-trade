@@ -261,11 +261,12 @@
     <div class="container">
         <!-- Navigation -->
         <nav>
-            <div class="logo">QUNEX</div>
+            <a href="/" class="logo" style="text-decoration: none;">QUNEX TRADE</a>
             <div>
                 <a href="/">Home</a>
                 <a href="/market">Market</a>
                 <a href="/screener">Screener</a>
+                <a href="/calendar">Calendar</a>
                 <a href="/news">News</a>
             </div>
         </nav>
@@ -365,42 +366,70 @@
         // Load chart data
         async function loadChart(timeframe) {
             try {
+                console.log(`Loading chart for ${symbol}, timeframe: ${timeframe}`);
                 const response = await fetch(`/api/stock/${symbol}/chart?timeframe=${timeframe}`);
+                console.log('Chart response status:', response.status);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
                 const data = await response.json();
+                console.log('Chart data:', data);
 
                 if (data.error) {
                     throw new Error(data.error);
                 }
 
+                if (!data.candles || data.candles.length === 0) {
+                    throw new Error('No chart data available');
+                }
+
+                console.log(`Loaded ${data.candles.length} candles`);
                 candlestickSeries.setData(data.candles);
 
                 // Update current price
-                if (data.candles.length > 0) {
-                    const lastCandle = data.candles[data.candles.length - 1];
-                    const prevCandle = data.candles[data.candles.length - 2];
-                    const price = lastCandle.close;
-                    const change = price - prevCandle.close;
-                    const changePercent = (change / prevCandle.close) * 100;
+                const lastCandle = data.candles[data.candles.length - 1];
+                const prevCandle = data.candles[data.candles.length - 2] || lastCandle;
+                const price = lastCandle.close;
+                const change = price - prevCandle.close;
+                const changePercent = prevCandle.close ? (change / prevCandle.close) * 100 : 0;
 
-                    document.getElementById('current-price').textContent = `$${price.toFixed(2)}`;
-                    document.getElementById('price-change').innerHTML = `
-                        <span style="color: ${change >= 0 ? '#00ff88' : '#ff006e'}">
-                            ${change >= 0 ? '▲' : '▼'} ${Math.abs(change).toFixed(2)} (${changePercent >= 0 ? '+' : ''}${changePercent.toFixed(2)}%)
-                        </span>
-                    `;
-                }
+                document.getElementById('current-price').textContent = `$${price.toFixed(2)}`;
+                document.getElementById('price-change').innerHTML = `
+                    <span style="color: ${change >= 0 ? '#00ff88' : '#ff006e'}">
+                        ${change >= 0 ? '▲' : '▼'} ${Math.abs(change).toFixed(2)} (${changePercent >= 0 ? '+' : ''}${changePercent.toFixed(2)}%)
+                    </span>
+                `;
 
             } catch (error) {
                 console.error('Error loading chart:', error);
-                document.getElementById('chart').innerHTML = `<div class="error">Error loading chart: ${error.message}</div>`;
+                const chartDiv = document.getElementById('chart');
+                chartDiv.innerHTML = `
+                    <div style="text-align: center; padding: 50px; color: #ff006e;">
+                        <h3>⚠️ Error Loading Chart</h3>
+                        <p style="margin-top: 10px;">${error.message}</p>
+                        <p style="margin-top: 10px; font-size: 0.9rem; color: var(--text-secondary);">
+                            Check browser console for details
+                        </p>
+                    </div>
+                `;
             }
         }
 
         // Load AI Score
         async function loadAIScore() {
             try {
+                console.log(`Loading AI Score for ${symbol}`);
                 const response = await fetch(`/api/stock/${symbol}/ai-score`);
+                console.log('AI Score response status:', response.status);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
                 const data = await response.json();
+                console.log('AI Score data:', data);
 
                 if (data.error) {
                     throw new Error(data.error);
@@ -425,10 +454,16 @@
                         </div>
                     </div>
                 `;
+                console.log('AI Score loaded successfully');
 
             } catch (error) {
                 console.error('Error loading AI score:', error);
-                document.getElementById('ai-score-container').innerHTML = `<div class="error">AI Score unavailable</div>`;
+                document.getElementById('ai-score-container').innerHTML = `
+                    <div style="text-align: center; padding: 20px; color: #ff006e;">
+                        <h4>AI Score Unavailable</h4>
+                        <p style="margin-top: 10px; font-size: 0.9rem;">${error.message}</p>
+                    </div>
+                `;
             }
         }
 
