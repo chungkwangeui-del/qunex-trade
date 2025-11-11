@@ -14,3 +14,5 @@ python-dotenv==1.0.1
 psycopg[binary]==3.2.4
 anthropic>=0.71.0
 schedule==1.2.2
+pytest==8.0.0
+pytest-cov==4.1.0

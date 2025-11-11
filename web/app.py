@@ -232,17 +232,56 @@ def set_security_headers(response: Response) -> Response:
 # Security and maintenance checks removed - all features active
 
 def load_signals_history():
-    """Load signal history - DISABLED (will be re-enabled with Kiwoom API)"""
+    """
+    Load signal history from database.
+
+    Note:
+        DISABLED - Will be re-enabled with Kiwoom API integration.
+        Pandas not installed to reduce dependencies during maintenance.
+
+    Returns:
+        list: Empty list (feature disabled)
+    """
     # Pandas not installed to reduce dependencies during maintenance
     return []
 
 def load_today_signals():
-    """Load today's signals - DISABLED (will be re-enabled with Kiwoom API)"""
+    """
+    Load today's trading signals from database.
+
+    Note:
+        DISABLED - Will be re-enabled with Kiwoom API integration.
+        Pandas not installed to reduce dependencies during maintenance.
+
+    Returns:
+        list: Empty list (feature disabled)
+    """
     # Pandas not installed to reduce dependencies during maintenance
     return []
 
 def calculate_statistics(df):
-    """Calculate statistics"""
+    """
+    Calculate performance statistics from trading signal DataFrame.
+
+    Computes various metrics including success rate, win rate, average return,
+    and counts for different signal statuses (success, partial, failed, pending).
+
+    Args:
+        df (pandas.DataFrame or list): Trading signals data with columns:
+            - status: Signal status (success/partial/failed/pending)
+            - actual_return: Actual return percentage
+
+    Returns:
+        dict: Dictionary containing:
+            - total_signals (int): Total number of signals
+            - success_rate (float): Success rate percentage
+            - win_rate (float): Win rate percentage (positive returns)
+            - avg_return (float): Average return
+            - total_tracked (int): Number of tracked signals
+            - median_return (float): Median return
+            - max_return (float): Maximum return
+            - min_return (float): Minimum return
+    """
     if not df or (hasattr(df, 'empty') and df.empty):
         return {
             'total_signals': 0,
@@ -281,13 +320,34 @@ def calculate_statistics(df):
     return stats
 
 def filter_signals_by_subscription(signals):
-    """Filter signals based on user subscription - DISABLED"""
+    """
+    Filter trading signals based on user's subscription tier.
+
+    Note:
+        DISABLED - Returns empty list during maintenance period.
+
+    Args:
+        signals (pandas.DataFrame): All available trading signals
+
+    Returns:
+        list: Empty list (feature disabled)
+    """
     # Return empty during maintenance
     return []
 
 @app.route('/')
 def index():
-    """Main page - Market indices overview from Polygon API"""
+    """
+    Render main homepage with market indices overview.
+
+    Fetches real-time market data from Polygon API including:
+    - Major indices (S&P 500, NASDAQ, Dow Jones)
+    - Current prices, changes, and volumes
+    - Market status
+
+    Returns:
+        str: Rendered HTML template with market data
+    """
     from polygon_service import PolygonService
 
     # Initialize Polygon service
@@ -332,53 +392,147 @@ def index():
 
 @app.route('/about')
 def about():
-    """About page"""
+    """
+    Render About page with platform information.
+
+    Returns:
+        str: Rendered About page template
+    """
     return render_template('about.html', user=current_user)
 
 @app.route('/reset-theme')
 def reset_theme():
-    """Theme reset utility page"""
+    """
+    Render theme reset utility page.
+
+    Provides UI for users to reset their theme preferences.
+
+    Returns:
+        str: Rendered theme reset page template
+    """
     return render_template('reset_theme.html')
 
 @app.route('/force-dark')
 def force_dark():
-    """Force dark mode page - quick fix"""
+    """
+    Render force dark mode page.
+
+    Quick utility page to force dark mode theme.
+
+    Returns:
+        str: Rendered force dark mode template
+    """
     return render_template('FORCE_DARK_MODE.html')
 
 @app.route('/terms')
 def terms():
-    """Terms of Service"""
+    """
+    Render Terms of Service page.
+
+    Returns:
+        str: Rendered Terms of Service template
+    """
     return render_template('terms.html')
 
 @app.route('/privacy')
 def privacy():
-    """Privacy Policy"""
+    """
+    Render Privacy Policy page.
+
+    Returns:
+        str: Rendered Privacy Policy template
+    """
     return render_template('privacy.html')
 
 @app.route('/market')
 def market():
-    """Market Dashboard - Real-time indices, sectors, and movers"""
+    """
+    Render Market Dashboard page.
+
+    Displays real-time market data including:
+    - Market indices (S&P 500, NASDAQ, Dow Jones)
+    - Sector performance
+    - Top gainers and losers
+    - Market movers
+
+    Returns:
+        str: Rendered market dashboard template
+    """
     return render_template('market.html', user=current_user)
 
 @app.route('/screener')
 def screener():
-    """Stock Screener - Filter stocks by criteria"""
+    """
+    Render Stock Screener page.
+
+    Provides interface for filtering stocks by various criteria:
+    - Price range
+    - Volume
+    - Percent change
+    - Market cap
+    - Technical indicators
+
+    Returns:
+        str: Rendered stock screener template
+    """
     return render_template('screener.html', user=current_user)
 
 @app.route('/watchlist')
 @login_required
 def watchlist():
-    """Personal Watchlist - Track favorite stocks"""
+    """
+    Render Personal Watchlist page (requires authentication).
+
+    Allows users to track their favorite stocks with:
+    - Real-time price updates
+    - Custom notes
+    - Price alerts
+    - Performance tracking
+
+    Returns:
+        str: Rendered watchlist template
+
+    Raises:
+        Unauthorized: If user is not logged in (redirects to login)
+    """
     return render_template('watchlist.html', user=current_user)
 
 @app.route('/calendar')
 def calendar():
-    """Economic Calendar - Major economic events"""
+    """
+    Render Economic Calendar page.
+
+    Displays upcoming economic events and indicators:
+    - FOMC meetings
+    - GDP reports
+    - Employment data
+    - Inflation figures
+    - Central bank decisions
+
+    Returns:
+        str: Rendered economic calendar template
+    """
     return render_template('calendar.html', user=current_user)
 
 @app.route('/stock/<symbol>')
 def stock_chart(symbol):
-    """Individual Stock Chart Page with Multi-Timeframe Charts"""
+    """
+    Render individual stock chart page with multi-timeframe analysis.
+
+    Provides comprehensive stock analysis including:
+    - TradingView interactive charts (1m, 5m, 15m, 1h, 4h, 1D, 1M)
+    - Real-time price data
+    - Volume analysis
+    - Technical indicators
+    - AI score prediction
+    - Recent news
+
+    Args:
+        symbol (str): Stock ticker symbol (e.g., "AAPL", "TSLA")
+
+    Returns:
+        str: Rendered stock chart template with symbol in uppercase
+    """
     return render_template('stock_chart.html', symbol=symbol.upper(), user=current_user)
 
 @app.route('/news')
@@ -463,7 +617,20 @@ def api_refresh_news() -> Dict[str, Any]:
 
 @app.route('/api/news/search')
 def api_search_news():
-    """Search news by stock ticker or keyword"""
+    """
+    Search news articles by stock ticker or keyword.
+
+    Query Parameters:
+        ticker (str, optional): Stock ticker symbol to filter by
+        keyword (str, optional): Keyword to search in title/summary
+
+    Returns:
+        flask.Response: JSON response with:
+            - success (bool): Whether search succeeded
+            - count (int): Number of results
+            - data (list): Filtered news articles
+            - message (str): Error message if failed
+    """
     ticker = request.args.get('ticker', '').upper()
     keyword = request.args.get('keyword', '').lower()
 
@@ -503,7 +670,19 @@ def api_search_news():
 
 @app.route('/api/news/critical')
 def api_critical_news():
-    """Get critical news (5-star importance only)"""
+    """
+    Get critical news articles (5-star AI rating only).
+
+    Filters for highest-importance news that could significantly
+    impact market movements.
+
+    Returns:
+        flask.Response: JSON response with:
+            - success (bool): Whether fetch succeeded
+            - count (int): Number of critical articles
+            - data (list): 5-star rated news articles
+            - message (str): Error message if failed
+    """
     try:
         # Load 5-star news from database
         news_data = get_news_articles(limit=NEWS_ANALYSIS_LIMIT, rating_filter=5)
@@ -522,7 +701,19 @@ def api_critical_news():
 
 @app.route('/api/economic-calendar')
 def api_economic_calendar():
-    """Get economic calendar events"""
+    """
+    Get upcoming economic calendar events.
+
+    Retrieves events from database for the configured number of days ahead
+    (default 60 days) including FOMC meetings, GDP reports, employment data, etc.
+
+    Returns:
+        flask.Response: JSON response with:
+            - success (bool): Whether fetch succeeded
+            - count (int): Number of upcoming events
+            - events (list): Economic calendar events sorted by date
+            - message (str): Error message if failed
+    """
     try:
         # Load calendar from database
         events = get_economic_events(days_ahead=CALENDAR_DAYS_AHEAD)
@@ -554,7 +745,16 @@ def api_economic_calendar():
 
 @app.route('/api/signals/today')
 def api_today_signals():
-    """Today's signals API (requires authentication for full access)"""
+    """
+    Get today's trading signals.
+
+    Note:
+        DISABLED - Feature requires Kiwoom API integration.
+        Full access requires authentication and subscription.
+
+    Returns:
+        flask.Response: JSON array of today's signals (currently empty)
+    """
     signals = load_today_signals()
 
     if signals.empty:
@@ -572,7 +772,20 @@ def api_today_signals():
 @app.route('/api/signals/history')
 @login_required
 def api_history():
-    """Full history API (Premium only)"""
+    """
+    Get full trading signal history (Premium subscribers only).
+
+    Note:
+        DISABLED - Feature requires Kiwoom API integration.
+        Requires Premium subscription tier.
+
+    Returns:
+        flask.Response: JSON array of last 100 signals (currently empty)
+
+    Raises:
+        403: If user doesn't have Premium subscription
+        Unauthorized: If user is not logged in
+    """
     if not current_user.is_pro():
         return jsonify({'error': 'Premium subscription required'}), 403
 
@@ -592,7 +805,21 @@ def api_history():
 
 @app.route('/api/statistics')
 def api_statistics():
-    """Statistics API"""
+    """
+    Get trading performance statistics.
+
+    Provides aggregate statistics for all-time, last 7 days, and last 30 days:
+    - Success rate
+    - Win rate
+    - Average/median/max/min returns
+    - Signal counts by status
+
+    Note:
+        DISABLED - Feature requires Kiwoom API integration.
+
+    Returns:
+        flask.Response: JSON object with performance statistics
+    """
     history = load_signals_history()
     stats = calculate_statistics(history)
 
@@ -610,7 +837,30 @@ def api_statistics():
 
 @app.route('/api/stock/<symbol>/chart')
 def api_stock_chart(symbol):
-    """Get multi-timeframe chart data for a stock"""
+    """
+    Get multi-timeframe OHLCV chart data for a stock.
+
+    Fetches historical price data from Polygon API with support for
+    multiple timeframes (1m, 5m, 15m, 1h, 4h, daily, monthly).
+
+    Args:
+        symbol (str): Stock ticker symbol
+
+    Query Parameters:
+        timeframe (str, optional): Chart timeframe - one of:
+            '1' (1 minute), '5' (5 min), '15' (15 min), '60' (1 hour),
+            '240' (4 hours), '1D' (daily, default), '1M' (monthly)
+
+    Returns:
+        flask.Response: JSON response with:
+            - symbol (str): Ticker symbol
+            - timeframe (str): Requested timeframe
+            - candles (list): OHLCV data as array of dicts with:
+                - time (int): Unix timestamp in seconds
+                - open, high, low, close (float): OHLC prices
+                - volume (int): Trading volume
+            - error (str): Error message if failed
+    """
     try:
         from polygon_service import PolygonService
         import sys
@@ -680,7 +930,32 @@ def api_stock_chart(symbol):
 
 @app.route('/api/stock/<symbol>/ai-score')
 def api_stock_ai_score(symbol):
-    """Get Qunex AI Score for a stock"""
+    """
+    Calculate Qunex AI Score for a stock using XGBoost model.
+
+    Uses machine learning model trained on historical data to predict
+    stock performance. Analyzes technical indicators (RSI, MACD, moving
+    averages) to generate a 0-100 score with buy/sell rating.
+
+    Args:
+        symbol (str): Stock ticker symbol
+
+    Returns:
+        flask.Response: JSON response with:
+            - symbol (str): Ticker symbol
+            - score (int): AI score (0-100)
+            - rating (str): Rating (Strong Buy/Buy/Hold/Sell/Strong Sell)
+            - color (str): Hex color code for display
+            - features (dict): Key technical indicators used:
+                - rsi (float): Relative Strength Index
+                - macd (float): MACD indicator
+                - price_to_ma50 (float): Price relative to 50-day MA
+            - error (str): Error message if failed
+
+    Raises:
+        404: Insufficient historical data for analysis
+        500: AI model not available or calculation failed
+    """
     try:
         from polygon_service import PolygonService
         import sys
@@ -755,7 +1030,25 @@ def api_stock_ai_score(symbol):
 
 @app.route('/api/stock/<symbol>/news')
 def api_stock_news(symbol):
-    """Get recent news for a stock"""
+    """
+    Get recent news articles for a specific stock.
+
+    Fetches the latest 10 news articles from Polygon API related to
+    the given ticker symbol.
+
+    Args:
+        symbol (str): Stock ticker symbol
+
+    Returns:
+        flask.Response: JSON response with:
+            - articles (list): Array of news articles with:
+                - title (str): Article headline
+                - description (str): Article summary
+                - url (str): Link to full article
+                - published (str): Publication timestamp
+                - publisher (str): News source name
+                - image (str): Article image URL
+    """
     try:
         from polygon_service import PolygonService
         polygon = PolygonService()

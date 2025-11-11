@@ -18,7 +18,15 @@ api_polygon = Blueprint('api_polygon', __name__)
 
 @api_polygon.route('/api/market/quote/<ticker>')
 def get_quote(ticker):
-    """Get latest quote for a stock"""
+    """
+    Get latest real-time quote for a stock.
+
+    Args:
+        ticker (str): Stock ticker symbol
+
+    Returns:
+        flask.Response: JSON quote data or error with 404 status
+    """
     polygon = get_polygon_service()
     quote = polygon.get_stock_quote(ticker.upper())
 
@@ -30,7 +38,15 @@ def get_quote(ticker):
 
 @api_polygon.route('/api/market/previous-close/<ticker>')
 def get_prev_close(ticker):
-    """Get previous day's close data"""
+    """
+    Get previous trading day's closing data for a stock.
+
+    Args:
+        ticker (str): Stock ticker symbol
+
+    Returns:
+        flask.Response: JSON previous close data or error with 404 status
+    """
     polygon = get_polygon_service()
     data = polygon.get_previous_close(ticker.upper())
 
@@ -77,9 +93,15 @@ def get_history(ticker):
 @api_polygon.route('/api/market/snapshot')
 def get_snapshot():
     """
-    Get snapshot of multiple tickers
-    Query params:
-      - tickers: Comma-separated list (e.g., AAPL,MSFT,GOOGL)
+    Get real-time snapshot data for multiple tickers.
+
+    Query Parameters:
+        tickers (str): Comma-separated list of ticker symbols
+            Example: "AAPL,MSFT,GOOGL"
+
+    Returns:
+        flask.Response: JSON dict with ticker symbols as keys and
+            quote data as values, or error with 400 if no tickers provided
     """
     tickers_str = request.args.get('tickers', '')
     tickers = [t.strip().upper() for t in tickers_str.split(',') if t.strip()]
@@ -95,7 +117,12 @@ def get_snapshot():
 
 @api_polygon.route('/api/market/gainers')
 def get_gainers():
-    """Get top gainers"""
+    """
+    Get top gaining stocks for the current trading day.
+
+    Returns:
+        flask.Response: JSON with count and array of top gainers
+    """
     polygon = get_polygon_service()
     gainers = polygon.get_gainers_losers('gainers')
 
@@ -107,7 +134,12 @@ def get_gainers():
 
 @api_polygon.route('/api/market/losers')
 def get_losers():
-    """Get top losers"""
+    """
+    Get top losing stocks for the current trading day.
+
+    Returns:
+        flask.Response: JSON with count and array of top losers
+    """
     polygon = get_polygon_service()
     losers = polygon.get_gainers_losers('losers')
 
@@ -119,7 +151,12 @@ def get_losers():
 
 @api_polygon.route('/api/market/status')
 def get_market_status():
-    """Get current market status"""
+    """
+    Get current market status (open/closed/extended hours).
+
+    Returns:
+        flask.Response: JSON market status data or error with 500 status
+    """
     polygon = get_polygon_service()
     status = polygon.get_market_status()
 
@@ -155,7 +192,17 @@ def search_tickers():
 
 @api_polygon.route('/api/market/details/<ticker>')
 def get_ticker_details(ticker):
-    """Get detailed information about a ticker"""
+    """
+    Get detailed company information for a ticker.
+
+    Includes company name, description, market cap, sector, industry, etc.
+
+    Args:
+        ticker (str): Stock ticker symbol
+
+    Returns:
+        flask.Response: JSON ticker details or error with 404 status
+    """
     polygon = get_polygon_service()
     details = polygon.get_ticker_details(ticker.upper())
 
@@ -167,7 +214,21 @@ def get_ticker_details(ticker):
 
 @api_polygon.route('/api/market/technicals/<ticker>')
 def get_technicals(ticker):
-    """Get technical indicators for a stock"""
+    """
+    Calculate and return technical indicators for a stock.
+
+    Computes RSI, MACD, moving averages, and other technical indicators
+    based on historical price data.
+
+    Args:
+        ticker (str): Stock ticker symbol
+
+    Query Parameters:
+        days (int, optional): Number of days of data to analyze (default: 50)
+
+    Returns:
+        flask.Response: JSON technical indicators or error with 404 status
+    """
     days = int(request.args.get('days', 50))
 
     polygon = get_polygon_service()
@@ -230,7 +291,13 @@ def get_sector_map():
 
 @api_polygon.route('/api/market/movers')
 def get_movers():
-    """Get both gainers and losers"""
+    """
+    Get both top gainers and top losers for the trading day.
+
+    Returns:
+        flask.Response: JSON with separate arrays for top 10 gainers
+            and top 10 losers, plus timestamp
+    """
     polygon = get_polygon_service()
 
     gainers = polygon.get_gainers_losers('gainers')
@@ -246,9 +313,18 @@ def get_movers():
 @api_polygon.route('/api/market/batch-quotes')
 def get_batch_quotes():
     """
-    Get quotes for multiple tickers
-    Query params:
-      - tickers: Comma-separated list
+    Get real-time quotes for multiple tickers in one request.
+
+    Query Parameters:
+        tickers (str): Comma-separated list of ticker symbols
+            Example: "AAPL,MSFT,GOOGL"
+
+    Returns:
+        flask.Response: JSON with:
+            - count (int): Number of successful quotes
+            - quotes (dict): Dict with ticker symbols as keys
+            - timestamp (str): ISO timestamp of request
+            - error (str): Error message if no tickers provided (400 status)
     """
     tickers_str = request.args.get('tickers', '')
     tickers = [t.strip().upper() for t in tickers_str.split(',') if t.strip()]
@@ -274,7 +350,16 @@ def get_batch_quotes():
 
 @api_polygon.route('/api/market/indices')
 def get_indices():
-    """Get major market indices (S&P 500, NASDAQ, Dow Jones, etc.)"""
+    """
+    Get real-time data for major market indices.
+
+    Returns data for S&P 500, NASDAQ Composite, Dow Jones Industrial Average,
+    Russell 2000, and VIX volatility index.
+
+    Returns:
+        flask.Response: JSON with indices dict and timestamp, or
+            error with 500 status if data unavailable
+    """
     polygon = get_polygon_service()
     indices = polygon.get_market_indices()
 
@@ -289,7 +374,19 @@ def get_indices():
 
 @api_polygon.route('/api/market/sectors')
 def get_sectors():
-    """Get sector performance data"""
+    """
+    Get performance data for all market sectors.
+
+    Calculates aggregate performance for each of the 11 major sectors
+    (Technology, Healthcare, Financials, etc.) based on top stocks.
+
+    Returns:
+        flask.Response: JSON with:
+            - sectors (list): Array of sector performance data
+            - count (int): Number of sectors
+            - timestamp (str): ISO timestamp
+            - error (str): Error message if unavailable (500 status)
+    """
     polygon = get_polygon_service()
     sectors = polygon.get_sector_performance()
 
@@ -305,7 +402,20 @@ def get_sectors():
 
 @api_polygon.route('/api/market/health')
 def health_check():
-    """Check if Polygon API is configured and working"""
+    """
+    Health check endpoint to verify Polygon API configuration.
+
+    Tests if API key is configured and makes a test API call to verify
+    connectivity and authentication.
+
+    Returns:
+        flask.Response: JSON with:
+            - api_key_configured (bool): Whether API key is set
+            - api_key_preview (str): First 8 chars of API key or "NOT SET"
+            - api_working (bool): Whether test API call succeeded
+            - market_status (dict): Market status response or error details
+            - timestamp (str): ISO timestamp
+    """
     import os
     polygon = get_polygon_service()
 
@@ -369,8 +479,20 @@ def stock_screener():
 @api_polygon.route('/api/market/screener/export')
 def export_screener_csv():
     """
-    Export screener results to CSV
-    Same query params as /api/market/screener
+    Export stock screener results to CSV file.
+
+    Uses same filtering criteria as /api/market/screener endpoint.
+
+    Query Parameters:
+        min_volume (int, optional): Minimum trading volume
+        min_price (float, optional): Minimum stock price
+        max_price (float, optional): Maximum stock price
+        min_change_percent (float, optional): Minimum % change
+        max_change_percent (float, optional): Maximum % change
+
+    Returns:
+        flask.Response: CSV file download with screener results
+            Filename format: screener_results_YYYYMMDD_HHMMSS.csv
     """
     criteria = {}
 

@@ -27,7 +27,21 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 def refresh_news_data():
-    """Fetch and analyze latest news articles"""
+    """
+    Fetch and analyze latest news articles from NewsAPI.
+
+    Collects news articles, analyzes them with Claude AI to generate
+    ratings and sentiment, and stores results in PostgreSQL database.
+    Automatically removes articles older than 30 days.
+
+    Returns:
+        bool: True if refresh succeeded, False otherwise
+
+    Side Effects:
+        - Adds new NewsArticle records to database
+        - Deletes NewsArticle records older than 30 days
+        - Commits database transactions
+    """
     try:
         from src.news_collector import collect_news
         from src.news_analyzer import analyze_with_claude
@@ -96,28 +110,126 @@ def refresh_news_data():
 
 
 def refresh_calendar_data():
-    """Fetch and update economic calendar events"""
+    """
+    Fetch and update economic calendar events from Finnhub API.
+
+    Uses Finnhub's economic calendar endpoint to retrieve upcoming
+    economic events and updates the database. Handles duplicates by
+    checking existing events before insertion.
+
+    Returns:
+        bool: True if refresh succeeded, False otherwise
+    """
     try:
         from web.database import db, EconomicEvent
         from web.app import app
         import requests
+        from datetime import datetime, timedelta
 
         logger.info("Starting calendar refresh...")
 
-        with app.app_context():
-            # Fetch calendar data from Trading Economics or similar API
-            # For now, using a placeholder - you'll need to implement actual API call
-            logger.info("Calendar API integration needed - placeholder for now")
+        # Get API key from environment
+        api_key = os.getenv('FINNHUB_API_KEY')
+        if not api_key:
+            logger.warning("FINNHUB_API_KEY not set - skipping calendar refresh")
+            logger.info("To enable: Get free API key from https://finnhub.io")
+            return True  # Not a failure, just skipped
 
-            # Example structure:
-            # events = fetch_from_calendar_api()
-            # for event_data in events:
-            #     event = EconomicEvent(...)
-            #     db.session.add(event)
-            # db.session.commit()
+        with app.app_context():
+            # Fetch economic calendar from Finnhub
+            # Date range: today to 60 days ahead
+            from_date = datetime.utcnow().strftime('%Y-%m-%d')
+            to_date = (datetime.utcnow() + timedelta(days=60)).strftime('%Y-%m-%d')
+
+            url = f"https://finnhub.io/api/v1/calendar/economic"
+            params = {
+                'from': from_date,
+                'to': to_date,
+                'token': api_key
+            }
+
+            logger.info(f"Fetching calendar events from {from_date} to {to_date}")
+            response = requests.get(url, params=params, timeout=30)
+            response.raise_for_status()
+
+            data = response.json()
+            events_data = data.get('economicCalendar', [])
+
+            if not events_data:
+                logger.info("No economic events found")
+                return True
+
+            logger.info(f"Retrieved {len(events_data)} economic events")
+
+            # Process and store events
+            saved_count = 0
+            updated_count = 0
+
+            for event_data in events_data:
+                try:
+                    # Parse event data
+                    event_time = datetime.strptime(event_data['time'], '%Y-%m-%d %H:%M:%S')
+                    title = event_data.get('event', 'Economic Event')
+                    country = event_data.get('country', 'US')
+
+                    # Determine importance (Finnhub uses 'impact': low/medium/high)
+                    impact = event_data.get('impact', '').lower()
+                    importance = 'medium'  # default
+                    if impact in ['low', 'medium', 'high']:
+                        importance = impact
+
+                    # Check if event already exists
+                    existing = EconomicEvent.query.filter_by(
+                        title=title,
+                        date=event_time
+                    ).first()
+
+                    if existing:
+                        # Update existing event
+                        existing.actual = event_data.get('actual')
+                        existing.forecast = event_data.get('estimate')
+                        existing.previous = event_data.get('previous')
+                        existing.importance = importance
+                        existing.country = country
+                        existing.updated_at = datetime.utcnow()
+                        updated_count += 1
+                    else:
+                        # Create new event
+                        event = EconomicEvent(
+                            title=title,
+                            date=event_time,
+                            time=event_time.strftime('%H:%M EST'),
+                            country=country,
+                            importance=importance,
+                            actual=event_data.get('actual'),
+                            forecast=event_data.get('estimate'),
+                            previous=event_data.get('previous'),
+                            source='Finnhub'
+                        )
+                        db.session.add(event)
+                        saved_count += 1
+
+                except Exception as e:
+                    logger.error(f"Error processing event: {e}")
+                    continue
+
+            # Commit all changes
+            db.session.commit()
+            logger.info(f"Saved {saved_count} new events, updated {updated_count} events")
+
+            # Clean up old events (older than 7 days)
+            cutoff_date = datetime.utcnow() - timedelta(days=7)
+            deleted = EconomicEvent.query.filter(
+                EconomicEvent.date < cutoff_date
+            ).delete()
+            db.session.commit()
+            logger.info(f"Deleted {deleted} old events")
 
             return True
 
+    except requests.RequestException as e:
+        logger.error(f"Calendar API request failed: {e}", exc_info=True)
+        return False
     except Exception as e:
         logger.error(f"Calendar refresh failed: {e}", exc_info=True)
         return False
