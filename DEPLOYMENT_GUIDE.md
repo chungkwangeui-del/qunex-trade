@@ -25,16 +25,18 @@
 │  ├─ Analyzes with Claude AI                │
 │  └─ Stores in PostgreSQL                   │
 │                                             │
-│  PostgreSQL Database (Free 90 days)        │
-│  ├─ Users, payments, watchlists            │
-│  ├─ News articles with AI analysis         │
-│  └─ Economic calendar events               │
+│  (No database - uses external Supabase)    │
 │                                             │
 └─────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────┐
 │          External Services (Free)           │
 ├─────────────────────────────────────────────┤
+│                                             │
+│  Supabase PostgreSQL (Permanent Free)     │
+│  ├─ Users, payments, watchlists            │
+│  ├─ News articles with AI analysis         │
+│  └─ Economic calendar events               │
 │                                             │
 │  Upstash Redis (Free)                      │
 │  └─ Distributed rate limiting              │
@@ -56,12 +58,19 @@
 - Sign up at https://render.com (free)
 - Connect your GitHub account
 
-### 2. Upstash Redis (Free)
+### 2. Supabase Account (Permanent Free PostgreSQL)
+- Sign up at https://supabase.com (free)
+- Create a new project
+- Go to Project Settings → Database → Connection string
+- Copy the **URI** (starts with `postgres://` or `postgresql://`)
+- This is your `DATABASE_URL`
+
+### 3. Upstash Redis (Free)
 - Sign up at https://upstash.com
 - Create a Redis database
 - Copy the Redis URL
 
-### 3. API Keys
+### 4. API Keys
 - **Polygon.io:** https://polygon.io (get API key)
 - **Anthropic:** https://console.anthropic.com (get API key)
 - **NewsAPI:** https://newsapi.org (get API key)
@@ -94,19 +103,7 @@ git push origin main
    - **Start Command:** `cd web && gunicorn app:app --bind 0.0.0.0:$PORT --workers 2 --timeout 120`
    - **Plan:** Free
 
-#### B. Create PostgreSQL Database
-
-1. Click "New +" → "PostgreSQL"
-2. Configuration:
-   - **Name:** qunex-db
-   - **Database Name:** qunex_trade
-   - **User:** qunex_user
-   - **Region:** Oregon (same as web service)
-   - **Plan:** Free
-
-3. After creation, copy the **Internal Database URL**
-
-#### C. Create Cron Job
+#### B. Create Cron Job
 
 1. Click "New +" → "Cron Job"
 2. Configuration:
@@ -123,8 +120,8 @@ git push origin main
 In Render Dashboard → Web Service → Environment:
 
 ```bash
-# Database (auto-filled from PostgreSQL service)
-DATABASE_URL=postgresql://qunex_user:password@hostname/qunex_trade
+# Database (from Supabase - see Prerequisites step 2)
+DATABASE_URL=postgresql://postgres:[YOUR-PASSWORD]@[YOUR-PROJECT].supabase.co:5432/postgres
 
 # Redis (from Upstash)
 REDIS_URL=rediss://default:password@hostname:port
@@ -288,20 +285,22 @@ python scripts/refresh_data_cron.py
 
 ## 💰 Cost Breakdown
 
-### 100% Free Tier
+### 100% Free Tier (Permanent!)
 
-| Service | Plan | Cost |
-|---------|------|------|
-| Render Web Service | Free | $0/month |
-| Render PostgreSQL | Free (90 days) | $0/month |
-| Render Cron Job | Free | $0/month |
-| Upstash Redis | Free (10K commands/day) | $0/month |
-| **Total** | | **$0/month** |
+| Service | Plan | Cost | Limit |
+|---------|------|------|-------|
+| Render Web Service | Free | $0/month | 750 hrs/month |
+| Render Cron Job | Free | $0/month | Unlimited |
+| Supabase PostgreSQL | Free | $0/month | **Permanent** ✓ |
+| Upstash Redis | Free | $0/month | 10K cmds/day |
+| **Total** | | **$0/month** | **Forever** |
 
-### After 90 Days
+### Why This Stack?
 
-- Render PostgreSQL becomes $7/month
-- Alternative: Migrate to Supabase (free tier)
+- ✅ **Permanent Free Database:** Supabase PostgreSQL (no 90-day limit)
+- ✅ **Unlimited Cron Jobs:** Render free tier
+- ✅ **Auto-scaling:** Render web service
+- ✅ **No credit card required:** For all services
 
 ---
 

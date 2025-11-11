@@ -18,7 +18,7 @@ services:
       - key: ENABLE_BACKGROUND_THREAD
         value: false
       # Add these in Render Dashboard:
-      # - DATABASE_URL (from PostgreSQL service)
+      # - DATABASE_URL (from Supabase PostgreSQL - permanent free!)
       # - REDIS_URL (from Upstash)
       # - POLYGON_API_KEY
       # - NEWSAPI_KEY
@@ -42,10 +42,5 @@ services:
     envVars:
       # Inherits DATABASE_URL, REDIS_URL, API keys from environment
 
-databases:
-  # PostgreSQL Database (Free tier: 90 days, then paid)
-  - name: qunex-db
-    databaseName: qunex_trade
-    user: qunex_user
-    plan: free
-    region: oregon
+# No databases section - using Supabase PostgreSQL (permanent free tier)
+# Add DATABASE_URL in Render Dashboard pointing to Supabase
