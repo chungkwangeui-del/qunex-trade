@@ -132,3 +132,87 @@ class SavedScreener(db.Model):
 
     def __repr__(self):
         return f'<SavedScreener {self.name} by User {self.user_id}>'
+
+
+class NewsArticle(db.Model):
+    """Cached news articles with AI analysis"""
+    __tablename__ = 'news_articles'
+
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(500), nullable=False, index=True)
+    description = db.Column(db.Text, nullable=True)
+    url = db.Column(db.String(1000), unique=True, nullable=False, index=True)
+    source = db.Column(db.String(100), nullable=True, index=True)
+    published_at = db.Column(db.DateTime, nullable=False, index=True)
+
+    # AI Analysis fields
+    ai_rating = db.Column(db.Integer, nullable=True, index=True)  # 1-5 stars
+    ai_analysis = db.Column(db.Text, nullable=True)  # Claude's analysis
+    sentiment = db.Column(db.String(20), nullable=True, index=True)  # positive, negative, neutral
+
+    # Metadata
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    def __repr__(self):
+        return f'<NewsArticle {self.id} - {self.title[:50]}>'
+
+    def to_dict(self):
+        """Convert to dictionary for JSON serialization"""
+        return {
+            'id': self.id,
+            'title': self.title,
+            'description': self.description,
+            'url': self.url,
+            'source': self.source,
+            'published': self.published_at.isoformat() if self.published_at else None,
+            'ai_rating': self.ai_rating,
+            'ai_analysis': self.ai_analysis,
+            'sentiment': self.sentiment,
+            'created_at': self.created_at.isoformat() if self.created_at else None
+        }
+
+
+class EconomicEvent(db.Model):
+    """Economic calendar events"""
+    __tablename__ = 'economic_events'
+
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(300), nullable=False, index=True)
+    description = db.Column(db.Text, nullable=True)
+    date = db.Column(db.DateTime, nullable=False, index=True)
+    time = db.Column(db.String(20), nullable=True)  # e.g., "8:30 AM EST"
+    country = db.Column(db.String(50), nullable=True, index=True)
+    importance = db.Column(db.String(20), nullable=True, index=True)  # low, medium, high
+
+    # Impact fields
+    actual = db.Column(db.String(50), nullable=True)
+    forecast = db.Column(db.String(50), nullable=True)
+    previous = db.Column(db.String(50), nullable=True)
+
+    # Metadata
+    source = db.Column(db.String(100), nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Unique constraint to avoid duplicates
+    __table_args__ = (db.UniqueConstraint('title', 'date', name='unique_event_date'),)
+
+    def __repr__(self):
+        return f'<EconomicEvent {self.title} on {self.date}>'
+
+    def to_dict(self):
+        """Convert to dictionary for JSON serialization"""
+        return {
+            'id': self.id,
+            'title': self.title,
+            'description': self.description,
+            'date': self.date.isoformat() if self.date else None,
+            'time': self.time,
+            'country': self.country,
+            'importance': self.importance,
+            'actual': self.actual,
+            'forecast': self.forecast,
+            'previous': self.previous,
+            'source': self.source
+        }

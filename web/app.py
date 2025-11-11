@@ -35,55 +35,60 @@ AUTO_REFRESH_INTERVAL = 3600  # 1 hour
 
 # Import database first
 try:
-    from database import db, User
+    from database import db, User, NewsArticle, EconomicEvent
 except ImportError:
-    from web.database import db, User
+    from web.database import db, User, NewsArticle, EconomicEvent
 
 # Configure logging
 logger = logging.getLogger(__name__)
 
-# Helper Functions
-def load_json_data(filename: str, default: Optional[Any] = None) -> Any:
+# Helper Functions for Database Queries
+def get_news_articles(limit: int = 50, rating_filter: Optional[int] = None) -> List[Dict]:
     """
-    Load JSON data from data directory.
+    Get news articles from database.
 
     Args:
-        filename: Name of the JSON file to load
-        default: Default value to return if file not found or error occurs
+        limit: Maximum number of articles to return
+        rating_filter: Optional AI rating filter (e.g., 5 for 5-star only)
 
     Returns:
-        Loaded JSON data or default value
+        List of news articles as dictionaries
     """
     try:
-        file_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'data', filename)
-        if os.path.exists(file_path):
-            with open(file_path, 'r', encoding='utf-8') as f:
-                return json.load(f)
-    except Exception as e:
-        logger.error(f"Error loading {filename}: {e}")
-    return default or []
+        query = NewsArticle.query.order_by(NewsArticle.published_at.desc())
 
-def save_json_data(filename: str, data: Any) -> bool:
+        if rating_filter:
+            query = query.filter(NewsArticle.ai_rating >= rating_filter)
+
+        articles = query.limit(limit).all()
+        return [article.to_dict() for article in articles]
+    except Exception as e:
+        logger.error(f"Error loading news articles: {e}")
+        return []
+
+def get_economic_events(days_ahead: int = 60) -> List[Dict]:
     """
-    Save JSON data to data directory.
+    Get economic calendar events from database.
 
     Args:
-        filename: Name of the JSON file to save
-        data: Data to save as JSON
+        days_ahead: Number of days ahead to fetch events
 
     Returns:
-        True if successful, False otherwise
+        List of economic events as dictionaries
     """
     try:
-        data_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'data')
-        os.makedirs(data_dir, exist_ok=True)
-        file_path = os.path.join(data_dir, filename)
-        with open(file_path, 'w', encoding='utf-8') as f:
-            json.dump(data, f, indent=2, ensure_ascii=False)
-        return True
+        from datetime import datetime, timedelta
+        end_date = datetime.utcnow() + timedelta(days=days_ahead)
+
+        events = EconomicEvent.query.filter(
+            EconomicEvent.date >= datetime.utcnow(),
+            EconomicEvent.date <= end_date
+        ).order_by(EconomicEvent.date.asc()).all()
+
+        return [event.to_dict() for event in events]
     except Exception as e:
-        logger.error(f"Error saving {filename}: {e}")
-        return False
+        logger.error(f"Error loading economic events: {e}")
+        return []
 
 app = Flask(__name__)
 
@@ -139,12 +144,19 @@ csrf.exempt('auth.send_verification_code')
 csrf.exempt('auth.verify_code')
 
 # Initialize rate limiter
+# CLOUD-NATIVE: Use Redis for distributed rate limiting (Upstash)
+REDIS_URL = os.getenv('REDIS_URL', 'memory://')  # Falls back to memory in development
 limiter = Limiter(
     app=app,
     key_func=get_remote_address,
     default_limits=[f"{RATE_LIMITS['daily']} per day", f"{RATE_LIMITS['hourly']} per hour"],
-    storage_uri="memory://"
+    storage_uri=REDIS_URL
 )
+
+if REDIS_URL == 'memory://':
+    logger.warning("Rate limiting using memory storage (development mode)")
+else:
+    logger.info(f"Rate limiting using Redis: {REDIS_URL[:20]}...")
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -386,11 +398,12 @@ def news() -> str:
             has_access = True
 
     try:
-        news_data = load_json_data('news_analysis.json', [])
-        preview_data = news_data[:3] if not has_access else news_data
+        # Load news from database
+        limit = 3 if not has_access else NEWS_ANALYSIS_LIMIT
+        news_data = get_news_articles(limit=limit)
 
         return render_template('news.html',
-                             news_data=preview_data,
+                             news_data=news_data,
                              user=current_user,
                              has_access=has_access,
                              user_tier=user_tier)
@@ -455,8 +468,8 @@ def api_search_news():
     keyword = request.args.get('keyword', '').lower()
 
     try:
-        # Load news data using helper
-        news_data = load_json_data('news_analysis.json', [])
+        # Load news data from database
+        news_data = get_news_articles(limit=NEWS_ANALYSIS_LIMIT)
 
         if not news_data:
             return jsonify({'success': False, 'message': 'No news data available'})
@@ -492,10 +505,10 @@ def api_search_news():
 def api_critical_news():
     """Get critical news (5-star importance only)"""
     try:
-        # Load news data using helper
-        news_data = load_json_data('news_analysis.json', [])
+        # Load 5-star news from database
+        news_data = get_news_articles(limit=NEWS_ANALYSIS_LIMIT, rating_filter=5)
 
-        # Filter for 5-star news only
+        # Already filtered for 5-star
         critical_news = [n for n in news_data if n.get('importance', 0) == 5]
 
         return jsonify({
@@ -511,8 +524,8 @@ def api_critical_news():
 def api_economic_calendar():
     """Get economic calendar events"""
     try:
-        # Load calendar using helper
-        events = load_json_data('economic_calendar.json', [])
+        # Load calendar from database
+        events = get_economic_events(days_ahead=CALENDAR_DAYS_AHEAD)
 
         if not events:
             return jsonify({'success': False, 'message': 'Calendar not available'})
@@ -809,10 +822,15 @@ def auto_refresh_news() -> None:
         except Exception as e:
             logger.error(f"Auto-refresh error: {e}", exc_info=True)
 
-# Start background news refresh thread
-news_thread = threading.Thread(target=auto_refresh_news, daemon=True)
-news_thread.start()
-logger.info(f"Auto-refresh news thread started (refreshes every {AUTO_REFRESH_INTERVAL//3600} hour(s))")
+# CLOUD-NATIVE: Background tasks moved to Render Cron Jobs
+# Auto-refresh is now handled by /scripts/refresh_data_cron.py
+# This thread is disabled in production to support stateless deployments
+if os.getenv('ENABLE_BACKGROUND_THREAD', 'false').lower() == 'true':
+    news_thread = threading.Thread(target=auto_refresh_news, daemon=True)
+    news_thread.start()
+    logger.info(f"Auto-refresh news thread started (refreshes every {AUTO_REFRESH_INTERVAL//3600} hour(s))")
+else:
+    logger.info("Background thread disabled (using Render Cron Jobs instead)")
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)

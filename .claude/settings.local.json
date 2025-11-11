@@ -1,30 +1,7 @@
 {
   "permissions": {
     "allow": [
-      "Bash(test:*)",
-      "Bash(web/templates/index.html.backup)",
-      "Bash(git checkout:*)",
-      "Bash(git add:*)",
-      "Bash(git commit -m \"$(cat <<''EOF''\nFix auth and static pages - restore layouts with theme toggle\n\nCRITICAL FIX:\n- Restored original layouts for 9 pages that were broken\n- Login, signup, password reset pages now styled correctly\n- Account, admin, pricing, privacy, terms pages fixed\n- Added theme toggle to all restored pages\n\nPages fixed:\n- login.html, signup.html\n- forgot_password.html, reset_password.html\n- account.html, admin_dashboard.html\n- pricing.html, privacy.html, terms.html\n\nIssue: Previous CSS \"unification\" removed essential\npage-specific styles. Each page needs its own inline\nstyles for proper layout while using basic.css for\ntheme variables.\n\nGenerated with Claude Code\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
-      "Bash(git push)",
-      "Bash(python:*)",
-      "Bash(git commit:*)",
-      "Bash(curl:*)",
-      "Bash(for file in web/templates/screener.html web/templates/watchlist.html web/templates/calendar.html web/templates/news.html web/templates/about.html)",
-      "Bash(do if [ -f \"$file\" ])",
-      "Bash(then echo \"Checking $file...\" grep -n \"basic.css\\|<style>\" \"$file\")",
-      "Bash(for file in screener.html watchlist.html calendar.html news.html about.html)",
-      "Bash(do echo \"Fixing $file...\")",
-      "Bash(powershell -Command \"(Get-Content ''''$file'''' -Raw -Encoding UTF8) -replace [regex]::Escape(\"\"url_for(\\''''static\\'''', filename=\\''''basic.css\\'''')\"\"), \"\"url_for(''''static'''', filename=''''basic.css'''')\"\" | Set-Content ''''$file'''' -Encoding UTF8 -NoNewline\")",
-      "Bash(done)",
-      "Bash(findstr:*)",
-      "Bash(tasklist:*)",
-      "Bash(pip install:*)",
-      "Bash(if [ -f training.log ])",
-      "Bash(then tail -20 training.log)",
-      "Bash(else echo \"No log file yet...\")",
-      "Bash(fi)",
-      "Bash(powershell -Command \"Get-Process python | Where-Object {$_Path -like ''*python*''} | Format-Table Id, ProcessName, Path -AutoSize\")"
+      "Bash(tree:*)"
     ],
     "deny": [],
     "ask": []

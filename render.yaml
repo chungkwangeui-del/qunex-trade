@@ -1,4 +1,5 @@
 services:
+  # Web Service - Flask App
   - type: web
     name: qunex-trade
     runtime: python
@@ -7,12 +8,44 @@ services:
     plan: free
     branch: main
     buildCommand: bash build.sh
-    startCommand: cd web && gunicorn app:app --bind 0.0.0.0:$PORT
+    startCommand: cd web && gunicorn app:app --bind 0.0.0.0:$PORT --workers 2 --timeout 120
     runtimeVersion: "3.13.1"
     envVars:
       - key: SECRET_KEY
         generateValue: true
-      - key: ADMIN_EMAIL
-        value: admin@qunextrade.com
-      - key: ADMIN_PASSWORD
-        value: admin123
+      - key: PYTHON_VERSION
+        value: 3.13.1
+      - key: ENABLE_BACKGROUND_THREAD
+        value: false
+      # Add these in Render Dashboard:
+      # - DATABASE_URL (from PostgreSQL service)
+      # - REDIS_URL (from Upstash)
+      # - POLYGON_API_KEY
+      # - NEWSAPI_KEY
+      # - ANTHROPIC_API_KEY
+      # - MAIL_USERNAME
+      # - MAIL_PASSWORD
+      # - RECAPTCHA_SECRET_KEY
+
+  # Cron Job - Data Refresh (runs every hour)
+  - type: cron
+    name: qunex-data-refresh
+    runtime: python
+    env: python
+    region: oregon
+    plan: free
+    branch: main
+    schedule: "0 * * * *"  # Every hour at minute 0
+    buildCommand: pip install -r requirements.txt && pip install -r web/requirements.txt
+    startCommand: python scripts/refresh_data_cron.py
+    runtimeVersion: "3.13.1"
+    envVars:
+      # Inherits DATABASE_URL, REDIS_URL, API keys from environment
+
+databases:
+  # PostgreSQL Database (Free tier: 90 days, then paid)
+  - name: qunex-db
+    databaseName: qunex_trade
+    user: qunex_user
+    plan: free
+    region: oregon
