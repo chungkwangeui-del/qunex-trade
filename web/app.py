@@ -364,6 +364,11 @@ def calendar():
     """Economic Calendar - Major economic events"""
     return render_template('calendar.html', user=current_user)
 
+@app.route('/stock/<symbol>')
+def stock_chart(symbol):
+    """Individual Stock Chart Page with Multi-Timeframe Charts"""
+    return render_template('stock_chart.html', symbol=symbol.upper(), user=current_user)
+
 @app.route('/news')
 def news() -> str:
     """
@@ -589,6 +594,189 @@ def api_statistics():
     return jsonify(stats)
 
 # Sector map moved to /api/market/sector-map (Polygon.io)
+
+@app.route('/api/stock/<symbol>/chart')
+def api_stock_chart(symbol):
+    """Get multi-timeframe chart data for a stock"""
+    try:
+        from polygon_service import PolygonService
+        import sys
+        import os
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'ml'))
+        from ai_score_system import AIScoreModel, FeatureEngineer
+
+        timeframe = request.args.get('timeframe', '1D')  # Default to daily
+        polygon = PolygonService()
+
+        # Map timeframes to Polygon API parameters
+        timeframe_map = {
+            '1': ('minute', 1),      # 1 minute
+            '5': ('minute', 5),      # 5 minutes
+            '15': ('minute', 15),    # 15 minutes
+            '60': ('minute', 60),    # 1 hour
+            '240': ('minute', 240),  # 4 hours
+            '1D': ('day', 1),        # Daily
+            '1M': ('month', 1)       # Monthly
+        }
+
+        unit, multiplier = timeframe_map.get(timeframe, ('day', 1))
+
+        # Calculate date range based on timeframe
+        from datetime import datetime, timedelta
+        end_date = datetime.now()
+
+        if timeframe in ['1', '5', '15']:
+            start_date = end_date - timedelta(days=7)  # 1 week for minute data
+        elif timeframe in ['60', '240']:
+            start_date = end_date - timedelta(days=30)  # 1 month for hourly
+        elif timeframe == '1D':
+            start_date = end_date - timedelta(days=365)  # 1 year for daily
+        else:  # Monthly
+            start_date = end_date - timedelta(days=365*5)  # 5 years for monthly
+
+        # Fetch data from Polygon
+        endpoint = f"/v2/aggs/ticker/{symbol.upper()}/range/{multiplier}/{unit}/{start_date.strftime('%Y-%m-%d')}/{end_date.strftime('%Y-%m-%d')}"
+        params = {'adjusted': 'true', 'sort': 'asc', 'limit': 5000}
+
+        data = polygon._make_request(endpoint, params)
+
+        if not data or 'results' not in data:
+            return jsonify({'error': 'No data available'}), 404
+
+        # Format data for chart
+        candles = []
+        for bar in data['results']:
+            candles.append({
+                'time': bar['t'] // 1000,  # Convert to seconds
+                'open': bar['o'],
+                'high': bar['h'],
+                'low': bar['l'],
+                'close': bar['c'],
+                'volume': bar['v']
+            })
+
+        return jsonify({
+            'symbol': symbol.upper(),
+            'timeframe': timeframe,
+            'candles': candles
+        })
+
+    except Exception as e:
+        logger.error(f"Error fetching chart data for {symbol}: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/stock/<symbol>/ai-score')
+def api_stock_ai_score(symbol):
+    """Get Qunex AI Score for a stock"""
+    try:
+        from polygon_service import PolygonService
+        import sys
+        import os
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'ml'))
+        from ai_score_system import AIScoreModel, FeatureEngineer
+
+        polygon = PolygonService()
+
+        # Load trained model
+        model_path = os.path.join(os.path.dirname(__file__), '..', 'ml', 'models')
+        model = AIScoreModel(model_dir=model_path)
+        if not model.load('ai_score_model.pkl'):
+            return jsonify({'error': 'AI model not available'}), 500
+
+        # Get recent price data (need ~200 days for technical indicators)
+        from datetime import datetime, timedelta
+        end_date = datetime.now()
+        start_date = end_date - timedelta(days=400)
+
+        price_data = model._fetch_historical_prices(
+            symbol.upper(),
+            start_date.strftime('%Y-%m-%d'),
+            end_date.strftime('%Y-%m-%d'),
+            polygon
+        )
+
+        if price_data is None or len(price_data) < 200:
+            return jsonify({'error': 'Insufficient data for AI score'}), 404
+
+        # Calculate features
+        features = FeatureEngineer.calculate_technical_features(price_data)
+
+        if not features:
+            return jsonify({'error': 'Could not calculate features'}), 500
+
+        # Predict AI score
+        score = model.predict_score(features)
+
+        # Determine rating
+        if score >= 75:
+            rating = "Strong Buy"
+            color = "#00ff88"
+        elif score >= 60:
+            rating = "Buy"
+            color = "#00d9ff"
+        elif score >= 40:
+            rating = "Hold"
+            color = "#ffd700"
+        elif score >= 25:
+            rating = "Sell"
+            color = "#ff8c00"
+        else:
+            rating = "Strong Sell"
+            color = "#ff006e"
+
+        return jsonify({
+            'symbol': symbol.upper(),
+            'score': score,
+            'rating': rating,
+            'color': color,
+            'features': {
+                'rsi': round(features.get('rsi_14', 0), 2),
+                'macd': round(features.get('macd', 0), 4),
+                'price_to_ma50': round(features.get('price_to_ma50', 0) * 100, 2)
+            }
+        })
+
+    except Exception as e:
+        logger.error(f"Error calculating AI score for {symbol}: {e}")
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/stock/<symbol>/news')
+def api_stock_news(symbol):
+    """Get recent news for a stock"""
+    try:
+        from polygon_service import PolygonService
+        polygon = PolygonService()
+
+        # Fetch news from Polygon
+        endpoint = f"/v2/reference/news"
+        params = {
+            'ticker': symbol.upper(),
+            'limit': 10,
+            'sort': 'published_utc',
+            'order': 'desc'
+        }
+
+        data = polygon._make_request(endpoint, params)
+
+        if not data or 'results' not in data:
+            return jsonify({'articles': []})
+
+        articles = []
+        for article in data['results']:
+            articles.append({
+                'title': article.get('title', ''),
+                'description': article.get('description', ''),
+                'url': article.get('article_url', ''),
+                'published': article.get('published_utc', ''),
+                'publisher': article.get('publisher', {}).get('name', 'Unknown'),
+                'image': article.get('image_url', '')
+            })
+
+        return jsonify({'articles': articles})
+
+    except Exception as e:
+        logger.error(f"Error fetching news for {symbol}: {e}")
+        return jsonify({'articles': []}), 500
 
 # Auto-refresh news every hour in background
 def auto_refresh_news() -> None:
