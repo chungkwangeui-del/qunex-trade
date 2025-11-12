@@ -88,55 +88,47 @@
             margin-top: 5px;
         }
 
-        /* AI Score Card */
+        /* AI Score Card - Coming Soon */
         .ai-score-card {
             background: var(--bg-card);
-            padding: 25px;
+            padding: 40px 25px;
             border-radius: 16px;
             margin-bottom: 20px;
             text-align: center;
+            border: 2px dashed var(--border);
         }
 
-        .ai-score-title {
-            font-size: 1rem;
-            color: var(--text-secondary);
+        .coming-soon-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        .coming-soon-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
             margin-bottom: 10px;
         }
 
-        .ai-score-value {
-            font-size: 4rem;
-            font-weight: 700;
-            margin: 10px 0;
-        }
-
-        .ai-score-rating {
-            font-size: 1.5rem;
-            font-weight: 600;
-            margin-top: 10px;
-        }
-
-        .ai-score-features {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        .feature-item {
-            background: var(--bg-dark);
-            padding: 12px;
-            border-radius: 8px;
-        }
-
-        .feature-label {
-            font-size: 0.8rem;
+        .coming-soon-subtitle {
+            font-size: 1rem;
             color: var(--text-secondary);
+            margin-bottom: 15px;
         }
 
-        .feature-value {
-            font-size: 1.2rem;
-            font-weight: 600;
-            margin-top: 5px;
+        .coming-soon-description {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            max-width: 300px;
+            margin: 0 auto;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
         }
 
         /* Chart Section */
@@ -228,12 +220,20 @@
         <!-- Navigation -->
         <nav>
             <a href="/" class="logo" style="text-decoration: none;">QUNEX TRADE</a>
-            <div>
+            <div class="nav-links">
                 <a href="/">Home</a>
                 <a href="/market">Market</a>
                 <a href="/screener">Screener</a>
+                <a href="/watchlist">Watchlist</a>
                 <a href="/calendar">Calendar</a>
                 <a href="/news">News</a>
+                {% if current_user.is_authenticated %}
+                    <a href="/account">Account</a>
+                    <a href="/logout">Logout</a>
+                {% else %}
+                    <a href="/login">Login</a>
+                    <a href="/signup">Sign Up</a>
+                {% endif %}
             </div>
         </nav>
 
@@ -263,10 +263,15 @@
                 </div>
             </div>
 
-            <!-- Right Column: AI Score -->
+            <!-- Right Column: AI Score - Coming Soon -->
             <div>
-                <div class="ai-score-card" id="ai-score-container">
-                    <div class="loading">Calculating AI Score...</div>
+                <div class="ai-score-card">
+                    <div class="coming-soon-icon">🚀</div>
+                    <div class="coming-soon-title">AI Score Coming Soon</div>
+                    <div class="coming-soon-subtitle">QUNEX AI Analysis</div>
+                    <div class="coming-soon-description">
+                        We're developing an advanced AI-powered scoring system that analyzes technical indicators, fundamentals, and market sentiment to provide actionable insights.
+                    </div>
                 </div>
             </div>
         </div>
@@ -330,55 +335,10 @@
             }
         }
 
-        // Load AI Score
-        async function loadAIScore() {
-            try {
-                console.log(`Loading AI Score for ${symbol}`);
-                const response = await fetch(`/api/stock/${symbol}/ai-score`);
-                console.log('AI Score response status:', response.status);
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                const data = await response.json();
-                console.log('AI Score data:', data);
-
-                if (data.error) {
-                    throw new Error(data.error);
-                }
-
-                document.getElementById('ai-score-container').innerHTML = `
-                    <div class="ai-score-title">QUNEX AI SCORE</div>
-                    <div class="ai-score-value" style="color: ${data.color}">${data.score}</div>
-                    <div class="ai-score-rating" style="color: ${data.color}">${data.rating}</div>
-                    <div class="ai-score-features">
-                        <div class="feature-item">
-                            <div class="feature-label">RSI (14)</div>
-                            <div class="feature-value">${data.features.rsi}</div>
-                        </div>
-                        <div class="feature-item">
-                            <div class="feature-label">MACD</div>
-                            <div class="feature-value">${data.features.macd}</div>
-                        </div>
-                        <div class="feature-item">
-                            <div class="feature-label">MA50 Dist</div>
-                            <div class="feature-value">${data.features.price_to_ma50}%</div>
-                        </div>
-                    </div>
-                `;
-                console.log('AI Score loaded successfully');
-
-            } catch (error) {
-                console.error('Error loading AI score:', error);
-                document.getElementById('ai-score-container').innerHTML = `
-                    <div style="text-align: center; padding: 20px; color: #ff006e;">
-                        <h4>AI Score Unavailable</h4>
-                        <p style="margin-top: 10px; font-size: 0.9rem;">${error.message}</p>
-                    </div>
-                `;
-            }
-        }
+        // AI Score - Temporarily disabled (coming soon)
+        // async function loadAIScore() {
+        //     // Feature temporarily disabled while we improve data quality
+        // }
 
         // Load news
         async function loadNews() {
@@ -420,7 +380,7 @@
 
         // Initialize all components
         updatePriceInfo();
-        loadAIScore();
+        // loadAIScore(); // Temporarily disabled - coming soon
         loadNews();
     </script>
 </body>
