@@ -1024,12 +1024,16 @@ def calculate_ai_score_features(ticker):
     """
     try:
         from database import NewsArticle
+        from polygon_service import PolygonService
         import numpy as np
 
         features = {}
 
+        # Initialize Polygon service
+        polygon = PolygonService()
+
         # 1. TECHNICAL INDICATORS
-        technicals = polygon_service.get_technical_indicators(ticker, days=200)
+        technicals = polygon.get_technical_indicators(ticker, days=200)
         if technicals:
             features['rsi'] = technicals.get('rsi', 50)
             features['macd'] = technicals.get('macd', 0)
@@ -1043,7 +1047,7 @@ def calculate_ai_score_features(ticker):
             features['price_to_ma200'] = 1.0
 
         # 2. FUNDAMENTAL INDICATORS
-        ticker_details = polygon_service.get_ticker_details(ticker)
+        ticker_details = polygon.get_ticker_details(ticker)
         if ticker_details:
             market_cap = ticker_details.get('market_cap', 0)
             features['market_cap_log'] = np.log10(market_cap + 1) if market_cap > 0 else 9.0
