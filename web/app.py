@@ -10,6 +10,7 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_wtf.csrf import CSRFProtect
 from flask_caching import Cache
+from flask_socketio import SocketIO, emit
 import os
 import sys
 import json
@@ -148,6 +149,7 @@ mail = Mail(app)
 csrf = CSRFProtect(app)
 
 # Initialize Flask-Caching with Redis (Upstash)
+REDIS_URL = os.getenv("REDIS_URL", "memory://")
 cache = Cache(app, config={
     'CACHE_TYPE': 'RedisCache' if REDIS_URL != 'memory://' else 'SimpleCache',
     'CACHE_REDIS_URL': REDIS_URL if REDIS_URL != 'memory://' else None,
@@ -159,6 +161,21 @@ if REDIS_URL == 'memory://':
     logger.warning("Caching using memory storage (development mode)")
 else:
     logger.info(f"Caching using Redis: {REDIS_URL[:20]}...")
+
+# Initialize SocketIO with Redis message queue for horizontal scaling
+socketio = SocketIO(
+    app,
+    message_queue=REDIS_URL if REDIS_URL != 'memory://' else None,
+    cors_allowed_origins="*",  # Configure properly in production
+    async_mode='eventlet',
+    logger=True,
+    engineio_logger=True,
+)
+
+if REDIS_URL == 'memory://':
+    logger.warning("WebSocket using eventlet (single worker mode)")
+else:
+    logger.info("WebSocket using Redis message queue for multi-worker support")
 
 # Exempt email verification endpoints from CSRF protection
 csrf.exempt("auth.send_verification_code")
@@ -1629,6 +1646,50 @@ def delete_transaction(transaction_id):
         return jsonify({"error": "Failed to delete transaction"}), 500
 
 
+# WebSocket Event Handlers
+@socketio.on('connect')
+def handle_connect():
+    """Handle client connection"""
+    logger.info(f"Client connected: {request.sid}")
+    emit('connection_established', {'status': 'connected'})
+
+
+@socketio.on('disconnect')
+def handle_disconnect():
+    """Handle client disconnection"""
+    logger.info(f"Client disconnected: {request.sid}")
+
+
+@socketio.on('subscribe_ticker')
+def handle_subscribe_ticker(data):
+    """Handle ticker subscription for real-time updates"""
+    try:
+        ticker = data.get('ticker', '').upper()
+        if not ticker:
+            emit('error', {'message': 'Invalid ticker'})
+            return
+
+        logger.info(f"Client {request.sid} subscribed to {ticker}")
+        emit('subscribed', {'ticker': ticker, 'status': 'success'})
+
+    except Exception as e:
+        logger.error(f"Error subscribing to ticker: {e}", exc_info=True)
+        emit('error', {'message': 'Subscription failed'})
+
+
+@socketio.on('unsubscribe_ticker')
+def handle_unsubscribe_ticker(data):
+    """Handle ticker unsubscription"""
+    try:
+        ticker = data.get('ticker', '').upper()
+        logger.info(f"Client {request.sid} unsubscribed from {ticker}")
+        emit('unsubscribed', {'ticker': ticker, 'status': 'success'})
+
+    except Exception as e:
+        logger.error(f"Error unsubscribing from ticker: {e}", exc_info=True)
+        emit('error', {'message': 'Unsubscription failed'})
+
+
 if os.getenv("ENABLE_BACKGROUND_THREAD", "false").lower() == "true":
     news_thread = threading.Thread(target=auto_refresh_news, daemon=True)
     news_thread.start()
@@ -1639,4 +1700,5 @@ else:
     logger.info("Background thread disabled (using Render Cron Jobs instead)")
 
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=5000)
+    # Use socketio.run() instead of app.run() for WebSocket support
+    socketio.run(app, debug=True, host="0.0.0.0", port=5000)
