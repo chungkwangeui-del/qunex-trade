@@ -291,6 +291,134 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        /* Update Popup Styles */
+        .update-popup {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 16px;
+            padding: 25px;
+            max-width: 400px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            animation: slideIn 0.5s ease-out;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(450px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .update-popup.hidden {
+            display: none;
+        }
+
+        .popup-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .popup-title {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .popup-close {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .popup-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: rotate(90deg);
+        }
+
+        .popup-content {
+            color: rgba(255, 255, 255, 0.95);
+            font-size: 0.95em;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .popup-list {
+            margin: 15px 0;
+            padding-left: 20px;
+        }
+
+        .popup-list li {
+            margin: 8px 0;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .popup-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .popup-btn {
+            flex: 1;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9em;
+        }
+
+        .popup-btn-primary {
+            background: white;
+            color: #667eea;
+        }
+
+        .popup-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 255, 255, 0.3);
+        }
+
+        .popup-btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .popup-btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .update-popup {
+                bottom: 20px;
+                right: 20px;
+                left: 20px;
+                max-width: none;
+            }
+        }
     </style>
     <link rel="stylesheet" href="{{ url_for('static', filename='basic.css') }}?v=1762470000">
 </head>
@@ -298,6 +426,30 @@
     <!-- Theme Toggle Button -->
     <button id="theme-toggle" aria-label="Toggle theme">☀️</button>
 
+    <!-- Update Popup -->
+    <div id="update-popup" class="update-popup hidden">
+        <div class="popup-header">
+            <div class="popup-title">
+                <span>🚀</span>
+                <span>Big Update Coming Soon!</span>
+            </div>
+            <button class="popup-close" onclick="closePopup()">&times;</button>
+        </div>
+        <div class="popup-content">
+            We're working on exciting new features to enhance your trading experience:
+            <ul class="popup-list">
+                <li>📅 <strong>Calendar</strong> - Enhanced economic events tracking</li>
+                <li>👁️ <strong>Watchlist</strong> - Advanced portfolio monitoring</li>
+                <li>📰 <strong>News</strong> - AI-powered market sentiment analysis</li>
+                <li>🤖 <strong>Qunex AI Score</strong> - Smart stock rating system</li>
+            </ul>
+            Stay tuned for these amazing updates!
+        </div>
+        <div class="popup-buttons">
+            <button class="popup-btn popup-btn-secondary" onclick="hideForDay()">Don't show for 24h</button>
+            <button class="popup-btn popup-btn-primary" onclick="closePopup()">Got it!</button>
+        </div>
+    </div>
 
     <div class="container">
         <!-- Navigation -->
@@ -551,6 +703,34 @@
                 searchStock();
             }
         });
+
+        // Update Popup Functions
+        function closePopup() {
+            document.getElementById('update-popup').classList.add('hidden');
+        }
+
+        function hideForDay() {
+            const now = new Date();
+            const hideUntil = now.getTime() + (24 * 60 * 60 * 1000); // 24 hours from now
+            localStorage.setItem('hideUpdatePopup', hideUntil.toString());
+            closePopup();
+        }
+
+        function checkPopup() {
+            const hideUntil = localStorage.getItem('hideUpdatePopup');
+            const now = new Date().getTime();
+
+            // Show popup if not hidden or if 24h has passed
+            if (!hideUntil || now > parseInt(hideUntil)) {
+                // Show popup after 2 seconds delay
+                setTimeout(() => {
+                    document.getElementById('update-popup').classList.remove('hidden');
+                }, 2000);
+            }
+        }
+
+        // Check if popup should be shown on page load
+        checkPopup();
     </script>
     <!-- Theme Toggle Script -->
     <script src="{{ url_for('static', filename='theme-toggle.js') }}" defer></script>
