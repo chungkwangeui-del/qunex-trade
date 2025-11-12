@@ -20,11 +20,9 @@ from datetime import datetime, timedelta
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Set up logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
+
 
 def refresh_news_data():
     """
@@ -51,16 +49,20 @@ def refresh_news_data():
         logger.info("Starting news refresh...")
 
         # CRITICAL: Validate required API keys
-        newsapi_key = os.getenv('NEWSAPI_KEY')
-        anthropic_key = os.getenv('ANTHROPIC_API_KEY')
+        newsapi_key = os.getenv("NEWSAPI_KEY")
+        anthropic_key = os.getenv("ANTHROPIC_API_KEY")
 
-        if not newsapi_key or newsapi_key.strip() == '':
-            logger.critical("CRITICAL ERROR: NEWSAPI_KEY is missing or empty. Aborting news refresh.")
+        if not newsapi_key or newsapi_key.strip() == "":
+            logger.critical(
+                "CRITICAL ERROR: NEWSAPI_KEY is missing or empty. Aborting news refresh."
+            )
             logger.critical("Get a free API key from: https://newsapi.org/")
             return False
 
-        if not anthropic_key or anthropic_key.strip() == '':
-            logger.critical("CRITICAL ERROR: ANTHROPIC_API_KEY is missing or empty. Aborting news refresh.")
+        if not anthropic_key or anthropic_key.strip() == "":
+            logger.critical(
+                "CRITICAL ERROR: ANTHROPIC_API_KEY is missing or empty. Aborting news refresh."
+            )
             logger.critical("Get an API key from: https://console.anthropic.com/")
             return False
 
@@ -75,7 +77,7 @@ def refresh_news_data():
             for article_data in news_articles:
                 try:
                     # Check if article already exists (by URL)
-                    existing = NewsArticle.query.filter_by(url=article_data['url']).first()
+                    existing = NewsArticle.query.filter_by(url=article_data["url"]).first()
                     if existing:
                         logger.debug(f"Article already exists: {article_data['title'][:50]}")
                         continue
@@ -85,16 +87,18 @@ def refresh_news_data():
 
                     # Create new article
                     article = NewsArticle(
-                        title=article_data['title'],
-                        description=article_data.get('description'),
-                        url=article_data['url'],
-                        source=article_data.get('source'),
-                        published_at=datetime.fromisoformat(article_data['published'])
-                                    if isinstance(article_data['published'], str)
-                                    else article_data['published'],
-                        ai_rating=analysis.get('rating'),
-                        ai_analysis=analysis.get('analysis'),
-                        sentiment=analysis.get('sentiment')
+                        title=article_data["title"],
+                        description=article_data.get("description"),
+                        url=article_data["url"],
+                        source=article_data.get("source"),
+                        published_at=(
+                            datetime.fromisoformat(article_data["published"])
+                            if isinstance(article_data["published"], str)
+                            else article_data["published"]
+                        ),
+                        ai_rating=analysis.get("rating"),
+                        ai_analysis=analysis.get("analysis"),
+                        sentiment=analysis.get("sentiment"),
                     )
 
                     db.session.add(article)
@@ -110,9 +114,7 @@ def refresh_news_data():
 
             # Clean up old articles (keep last 30 days)
             cutoff_date = datetime.utcnow() - timedelta(days=30)
-            deleted = NewsArticle.query.filter(
-                NewsArticle.published_at < cutoff_date
-            ).delete()
+            deleted = NewsArticle.query.filter(NewsArticle.published_at < cutoff_date).delete()
             db.session.commit()
             logger.info(f"Deleted {deleted} old articles")
 
@@ -143,24 +145,22 @@ def refresh_calendar_data():
         logger.info("Starting calendar refresh...")
 
         # CRITICAL: Validate required API key
-        api_key = os.getenv('FINNHUB_API_KEY')
-        if not api_key or api_key.strip() == '':
-            logger.critical("CRITICAL ERROR: FINNHUB_API_KEY is missing or empty. Aborting calendar refresh.")
+        api_key = os.getenv("FINNHUB_API_KEY")
+        if not api_key or api_key.strip() == "":
+            logger.critical(
+                "CRITICAL ERROR: FINNHUB_API_KEY is missing or empty. Aborting calendar refresh."
+            )
             logger.critical("Get a free API key from: https://finnhub.io/")
             return False
 
         with app.app_context():
             # Fetch economic calendar from Finnhub
             # Date range: today to 30 days ahead
-            from_date = datetime.utcnow().strftime('%Y-%m-%d')
-            to_date = (datetime.utcnow() + timedelta(days=30)).strftime('%Y-%m-%d')
+            from_date = datetime.utcnow().strftime("%Y-%m-%d")
+            to_date = (datetime.utcnow() + timedelta(days=30)).strftime("%Y-%m-%d")
 
             url = f"https://finnhub.io/api/v1/calendar/economic"
-            params = {
-                'token': api_key,
-                'from': from_date,
-                'to': to_date
-            }
+            params = {"token": api_key, "from": from_date, "to": to_date}
 
             logger.info(f"Fetching calendar events from {from_date} to {to_date}")
 
@@ -171,7 +171,7 @@ def refresh_calendar_data():
             api_data = response.json()
 
             # Finnhub returns: {"economicCalendar": [...events...]}
-            events_data = api_data.get('economicCalendar', [])
+            events_data = api_data.get("economicCalendar", [])
 
             if not events_data:
                 logger.info("No economic events found")
@@ -190,38 +190,37 @@ def refresh_calendar_data():
                     #                  "event": "GDP", "impact": "high", "prev": "...", "time": "2024-01-15 08:30:00"}
 
                     # Parse event time
-                    time_str = event_data.get('time', '')
+                    time_str = event_data.get("time", "")
                     try:
                         # Finnhub format: "YYYY-MM-DD HH:MM:SS"
-                        event_time = datetime.strptime(time_str, '%Y-%m-%d %H:%M:%S')
+                        event_time = datetime.strptime(time_str, "%Y-%m-%d %H:%M:%S")
                     except ValueError:
                         # Try alternative format if primary fails
                         try:
-                            event_time = datetime.strptime(time_str, '%Y-%m-%dT%H:%M:%S')
+                            event_time = datetime.strptime(time_str, "%Y-%m-%dT%H:%M:%S")
                         except ValueError:
                             logger.warning(f"Skipping event with invalid time format: {time_str}")
                             continue
 
-                    title = event_data.get('event', 'Economic Event')
-                    country = event_data.get('country', 'US')
+                    title = event_data.get("event", "Economic Event")
+                    country = event_data.get("country", "US")
 
                     # Determine importance (Finnhub uses 'impact': low/medium/high)
-                    impact = event_data.get('impact', '').lower()
-                    importance = 'medium'  # default
-                    if impact in ['low', 'medium', 'high']:
+                    impact = event_data.get("impact", "").lower()
+                    importance = "medium"  # default
+                    if impact in ["low", "medium", "high"]:
                         importance = impact
 
                     # Check if event already exists
-                    existing = EconomicEvent.query.filter_by(
-                        title=title,
-                        date=event_time
-                    ).first()
+                    existing = EconomicEvent.query.filter_by(title=title, date=event_time).first()
 
                     if existing:
                         # Update existing event
-                        existing.actual = event_data.get('actual')
-                        existing.forecast = event_data.get('estimate')
-                        existing.previous = event_data.get('prev')  # Finnhub uses 'prev' not 'previous'
+                        existing.actual = event_data.get("actual")
+                        existing.forecast = event_data.get("estimate")
+                        existing.previous = event_data.get(
+                            "prev"
+                        )  # Finnhub uses 'prev' not 'previous'
                         existing.importance = importance
                         existing.country = country
                         existing.updated_at = datetime.utcnow()
@@ -231,13 +230,13 @@ def refresh_calendar_data():
                         event = EconomicEvent(
                             title=title,
                             date=event_time,
-                            time=event_time.strftime('%H:%M EST'),
+                            time=event_time.strftime("%H:%M EST"),
                             country=country,
                             importance=importance,
-                            actual=event_data.get('actual'),
-                            forecast=event_data.get('estimate'),
-                            previous=event_data.get('prev'),  # Finnhub uses 'prev' not 'previous'
-                            source='Finnhub'
+                            actual=event_data.get("actual"),
+                            forecast=event_data.get("estimate"),
+                            previous=event_data.get("prev"),  # Finnhub uses 'prev' not 'previous'
+                            source="Finnhub",
                         )
                         db.session.add(event)
                         saved_count += 1
@@ -252,9 +251,7 @@ def refresh_calendar_data():
 
             # Clean up old events (older than 7 days)
             cutoff_date = datetime.utcnow() - timedelta(days=7)
-            deleted = EconomicEvent.query.filter(
-                EconomicEvent.date < cutoff_date
-            ).delete()
+            deleted = EconomicEvent.query.filter(EconomicEvent.date < cutoff_date).delete()
             db.session.commit()
             logger.info(f"Deleted {deleted} old events")
 
@@ -295,5 +292,5 @@ def main():
     sys.exit(0 if (news_success and calendar_success) else 1)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

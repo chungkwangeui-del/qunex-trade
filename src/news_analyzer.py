@@ -19,7 +19,7 @@ class NewsAnalyzer:
     """Analyze news using Claude AI for importance and credibility"""
 
     def __init__(self):
-        api_key = os.getenv('ANTHROPIC_API_KEY')
+        api_key = os.getenv("ANTHROPIC_API_KEY")
         if not api_key:
             raise ValueError("ANTHROPIC_API_KEY not found in environment")
 
@@ -33,10 +33,10 @@ class NewsAnalyzer:
         Returns:
             Dict with analysis results or None if not important enough
         """
-        title = news_item.get('title', '')
-        description = news_item.get('description', '')
-        content = news_item.get('content', '')
-        source = news_item.get('source', 'Unknown')
+        title = news_item.get("title", "")
+        description = news_item.get("description", "")
+        content = news_item.get("content", "")
+        source = news_item.get("source", "Unknown")
 
         # Combine all text
         full_text = f"Title: {title}\n\nDescription: {description}\n\nContent: {content}"
@@ -92,10 +92,7 @@ Respond ONLY with valid JSON, no additional text."""
                 model=self.model,
                 max_tokens=1024,
                 temperature=0.3,  # Lower temperature for more consistent analysis
-                messages=[{
-                    "role": "user",
-                    "content": prompt
-                }]
+                messages=[{"role": "user", "content": prompt}],
             )
 
             # Extract JSON from response
@@ -105,26 +102,28 @@ Respond ONLY with valid JSON, no additional text."""
             analysis = json.loads(response_text)
 
             # Validate required fields
-            required_fields = ['importance', 'credibility', 'impact_summary']
+            required_fields = ["importance", "credibility", "impact_summary"]
             if not all(field in analysis for field in required_fields):
                 print(f"[WARN] Missing required fields in analysis")
                 return None
 
             # Only keep important and credible news (4-5 stars on both)
-            importance = analysis.get('importance', 0)
-            credibility = analysis.get('credibility', 0)
+            importance = analysis.get("importance", 0)
+            credibility = analysis.get("credibility", 0)
 
             if importance < 4 or credibility < 3:
-                print(f"[FILTER] Filtered out: {title[:60]}... (importance={importance}, credibility={credibility})")
+                print(
+                    f"[FILTER] Filtered out: {title[:60]}... (importance={importance}, credibility={credibility})"
+                )
                 return None
 
             # Add original news data
-            analysis['news_title'] = title
-            analysis['news_url'] = news_item.get('url', '')
-            analysis['news_source'] = source
-            analysis['published_at'] = news_item.get('published_at', '')
-            analysis['image_url'] = news_item.get('image_url', '')
-            analysis['analyzed_at'] = datetime.now().isoformat()
+            analysis["news_title"] = title
+            analysis["news_url"] = news_item.get("url", "")
+            analysis["news_source"] = source
+            analysis["published_at"] = news_item.get("published_at", "")
+            analysis["image_url"] = news_item.get("image_url", "")
+            analysis["analyzed_at"] = datetime.now().isoformat()
 
             print(f"[ANALYZED] {importance}/5 stars - {title[:60]}...")
 
@@ -169,21 +168,23 @@ Respond ONLY with valid JSON, no additional text."""
                     analyzed_news.append(analysis)
 
             except Exception as e:
-                logger.error(f"Failed to analyze item {i} in analyze_news_batch: {e}", exc_info=True)
+                logger.error(
+                    f"Failed to analyze item {i} in analyze_news_batch: {e}", exc_info=True
+                )
                 continue
 
         # Sort by: market_wide_impact first, then importance, then credibility
         analyzed_news.sort(
             key=lambda x: (
-                x.get('market_wide_impact', False),  # Market-wide news first
-                x.get('importance', 0),               # Then by importance
-                x.get('credibility', 0)               # Then by credibility
+                x.get("market_wide_impact", False),  # Market-wide news first
+                x.get("importance", 0),  # Then by importance
+                x.get("credibility", 0),  # Then by credibility
             ),
-            reverse=True
+            reverse=True,
         )
 
         # Count market-wide vs specific news
-        market_wide_count = len([n for n in analyzed_news if n.get('market_wide_impact', False)])
+        market_wide_count = len([n for n in analyzed_news if n.get("market_wide_impact", False)])
 
         print(f"\n{'='*60}")
         print(f"[SUCCESS] Analyzed {len(analyzed_news)} important news items")
@@ -204,12 +205,12 @@ Respond ONLY with valid JSON, no additional text."""
         """
         if output_path is None:
             # Save to data directory
-            data_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data')
+            data_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data")
             os.makedirs(data_dir, exist_ok=True)
-            output_path = os.path.join(data_dir, 'news_analysis.json')
+            output_path = os.path.join(data_dir, "news_analysis.json")
 
         try:
-            with open(output_path, 'w', encoding='utf-8') as f:
+            with open(output_path, "w", encoding="utf-8") as f:
                 json.dump(analyzed_news, f, indent=2, ensure_ascii=False)
 
             print(f"[SAVED] Analysis saved to: {output_path}")
@@ -219,26 +220,27 @@ Respond ONLY with valid JSON, no additional text."""
             logger.error(f"Failed to save analysis in save_analysis: {e}", exc_info=True)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # Test the analyzer
     from dotenv import load_dotenv
+
     load_dotenv()
 
     # Test with sample news
     sample_news = {
-        'title': 'Federal Reserve Announces Interest Rate Decision',
-        'description': 'The Federal Reserve announced a 25 basis point rate cut, marking a shift in monetary policy.',
-        'content': 'Federal Reserve officials voted to reduce interest rates by 25 basis points.',
-        'source': 'Reuters',
-        'url': 'https://example.com',
-        'published_at': datetime.now().isoformat()
+        "title": "Federal Reserve Announces Interest Rate Decision",
+        "description": "The Federal Reserve announced a 25 basis point rate cut, marking a shift in monetary policy.",
+        "content": "Federal Reserve officials voted to reduce interest rates by 25 basis points.",
+        "source": "Reuters",
+        "url": "https://example.com",
+        "published_at": datetime.now().isoformat(),
     }
 
     analyzer = NewsAnalyzer()
     result = analyzer.analyze_single_news(sample_news)
 
     if result:
-        print("\n" + "="*60)
+        print("\n" + "=" * 60)
         print("ANALYSIS RESULT:")
-        print("="*60)
+        print("=" * 60)
         print(json.dumps(result, indent=2))

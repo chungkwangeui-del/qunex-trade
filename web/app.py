@@ -9,6 +9,7 @@ from flask_mail import Mail
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_wtf.csrf import CSRFProtect
+from flask_caching import Cache
 import os
 import sys
 import json
@@ -42,6 +43,7 @@ except ImportError:
 # Configure logging
 logger = logging.getLogger(__name__)
 
+
 # Helper Functions for Database Queries
 def get_news_articles(limit: int = 50, rating_filter: Optional[int] = None) -> List[Dict]:
     """
@@ -66,6 +68,7 @@ def get_news_articles(limit: int = 50, rating_filter: Optional[int] = None) -> L
         logger.error(f"Error loading news articles: {e}")
         return []
 
+
 def get_economic_events(days_ahead: int = 60) -> List[Dict]:
     """
     Get economic calendar events from database.
@@ -78,89 +81,107 @@ def get_economic_events(days_ahead: int = 60) -> List[Dict]:
     """
     try:
         from datetime import datetime, timedelta
+
         end_date = datetime.utcnow() + timedelta(days=days_ahead)
 
-        events = EconomicEvent.query.filter(
-            EconomicEvent.date >= datetime.utcnow(),
-            EconomicEvent.date <= end_date
-        ).order_by(EconomicEvent.date.asc()).all()
+        events = (
+            EconomicEvent.query.filter(
+                EconomicEvent.date >= datetime.utcnow(), EconomicEvent.date <= end_date
+            )
+            .order_by(EconomicEvent.date.asc())
+            .all()
+        )
 
         return [event.to_dict() for event in events]
     except Exception as e:
         logger.error(f"Error loading economic events: {e}")
         return []
 
+
 app = Flask(__name__)
 
 # Configuration
-app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev-secret-key-change-in-production')
+app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "dev-secret-key-change-in-production")
 
 # Database configuration - Use PostgreSQL in production, SQLite in development
-DATABASE_URL = os.getenv('DATABASE_URL')
+DATABASE_URL = os.getenv("DATABASE_URL")
 if DATABASE_URL:
     # Render provides DATABASE_URL starting with postgres://, convert to postgresql+psycopg:// for psycopg3
-    if DATABASE_URL.startswith('postgres://'):
-        DATABASE_URL = DATABASE_URL.replace('postgres://', 'postgresql+psycopg://', 1)
-    elif DATABASE_URL.startswith('postgresql://'):
-        DATABASE_URL = DATABASE_URL.replace('postgresql://', 'postgresql+psycopg://', 1)
-    app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL
+    if DATABASE_URL.startswith("postgres://"):
+        DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql+psycopg://", 1)
+    elif DATABASE_URL.startswith("postgresql://"):
+        DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+psycopg://", 1)
+    app.config["SQLALCHEMY_DATABASE_URI"] = DATABASE_URL
 else:
     # Local development - use SQLite
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///qunextrade.db'
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///qunextrade.db"
 
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 # Database connection pooling (performance optimization)
-app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
-    'pool_size': 10,  # Number of connections to keep open
-    'pool_recycle': 3600,  # Recycle connections after 1 hour
-    'pool_pre_ping': True,  # Verify connections before using them
-    'max_overflow': 20,  # Max connections beyond pool_size
-    'pool_timeout': 30  # Wait 30 seconds for a connection before timeout
+app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+    "pool_size": 10,  # Number of connections to keep open
+    "pool_recycle": 3600,  # Recycle connections after 1 hour
+    "pool_pre_ping": True,  # Verify connections before using them
+    "max_overflow": 20,  # Max connections beyond pool_size
+    "pool_timeout": 30,  # Wait 30 seconds for a connection before timeout
 }
 
 # Security configuration
-app.config['SESSION_COOKIE_SECURE'] = True  # HTTPS only
-app.config['SESSION_COOKIE_HTTPONLY'] = True  # Prevent JavaScript access
-app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'  # CSRF protection
-app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=7)
-app.config['WTF_CSRF_TIME_LIMIT'] = None  # CSRF token doesn't expire
+app.config["SESSION_COOKIE_SECURE"] = True  # HTTPS only
+app.config["SESSION_COOKIE_HTTPONLY"] = True  # Prevent JavaScript access
+app.config["SESSION_COOKIE_SAMESITE"] = "Lax"  # CSRF protection
+app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(days=7)
+app.config["WTF_CSRF_TIME_LIMIT"] = None  # CSRF token doesn't expire
 
 # Email configuration (Gmail SMTP)
-app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-app.config['MAIL_PORT'] = 587
-app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')  # Gmail address
-app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')  # Gmail app password
-app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_USERNAME', 'noreply@qunextrade.com')
+app.config["MAIL_SERVER"] = "smtp.gmail.com"
+app.config["MAIL_PORT"] = 587
+app.config["MAIL_USE_TLS"] = True
+app.config["MAIL_USERNAME"] = os.getenv("MAIL_USERNAME")  # Gmail address
+app.config["MAIL_PASSWORD"] = os.getenv("MAIL_PASSWORD")  # Gmail app password
+app.config["MAIL_DEFAULT_SENDER"] = os.getenv("MAIL_USERNAME", "noreply@qunextrade.com")
 
 # Initialize extensions
 db.init_app(app)
 mail = Mail(app)
 csrf = CSRFProtect(app)
 
+# Initialize Flask-Caching with Redis (Upstash)
+cache = Cache(app, config={
+    'CACHE_TYPE': 'RedisCache' if REDIS_URL != 'memory://' else 'SimpleCache',
+    'CACHE_REDIS_URL': REDIS_URL if REDIS_URL != 'memory://' else None,
+    'CACHE_DEFAULT_TIMEOUT': 300,  # 5 minutes default
+    'CACHE_KEY_PREFIX': 'qunex_',
+})
+
+if REDIS_URL == 'memory://':
+    logger.warning("Caching using memory storage (development mode)")
+else:
+    logger.info(f"Caching using Redis: {REDIS_URL[:20]}...")
+
 # Exempt email verification endpoints from CSRF protection
-csrf.exempt('auth.send_verification_code')
-csrf.exempt('auth.verify_code')
+csrf.exempt("auth.send_verification_code")
+csrf.exempt("auth.verify_code")
 
 # Initialize rate limiter
 # CLOUD-NATIVE: Use Redis for distributed rate limiting (Upstash)
-REDIS_URL = os.getenv('REDIS_URL', 'memory://')  # Falls back to memory in development
+REDIS_URL = os.getenv("REDIS_URL", "memory://")  # Falls back to memory in development
 limiter = Limiter(
     app=app,
     key_func=get_remote_address,
     default_limits=[f"{RATE_LIMITS['daily']} per day", f"{RATE_LIMITS['hourly']} per hour"],
-    storage_uri=REDIS_URL
+    storage_uri=REDIS_URL,
 )
 
-if REDIS_URL == 'memory://':
+if REDIS_URL == "memory://":
     logger.warning("Rate limiting using memory storage (development mode)")
 else:
     logger.info(f"Rate limiting using Redis: {REDIS_URL[:20]}...")
 
 login_manager = LoginManager()
 login_manager.init_app(app)
-login_manager.login_view = 'auth.login'
+login_manager.login_view = "auth.login"
 
 # Import blueprints
 try:
@@ -178,20 +199,27 @@ except ImportError:
 oauth.init_app(app)
 
 # Register blueprints
-app.register_blueprint(auth, url_prefix='/auth')
-app.register_blueprint(payments, url_prefix='/payments')
+app.register_blueprint(auth, url_prefix="/auth")
+app.register_blueprint(payments, url_prefix="/payments")
 app.register_blueprint(api_polygon)
 app.register_blueprint(api_watchlist)
 
 # Apply rate limiting to auth routes (after blueprint registration)
-limiter.limit(f"{RATE_LIMITS['auth_per_minute']} per minute")(app.view_functions['auth.login'])
-limiter.limit("5 per minute")(app.view_functions['auth.signup'])
-limiter.limit("3 per minute")(app.view_functions['auth.forgot_password'])
-limiter.limit("5 per minute")(app.view_functions['auth.reset_password'])
-limiter.limit("3 per minute")(app.view_functions['auth.send_verification_code'])
-limiter.limit(f"{RATE_LIMITS['auth_per_minute']} per minute")(app.view_functions['auth.verify_code'])
-limiter.limit(f"{RATE_LIMITS['auth_per_minute']} per minute")(app.view_functions['auth.google_login'])
-limiter.limit(f"{RATE_LIMITS['auth_per_minute']} per minute")(app.view_functions['auth.google_callback'])
+limiter.limit(f"{RATE_LIMITS['auth_per_minute']} per minute")(app.view_functions["auth.login"])
+limiter.limit("5 per minute")(app.view_functions["auth.signup"])
+limiter.limit("3 per minute")(app.view_functions["auth.forgot_password"])
+limiter.limit("5 per minute")(app.view_functions["auth.reset_password"])
+limiter.limit("3 per minute")(app.view_functions["auth.send_verification_code"])
+limiter.limit(f"{RATE_LIMITS['auth_per_minute']} per minute")(
+    app.view_functions["auth.verify_code"]
+)
+limiter.limit(f"{RATE_LIMITS['auth_per_minute']} per minute")(
+    app.view_functions["auth.google_login"]
+)
+limiter.limit(f"{RATE_LIMITS['auth_per_minute']} per minute")(
+    app.view_functions["auth.google_callback"]
+)
+
 
 @login_manager.user_loader
 def load_user(user_id: str) -> Optional[User]:
@@ -206,9 +234,19 @@ def load_user(user_id: str) -> Optional[User]:
     """
     return db.session.get(User, int(user_id))
 
+
 # Create tables
 with app.app_context():
     db.create_all()
+
+# Initialize Flask-Admin
+try:
+    from admin_views import init_admin
+except ImportError:
+    from web.admin_views import init_admin
+
+admin = init_admin(app)
+
 
 # Security headers middleware
 @app.after_request
@@ -222,14 +260,18 @@ def set_security_headers(response: Response) -> Response:
     Returns:
         Response with security headers added
     """
-    response.headers['X-Content-Type-Options'] = 'nosniff'
-    response.headers['X-Frame-Options'] = 'SAMEORIGIN'
-    response.headers['X-XSS-Protection'] = '1; mode=block'
-    response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
-    response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self' 'unsafe-inline' https://accounts.google.com https://cdn.jsdelivr.net https://fonts.googleapis.com https://unpkg.com https://s3.tradingview.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://accounts.google.com; frame-src 'self' https://accounts.google.com https://www.tradingview.com https://s.tradingview.com;"
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "SAMEORIGIN"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+    response.headers["Content-Security-Policy"] = (
+        "default-src 'self'; script-src 'self' 'unsafe-inline' https://accounts.google.com https://cdn.jsdelivr.net https://fonts.googleapis.com https://unpkg.com https://s3.tradingview.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://accounts.google.com; frame-src 'self' https://accounts.google.com https://www.tradingview.com https://s.tradingview.com;"
+    )
     return response
 
+
 # Security and maintenance checks removed - all features active
+
 
 def load_signals_history():
     """
@@ -245,6 +287,7 @@ def load_signals_history():
     # Pandas not installed to reduce dependencies during maintenance
     return []
 
+
 def load_today_signals():
     """
     Load today's trading signals from database.
@@ -258,6 +301,7 @@ def load_today_signals():
     """
     # Pandas not installed to reduce dependencies during maintenance
     return []
+
 
 def calculate_statistics(df):
     """
@@ -282,42 +326,51 @@ def calculate_statistics(df):
             - max_return (float): Maximum return
             - min_return (float): Minimum return
     """
-    if not df or (hasattr(df, 'empty') and df.empty):
+    if not df or (hasattr(df, "empty") and df.empty):
         return {
-            'total_signals': 0,
-            'success_rate': 0,
-            'win_rate': 0,
-            'avg_return': 0,
-            'total_tracked': 0
+            "total_signals": 0,
+            "success_rate": 0,
+            "win_rate": 0,
+            "avg_return": 0,
+            "total_tracked": 0,
         }
 
-    tracked = df[df['status'].isin(['success', 'partial', 'failed'])]
+    tracked = df[df["status"].isin(["success", "partial", "failed"])]
 
     if tracked.empty:
         return {
-            'total_signals': len(df),
-            'success_rate': 0,
-            'win_rate': 0,
-            'avg_return': 0,
-            'total_tracked': 0
+            "total_signals": len(df),
+            "success_rate": 0,
+            "win_rate": 0,
+            "avg_return": 0,
+            "total_tracked": 0,
         }
 
     stats = {
-        'total_signals': len(df),
-        'total_tracked': len(tracked),
-        'success_count': len(tracked[tracked['status'] == 'success']),
-        'partial_count': len(tracked[tracked['status'] == 'partial']),
-        'failed_count': len(tracked[tracked['status'] == 'failed']),
-        'pending_count': len(df[df['status'] == 'pending']),
-        'success_rate': len(tracked[tracked['status'] == 'success']) / len(tracked) * 100 if len(tracked) > 0 else 0,
-        'win_rate': len(tracked[tracked['actual_return'] >= 0]) / len(tracked) * 100 if len(tracked) > 0 else 0,
-        'avg_return': tracked['actual_return'].mean() if len(tracked) > 0 else 0,
-        'median_return': tracked['actual_return'].median() if len(tracked) > 0 else 0,
-        'max_return': tracked['actual_return'].max() if len(tracked) > 0 else 0,
-        'min_return': tracked['actual_return'].min() if len(tracked) > 0 else 0
+        "total_signals": len(df),
+        "total_tracked": len(tracked),
+        "success_count": len(tracked[tracked["status"] == "success"]),
+        "partial_count": len(tracked[tracked["status"] == "partial"]),
+        "failed_count": len(tracked[tracked["status"] == "failed"]),
+        "pending_count": len(df[df["status"] == "pending"]),
+        "success_rate": (
+            len(tracked[tracked["status"] == "success"]) / len(tracked) * 100
+            if len(tracked) > 0
+            else 0
+        ),
+        "win_rate": (
+            len(tracked[tracked["actual_return"] >= 0]) / len(tracked) * 100
+            if len(tracked) > 0
+            else 0
+        ),
+        "avg_return": tracked["actual_return"].mean() if len(tracked) > 0 else 0,
+        "median_return": tracked["actual_return"].median() if len(tracked) > 0 else 0,
+        "max_return": tracked["actual_return"].max() if len(tracked) > 0 else 0,
+        "min_return": tracked["actual_return"].min() if len(tracked) > 0 else 0,
     }
 
     return stats
+
 
 def filter_signals_by_subscription(signals):
     """
@@ -335,7 +388,8 @@ def filter_signals_by_subscription(signals):
     # Return empty during maintenance
     return []
 
-@app.route('/')
+
+@app.route("/")
 def index():
     """
     Render main homepage with market indices overview.
@@ -357,40 +411,34 @@ def index():
     market_data = []
     try:
         indices = polygon.get_market_indices()
-        
+
         # Format indices as market_data for display
         for symbol, data in indices.items():
-            market_data.append({
-                'name': data.get('name', symbol),
-                'symbol': symbol,
-                'price': data.get('price', 0),
-                'change': data.get('change_percent', 0),
-                'change_amount': data.get('change', 0),
-                'volume': data.get('volume', 0),
-                'high': data.get('day_high', 0),
-                'low': data.get('day_low', 0)
-            })
+            market_data.append(
+                {
+                    "name": data.get("name", symbol),
+                    "symbol": symbol,
+                    "price": data.get("price", 0),
+                    "change": data.get("change_percent", 0),
+                    "change_amount": data.get("change", 0),
+                    "volume": data.get("volume", 0),
+                    "high": data.get("day_high", 0),
+                    "low": data.get("day_low", 0),
+                }
+            )
 
-        stats = {
-            'total_indices': len(market_data),
-            'market_status': 'Active'
-        }
+        stats = {"total_indices": len(market_data), "market_status": "Active"}
 
     except Exception as e:
         logger.error(f"Error fetching Polygon indices: {e}")
         # Fallback to empty state
         market_data = []
-        stats = {
-            'total_indices': 0,
-            'market_status': 'Unknown'
-        }
+        stats = {"total_indices": 0, "market_status": "Unknown"}
 
-    return render_template('index.html',
-                         market_data=market_data,
-                         stats=stats,
-                         user=current_user)
+    return render_template("index.html", market_data=market_data, stats=stats, user=current_user)
 
-@app.route('/about')
+
+@app.route("/about")
 def about():
     """
     Render About page with platform information.
@@ -398,9 +446,10 @@ def about():
     Returns:
         str: Rendered About page template
     """
-    return render_template('about.html', user=current_user)
+    return render_template("about.html", user=current_user)
 
-@app.route('/reset-theme')
+
+@app.route("/reset-theme")
 def reset_theme():
     """
     Render theme reset utility page.
@@ -410,9 +459,10 @@ def reset_theme():
     Returns:
         str: Rendered theme reset page template
     """
-    return render_template('reset_theme.html')
+    return render_template("reset_theme.html")
 
-@app.route('/force-dark')
+
+@app.route("/force-dark")
 def force_dark():
     """
     Render force dark mode page.
@@ -422,9 +472,10 @@ def force_dark():
     Returns:
         str: Rendered force dark mode template
     """
-    return render_template('FORCE_DARK_MODE.html')
+    return render_template("FORCE_DARK_MODE.html")
 
-@app.route('/terms')
+
+@app.route("/terms")
 def terms():
     """
     Render Terms of Service page.
@@ -432,9 +483,10 @@ def terms():
     Returns:
         str: Rendered Terms of Service template
     """
-    return render_template('terms.html')
+    return render_template("terms.html")
 
-@app.route('/privacy')
+
+@app.route("/privacy")
 def privacy():
     """
     Render Privacy Policy page.
@@ -442,9 +494,10 @@ def privacy():
     Returns:
         str: Rendered Privacy Policy template
     """
-    return render_template('privacy.html')
+    return render_template("privacy.html")
 
-@app.route('/market')
+
+@app.route("/market")
 def market():
     """
     Render Market Dashboard page.
@@ -458,9 +511,10 @@ def market():
     Returns:
         str: Rendered market dashboard template
     """
-    return render_template('market.html', user=current_user)
+    return render_template("market.html", user=current_user)
 
-@app.route('/screener')
+
+@app.route("/screener")
 def screener():
     """
     Render Stock Screener page.
@@ -475,9 +529,10 @@ def screener():
     Returns:
         str: Rendered stock screener template
     """
-    return render_template('screener.html', user=current_user)
+    return render_template("screener.html", user=current_user)
 
-@app.route('/watchlist')
+
+@app.route("/watchlist")
 @login_required
 def watchlist():
     """
@@ -495,9 +550,10 @@ def watchlist():
     Raises:
         Unauthorized: If user is not logged in (redirects to login)
     """
-    return render_template('watchlist.html', user=current_user)
+    return render_template("watchlist.html", user=current_user)
 
-@app.route('/calendar')
+
+@app.route("/calendar")
 def calendar():
     """
     Render Economic Calendar page.
@@ -512,9 +568,10 @@ def calendar():
     Returns:
         str: Rendered economic calendar template
     """
-    return render_template('calendar.html', user=current_user)
+    return render_template("calendar.html", user=current_user)
 
-@app.route('/stocks')
+
+@app.route("/stocks")
 def stocks():
     """
     Render Stocks page with popular stocks and search functionality.
@@ -528,9 +585,10 @@ def stocks():
     Returns:
         str: Rendered stocks template
     """
-    return render_template('stocks.html', user=current_user)
+    return render_template("stocks.html", user=current_user)
 
-@app.route('/stock/<symbol>')
+
+@app.route("/stock/<symbol>")
 def stock_chart(symbol):
     """
     Render individual stock chart page with multi-timeframe analysis.
@@ -549,9 +607,11 @@ def stock_chart(symbol):
     Returns:
         str: Rendered stock chart template with symbol in uppercase
     """
-    return render_template('stock_chart.html', symbol=symbol.upper(), user=current_user)
+    return render_template("stock_chart.html", symbol=symbol.upper(), user=current_user)
 
-@app.route('/news')
+
+@app.route("/news")
+@cache.cached(timeout=3600, key_prefix='news_page')  # Cache for 1 hour
 def news() -> str:
     """
     Market News & Analysis page (Beta/Developer Only).
@@ -560,11 +620,11 @@ def news() -> str:
         Rendered news template with access control
     """
     has_access = False
-    user_tier = 'guest'
+    user_tier = "guest"
 
     if current_user.is_authenticated:
         user_tier = current_user.subscription_tier
-        if user_tier in ['beta', 'developer']:
+        if user_tier in ["beta", "developer"]:
             has_access = True
 
     try:
@@ -572,20 +632,21 @@ def news() -> str:
         limit = 3 if not has_access else NEWS_ANALYSIS_LIMIT
         news_data = get_news_articles(limit=limit)
 
-        return render_template('news.html',
-                             news_data=news_data,
-                             user=current_user,
-                             has_access=has_access,
-                             user_tier=user_tier)
+        return render_template(
+            "news.html",
+            news_data=news_data,
+            user=current_user,
+            has_access=has_access,
+            user_tier=user_tier,
+        )
     except Exception as e:
         logger.error(f"Error loading news: {e}", exc_info=True)
-        return render_template('news.html',
-                             news_data=[],
-                             user=current_user,
-                             has_access=False,
-                             user_tier=user_tier)
+        return render_template(
+            "news.html", news_data=[], user=current_user, has_access=False, user_tier=user_tier
+        )
 
-@app.route('/api/news/refresh')
+
+@app.route("/api/news/refresh")
 def api_refresh_news() -> Dict[str, Any]:
     """
     Refresh news data by collecting and analyzing latest news.
@@ -605,7 +666,7 @@ def api_refresh_news() -> Dict[str, Any]:
         logger.info(f"Collected {len(news_list)} news items")
 
         if not news_list:
-            return jsonify({'success': False, 'message': 'No news collected'})
+            return jsonify({"success": False, "message": "No news collected"})
 
         analyzer = NewsAnalyzer()
         analyzed_news = analyzer.analyze_news_batch(news_list, max_items=NEWS_ANALYSIS_LIMIT)
@@ -614,24 +675,29 @@ def api_refresh_news() -> Dict[str, Any]:
 
         analyzer.save_analysis(analyzed_news)
 
-        high_impact_count = len([n for n in analyzed_news if n.get('importance', 0) >= 4])
+        high_impact_count = len([n for n in analyzed_news if n.get("importance", 0) >= 4])
 
-        logger.info(f"News refresh complete: {len(analyzed_news)} analyzed ({high_impact_count} high-impact)")
+        logger.info(
+            f"News refresh complete: {len(analyzed_news)} analyzed ({high_impact_count} high-impact)"
+        )
 
-        return jsonify({
-            'success': True,
-            'message': f'{len(analyzed_news)} news items analyzed ({high_impact_count} high-impact)',
-            'total_analyzed': len(analyzed_news),
-            'high_impact_count': high_impact_count,
-            'data': analyzed_news
-        })
+        return jsonify(
+            {
+                "success": True,
+                "message": f"{len(analyzed_news)} news items analyzed ({high_impact_count} high-impact)",
+                "total_analyzed": len(analyzed_news),
+                "high_impact_count": high_impact_count,
+                "data": analyzed_news,
+            }
+        )
 
     except Exception as e:
         error_msg = str(e)
         logger.error(f"News refresh failed: {error_msg}", exc_info=True)
-        return jsonify({'success': False, 'message': error_msg})
+        return jsonify({"success": False, "message": error_msg})
 
-@app.route('/api/news/search')
+
+@app.route("/api/news/search")
 def api_search_news():
     """
     Search news articles by stock ticker or keyword.
@@ -647,44 +713,41 @@ def api_search_news():
             - data (list): Filtered news articles
             - message (str): Error message if failed
     """
-    ticker = request.args.get('ticker', '').upper()
-    keyword = request.args.get('keyword', '').lower()
+    ticker = request.args.get("ticker", "").upper()
+    keyword = request.args.get("keyword", "").lower()
 
     try:
         # Load news data from database
         news_data = get_news_articles(limit=NEWS_ANALYSIS_LIMIT)
 
         if not news_data:
-            return jsonify({'success': False, 'message': 'No news data available'})
+            return jsonify({"success": False, "message": "No news data available"})
 
         # Filter news
         filtered_news = []
         for news_item in news_data:
             # Filter by ticker
             if ticker:
-                affected_stocks = [s.upper() for s in news_item.get('affected_stocks', [])]
+                affected_stocks = [s.upper() for s in news_item.get("affected_stocks", [])]
                 if ticker not in affected_stocks:
                     continue
 
             # Filter by keyword
             if keyword:
-                title = news_item.get('news_title', '').lower()
-                summary = news_item.get('impact_summary', '').lower()
+                title = news_item.get("news_title", "").lower()
+                summary = news_item.get("impact_summary", "").lower()
                 if keyword not in title and keyword not in summary:
                     continue
 
             filtered_news.append(news_item)
 
-        return jsonify({
-            'success': True,
-            'count': len(filtered_news),
-            'data': filtered_news
-        })
+        return jsonify({"success": True, "count": len(filtered_news), "data": filtered_news})
 
     except Exception as e:
-        return jsonify({'success': False, 'message': str(e)})
+        return jsonify({"success": False, "message": str(e)})
 
-@app.route('/api/news/critical')
+
+@app.route("/api/news/critical")
 def api_critical_news():
     """
     Get critical news articles (5-star AI rating only).
@@ -704,18 +767,16 @@ def api_critical_news():
         news_data = get_news_articles(limit=NEWS_ANALYSIS_LIMIT, rating_filter=5)
 
         # Already filtered for 5-star
-        critical_news = [n for n in news_data if n.get('importance', 0) == 5]
+        critical_news = [n for n in news_data if n.get("importance", 0) == 5]
 
-        return jsonify({
-            'success': True,
-            'count': len(critical_news),
-            'data': critical_news
-        })
+        return jsonify({"success": True, "count": len(critical_news), "data": critical_news})
 
     except Exception as e:
-        return jsonify({'success': False, 'message': str(e)})
+        return jsonify({"success": False, "message": str(e)})
 
-@app.route('/api/economic-calendar')
+
+@app.route("/api/economic-calendar")
+@cache.cached(timeout=3600, key_prefix='economic_calendar')  # Cache for 1 hour
 def api_economic_calendar():
     """
     Get upcoming economic calendar events.
@@ -735,7 +796,7 @@ def api_economic_calendar():
         events = get_economic_events(days_ahead=CALENDAR_DAYS_AHEAD)
 
         if not events:
-            return jsonify({'success': False, 'message': 'Calendar not available'})
+            return jsonify({"success": False, "message": "Calendar not available"})
 
         # Filter for upcoming events only (configured days ahead)
         today = datetime.now()
@@ -743,23 +804,20 @@ def api_economic_calendar():
 
         upcoming_events = []
         for event in events:
-            event_date = datetime.strptime(event['date'], '%Y-%m-%d')
+            event_date = datetime.strptime(event["date"], "%Y-%m-%d")
             if today <= event_date <= future_date:
                 upcoming_events.append(event)
 
         # Sort by date
-        upcoming_events.sort(key=lambda x: x['date'])
+        upcoming_events.sort(key=lambda x: x["date"])
 
-        return jsonify({
-            'success': True,
-            'count': len(upcoming_events),
-            'events': upcoming_events
-        })
+        return jsonify({"success": True, "count": len(upcoming_events), "events": upcoming_events})
 
     except Exception as e:
-        return jsonify({'success': False, 'message': str(e)})
+        return jsonify({"success": False, "message": str(e)})
 
-@app.route('/api/signals/today')
+
+@app.route("/api/signals/today")
 def api_today_signals():
     """
     Get today's trading signals.
@@ -780,12 +838,13 @@ def api_today_signals():
     filtered_signals = filter_signals_by_subscription(signals)
 
     # Convert dates to strings for JSON
-    filtered_signals['signal_date'] = filtered_signals['signal_date'].dt.strftime('%Y-%m-%d')
-    filtered_signals['trade_date'] = filtered_signals['trade_date'].dt.strftime('%Y-%m-%d')
+    filtered_signals["signal_date"] = filtered_signals["signal_date"].dt.strftime("%Y-%m-%d")
+    filtered_signals["trade_date"] = filtered_signals["trade_date"].dt.strftime("%Y-%m-%d")
 
-    return jsonify(filtered_signals.to_dict('records'))
+    return jsonify(filtered_signals.to_dict("records"))
 
-@app.route('/api/signals/history')
+
+@app.route("/api/signals/history")
 @login_required
 def api_history():
     """
@@ -803,7 +862,7 @@ def api_history():
         Unauthorized: If user is not logged in
     """
     if not current_user.is_pro():
-        return jsonify({'error': 'Premium subscription required'}), 403
+        return jsonify({"error": "Premium subscription required"}), 403
 
     history = load_signals_history()
 
@@ -811,15 +870,16 @@ def api_history():
         return jsonify([])
 
     # Last 100 signals
-    history = history.sort_values('signal_date', ascending=False).head(100)
+    history = history.sort_values("signal_date", ascending=False).head(100)
 
     # Convert to JSON
-    history['signal_date'] = history['signal_date'].dt.strftime('%Y-%m-%d')
-    history['trade_date'] = history['trade_date'].dt.strftime('%Y-%m-%d')
+    history["signal_date"] = history["signal_date"].dt.strftime("%Y-%m-%d")
+    history["trade_date"] = history["trade_date"].dt.strftime("%Y-%m-%d")
 
-    return jsonify(history.to_dict('records'))
+    return jsonify(history.to_dict("records"))
 
-@app.route('/api/statistics')
+
+@app.route("/api/statistics")
 def api_statistics():
     """
     Get trading performance statistics.
@@ -841,17 +901,19 @@ def api_statistics():
 
     # Add 7-day and 30-day stats
     if not history.empty:
-        history_7d = history[history['signal_date'] >= datetime.now() - timedelta(days=7)]
-        history_30d = history[history['signal_date'] >= datetime.now() - timedelta(days=30)]
+        history_7d = history[history["signal_date"] >= datetime.now() - timedelta(days=7)]
+        history_30d = history[history["signal_date"] >= datetime.now() - timedelta(days=30)]
 
-        stats['last_7_days'] = calculate_statistics(history_7d)
-        stats['last_30_days'] = calculate_statistics(history_30d)
+        stats["last_7_days"] = calculate_statistics(history_7d)
+        stats["last_30_days"] = calculate_statistics(history_30d)
 
     return jsonify(stats)
 
+
 # Sector map moved to /api/market/sector-map (Polygon.io)
 
-@app.route('/api/stock/<symbol>/chart')
+
+@app.route("/api/stock/<symbol>/chart")
 def api_stock_chart(symbol):
     """
     Get multi-timeframe OHLCV chart data for a stock.
@@ -881,70 +943,71 @@ def api_stock_chart(symbol):
         from polygon_service import PolygonService
         import sys
         import os
-        sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'ml'))
+
+        sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "ml"))
         from ai_score_system import AIScoreModel, FeatureEngineer
 
-        timeframe = request.args.get('timeframe', '1D')  # Default to daily
+        timeframe = request.args.get("timeframe", "1D")  # Default to daily
         polygon = PolygonService()
 
         # Map timeframes to Polygon API parameters
         timeframe_map = {
-            '1': ('minute', 1),      # 1 minute
-            '5': ('minute', 5),      # 5 minutes
-            '15': ('minute', 15),    # 15 minutes
-            '60': ('minute', 60),    # 1 hour
-            '240': ('minute', 240),  # 4 hours
-            '1D': ('day', 1),        # Daily
-            '1M': ('month', 1)       # Monthly
+            "1": ("minute", 1),  # 1 minute
+            "5": ("minute", 5),  # 5 minutes
+            "15": ("minute", 15),  # 15 minutes
+            "60": ("minute", 60),  # 1 hour
+            "240": ("minute", 240),  # 4 hours
+            "1D": ("day", 1),  # Daily
+            "1M": ("month", 1),  # Monthly
         }
 
-        unit, multiplier = timeframe_map.get(timeframe, ('day', 1))
+        unit, multiplier = timeframe_map.get(timeframe, ("day", 1))
 
         # Calculate date range based on timeframe
         from datetime import datetime, timedelta
+
         end_date = datetime.now()
 
-        if timeframe in ['1', '5', '15']:
+        if timeframe in ["1", "5", "15"]:
             start_date = end_date - timedelta(days=7)  # 1 week for minute data
-        elif timeframe in ['60', '240']:
+        elif timeframe in ["60", "240"]:
             start_date = end_date - timedelta(days=30)  # 1 month for hourly
-        elif timeframe == '1D':
+        elif timeframe == "1D":
             start_date = end_date - timedelta(days=365)  # 1 year for daily
         else:  # Monthly
-            start_date = end_date - timedelta(days=365*5)  # 5 years for monthly
+            start_date = end_date - timedelta(days=365 * 5)  # 5 years for monthly
 
         # Fetch data from Polygon
         endpoint = f"/v2/aggs/ticker/{symbol.upper()}/range/{multiplier}/{unit}/{start_date.strftime('%Y-%m-%d')}/{end_date.strftime('%Y-%m-%d')}"
-        params = {'adjusted': 'true', 'sort': 'asc', 'limit': 5000}
+        params = {"adjusted": "true", "sort": "asc", "limit": 5000}
 
         data = polygon._make_request(endpoint, params)
 
-        if not data or 'results' not in data:
-            return jsonify({'error': 'No data available'}), 404
+        if not data or "results" not in data:
+            return jsonify({"error": "No data available"}), 404
 
         # Format data for chart
         candles = []
-        for bar in data['results']:
-            candles.append({
-                'time': bar['t'] // 1000,  # Convert to seconds
-                'open': bar['o'],
-                'high': bar['h'],
-                'low': bar['l'],
-                'close': bar['c'],
-                'volume': bar['v']
-            })
+        for bar in data["results"]:
+            candles.append(
+                {
+                    "time": bar["t"] // 1000,  # Convert to seconds
+                    "open": bar["o"],
+                    "high": bar["h"],
+                    "low": bar["l"],
+                    "close": bar["c"],
+                    "volume": bar["v"],
+                }
+            )
 
-        return jsonify({
-            'symbol': symbol.upper(),
-            'timeframe': timeframe,
-            'candles': candles
-        })
+        return jsonify({"symbol": symbol.upper(), "timeframe": timeframe, "candles": candles})
 
     except Exception as e:
         logger.error(f"Error fetching chart data for {symbol}: {e}")
-        return jsonify({'error': str(e)}), 500
+        return jsonify({"error": str(e)}), 500
 
-@app.route('/api/stock/<symbol>/ai-score')
+
+@app.route("/api/stock/<symbol>/ai-score")
 def api_stock_ai_score(symbol):
     """
     Get Qunex AI Score for a stock (on-demand calculation).
@@ -983,10 +1046,15 @@ def api_stock_ai_score(symbol):
             features = calculate_ai_score_features(ticker)
 
             if not features:
-                return jsonify({
-                    'error': 'Could not calculate AI score',
-                    'message': 'Unable to fetch required data for this ticker'
-                }), 500
+                return (
+                    jsonify(
+                        {
+                            "error": "Could not calculate AI score",
+                            "message": "Unable to fetch required data for this ticker",
+                        }
+                    ),
+                    500,
+                )
 
             # Calculate AI score (0-100)
             score = calculate_ai_score_value(features)
@@ -994,10 +1062,7 @@ def api_stock_ai_score(symbol):
 
             # Save to database for future requests
             ai_score = AIScore(
-                ticker=ticker,
-                score=score,
-                rating=rating,
-                features_json=json.dumps(features)
+                ticker=ticker, score=score, rating=rating, features_json=json.dumps(features)
             )
             db.session.add(ai_score)
             db.session.commit()
@@ -1010,20 +1075,20 @@ def api_stock_ai_score(symbol):
             "Buy": "#00d9ff",
             "Hold": "#ffd700",
             "Sell": "#ff8c00",
-            "Strong Sell": "#ff006e"
+            "Strong Sell": "#ff006e",
         }
 
         color = rating_colors.get(ai_score.rating, "#ffd700")
 
         # Convert to response format
         response = ai_score.to_dict()
-        response['color'] = color
+        response["color"] = color
 
         return jsonify(response)
 
     except Exception as e:
         logger.error(f"Error retrieving AI score for {symbol}: {e}", exc_info=True)
-        return jsonify({'error': str(e)}), 500
+        return jsonify({"error": str(e)}), 500
 
 
 def calculate_ai_score_features(ticker):
@@ -1051,47 +1116,44 @@ def calculate_ai_score_features(ticker):
         # 1. TECHNICAL INDICATORS
         technicals = polygon.get_technical_indicators(ticker, days=200)
         if technicals:
-            features['rsi'] = technicals.get('rsi', 50)
-            features['macd'] = technicals.get('macd', 0)
-            features['price_to_ma50'] = technicals.get('price_to_ma50', 1.0)
-            features['price_to_ma200'] = technicals.get('price_to_ma200', 1.0)
+            features["rsi"] = technicals.get("rsi", 50)
+            features["macd"] = technicals.get("macd", 0)
+            features["price_to_ma50"] = technicals.get("price_to_ma50", 1.0)
+            features["price_to_ma200"] = technicals.get("price_to_ma200", 1.0)
         else:
             # Use defaults if no data
-            features['rsi'] = 50
-            features['macd'] = 0
-            features['price_to_ma50'] = 1.0
-            features['price_to_ma200'] = 1.0
+            features["rsi"] = 50
+            features["macd"] = 0
+            features["price_to_ma50"] = 1.0
+            features["price_to_ma200"] = 1.0
 
         # 2. FUNDAMENTAL INDICATORS
         ticker_details = polygon.get_ticker_details(ticker)
         if ticker_details:
-            market_cap = ticker_details.get('market_cap', 0)
-            features['market_cap_log'] = np.log10(market_cap + 1) if market_cap > 0 else 9.0
+            market_cap = ticker_details.get("market_cap", 0)
+            features["market_cap_log"] = np.log10(market_cap + 1) if market_cap > 0 else 9.0
         else:
-            features['market_cap_log'] = 9.0
+            features["market_cap_log"] = 9.0
 
         # Mock fundamental ratios (in production, fetch real data from Polygon)
-        features['pe_ratio'] = 20.0
-        features['pb_ratio'] = 3.0
-        features['eps_growth'] = 0.10
-        features['revenue_growth'] = 0.15
+        features["pe_ratio"] = 20.0
+        features["pb_ratio"] = 3.0
+        features["eps_growth"] = 0.10
+        features["revenue_growth"] = 0.15
 
         # 3. NEWS SENTIMENT (7-day average)
         cutoff_date = datetime.utcnow() - timedelta(days=7)
         recent_news = NewsArticle.query.filter(
-            NewsArticle.published_at >= cutoff_date,
-            NewsArticle.title.contains(ticker)
+            NewsArticle.published_at >= cutoff_date, NewsArticle.title.contains(ticker)
         ).all()
 
         if recent_news:
             sentiment_scores = [
-                article.ai_rating / 5.0
-                for article in recent_news
-                if article.ai_rating
+                article.ai_rating / 5.0 for article in recent_news if article.ai_rating
             ]
-            features['news_sentiment_7d'] = np.mean(sentiment_scores) if sentiment_scores else 0.5
+            features["news_sentiment_7d"] = np.mean(sentiment_scores) if sentiment_scores else 0.5
         else:
-            features['news_sentiment_7d'] = 0.5
+            features["news_sentiment_7d"] = 0.5
 
         return features
 
@@ -1116,7 +1178,7 @@ def calculate_ai_score_value(features):
         score = 50  # Base score
 
         # Technical indicators (40% weight)
-        rsi = features.get('rsi', 50)
+        rsi = features.get("rsi", 50)
         if rsi < 30:
             score += 10
         elif rsi > 70:
@@ -1124,33 +1186,33 @@ def calculate_ai_score_value(features):
         elif 40 <= rsi <= 60:
             score += 5
 
-        macd = features.get('macd', 0)
+        macd = features.get("macd", 0)
         if macd > 0:
             score += 10
         else:
             score -= 10
 
-        price_to_ma50 = features.get('price_to_ma50', 1.0)
+        price_to_ma50 = features.get("price_to_ma50", 1.0)
         if price_to_ma50 > 1.05:
             score += 5
         elif price_to_ma50 < 0.95:
             score -= 5
 
         # Fundamental indicators (30% weight)
-        pe_ratio = features.get('pe_ratio', 20)
+        pe_ratio = features.get("pe_ratio", 20)
         if 10 <= pe_ratio <= 25:
             score += 10
         elif pe_ratio > 40:
             score -= 5
 
-        eps_growth = features.get('eps_growth', 0)
+        eps_growth = features.get("eps_growth", 0)
         if eps_growth > 0.15:
             score += 10
         elif eps_growth < 0:
             score -= 10
 
         # News sentiment (30% weight)
-        news_sentiment = features.get('news_sentiment_7d', 0.5)
+        news_sentiment = features.get("news_sentiment_7d", 0.5)
         sentiment_score = (news_sentiment - 0.5) * 30
         score += sentiment_score
 
@@ -1183,7 +1245,8 @@ def determine_ai_rating(score):
     else:
         return "Strong Sell"
 
-@app.route('/api/stock/<symbol>/news')
+
+@app.route("/api/stock/<symbol>/news")
 def api_stock_news(symbol):
     """
     Get recent news articles for a specific stock.
@@ -1206,38 +1269,37 @@ def api_stock_news(symbol):
     """
     try:
         from polygon_service import PolygonService
+
         polygon = PolygonService()
 
         # Fetch news from Polygon
         endpoint = f"/v2/reference/news"
-        params = {
-            'ticker': symbol.upper(),
-            'limit': 10,
-            'sort': 'published_utc',
-            'order': 'desc'
-        }
+        params = {"ticker": symbol.upper(), "limit": 10, "sort": "published_utc", "order": "desc"}
 
         data = polygon._make_request(endpoint, params)
 
-        if not data or 'results' not in data:
-            return jsonify({'articles': []})
+        if not data or "results" not in data:
+            return jsonify({"articles": []})
 
         articles = []
-        for article in data['results']:
-            articles.append({
-                'title': article.get('title', ''),
-                'description': article.get('description', ''),
-                'url': article.get('article_url', ''),
-                'published': article.get('published_utc', ''),
-                'publisher': article.get('publisher', {}).get('name', 'Unknown'),
-                'image': article.get('image_url', '')
-            })
+        for article in data["results"]:
+            articles.append(
+                {
+                    "title": article.get("title", ""),
+                    "description": article.get("description", ""),
+                    "url": article.get("article_url", ""),
+                    "published": article.get("published_utc", ""),
+                    "publisher": article.get("publisher", {}).get("name", "Unknown"),
+                    "image": article.get("image_url", ""),
+                }
+            )
 
-        return jsonify({'articles': articles})
+        return jsonify({"articles": articles})
 
     except Exception as e:
         logger.error(f"Error fetching news for {symbol}: {e}")
-        return jsonify({'articles': []}), 500
+        return jsonify({"articles": []}), 500
+
 
 # Auto-refresh news every hour in background
 def auto_refresh_news() -> None:
@@ -1259,26 +1321,33 @@ def auto_refresh_news() -> None:
 
             if news_list:
                 analyzer = NewsAnalyzer()
-                analyzed_news = analyzer.analyze_news_batch(news_list, max_items=NEWS_ANALYSIS_LIMIT)
+                analyzed_news = analyzer.analyze_news_batch(
+                    news_list, max_items=NEWS_ANALYSIS_LIMIT
+                )
                 analyzer.save_analysis(analyzed_news)
 
-                high_impact = len([n for n in analyzed_news if n.get('importance', 0) >= 4])
-                logger.info(f"Auto-refresh complete: {len(analyzed_news)} news analyzed ({high_impact} high-impact)")
+                high_impact = len([n for n in analyzed_news if n.get("importance", 0) >= 4])
+                logger.info(
+                    f"Auto-refresh complete: {len(analyzed_news)} news analyzed ({high_impact} high-impact)"
+                )
             else:
                 logger.warning("Auto-refresh: No news collected")
 
         except Exception as e:
             logger.error(f"Auto-refresh error: {e}", exc_info=True)
 
+
 # CLOUD-NATIVE: Background tasks moved to Render Cron Jobs
 # Auto-refresh is now handled by /scripts/refresh_data_cron.py
 # This thread is disabled in production to support stateless deployments
-if os.getenv('ENABLE_BACKGROUND_THREAD', 'false').lower() == 'true':
+if os.getenv("ENABLE_BACKGROUND_THREAD", "false").lower() == "true":
     news_thread = threading.Thread(target=auto_refresh_news, daemon=True)
     news_thread.start()
-    logger.info(f"Auto-refresh news thread started (refreshes every {AUTO_REFRESH_INTERVAL//3600} hour(s))")
+    logger.info(
+        f"Auto-refresh news thread started (refreshes every {AUTO_REFRESH_INTERVAL//3600} hour(s))"
+    )
 else:
     logger.info("Background thread disabled (using Render Cron Jobs instead)")
 
-if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+if __name__ == "__main__":
+    app.run(debug=True, host="0.0.0.0", port=5000)

@@ -10,13 +10,15 @@ import io
 
 try:
     from polygon_service import get_polygon_service
+    from app import cache
 except ImportError:
     from web.polygon_service import get_polygon_service
+    from web.app import cache
 
-api_polygon = Blueprint('api_polygon', __name__)
+api_polygon = Blueprint("api_polygon", __name__)
 
 
-@api_polygon.route('/api/market/quote/<ticker>')
+@api_polygon.route("/api/market/quote/<ticker>")
 def get_quote(ticker):
     """
     Get latest real-time quote for a stock.
@@ -31,12 +33,12 @@ def get_quote(ticker):
     quote = polygon.get_stock_quote(ticker.upper())
 
     if not quote:
-        return jsonify({'error': 'Quote not found'}), 404
+        return jsonify({"error": "Quote not found"}), 404
 
     return jsonify(quote)
 
 
-@api_polygon.route('/api/market/previous-close/<ticker>')
+@api_polygon.route("/api/market/previous-close/<ticker>")
 def get_prev_close(ticker):
     """
     Get previous trading day's closing data for a stock.
@@ -51,12 +53,12 @@ def get_prev_close(ticker):
     data = polygon.get_previous_close(ticker.upper())
 
     if not data:
-        return jsonify({'error': 'Data not found'}), 404
+        return jsonify({"error": "Data not found"}), 404
 
     return jsonify(data)
 
 
-@api_polygon.route('/api/market/history/<ticker>')
+@api_polygon.route("/api/market/history/<ticker>")
 def get_history(ticker):
     """
     Get historical data
@@ -64,11 +66,11 @@ def get_history(ticker):
       - days: Number of days (default 30)
       - timespan: minute/hour/day/week/month (default day)
     """
-    days = int(request.args.get('days', 30))
-    timespan = request.args.get('timespan', 'day')
+    days = int(request.args.get("days", 30))
+    timespan = request.args.get("timespan", "day")
 
-    from_date = (datetime.now() - timedelta(days=days)).strftime('%Y-%m-%d')
-    to_date = datetime.now().strftime('%Y-%m-%d')
+    from_date = (datetime.now() - timedelta(days=days)).strftime("%Y-%m-%d")
+    to_date = datetime.now().strftime("%Y-%m-%d")
 
     polygon = get_polygon_service()
     data = polygon.get_aggregates(
@@ -77,20 +79,16 @@ def get_history(ticker):
         timespan=timespan,
         from_date=from_date,
         to_date=to_date,
-        limit=500
+        limit=500,
     )
 
     if not data:
-        return jsonify({'error': 'Data not found'}), 404
+        return jsonify({"error": "Data not found"}), 404
 
-    return jsonify({
-        'ticker': ticker.upper(),
-        'timespan': timespan,
-        'data': data
-    })
+    return jsonify({"ticker": ticker.upper(), "timespan": timespan, "data": data})
 
 
-@api_polygon.route('/api/market/snapshot')
+@api_polygon.route("/api/market/snapshot")
 def get_snapshot():
     """
     Get real-time snapshot data for multiple tickers.
@@ -103,11 +101,11 @@ def get_snapshot():
         flask.Response: JSON dict with ticker symbols as keys and
             quote data as values, or error with 400 if no tickers provided
     """
-    tickers_str = request.args.get('tickers', '')
-    tickers = [t.strip().upper() for t in tickers_str.split(',') if t.strip()]
+    tickers_str = request.args.get("tickers", "")
+    tickers = [t.strip().upper() for t in tickers_str.split(",") if t.strip()]
 
     if not tickers:
-        return jsonify({'error': 'No tickers provided'}), 400
+        return jsonify({"error": "No tickers provided"}), 400
 
     polygon = get_polygon_service()
     snapshot = polygon.get_market_snapshot(tickers)
@@ -115,7 +113,7 @@ def get_snapshot():
     return jsonify(snapshot)
 
 
-@api_polygon.route('/api/market/gainers')
+@api_polygon.route("/api/market/gainers")
 def get_gainers():
     """
     Get top gaining stocks for the current trading day.
@@ -124,15 +122,12 @@ def get_gainers():
         flask.Response: JSON with count and array of top gainers
     """
     polygon = get_polygon_service()
-    gainers = polygon.get_gainers_losers('gainers')
+    gainers = polygon.get_gainers_losers("gainers")
 
-    return jsonify({
-        'count': len(gainers),
-        'data': gainers
-    })
+    return jsonify({"count": len(gainers), "data": gainers})
 
 
-@api_polygon.route('/api/market/losers')
+@api_polygon.route("/api/market/losers")
 def get_losers():
     """
     Get top losing stocks for the current trading day.
@@ -141,15 +136,12 @@ def get_losers():
         flask.Response: JSON with count and array of top losers
     """
     polygon = get_polygon_service()
-    losers = polygon.get_gainers_losers('losers')
+    losers = polygon.get_gainers_losers("losers")
 
-    return jsonify({
-        'count': len(losers),
-        'data': losers
-    })
+    return jsonify({"count": len(losers), "data": losers})
 
 
-@api_polygon.route('/api/market/status')
+@api_polygon.route("/api/market/status")
 def get_market_status():
     """
     Get current market status (open/closed/extended hours).
@@ -161,12 +153,12 @@ def get_market_status():
     status = polygon.get_market_status()
 
     if not status:
-        return jsonify({'error': 'Status not available'}), 500
+        return jsonify({"error": "Status not available"}), 500
 
     return jsonify(status)
 
 
-@api_polygon.route('/api/market/search')
+@api_polygon.route("/api/market/search")
 def search_tickers():
     """
     Search for tickers
@@ -174,23 +166,19 @@ def search_tickers():
       - q: Search query (ticker symbol or company name)
       - limit: Max results (default 10)
     """
-    query = request.args.get('q', '')
-    limit = int(request.args.get('limit', 10))
+    query = request.args.get("q", "")
+    limit = int(request.args.get("limit", 10))
 
     if not query:
-        return jsonify({'error': 'Query required'}), 400
+        return jsonify({"error": "Query required"}), 400
 
     polygon = get_polygon_service()
     results = polygon.search_tickers(query, limit)
 
-    return jsonify({
-        'query': query,
-        'count': len(results),
-        'results': results
-    })
+    return jsonify({"query": query, "count": len(results), "results": results})
 
 
-@api_polygon.route('/api/market/details/<ticker>')
+@api_polygon.route("/api/market/details/<ticker>")
 def get_ticker_details(ticker):
     """
     Get detailed company information for a ticker.
@@ -207,12 +195,12 @@ def get_ticker_details(ticker):
     details = polygon.get_ticker_details(ticker.upper())
 
     if not details:
-        return jsonify({'error': 'Ticker not found'}), 404
+        return jsonify({"error": "Ticker not found"}), 404
 
     return jsonify(details)
 
 
-@api_polygon.route('/api/market/technicals/<ticker>')
+@api_polygon.route("/api/market/technicals/<ticker>")
 def get_technicals(ticker):
     """
     Calculate and return technical indicators for a stock.
@@ -229,18 +217,18 @@ def get_technicals(ticker):
     Returns:
         flask.Response: JSON technical indicators or error with 404 status
     """
-    days = int(request.args.get('days', 50))
+    days = int(request.args.get("days", 50))
 
     polygon = get_polygon_service()
     technicals = polygon.get_technical_indicators(ticker.upper(), days)
 
     if not technicals:
-        return jsonify({'error': 'Data not available'}), 404
+        return jsonify({"error": "Data not available"}), 404
 
     return jsonify(technicals)
 
 
-@api_polygon.route('/api/market/sector-map')
+@api_polygon.route("/api/market/sector-map")
 def get_sector_map():
     """
     Get real-time sector map data
@@ -248,17 +236,17 @@ def get_sector_map():
     """
     # Major stocks by sector
     sector_stocks = {
-        'Technology': ['AAPL', 'MSFT', 'NVDA', 'AVGO', 'ORCL', 'CRM', 'ADBE', 'AMD'],
-        'Healthcare': ['LLY', 'UNH', 'JNJ', 'ABBV', 'MRK'],
-        'Financials': ['BRK-B', 'JPM', 'V', 'MA', 'BAC'],
-        'Consumer Disc.': ['AMZN', 'TSLA', 'HD', 'MCD', 'NKE'],
-        'Communication': ['GOOGL', 'META', 'NFLX', 'DIS'],
-        'Industrials': ['GE', 'CAT', 'RTX', 'UPS'],
-        'Consumer Staples': ['WMT', 'PG', 'KO', 'PEP'],
-        'Energy': ['XOM', 'CVX', 'COP'],
-        'Utilities': ['NEE', 'DUK', 'SO'],
-        'Real Estate': ['PLD', 'AMT', 'CCI'],
-        'Materials': ['LIN', 'APD', 'ECL']
+        "Technology": ["AAPL", "MSFT", "NVDA", "AVGO", "ORCL", "CRM", "ADBE", "AMD"],
+        "Healthcare": ["LLY", "UNH", "JNJ", "ABBV", "MRK"],
+        "Financials": ["BRK-B", "JPM", "V", "MA", "BAC"],
+        "Consumer Disc.": ["AMZN", "TSLA", "HD", "MCD", "NKE"],
+        "Communication": ["GOOGL", "META", "NFLX", "DIS"],
+        "Industrials": ["GE", "CAT", "RTX", "UPS"],
+        "Consumer Staples": ["WMT", "PG", "KO", "PEP"],
+        "Energy": ["XOM", "CVX", "COP"],
+        "Utilities": ["NEE", "DUK", "SO"],
+        "Real Estate": ["PLD", "AMT", "CCI"],
+        "Materials": ["LIN", "APD", "ECL"],
     }
 
     # Collect all tickers
@@ -276,20 +264,25 @@ def get_sector_map():
         for ticker in tickers:
             if ticker in snapshot:
                 data = snapshot[ticker]
-                stocks.append({
-                    'ticker': ticker,
-                    'name': ticker,  # Could be enhanced with company name
-                    'sector': sector,
-                    'price': data.get('price'),
-                    'marketCap': data.get('day_volume', 0) * data.get('price', 0) / 1000,  # Rough estimate
-                    'change': data.get('change_percent', 0),
-                    'volume': data.get('day_volume', 0)
-                })
+                stocks.append(
+                    {
+                        "ticker": ticker,
+                        "name": ticker,  # Could be enhanced with company name
+                        "sector": sector,
+                        "price": data.get("price"),
+                        "marketCap": data.get("day_volume", 0)
+                        * data.get("price", 0)
+                        / 1000,  # Rough estimate
+                        "change": data.get("change_percent", 0),
+                        "volume": data.get("day_volume", 0),
+                    }
+                )
 
-    return jsonify({'stocks': stocks})
+    return jsonify({"stocks": stocks})
 
 
-@api_polygon.route('/api/market/movers')
+@api_polygon.route("/api/market/movers")
+@cache.cached(timeout=300, key_prefix='market_movers')  # Cache for 5 minutes
 def get_movers():
     """
     Get both top gainers and top losers for the trading day.
@@ -300,17 +293,19 @@ def get_movers():
     """
     polygon = get_polygon_service()
 
-    gainers = polygon.get_gainers_losers('gainers')
-    losers = polygon.get_gainers_losers('losers')
+    gainers = polygon.get_gainers_losers("gainers")
+    losers = polygon.get_gainers_losers("losers")
 
-    return jsonify({
-        'gainers': gainers[:10],  # Top 10
-        'losers': losers[:10],  # Top 10
-        'timestamp': datetime.now().isoformat()
-    })
+    return jsonify(
+        {
+            "gainers": gainers[:10],  # Top 10
+            "losers": losers[:10],  # Top 10
+            "timestamp": datetime.now().isoformat(),
+        }
+    )
 
 
-@api_polygon.route('/api/market/batch-quotes')
+@api_polygon.route("/api/market/batch-quotes")
 def get_batch_quotes():
     """
     Get real-time quotes for multiple tickers in one request.
@@ -326,11 +321,11 @@ def get_batch_quotes():
             - timestamp (str): ISO timestamp of request
             - error (str): Error message if no tickers provided (400 status)
     """
-    tickers_str = request.args.get('tickers', '')
-    tickers = [t.strip().upper() for t in tickers_str.split(',') if t.strip()]
+    tickers_str = request.args.get("tickers", "")
+    tickers = [t.strip().upper() for t in tickers_str.split(",") if t.strip()]
 
     if not tickers:
-        return jsonify({'error': 'No tickers provided'}), 400
+        return jsonify({"error": "No tickers provided"}), 400
 
     polygon = get_polygon_service()
 
@@ -341,14 +336,12 @@ def get_batch_quotes():
         if quote:
             quotes[ticker] = quote
 
-    return jsonify({
-        'count': len(quotes),
-        'quotes': quotes,
-        'timestamp': datetime.now().isoformat()
-    })
+    return jsonify(
+        {"count": len(quotes), "quotes": quotes, "timestamp": datetime.now().isoformat()}
+    )
 
 
-@api_polygon.route('/api/market/indices')
+@api_polygon.route("/api/market/indices")
 def get_indices():
     """
     Get real-time data for major market indices.
@@ -364,15 +357,12 @@ def get_indices():
     indices = polygon.get_market_indices()
 
     if not indices:
-        return jsonify({'error': 'Indices data not available'}), 500
+        return jsonify({"error": "Indices data not available"}), 500
 
-    return jsonify({
-        'indices': indices,
-        'timestamp': datetime.now().isoformat()
-    })
+    return jsonify({"indices": indices, "timestamp": datetime.now().isoformat()})
 
 
-@api_polygon.route('/api/market/sectors')
+@api_polygon.route("/api/market/sectors")
 def get_sectors():
     """
     Get performance data for all market sectors.
@@ -391,16 +381,14 @@ def get_sectors():
     sectors = polygon.get_sector_performance()
 
     if not sectors:
-        return jsonify({'error': 'Sector data not available'}), 500
+        return jsonify({"error": "Sector data not available"}), 500
 
-    return jsonify({
-        'sectors': sectors,
-        'count': len(sectors),
-        'timestamp': datetime.now().isoformat()
-    })
+    return jsonify(
+        {"sectors": sectors, "count": len(sectors), "timestamp": datetime.now().isoformat()}
+    )
 
 
-@api_polygon.route('/api/market/health')
+@api_polygon.route("/api/market/health")
 def health_check():
     """
     Health check endpoint to verify Polygon API configuration.
@@ -417,10 +405,11 @@ def health_check():
             - timestamp (str): ISO timestamp
     """
     import os
+
     polygon = get_polygon_service()
 
     # Check API key
-    api_key_set = bool(os.getenv('POLYGON_API_KEY'))
+    api_key_set = bool(os.getenv("POLYGON_API_KEY"))
     api_key_preview = f"{os.getenv('POLYGON_API_KEY', '')[:8]}..." if api_key_set else "NOT SET"
 
     # Try a simple API call
@@ -429,18 +418,20 @@ def health_check():
         api_working = status is not None
     except Exception as e:
         api_working = False
-        status = {'error': str(e)}
+        status = {"error": str(e)}
 
-    return jsonify({
-        'api_key_configured': api_key_set,
-        'api_key_preview': api_key_preview,
-        'api_working': api_working,
-        'market_status': status,
-        'timestamp': datetime.now().isoformat()
-    })
+    return jsonify(
+        {
+            "api_key_configured": api_key_set,
+            "api_key_preview": api_key_preview,
+            "api_working": api_working,
+            "market_status": status,
+            "timestamp": datetime.now().isoformat(),
+        }
+    )
 
 
-@api_polygon.route('/api/market/screener')
+@api_polygon.route("/api/market/screener")
 def stock_screener():
     """
     Screen stocks based on criteria
@@ -454,29 +445,31 @@ def stock_screener():
     criteria = {}
 
     # Parse criteria from query params
-    if request.args.get('min_volume'):
-        criteria['min_volume'] = int(request.args.get('min_volume'))
-    if request.args.get('min_price'):
-        criteria['min_price'] = float(request.args.get('min_price'))
-    if request.args.get('max_price'):
-        criteria['max_price'] = float(request.args.get('max_price'))
-    if request.args.get('min_change_percent'):
-        criteria['min_change_percent'] = float(request.args.get('min_change_percent'))
-    if request.args.get('max_change_percent'):
-        criteria['max_change_percent'] = float(request.args.get('max_change_percent'))
+    if request.args.get("min_volume"):
+        criteria["min_volume"] = int(request.args.get("min_volume"))
+    if request.args.get("min_price"):
+        criteria["min_price"] = float(request.args.get("min_price"))
+    if request.args.get("max_price"):
+        criteria["max_price"] = float(request.args.get("max_price"))
+    if request.args.get("min_change_percent"):
+        criteria["min_change_percent"] = float(request.args.get("min_change_percent"))
+    if request.args.get("max_change_percent"):
+        criteria["max_change_percent"] = float(request.args.get("max_change_percent"))
 
     polygon = get_polygon_service()
     results = polygon.screen_stocks(criteria)
 
-    return jsonify({
-        'criteria': criteria,
-        'count': len(results),
-        'results': results,
-        'timestamp': datetime.now().isoformat()
-    })
+    return jsonify(
+        {
+            "criteria": criteria,
+            "count": len(results),
+            "results": results,
+            "timestamp": datetime.now().isoformat(),
+        }
+    )
 
 
-@api_polygon.route('/api/market/screener/export')
+@api_polygon.route("/api/market/screener/export")
 def export_screener_csv():
     """
     Export stock screener results to CSV file.
@@ -497,16 +490,16 @@ def export_screener_csv():
     criteria = {}
 
     # Parse criteria from query params
-    if request.args.get('min_volume'):
-        criteria['min_volume'] = int(request.args.get('min_volume'))
-    if request.args.get('min_price'):
-        criteria['min_price'] = float(request.args.get('min_price'))
-    if request.args.get('max_price'):
-        criteria['max_price'] = float(request.args.get('max_price'))
-    if request.args.get('min_change_percent'):
-        criteria['min_change_percent'] = float(request.args.get('min_change_percent'))
-    if request.args.get('max_change_percent'):
-        criteria['max_change_percent'] = float(request.args.get('max_change_percent'))
+    if request.args.get("min_volume"):
+        criteria["min_volume"] = int(request.args.get("min_volume"))
+    if request.args.get("min_price"):
+        criteria["min_price"] = float(request.args.get("min_price"))
+    if request.args.get("max_price"):
+        criteria["max_price"] = float(request.args.get("max_price"))
+    if request.args.get("min_change_percent"):
+        criteria["min_change_percent"] = float(request.args.get("min_change_percent"))
+    if request.args.get("max_change_percent"):
+        criteria["max_change_percent"] = float(request.args.get("max_change_percent"))
 
     polygon = get_polygon_service()
     results = polygon.screen_stocks(criteria)
@@ -516,24 +509,30 @@ def export_screener_csv():
     writer = csv.writer(si)
 
     # Write header
-    writer.writerow(['Ticker', 'Price', 'Change', 'Change %', 'Volume', 'Market Cap', 'Day High', 'Day Low'])
+    writer.writerow(
+        ["Ticker", "Price", "Change", "Change %", "Volume", "Market Cap", "Day High", "Day Low"]
+    )
 
     # Write data
     for stock in results:
-        writer.writerow([
-            stock.get('ticker', ''),
-            f"${stock.get('price', 0):.2f}",
-            f"{stock.get('change', 0):.2f}",
-            f"{stock.get('change_percent', 0):.2f}%",
-            f"{stock.get('volume', 0):,}",
-            f"${stock.get('market_cap', 0):,.0f}",
-            f"${stock.get('day_high', 0):.2f}",
-            f"${stock.get('day_low', 0):.2f}"
-        ])
+        writer.writerow(
+            [
+                stock.get("ticker", ""),
+                f"${stock.get('price', 0):.2f}",
+                f"{stock.get('change', 0):.2f}",
+                f"{stock.get('change_percent', 0):.2f}%",
+                f"{stock.get('volume', 0):,}",
+                f"${stock.get('market_cap', 0):,.0f}",
+                f"${stock.get('day_high', 0):.2f}",
+                f"${stock.get('day_low', 0):.2f}",
+            ]
+        )
 
     # Create response
     output = make_response(si.getvalue())
-    output.headers["Content-Disposition"] = f"attachment; filename=screener_results_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+    output.headers["Content-Disposition"] = (
+        f"attachment; filename=screener_results_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+    )
     output.headers["Content-type"] = "text/csv"
 
     return output

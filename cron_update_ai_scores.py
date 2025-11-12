@@ -18,14 +18,11 @@ from datetime import datetime, timedelta
 
 # Add parent directory and web directory to path for imports
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-web_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'web')
+web_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "web")
 sys.path.insert(0, web_dir)
 
 # Set up logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 
@@ -48,33 +45,37 @@ def update_ai_scores():
         logger.info("Starting AI score update...")
 
         # CRITICAL: Validate required API keys
-        alpha_vantage_key = os.getenv('ALPHA_VANTAGE_API_KEY')
-        if not alpha_vantage_key or alpha_vantage_key.strip() == '':
-            logger.critical("CRITICAL ERROR: ALPHA_VANTAGE_API_KEY is missing. Aborting AI score update.")
+        alpha_vantage_key = os.getenv("ALPHA_VANTAGE_API_KEY")
+        if not alpha_vantage_key or alpha_vantage_key.strip() == "":
+            logger.critical(
+                "CRITICAL ERROR: ALPHA_VANTAGE_API_KEY is missing. Aborting AI score update."
+            )
             logger.critical("Get a free API key from: https://www.alphavantage.co/support/#api-key")
             return False
 
-        polygon_key = os.getenv('POLYGON_API_KEY')
-        if not polygon_key or polygon_key.strip() == '':
-            logger.warning("WARNING: POLYGON_API_KEY is missing. Technical indicators will be limited.")
+        polygon_key = os.getenv("POLYGON_API_KEY")
+        if not polygon_key or polygon_key.strip() == "":
+            logger.warning(
+                "WARNING: POLYGON_API_KEY is missing. Technical indicators will be limited."
+            )
             # Continue anyway - we can still use Alpha Vantage for fundamentals
 
         # Get DATABASE_URL and fix driver
-        database_url = os.getenv('DATABASE_URL')
+        database_url = os.getenv("DATABASE_URL")
         if not database_url:
             logger.critical("CRITICAL ERROR: DATABASE_URL is missing.")
             return False
 
         # Fix psycopg2 driver issue
-        if database_url.startswith('postgresql://'):
-            database_url = database_url.replace('postgresql://', 'postgresql+psycopg://')
-        elif database_url.startswith('postgres://'):
-            database_url = database_url.replace('postgres://', 'postgresql+psycopg://')
+        if database_url.startswith("postgresql://"):
+            database_url = database_url.replace("postgresql://", "postgresql+psycopg://")
+        elif database_url.startswith("postgres://"):
+            database_url = database_url.replace("postgres://", "postgresql+psycopg://")
 
         # Create minimal Flask app
         app = Flask(__name__)
-        app.config['SQLALCHEMY_DATABASE_URI'] = database_url
-        app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+        app.config["SQLALCHEMY_DATABASE_URI"] = database_url
+        app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
         db = SQLAlchemy(app)
 
         # Import models after db is created
@@ -84,7 +85,7 @@ def update_ai_scores():
 
         # Initialize API services
         polygon = PolygonService() if polygon_key else None
-        alpha_vantage = FundamentalData(key=alpha_vantage_key, output_format='json')
+        alpha_vantage = FundamentalData(key=alpha_vantage_key, output_format="json")
 
         with app.app_context():
             # RATE LIMITING STRATEGY: Update only 20 oldest stocks per day
@@ -107,13 +108,31 @@ def update_ai_scores():
                     logger.info("No watchlist tickers found. Using default popular stocks.")
                     tickers = [
                         # FAANG + Popular Tech (Top 20)
-                        'AAPL', 'MSFT', 'GOOGL', 'AMZN', 'META', 'NVDA', 'TSLA', 'NFLX',
-                        'AMD', 'AVGO', 'CRM', 'ORCL', 'ADBE', 'INTC',
+                        "AAPL",
+                        "MSFT",
+                        "GOOGL",
+                        "AMZN",
+                        "META",
+                        "NVDA",
+                        "TSLA",
+                        "NFLX",
+                        "AMD",
+                        "AVGO",
+                        "CRM",
+                        "ORCL",
+                        "ADBE",
+                        "INTC",
                         # Major Indices ETFs
-                        'SPY', 'QQQ', 'DIA',
+                        "SPY",
+                        "QQQ",
+                        "DIA",
                         # Financials
-                        'JPM', 'BAC', 'V'
-                    ][:20]  # Ensure max 20
+                        "JPM",
+                        "BAC",
+                        "V",
+                    ][
+                        :20
+                    ]  # Ensure max 20
                     logger.info(f"Processing {len(tickers)} default tickers")
 
             logger.info(f"Processing {len(tickers)} tickers: {', '.join(tickers)}")
@@ -158,7 +177,7 @@ def update_ai_scores():
                             ticker=ticker,
                             score=score,
                             rating=rating,
-                            features_json=json.dumps(features)
+                            features_json=json.dumps(features),
                         )
                         db.session.add(ai_score_record)
 
@@ -196,28 +215,29 @@ def calculate_enhanced_features(ticker: str, polygon, alpha_vantage, db):
     """
     try:
         import numpy as np
+
         features = {}
 
         # 1. TECHNICAL INDICATORS (from Polygon if available)
         if polygon:
             technicals = polygon.get_technical_indicators(ticker, days=200)
             if technicals:
-                features['rsi'] = technicals.get('rsi', 50)
-                features['macd'] = technicals.get('macd', 0)
-                features['price_to_ma50'] = technicals.get('price_to_ma50', 1.0)
-                features['price_to_ma200'] = technicals.get('price_to_ma200', 1.0)
+                features["rsi"] = technicals.get("rsi", 50)
+                features["macd"] = technicals.get("macd", 0)
+                features["price_to_ma50"] = technicals.get("price_to_ma50", 1.0)
+                features["price_to_ma200"] = technicals.get("price_to_ma200", 1.0)
             else:
                 # Use defaults if no data
-                features['rsi'] = 50
-                features['macd'] = 0
-                features['price_to_ma50'] = 1.0
-                features['price_to_ma200'] = 1.0
+                features["rsi"] = 50
+                features["macd"] = 0
+                features["price_to_ma50"] = 1.0
+                features["price_to_ma200"] = 1.0
         else:
             # No Polygon - use defaults
-            features['rsi'] = 50
-            features['macd'] = 0
-            features['price_to_ma50'] = 1.0
-            features['price_to_ma200'] = 1.0
+            features["rsi"] = 50
+            features["macd"] = 0
+            features["price_to_ma50"] = 1.0
+            features["price_to_ma200"] = 1.0
 
         # 2. FUNDAMENTAL INDICATORS (from Alpha Vantage)
         try:
@@ -228,77 +248,90 @@ def calculate_enhanced_features(ticker: str, polygon, alpha_vantage, db):
 
             if overview_data and isinstance(overview_data, dict):
                 # Parse market cap
-                market_cap_str = overview_data.get('MarketCapitalization', '0')
+                market_cap_str = overview_data.get("MarketCapitalization", "0")
                 try:
                     market_cap = float(market_cap_str) if market_cap_str else 0
-                    features['market_cap_log'] = np.log10(market_cap + 1) if market_cap > 0 else 9.0
+                    features["market_cap_log"] = np.log10(market_cap + 1) if market_cap > 0 else 9.0
                 except (ValueError, TypeError):
-                    features['market_cap_log'] = 9.0
+                    features["market_cap_log"] = 9.0
 
                 # Parse P/E ratio
-                pe_str = overview_data.get('PERatio', '20.0')
+                pe_str = overview_data.get("PERatio", "20.0")
                 try:
-                    features['pe_ratio'] = float(pe_str) if pe_str and pe_str != 'None' else 20.0
+                    features["pe_ratio"] = float(pe_str) if pe_str and pe_str != "None" else 20.0
                 except (ValueError, TypeError):
-                    features['pe_ratio'] = 20.0
+                    features["pe_ratio"] = 20.0
 
                 # Parse P/B ratio
-                pb_str = overview_data.get('PriceToBookRatio', '3.0')
+                pb_str = overview_data.get("PriceToBookRatio", "3.0")
                 try:
-                    features['pb_ratio'] = float(pb_str) if pb_str and pb_str != 'None' else 3.0
+                    features["pb_ratio"] = float(pb_str) if pb_str and pb_str != "None" else 3.0
                 except (ValueError, TypeError):
-                    features['pb_ratio'] = 3.0
+                    features["pb_ratio"] = 3.0
 
                 # Parse EPS
-                eps_str = overview_data.get('EPS', '0')
+                eps_str = overview_data.get("EPS", "0")
                 try:
-                    eps = float(eps_str) if eps_str and eps_str != 'None' else 0
+                    eps = float(eps_str) if eps_str and eps_str != "None" else 0
                 except (ValueError, TypeError):
                     eps = 0
 
                 # Parse quarterly earnings growth (YoY)
-                earnings_growth_str = overview_data.get('QuarterlyEarningsGrowthYOY', '0.10')
+                earnings_growth_str = overview_data.get("QuarterlyEarningsGrowthYOY", "0.10")
                 try:
                     # Alpha Vantage returns as percentage string like "0.15" for 15%
-                    features['eps_growth'] = float(earnings_growth_str) if earnings_growth_str and earnings_growth_str != 'None' else 0.10
+                    features["eps_growth"] = (
+                        float(earnings_growth_str)
+                        if earnings_growth_str and earnings_growth_str != "None"
+                        else 0.10
+                    )
                 except (ValueError, TypeError):
-                    features['eps_growth'] = 0.10
+                    features["eps_growth"] = 0.10
 
                 # Parse quarterly revenue growth (YoY)
-                revenue_growth_str = overview_data.get('QuarterlyRevenueGrowthYOY', '0.15')
+                revenue_growth_str = overview_data.get("QuarterlyRevenueGrowthYOY", "0.15")
                 try:
-                    features['revenue_growth'] = float(revenue_growth_str) if revenue_growth_str and revenue_growth_str != 'None' else 0.15
+                    features["revenue_growth"] = (
+                        float(revenue_growth_str)
+                        if revenue_growth_str and revenue_growth_str != "None"
+                        else 0.15
+                    )
                 except (ValueError, TypeError):
-                    features['revenue_growth'] = 0.15
+                    features["revenue_growth"] = 0.15
 
-                logger.info(f"Alpha Vantage data fetched: P/E={features['pe_ratio']:.2f}, P/B={features['pb_ratio']:.2f}, EPS Growth={features['eps_growth']:.2%}")
+                logger.info(
+                    f"Alpha Vantage data fetched: P/E={features['pe_ratio']:.2f}, P/B={features['pb_ratio']:.2f}, EPS Growth={features['eps_growth']:.2%}"
+                )
 
             else:
                 # Alpha Vantage returned empty or error - use defaults
-                logger.warning(f"Alpha Vantage returned no data for {ticker}. Using default fundamental values.")
-                features['market_cap_log'] = 9.0
-                features['pe_ratio'] = 20.0
-                features['pb_ratio'] = 3.0
-                features['eps_growth'] = 0.10
-                features['revenue_growth'] = 0.15
+                logger.warning(
+                    f"Alpha Vantage returned no data for {ticker}. Using default fundamental values."
+                )
+                features["market_cap_log"] = 9.0
+                features["pe_ratio"] = 20.0
+                features["pb_ratio"] = 3.0
+                features["eps_growth"] = 0.10
+                features["revenue_growth"] = 0.15
 
         except Exception as av_error:
             logger.error(f"Alpha Vantage API error for {ticker}: {av_error}", exc_info=True)
             # Use defaults on API error
-            features['market_cap_log'] = 9.0
-            features['pe_ratio'] = 20.0
-            features['pb_ratio'] = 3.0
-            features['eps_growth'] = 0.10
-            features['revenue_growth'] = 0.15
+            features["market_cap_log"] = 9.0
+            features["pe_ratio"] = 20.0
+            features["pb_ratio"] = 3.0
+            features["eps_growth"] = 0.10
+            features["revenue_growth"] = 0.15
 
         # 3. NEWS SENTIMENT (7-day average)
         from web.database import NewsArticle
+
         cutoff_date = datetime.utcnow() - timedelta(days=7)
 
         # Query news articles mentioning this ticker
         recent_news = NewsArticle.query.filter(
             NewsArticle.published_at >= cutoff_date,
-            NewsArticle.title.contains(ticker)  # Simple keyword match
+            NewsArticle.title.contains(ticker),  # Simple keyword match
         ).all()
 
         if recent_news:
@@ -309,11 +342,11 @@ def calculate_enhanced_features(ticker: str, polygon, alpha_vantage, db):
                     sentiment_scores.append(article.ai_rating / 5.0)  # Normalize to 0-1
 
             if sentiment_scores:
-                features['news_sentiment_7d'] = np.mean(sentiment_scores)
+                features["news_sentiment_7d"] = np.mean(sentiment_scores)
             else:
-                features['news_sentiment_7d'] = 0.5  # Neutral
+                features["news_sentiment_7d"] = 0.5  # Neutral
         else:
-            features['news_sentiment_7d'] = 0.5  # Neutral
+            features["news_sentiment_7d"] = 0.5  # Neutral
 
         return features
 
@@ -339,7 +372,7 @@ def calculate_ai_score(features: dict) -> int:
         score = 50  # Base score
 
         # Technical indicators (40% weight)
-        rsi = features.get('rsi', 50)
+        rsi = features.get("rsi", 50)
         if rsi < 30:  # Oversold - potential buy
             score += 10
         elif rsi > 70:  # Overbought - potential sell
@@ -347,33 +380,33 @@ def calculate_ai_score(features: dict) -> int:
         elif 40 <= rsi <= 60:  # Neutral
             score += 5
 
-        macd = features.get('macd', 0)
+        macd = features.get("macd", 0)
         if macd > 0:  # Bullish
             score += 10
         else:  # Bearish
             score -= 10
 
-        price_to_ma50 = features.get('price_to_ma50', 1.0)
+        price_to_ma50 = features.get("price_to_ma50", 1.0)
         if price_to_ma50 > 1.05:  # Above MA50
             score += 5
         elif price_to_ma50 < 0.95:  # Below MA50
             score -= 5
 
         # Fundamental indicators (30% weight)
-        pe_ratio = features.get('pe_ratio', 20)
+        pe_ratio = features.get("pe_ratio", 20)
         if 10 <= pe_ratio <= 25:  # Reasonable valuation
             score += 10
         elif pe_ratio > 40:  # Overvalued
             score -= 5
 
-        eps_growth = features.get('eps_growth', 0)
+        eps_growth = features.get("eps_growth", 0)
         if eps_growth > 0.15:  # Strong growth
             score += 10
         elif eps_growth < 0:  # Negative growth
             score -= 10
 
         # News sentiment (30% weight)
-        news_sentiment = features.get('news_sentiment_7d', 0.5)
+        news_sentiment = features.get("news_sentiment_7d", 0.5)
         sentiment_score = (news_sentiment - 0.5) * 30  # -15 to +15
         score += sentiment_score
 
@@ -409,7 +442,7 @@ def determine_rating(score: int) -> str:
         return "Strong Sell"
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     print("=" * 80)
     print("RENDER CRON JOB: AI Score Update Started")
     print("=" * 80)

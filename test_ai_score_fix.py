@@ -15,12 +15,12 @@ import sys
 import io
 
 # Fix Windows console encoding
-if sys.platform == 'win32':
-    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
-    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8')
+if sys.platform == "win32":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8")
 
 # Add web directory to path
-web_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'web')
+web_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "web")
 sys.path.insert(0, web_dir)
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
@@ -30,8 +30,8 @@ print("=" * 80)
 
 # Check environment variables
 print("\n1. Checking environment variables...")
-polygon_key = os.getenv('POLYGON_API_KEY')
-database_url = os.getenv('DATABASE_URL')
+polygon_key = os.getenv("POLYGON_API_KEY")
+database_url = os.getenv("DATABASE_URL")
 
 if not polygon_key:
     print("   ❌ POLYGON_API_KEY missing")
@@ -46,10 +46,10 @@ else:
     print(f"   ✅ DATABASE_URL found")
 
 # Fix driver
-if database_url.startswith('postgresql://'):
-    database_url = database_url.replace('postgresql://', 'postgresql+psycopg://')
-elif database_url.startswith('postgres://'):
-    database_url = database_url.replace('postgres://', 'postgresql+psycopg://')
+if database_url.startswith("postgresql://"):
+    database_url = database_url.replace("postgresql://", "postgresql+psycopg://")
+elif database_url.startswith("postgres://"):
+    database_url = database_url.replace("postgres://", "postgresql+psycopg://")
 
 # Test database connection
 print("\n2. Testing database connection...")
@@ -58,8 +58,8 @@ try:
     from flask_sqlalchemy import SQLAlchemy
 
     app = Flask(__name__)
-    app.config['SQLALCHEMY_DATABASE_URI'] = database_url
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config["SQLALCHEMY_DATABASE_URI"] = database_url
+    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     db = SQLAlchemy(app)
 
     from database import Watchlist, AIScore
@@ -90,21 +90,54 @@ with app.app_context():
         print("   ✅ Watchlist is empty - will use default stocks")
         tickers = [
             # FAANG + Popular Tech
-            'AAPL', 'MSFT', 'GOOGL', 'AMZN', 'META', 'NVDA', 'TSLA', 'NFLX',
+            "AAPL",
+            "MSFT",
+            "GOOGL",
+            "AMZN",
+            "META",
+            "NVDA",
+            "TSLA",
+            "NFLX",
             # Major Indices ETFs
-            'SPY', 'QQQ', 'DIA',
+            "SPY",
+            "QQQ",
+            "DIA",
             # Popular Growth
-            'AMD', 'AVGO', 'CRM', 'ORCL', 'ADBE', 'INTC',
+            "AMD",
+            "AVGO",
+            "CRM",
+            "ORCL",
+            "ADBE",
+            "INTC",
             # Financials
-            'JPM', 'BAC', 'WFC', 'GS', 'MS', 'V', 'MA',
+            "JPM",
+            "BAC",
+            "WFC",
+            "GS",
+            "MS",
+            "V",
+            "MA",
             # Healthcare
-            'JNJ', 'UNH', 'PFE', 'ABBV', 'LLY', 'MRK',
+            "JNJ",
+            "UNH",
+            "PFE",
+            "ABBV",
+            "LLY",
+            "MRK",
             # Consumer
-            'WMT', 'HD', 'MCD', 'NKE', 'SBUX', 'COST',
+            "WMT",
+            "HD",
+            "MCD",
+            "NKE",
+            "SBUX",
+            "COST",
             # Energy
-            'XOM', 'CVX',
+            "XOM",
+            "CVX",
             # Communication
-            'T', 'VZ', 'DIS'
+            "T",
+            "VZ",
+            "DIS",
         ]
         print(f"   📋 Default tickers: {len(tickers)} stocks")
         print(f"   📝 Examples: {', '.join(tickers[:10])}")
@@ -115,9 +148,10 @@ with app.app_context():
 print("\n4. Testing Polygon API for AAPL...")
 try:
     from polygon_service import PolygonService
+
     polygon = PolygonService()
 
-    details = polygon.get_ticker_details('AAPL')
+    details = polygon.get_ticker_details("AAPL")
     if details:
         print(f"   ✅ Polygon API working")
         print(f"   📊 AAPL market cap: ${details.get('market_cap', 0):,.0f}")

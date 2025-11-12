@@ -6,6 +6,7 @@ Creates 1200x630px image for social media previews
 from PIL import Image, ImageDraw, ImageFont
 import os
 
+
 def create_og_image():
     """Create Open Graph preview image"""
 
@@ -14,7 +15,7 @@ def create_og_image():
 
     # Create image with dark background
     background_color = (10, 14, 39)  # #0a0e27
-    img = Image.new('RGB', (width, height), background_color)
+    img = Image.new("RGB", (width, height), background_color)
     draw = ImageDraw.Draw(img)
 
     # Add gradient overlay effect
@@ -32,7 +33,7 @@ def create_og_image():
     draw.rounded_rectangle(
         [(logo_x, logo_y), (logo_x + logo_size, logo_y + logo_size)],
         radius=40,
-        fill=(19, 24, 41)  # slightly lighter than background
+        fill=(19, 24, 41),  # slightly lighter than background
     )
 
     # Draw 'Q' letter
@@ -69,16 +70,13 @@ def create_og_image():
         "Real-Time Market Data",
         "AI-Powered News Analysis",
         "Advanced Stock Screener",
-        "Economic Calendar"
+        "Economic Calendar",
     ]
 
     feature_y = 300
     for feature in features:
         # Bullet point
-        draw.ellipse(
-            [(text_x, feature_y + 10), (text_x + 8, feature_y + 18)],
-            fill=(0, 217, 255)
-        )
+        draw.ellipse([(text_x, feature_y + 10), (text_x + 8, feature_y + 18)], fill=(0, 217, 255))
         # Feature text
         draw.text((text_x + 20, feature_y), feature, font=font_features, fill=(200, 200, 200))
         feature_y += 50
@@ -93,11 +91,12 @@ def create_og_image():
 
     # Save the image
     output_path = "web/static/og-image.png"
-    img.save(output_path, 'PNG')
+    img.save(output_path, "PNG")
     print(f"[OK] Created: {output_path} (1200x630)")
     print(f"Location: {os.path.abspath(output_path)}")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     print("Generating Open Graph image...")
     print("=" * 50)
     create_og_image()

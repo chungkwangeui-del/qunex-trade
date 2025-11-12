@@ -9,8 +9,10 @@ from datetime import datetime
 
 db = SQLAlchemy()
 
+
 class User(UserMixin, db.Model):
     """User model for authentication"""
+
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(120), unique=True, nullable=False, index=True)
     username = db.Column(db.String(80), unique=True, nullable=False, index=True)
@@ -32,8 +34,12 @@ class User(UserMixin, db.Model):
     reset_token_expiry = db.Column(db.DateTime, nullable=True)
 
     # Subscription info
-    subscription_tier = db.Column(db.String(20), default='free', index=True)  # free, pro, premium, developer
-    subscription_status = db.Column(db.String(20), default='inactive', index=True)  # active, inactive, cancelled
+    subscription_tier = db.Column(
+        db.String(20), default="free", index=True
+    )  # free, pro, premium, developer
+    subscription_status = db.Column(
+        db.String(20), default="inactive", index=True
+    )  # active, inactive, cancelled
     subscription_start = db.Column(db.DateTime, nullable=True)
     subscription_end = db.Column(db.DateTime, nullable=True, index=True)
     stripe_customer_id = db.Column(db.String(100), nullable=True, index=True)
@@ -52,40 +58,45 @@ class User(UserMixin, db.Model):
 
     def is_pro(self):
         """Check if user has Pro subscription"""
-        return self.subscription_tier in ['pro', 'premium', 'developer'] and self.subscription_status == 'active'
+        return (
+            self.subscription_tier in ["pro", "premium", "developer"]
+            and self.subscription_status == "active"
+        )
 
     def is_premium(self):
         """Check if user has Premium subscription"""
-        return self.subscription_tier == 'premium' and self.subscription_status == 'active'
+        return self.subscription_tier == "premium" and self.subscription_status == "active"
 
     def is_developer(self):
         """Check if user is Developer (site creator)"""
-        return self.subscription_tier == 'developer' and self.subscription_status == 'active'
+        return self.subscription_tier == "developer" and self.subscription_status == "active"
 
     def __repr__(self):
-        return f'<User {self.username}>'
+        return f"<User {self.username}>"
 
 
 class Payment(db.Model):
     """Payment history model"""
+
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False, index=True)
     amount = db.Column(db.Float, nullable=False)
-    currency = db.Column(db.String(10), default='USD')
+    currency = db.Column(db.String(10), default="USD")
     status = db.Column(db.String(20), nullable=False, index=True)  # succeeded, failed, pending
     stripe_payment_id = db.Column(db.String(100), nullable=True, index=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
 
-    user = db.relationship('User', backref=db.backref('payments', lazy=True))
+    user = db.relationship("User", backref=db.backref("payments", lazy=True))
 
     def __repr__(self):
-        return f'<Payment {self.id} - ${self.amount}>'
+        return f"<Payment {self.id} - ${self.amount}>"
 
 
 class Watchlist(db.Model):
     """User watchlist for tracking favorite stocks"""
+
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False, index=True)
     ticker = db.Column(db.String(10), nullable=False, index=True)
     company_name = db.Column(db.String(200), nullable=True)
     added_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
@@ -95,19 +106,22 @@ class Watchlist(db.Model):
     alert_price_above = db.Column(db.Float, nullable=True)  # Alert when price goes above this
     alert_price_below = db.Column(db.Float, nullable=True)  # Alert when price goes below this
 
-    user = db.relationship('User', backref=db.backref('watchlist', lazy=True, cascade='all, delete-orphan'))
+    user = db.relationship(
+        "User", backref=db.backref("watchlist", lazy=True, cascade="all, delete-orphan")
+    )
 
     # Unique constraint: one ticker per user
-    __table_args__ = (db.UniqueConstraint('user_id', 'ticker', name='unique_user_ticker'),)
+    __table_args__ = (db.UniqueConstraint("user_id", "ticker", name="unique_user_ticker"),)
 
     def __repr__(self):
-        return f'<Watchlist {self.user_id} - {self.ticker}>'
+        return f"<Watchlist {self.user_id} - {self.ticker}>"
 
 
 class SavedScreener(db.Model):
     """Saved screener criteria for quick access"""
+
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False, index=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False, index=True)
     name = db.Column(db.String(100), nullable=False)  # User-defined name
     description = db.Column(db.Text, nullable=True)
 
@@ -128,15 +142,18 @@ class SavedScreener(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
     last_used = db.Column(db.DateTime, nullable=True)
 
-    user = db.relationship('User', backref=db.backref('saved_screeners', lazy=True, cascade='all, delete-orphan'))
+    user = db.relationship(
+        "User", backref=db.backref("saved_screeners", lazy=True, cascade="all, delete-orphan")
+    )
 
     def __repr__(self):
-        return f'<SavedScreener {self.name} by User {self.user_id}>'
+        return f"<SavedScreener {self.name} by User {self.user_id}>"
 
 
 class NewsArticle(db.Model):
     """Cached news articles with AI analysis"""
-    __tablename__ = 'news_articles'
+
+    __tablename__ = "news_articles"
 
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(500), nullable=False, index=True)
@@ -155,27 +172,28 @@ class NewsArticle(db.Model):
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     def __repr__(self):
-        return f'<NewsArticle {self.id} - {self.title[:50]}>'
+        return f"<NewsArticle {self.id} - {self.title[:50]}>"
 
     def to_dict(self):
         """Convert to dictionary for JSON serialization"""
         return {
-            'id': self.id,
-            'title': self.title,
-            'description': self.description,
-            'url': self.url,
-            'source': self.source,
-            'published': self.published_at.isoformat() if self.published_at else None,
-            'ai_rating': self.ai_rating,
-            'ai_analysis': self.ai_analysis,
-            'sentiment': self.sentiment,
-            'created_at': self.created_at.isoformat() if self.created_at else None
+            "id": self.id,
+            "title": self.title,
+            "description": self.description,
+            "url": self.url,
+            "source": self.source,
+            "published": self.published_at.isoformat() if self.published_at else None,
+            "ai_rating": self.ai_rating,
+            "ai_analysis": self.ai_analysis,
+            "sentiment": self.sentiment,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
         }
 
 
 class EconomicEvent(db.Model):
     """Economic calendar events"""
-    __tablename__ = 'economic_events'
+
+    __tablename__ = "economic_events"
 
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(300), nullable=False, index=True)
@@ -196,46 +214,92 @@ class EconomicEvent(db.Model):
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Unique constraint to avoid duplicates
-    __table_args__ = (db.UniqueConstraint('title', 'date', name='unique_event_date'),)
+    __table_args__ = (db.UniqueConstraint("title", "date", name="unique_event_date"),)
 
     def __repr__(self):
-        return f'<EconomicEvent {self.title} on {self.date}>'
+        return f"<EconomicEvent {self.title} on {self.date}>"
 
     def to_dict(self):
         """Convert to dictionary for JSON serialization"""
         return {
-            'id': self.id,
-            'title': self.title,
-            'description': self.description,
-            'date': self.date.isoformat() if self.date else None,
-            'time': self.time,
-            'country': self.country,
-            'importance': self.importance,
-            'actual': self.actual,
-            'forecast': self.forecast,
-            'previous': self.previous,
-            'source': self.source
+            "id": self.id,
+            "title": self.title,
+            "description": self.description,
+            "date": self.date.isoformat() if self.date else None,
+            "time": self.time,
+            "country": self.country,
+            "importance": self.importance,
+            "actual": self.actual,
+            "forecast": self.forecast,
+            "previous": self.previous,
+            "source": self.source,
         }
 
 
 class AIScore(db.Model):
     """Pre-computed AI scores for stocks"""
-    __tablename__ = 'ai_scores'
+
+    __tablename__ = "ai_scores"
 
     id = db.Column(db.Integer, primary_key=True)
     ticker = db.Column(db.String(10), unique=True, nullable=False, index=True)
     score = db.Column(db.Integer, nullable=False, index=True)  # 0-100
     rating = db.Column(db.String(20), nullable=False)  # Strong Buy/Buy/Hold/Sell/Strong Sell
     features_json = db.Column(db.Text, nullable=True)  # JSON string of features
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, index=True)
+    updated_at = db.Column(
+        db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, index=True
+    )
 
     def to_dict(self):
         """Convert to dictionary for JSON serialization"""
         import json
+
         return {
-            'ticker': self.ticker,
-            'score': self.score,
-            'rating': self.rating,
-            'features': json.loads(self.features_json) if self.features_json else {},
-            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+            "ticker": self.ticker,
+            "score": self.score,
+            "rating": self.rating,
+            "features": json.loads(self.features_json) if self.features_json else {},
+            "updated_at": self.updated_at.isoformat() if self.updated_at else None,
+        }
+
+
+class Transaction(db.Model):
+    """
+    User portfolio transactions (buy/sell).
+
+    Tracks all stock purchases and sales for portfolio management.
+    Allows calculating current holdings and profit/loss.
+    """
+
+    __tablename__ = "transactions"
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False, index=True)
+    ticker = db.Column(db.String(10), nullable=False, index=True)
+    shares = db.Column(db.Numeric(precision=10, scale=4), nullable=False)  # Supports fractional shares
+    price = db.Column(db.Numeric(precision=10, scale=2), nullable=False)  # Price per share
+    transaction_type = db.Column(
+        db.String(10), nullable=False, index=True
+    )  # 'buy' or 'sell'
+    transaction_date = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    notes = db.Column(db.Text, nullable=True)  # Optional user notes
+
+    # Relationship
+    user = db.relationship("User", backref=db.backref("transactions", lazy=True))
+
+    def __repr__(self):
+        return f"<Transaction {self.transaction_type.upper()} {self.shares} {self.ticker} @ ${self.price}>"
+
+    def to_dict(self):
+        """Convert to dictionary for JSON serialization"""
+        return {
+            "id": self.id,
+            "user_id": self.user_id,
+            "ticker": self.ticker,
+            "shares": float(self.shares),
+            "price": float(self.price),
+            "transaction_type": self.transaction_type,
+            "transaction_date": self.transaction_date.isoformat() if self.transaction_date else None,
+            "total_cost": float(self.shares * self.price),
+            "notes": self.notes,
         }

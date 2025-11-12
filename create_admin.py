@@ -11,14 +11,16 @@ import sys
 from datetime import datetime, timedelta
 
 # Set console encoding to UTF-8 for emoji support
-if sys.platform == 'win32':
+if sys.platform == "win32":
     import codecs
-    sys.stdout = codecs.getwriter('utf-8')(sys.stdout.buffer, 'strict')
-    sys.stderr = codecs.getwriter('utf-8')(sys.stderr.buffer, 'strict')
+
+    sys.stdout = codecs.getwriter("utf-8")(sys.stdout.buffer, "strict")
+    sys.stderr = codecs.getwriter("utf-8")(sys.stderr.buffer, "strict")
 
 # Import Flask app first to ensure proper initialization
 from web.app import app
 from web.database import db, User
+
 
 def create_admin():
     """Create admin account with developer-tier access"""
@@ -45,16 +47,18 @@ def create_admin():
 
                 # Update existing admin
                 response = input("\nUpdate existing admin account? (y/n): ")
-                if response.lower() != 'y':
+                if response.lower() != "y":
                     print("Aborted.")
                     return
 
                 # Update password and tier
                 existing_admin.set_password(admin_password)
-                existing_admin.subscription_tier = 'developer'
-                existing_admin.subscription_status = 'active'
+                existing_admin.subscription_tier = "developer"
+                existing_admin.subscription_status = "active"
                 existing_admin.subscription_start = datetime.utcnow()
-                existing_admin.subscription_end = datetime.utcnow() + timedelta(days=365 * 10)  # 10 years
+                existing_admin.subscription_end = datetime.utcnow() + timedelta(
+                    days=365 * 10
+                )  # 10 years
                 existing_admin.email_verified = True
 
                 db.session.commit()
@@ -71,12 +75,12 @@ def create_admin():
                 admin_user = User(
                     email=admin_email,
                     username=admin_username,
-                    subscription_tier='developer',
-                    subscription_status='active',
+                    subscription_tier="developer",
+                    subscription_status="active",
                     subscription_start=datetime.utcnow(),
                     subscription_end=datetime.utcnow() + timedelta(days=365 * 10),  # 10 years
                     email_verified=True,
-                    created_at=datetime.utcnow()
+                    created_at=datetime.utcnow(),
                 )
 
                 admin_user.set_password(admin_password)
@@ -99,10 +103,11 @@ def create_admin():
     except Exception as e:
         print(f"\n❌ Error creating admin account: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     success = create_admin()
     sys.exit(0 if success else 1)

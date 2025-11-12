@@ -20,10 +20,10 @@ from src.news_analyzer import NewsAnalyzer
 def main():
     """Collect and analyze latest news"""
 
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("  REAL-TIME NEWS COLLECTION & ANALYSIS")
     print("  Only credible and important news (4-5 stars)")
-    print("="*70 + "\n")
+    print("=" * 70 + "\n")
 
     try:
         # Step 1: Collect news
@@ -52,36 +52,41 @@ def main():
         analyzer.save_analysis(analyzed_news)
 
         # Step 4: Summary
-        market_wide = [n for n in analyzed_news if n.get('market_wide_impact', False)]
+        market_wide = [n for n in analyzed_news if n.get("market_wide_impact", False)]
 
-        print("\n" + "="*70)
+        print("\n" + "=" * 70)
         print("  SUMMARY")
-        print("="*70)
+        print("=" * 70)
         print(f"  Total collected: {len(news_list)} news items")
         print(f"  Important news: {len(analyzed_news)} items")
         print(f"  Market-Wide Impact: {len(market_wide)} items (Fed, Trump, GDP, etc.)")
-        print(f"  Critical (5 stars): {len([n for n in analyzed_news if n.get('importance') == 5])}")
-        print(f"  Very Important (4 stars): {len([n for n in analyzed_news if n.get('importance') == 4])}")
+        print(
+            f"  Critical (5 stars): {len([n for n in analyzed_news if n.get('importance') == 5])}"
+        )
+        print(
+            f"  Very Important (4 stars): {len([n for n in analyzed_news if n.get('importance') == 4])}"
+        )
         print("\n  Top 5 Most Important News (Market-Wide First):")
-        print("  " + "-"*66)
+        print("  " + "-" * 66)
 
         for i, news in enumerate(analyzed_news[:5], 1):
-            importance = news.get('importance', 0)
-            market_wide_flag = news.get('market_wide_impact', False)
-            title = news.get('news_title', 'N/A')
-            stars = '*' * importance
+            importance = news.get("importance", 0)
+            market_wide_flag = news.get("market_wide_impact", False)
+            title = news.get("news_title", "N/A")
+            stars = "*" * importance
             label = "[MARKET-WIDE]" if market_wide_flag else "[SPECIFIC]"
             print(f"  {i}. [{stars}] {label} {title[:40]}...")
 
-        print("\n" + "="*70)
+        print("\n" + "=" * 70)
         print("  [SUCCESS] News updated and ready to display!")
-        print("="*70 + "\n")
+        print("=" * 70 + "\n")
 
     except Exception as e:
         print(f"\n[ERROR] Failed: {e}")
         import traceback
+
         traceback.print_exc()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

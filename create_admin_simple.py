@@ -10,7 +10,7 @@ import os
 import sys
 
 # Change to web directory
-web_dir = os.path.join(os.path.dirname(__file__), 'web')
+web_dir = os.path.join(os.path.dirname(__file__), "web")
 os.chdir(web_dir)
 sys.path.insert(0, web_dir)
 
@@ -18,6 +18,7 @@ sys.path.insert(0, web_dir)
 from datetime import datetime, timedelta
 from app import app
 from database import db, User
+
 
 def main():
     print("=" * 80)
@@ -38,8 +39,8 @@ def main():
                 print("Updating admin account...")
 
                 existing.set_password(admin_password)
-                existing.subscription_tier = 'developer'
-                existing.subscription_status = 'active'
+                existing.subscription_tier = "developer"
+                existing.subscription_status = "active"
                 existing.subscription_start = datetime.utcnow()
                 existing.subscription_end = datetime.utcnow() + timedelta(days=3650)
                 existing.email_verified = True
@@ -53,11 +54,11 @@ def main():
                 admin = User(
                     email=admin_email,
                     username=admin_username,
-                    subscription_tier='developer',
-                    subscription_status='active',
+                    subscription_tier="developer",
+                    subscription_status="active",
                     subscription_start=datetime.utcnow(),
                     subscription_end=datetime.utcnow() + timedelta(days=3650),
-                    email_verified=True
+                    email_verified=True,
                 )
                 admin.set_password(admin_password)
 
@@ -80,11 +81,13 @@ def main():
         except Exception as e:
             print(f"\nError: {e}")
             import traceback
+
             traceback.print_exc()
             return False
 
     return True
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     success = main()
     sys.exit(0 if success else 1)

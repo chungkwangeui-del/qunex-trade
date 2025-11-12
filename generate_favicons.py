@@ -6,25 +6,22 @@ Creates PNG favicon files in multiple sizes
 from PIL import Image, ImageDraw, ImageFont
 import os
 
+
 def create_favicon(size, output_path):
     """Create a favicon with 'Q' letter and gradient background"""
 
     # Create image with transparency
-    img = Image.new('RGBA', (size, size), (0, 0, 0, 0))
+    img = Image.new("RGBA", (size, size), (0, 0, 0, 0))
     draw = ImageDraw.Draw(img)
 
     # Draw rounded rectangle background (dark blue)
     background_color = (10, 14, 39, 255)  # #0a0e27
     corner_radius = size // 5
-    draw.rounded_rectangle(
-        [(0, 0), (size, size)],
-        radius=corner_radius,
-        fill=background_color
-    )
+    draw.rounded_rectangle([(0, 0), (size, size)], radius=corner_radius, fill=background_color)
 
     # Add gradient effect by drawing multiple rectangles with varying opacity
     gradient_start = (0, 217, 255, 100)  # cyan with transparency
-    gradient_end = (124, 58, 237, 100)   # purple with transparency
+    gradient_end = (124, 58, 237, 100)  # purple with transparency
 
     # Draw 'Q' letter in white/cyan
     text_color = (0, 217, 255, 255)  # cyan #00d9ff
@@ -59,8 +56,9 @@ def create_favicon(size, output_path):
     draw.text((x, y), text, font=font, fill=text_color)
 
     # Save the image
-    img.save(output_path, 'PNG')
+    img.save(output_path, "PNG")
     print(f"[OK] Created: {output_path} ({size}x{size})")
+
 
 def main():
     """Generate all required favicon sizes"""
@@ -74,11 +72,11 @@ def main():
 
     # Generate all required sizes
     sizes = {
-        'favicon-16x16.png': 16,
-        'favicon-32x32.png': 32,
-        'favicon-192x192.png': 192,
-        'favicon-512x512.png': 512,
-        'apple-touch-icon.png': 180
+        "favicon-16x16.png": 16,
+        "favicon-32x32.png": 32,
+        "favicon-192x192.png": 192,
+        "favicon-512x512.png": 512,
+        "apple-touch-icon.png": 180,
     }
 
     for filename, size in sizes.items():
@@ -93,5 +91,6 @@ def main():
     print("2. Wait for Render to deploy (~5 minutes)")
     print("3. Clear browser cache and reload to see new favicon")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()
