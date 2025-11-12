@@ -13,6 +13,7 @@ import os
 import sys
 import logging
 import json
+import time
 from datetime import datetime, timedelta
 
 # Add parent directory and web directory to path for imports
@@ -46,11 +47,17 @@ def update_ai_scores():
 
         logger.info("Starting AI score update...")
 
-        # CRITICAL: Validate required API key
+        # CRITICAL: Validate required API keys
+        alpha_vantage_key = os.getenv('ALPHA_VANTAGE_API_KEY')
+        if not alpha_vantage_key or alpha_vantage_key.strip() == '':
+            logger.critical("CRITICAL ERROR: ALPHA_VANTAGE_API_KEY is missing. Aborting AI score update.")
+            logger.critical("Get a free API key from: https://www.alphavantage.co/support/#api-key")
+            return False
+
         polygon_key = os.getenv('POLYGON_API_KEY')
         if not polygon_key or polygon_key.strip() == '':
-            logger.critical("CRITICAL ERROR: POLYGON_API_KEY is missing. Aborting AI score update.")
-            return False
+            logger.warning("WARNING: POLYGON_API_KEY is missing. Technical indicators will be limited.")
+            # Continue anyway - we can still use Alpha Vantage for fundamentals
 
         # Get DATABASE_URL and fix driver
         database_url = os.getenv('DATABASE_URL')
@@ -73,48 +80,57 @@ def update_ai_scores():
         # Import models after db is created
         from database import Watchlist, AIScore, NewsArticle
         from polygon_service import PolygonService
+        from alpha_vantage.fundamentaldata import FundamentalData
 
-        polygon = PolygonService()
+        # Initialize API services
+        polygon = PolygonService() if polygon_key else None
+        alpha_vantage = FundamentalData(key=alpha_vantage_key, output_format='json')
 
         with app.app_context():
-            # Get all unique tickers from watchlists
-            watchlist_tickers = db.session.query(Watchlist.ticker).distinct().all()
-            tickers = [t[0] for t in watchlist_tickers]
+            # RATE LIMITING STRATEGY: Update only 20 oldest stocks per day
+            # This keeps us within Alpha Vantage's 500 calls/day limit
+            # (we make ~2-3 calls per stock: OVERVIEW + INCOME_STATEMENT)
 
-            logger.info(f"Found {len(tickers)} unique tickers in watchlists")
+            # Get 20 stocks with oldest updated_at timestamp
+            oldest_stocks = AIScore.query.order_by(AIScore.updated_at.asc()).limit(20).all()
 
-            # If no watchlist tickers, use default popular stocks for demo
-            if not tickers:
-                logger.info("No watchlist tickers found. Using default popular stocks.")
-                tickers = [
-                    # FAANG + Popular Tech
-                    'AAPL', 'MSFT', 'GOOGL', 'AMZN', 'META', 'NVDA', 'TSLA', 'NFLX',
-                    # Major Indices ETFs
-                    'SPY', 'QQQ', 'DIA',
-                    # Popular Growth
-                    'AMD', 'AVGO', 'CRM', 'ORCL', 'ADBE', 'INTC',
-                    # Financials
-                    'JPM', 'BAC', 'WFC', 'GS', 'MS', 'V', 'MA',
-                    # Healthcare
-                    'JNJ', 'UNH', 'PFE', 'ABBV', 'LLY', 'MRK',
-                    # Consumer
-                    'WMT', 'HD', 'MCD', 'NKE', 'SBUX', 'COST',
-                    # Energy
-                    'XOM', 'CVX',
-                    # Communication
-                    'T', 'VZ', 'DIS'
-                ]
-                logger.info(f"Processing {len(tickers)} default tickers")
+            if oldest_stocks:
+                tickers = [stock.ticker for stock in oldest_stocks]
+                logger.info(f"Rate limiting: Updating 20 oldest stocks from AIScore table")
+            else:
+                # First run - get stocks from watchlists
+                watchlist_tickers = db.session.query(Watchlist.ticker).distinct().limit(20).all()
+                tickers = [t[0] for t in watchlist_tickers]
+
+                # If no watchlist tickers, use default popular stocks
+                if not tickers:
+                    logger.info("No watchlist tickers found. Using default popular stocks.")
+                    tickers = [
+                        # FAANG + Popular Tech (Top 20)
+                        'AAPL', 'MSFT', 'GOOGL', 'AMZN', 'META', 'NVDA', 'TSLA', 'NFLX',
+                        'AMD', 'AVGO', 'CRM', 'ORCL', 'ADBE', 'INTC',
+                        # Major Indices ETFs
+                        'SPY', 'QQQ', 'DIA',
+                        # Financials
+                        'JPM', 'BAC', 'V'
+                    ][:20]  # Ensure max 20
+                    logger.info(f"Processing {len(tickers)} default tickers")
+
+            logger.info(f"Processing {len(tickers)} tickers: {', '.join(tickers)}")
 
             updated_count = 0
             failed_count = 0
 
-            for ticker in tickers:
+            for i, ticker in enumerate(tickers):
+                # RATE LIMITING: 15-second delay between API calls to stay within 4 calls/minute
+                if i > 0:
+                    logger.info(f"Rate limiting: Waiting 15 seconds before next API call...")
+                    time.sleep(15)
                 try:
-                    logger.info(f"Processing {ticker}...")
+                    logger.info(f"Processing {ticker}... ({i+1}/{len(tickers)})")
 
-                    # Calculate enhanced features
-                    features = calculate_enhanced_features(ticker, polygon, db)
+                    # Calculate enhanced features with Alpha Vantage
+                    features = calculate_enhanced_features(ticker, polygon, alpha_vantage, db)
 
                     if not features:
                         logger.warning(f"Could not calculate features for {ticker}")
@@ -163,7 +179,7 @@ def update_ai_scores():
         return False
 
 
-def calculate_enhanced_features(ticker: str, polygon, db):
+def calculate_enhanced_features(ticker: str, polygon, alpha_vantage, db):
     """
     Calculate enhanced features for a ticker.
 
@@ -171,44 +187,109 @@ def calculate_enhanced_features(ticker: str, polygon, db):
 
     Args:
         ticker: Stock ticker symbol
-        polygon: PolygonService instance
+        polygon: PolygonService instance (for technical indicators)
+        alpha_vantage: Alpha Vantage FundamentalData instance (for fundamentals)
         db: Database session
 
     Returns:
         dict: Feature dictionary or None if calculation failed
     """
     try:
+        import numpy as np
         features = {}
 
-        # 1. TECHNICAL INDICATORS
-        technicals = polygon.get_technical_indicators(ticker, days=200)
-        if technicals:
-            features['rsi'] = technicals.get('rsi', 50)
-            features['macd'] = technicals.get('macd', 0)
-            features['price_to_ma50'] = technicals.get('price_to_ma50', 1.0)
-            features['price_to_ma200'] = technicals.get('price_to_ma200', 1.0)
+        # 1. TECHNICAL INDICATORS (from Polygon if available)
+        if polygon:
+            technicals = polygon.get_technical_indicators(ticker, days=200)
+            if technicals:
+                features['rsi'] = technicals.get('rsi', 50)
+                features['macd'] = technicals.get('macd', 0)
+                features['price_to_ma50'] = technicals.get('price_to_ma50', 1.0)
+                features['price_to_ma200'] = technicals.get('price_to_ma200', 1.0)
+            else:
+                # Use defaults if no data
+                features['rsi'] = 50
+                features['macd'] = 0
+                features['price_to_ma50'] = 1.0
+                features['price_to_ma200'] = 1.0
         else:
-            # Use defaults if no data
+            # No Polygon - use defaults
             features['rsi'] = 50
             features['macd'] = 0
             features['price_to_ma50'] = 1.0
             features['price_to_ma200'] = 1.0
 
-        # 2. FUNDAMENTAL INDICATORS (simplified - using mock data)
-        # In production, fetch from Polygon.io Stock Financials API
-        ticker_details = polygon.get_ticker_details(ticker)
-        if ticker_details:
-            # Use market cap as a proxy for company size
-            market_cap = ticker_details.get('market_cap', 0)
-            features['market_cap_log'] = np.log10(market_cap + 1)
-        else:
-            features['market_cap_log'] = 9.0  # Default ~1B market cap
+        # 2. FUNDAMENTAL INDICATORS (from Alpha Vantage)
+        try:
+            logger.info(f"Fetching fundamental data from Alpha Vantage for {ticker}...")
 
-        # Mock fundamental ratios (in production, fetch real data)
-        features['pe_ratio'] = 20.0  # Price/Earnings
-        features['pb_ratio'] = 3.0   # Price/Book
-        features['eps_growth'] = 0.10  # 10% growth
-        features['revenue_growth'] = 0.15  # 15% growth
+            # Fetch company overview (P/E, P/B, Market Cap, etc.)
+            overview_data, overview_meta = alpha_vantage.get_company_overview(ticker)
+
+            if overview_data and isinstance(overview_data, dict):
+                # Parse market cap
+                market_cap_str = overview_data.get('MarketCapitalization', '0')
+                try:
+                    market_cap = float(market_cap_str) if market_cap_str else 0
+                    features['market_cap_log'] = np.log10(market_cap + 1) if market_cap > 0 else 9.0
+                except (ValueError, TypeError):
+                    features['market_cap_log'] = 9.0
+
+                # Parse P/E ratio
+                pe_str = overview_data.get('PERatio', '20.0')
+                try:
+                    features['pe_ratio'] = float(pe_str) if pe_str and pe_str != 'None' else 20.0
+                except (ValueError, TypeError):
+                    features['pe_ratio'] = 20.0
+
+                # Parse P/B ratio
+                pb_str = overview_data.get('PriceToBookRatio', '3.0')
+                try:
+                    features['pb_ratio'] = float(pb_str) if pb_str and pb_str != 'None' else 3.0
+                except (ValueError, TypeError):
+                    features['pb_ratio'] = 3.0
+
+                # Parse EPS
+                eps_str = overview_data.get('EPS', '0')
+                try:
+                    eps = float(eps_str) if eps_str and eps_str != 'None' else 0
+                except (ValueError, TypeError):
+                    eps = 0
+
+                # Parse quarterly earnings growth (YoY)
+                earnings_growth_str = overview_data.get('QuarterlyEarningsGrowthYOY', '0.10')
+                try:
+                    # Alpha Vantage returns as percentage string like "0.15" for 15%
+                    features['eps_growth'] = float(earnings_growth_str) if earnings_growth_str and earnings_growth_str != 'None' else 0.10
+                except (ValueError, TypeError):
+                    features['eps_growth'] = 0.10
+
+                # Parse quarterly revenue growth (YoY)
+                revenue_growth_str = overview_data.get('QuarterlyRevenueGrowthYOY', '0.15')
+                try:
+                    features['revenue_growth'] = float(revenue_growth_str) if revenue_growth_str and revenue_growth_str != 'None' else 0.15
+                except (ValueError, TypeError):
+                    features['revenue_growth'] = 0.15
+
+                logger.info(f"Alpha Vantage data fetched: P/E={features['pe_ratio']:.2f}, P/B={features['pb_ratio']:.2f}, EPS Growth={features['eps_growth']:.2%}")
+
+            else:
+                # Alpha Vantage returned empty or error - use defaults
+                logger.warning(f"Alpha Vantage returned no data for {ticker}. Using default fundamental values.")
+                features['market_cap_log'] = 9.0
+                features['pe_ratio'] = 20.0
+                features['pb_ratio'] = 3.0
+                features['eps_growth'] = 0.10
+                features['revenue_growth'] = 0.15
+
+        except Exception as av_error:
+            logger.error(f"Alpha Vantage API error for {ticker}: {av_error}", exc_info=True)
+            # Use defaults on API error
+            features['market_cap_log'] = 9.0
+            features['pe_ratio'] = 20.0
+            features['pb_ratio'] = 3.0
+            features['eps_growth'] = 0.10
+            features['revenue_growth'] = 0.15
 
         # 3. NEWS SENTIMENT (7-day average)
         from web.database import NewsArticle

@@ -1,7 +1,14 @@
 {
   "permissions": {
     "allow": [
-      "Bash(tree:*)"
+      "Bash(tree:*)",
+      "Bash(python:*)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nAdd Stocks page with navigation integration\n\n- Create new /stocks page with popular stocks grid and search\n- Add category filters (All, Technology, Finance, Indices)\n- Display real-time stock data for 15 popular stocks\n- Update navigation across all templates to include Stocks link\n- Position Stocks link between Home and Market in nav bar\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(git push:*)",
+      "Bash(git commit:*)"
     ],
     "deny": [],
     "ask": []

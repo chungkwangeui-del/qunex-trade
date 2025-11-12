@@ -156,14 +156,14 @@ def main():
                     all_samples.append(sample)
 
                 except Exception as e:
-                    logger.error(f"Error processing {symbol} at index {i}: {e}")
+                    logger.error(f"Error processing {symbol} at index {i}: {e}", exc_info=True)
                     continue
 
             successful += 1
             logger.info(f"✓ {symbol}: Collected {len(price_data)} days of data")
 
         except Exception as e:
-            logger.error(f"✗ {symbol}: Failed - {e}")
+            logger.error(f"✗ {symbol}: Failed - {e}", exc_info=True)
             failed += 1
             continue
 

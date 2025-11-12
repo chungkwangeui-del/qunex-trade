@@ -316,7 +316,7 @@ class AIScoreModel:
                 logger.info(f"Collected {len(all_data)} samples for {symbol}")
 
             except Exception as e:
-                logger.error(f"Error collecting data for {symbol}: {e}")
+                logger.error(f"Error collecting data for {symbol}: {e}", exc_info=True)
                 continue
 
         df = pd.DataFrame(all_data)
@@ -345,7 +345,7 @@ class AIScoreModel:
             return df
 
         except Exception as e:
-            logger.error(f"Error fetching historical prices for {symbol}: {e}")
+            logger.error(f"Error fetching historical prices for {symbol}: {e}", exc_info=True)
             return None
 
     def prepare_features_and_labels(self, df: pd.DataFrame) -> Tuple[np.ndarray, np.ndarray]:

@@ -101,7 +101,7 @@ def refresh_news_data():
                     saved_count += 1
 
                 except Exception as e:
-                    logger.error(f"Error processing article: {e}")
+                    logger.error(f"Error processing article: {e}", exc_info=True)
                     continue
 
             # Commit all new articles
@@ -125,9 +125,9 @@ def refresh_news_data():
 
 def refresh_calendar_data():
     """
-    Fetch and update economic calendar events from Polygon.io API.
+    Fetch and update economic calendar events from Finnhub API.
 
-    Uses Polygon.io's economic calendar endpoint to retrieve upcoming
+    Uses Finnhub's economic calendar endpoint to retrieve upcoming
     economic events and updates the database. Handles duplicates by
     checking existing events before insertion.
 
@@ -143,37 +143,35 @@ def refresh_calendar_data():
         logger.info("Starting calendar refresh...")
 
         # CRITICAL: Validate required API key
-        api_key = os.getenv('POLYGON_API_KEY')
+        api_key = os.getenv('FINNHUB_API_KEY')
         if not api_key or api_key.strip() == '':
-            logger.critical("CRITICAL ERROR: POLYGON_API_KEY is missing or empty. Aborting calendar refresh.")
-            logger.critical("Get a free API key from: https://polygon.io/")
+            logger.critical("CRITICAL ERROR: FINNHUB_API_KEY is missing or empty. Aborting calendar refresh.")
+            logger.critical("Get a free API key from: https://finnhub.io/")
             return False
 
         with app.app_context():
-            # Fetch economic calendar from Polygon.io
-            # Using Polygon's reference/economic-calendar endpoint
-            # Date range: today to 60 days ahead
+            # Fetch economic calendar from Finnhub
+            # Date range: today to 30 days ahead
             from_date = datetime.utcnow().strftime('%Y-%m-%d')
-            to_date = (datetime.utcnow() + timedelta(days=60)).strftime('%Y-%m-%d')
+            to_date = (datetime.utcnow() + timedelta(days=30)).strftime('%Y-%m-%d')
 
-            url = f"https://api.polygon.io/vX/reference/financials"
-            # Polygon doesn't have a dedicated economic calendar endpoint in free tier
-            # Using mock data structure for now - in production, use a dedicated service
-            # or upgrade to premium Polygon tier
+            url = f"https://finnhub.io/api/v1/calendar/economic"
+            params = {
+                'token': api_key,
+                'from': from_date,
+                'to': to_date
+            }
+
             logger.info(f"Fetching calendar events from {from_date} to {to_date}")
 
-            # For now, create sample economic events for testing
-            # In production, integrate with a proper economic calendar API
-            events_data = [
-                {'time': (datetime.utcnow() + timedelta(days=7)).strftime('%Y-%m-%d %H:%M:%S'),
-                 'event': 'FOMC Meeting', 'country': 'US', 'impact': 'high'},
-                {'time': (datetime.utcnow() + timedelta(days=14)).strftime('%Y-%m-%d %H:%M:%S'),
-                 'event': 'GDP Report', 'country': 'US', 'impact': 'high'},
-                {'time': (datetime.utcnow() + timedelta(days=21)).strftime('%Y-%m-%d %H:%M:%S'),
-                 'event': 'Unemployment Rate', 'country': 'US', 'impact': 'medium'},
-            ]
+            # Fetch from Finnhub API
+            response = requests.get(url, params=params, timeout=30)
+            response.raise_for_status()
 
-            logger.warning("Using sample economic calendar data. Configure proper economic calendar API for production.")
+            api_data = response.json()
+
+            # Finnhub returns: {"economicCalendar": [...events...]}
+            events_data = api_data.get('economicCalendar', [])
 
             if not events_data:
                 logger.info("No economic events found")
@@ -187,8 +185,23 @@ def refresh_calendar_data():
 
             for event_data in events_data:
                 try:
-                    # Parse event data
-                    event_time = datetime.strptime(event_data['time'], '%Y-%m-%d %H:%M:%S')
+                    # Parse Finnhub event data
+                    # Finnhub format: {"actual": "...", "country": "US", "estimate": "...",
+                    #                  "event": "GDP", "impact": "high", "prev": "...", "time": "2024-01-15 08:30:00"}
+
+                    # Parse event time
+                    time_str = event_data.get('time', '')
+                    try:
+                        # Finnhub format: "YYYY-MM-DD HH:MM:SS"
+                        event_time = datetime.strptime(time_str, '%Y-%m-%d %H:%M:%S')
+                    except ValueError:
+                        # Try alternative format if primary fails
+                        try:
+                            event_time = datetime.strptime(time_str, '%Y-%m-%dT%H:%M:%S')
+                        except ValueError:
+                            logger.warning(f"Skipping event with invalid time format: {time_str}")
+                            continue
+
                     title = event_data.get('event', 'Economic Event')
                     country = event_data.get('country', 'US')
 
@@ -208,7 +221,7 @@ def refresh_calendar_data():
                         # Update existing event
                         existing.actual = event_data.get('actual')
                         existing.forecast = event_data.get('estimate')
-                        existing.previous = event_data.get('previous')
+                        existing.previous = event_data.get('prev')  # Finnhub uses 'prev' not 'previous'
                         existing.importance = importance
                         existing.country = country
                         existing.updated_at = datetime.utcnow()
@@ -223,14 +236,14 @@ def refresh_calendar_data():
                             importance=importance,
                             actual=event_data.get('actual'),
                             forecast=event_data.get('estimate'),
-                            previous=event_data.get('previous'),
+                            previous=event_data.get('prev'),  # Finnhub uses 'prev' not 'previous'
                             source='Finnhub'
                         )
                         db.session.add(event)
                         saved_count += 1
 
                 except Exception as e:
-                    logger.error(f"Error processing event: {e}")
+                    logger.error(f"Error processing event: {e}", exc_info=True)
                     continue
 
             # Commit all changes

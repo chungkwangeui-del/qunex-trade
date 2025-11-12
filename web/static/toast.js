@@ -106,6 +106,47 @@ function showToast(message, type = 'info') {
     }, 5000);
 }
 
+/**
+ * Helper function to handle fetch errors with toast notifications
+ * @param {Response} response - Fetch response object
+ * @param {string} defaultMessage - Default error message if no specific message in response
+ */
+async function handleFetchError(response, defaultMessage = 'An error occurred') {
+    try {
+        const data = await response.json();
+        showToast(data.error || data.message || defaultMessage, 'error');
+    } catch (e) {
+        showToast(defaultMessage, 'error');
+    }
+}
+
+/**
+ * Wrapper for fetch that automatically handles errors with toasts
+ * @param {string} url - URL to fetch
+ * @param {object} options - Fetch options
+ * @returns {Promise<Response>} - Fetch response
+ */
+async function fetchWithToast(url, options = {}) {
+    try {
+        const response = await fetch(url, options);
+
+        if (!response.ok) {
+            await handleFetchError(response, 'Request failed');
+            throw new Error('Request failed');
+        }
+
+        return response;
+    } catch (error) {
+        console.error('Fetch error:', error);
+
+        if (error.message !== 'Request failed') {
+            showToast('Network error. Please check your connection.', 'error');
+        }
+
+        throw error;
+    }
+}
+
 // Convert Flask flash messages to toasts on page load
 document.addEventListener('DOMContentLoaded', function() {
     const flashMessages = document.querySelectorAll('.alert');
