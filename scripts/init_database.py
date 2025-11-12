@@ -34,6 +34,12 @@ def init_db():
             print("Set it in Render Dashboard or .env file")
             return False
 
+        # Fix psycopg2 driver issue - use psycopg instead
+        if database_url.startswith('postgresql://'):
+            database_url = database_url.replace('postgresql://', 'postgresql+psycopg://')
+        elif database_url.startswith('postgres://'):
+            database_url = database_url.replace('postgres://', 'postgresql+psycopg://')
+
         print(f"Connecting to database...")
         print(f"Database: {database_url.split('@')[1] if '@' in database_url else 'localhost'}")
 
