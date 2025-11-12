@@ -297,23 +297,24 @@
             position: fixed;
             bottom: 30px;
             right: 30px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 16px;
-            padding: 25px;
-            max-width: 400px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 420px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
             z-index: 1000;
-            animation: slideIn 0.5s ease-out;
-            border: 2px solid rgba(255, 255, 255, 0.2);
+            animation: slideIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            backdrop-filter: blur(10px);
         }
 
         @keyframes slideIn {
             from {
-                transform: translateX(450px);
+                transform: translateY(100px) scale(0.8);
                 opacity: 0;
             }
             to {
-                transform: translateX(0);
+                transform: translateY(0) scale(1);
                 opacity: 1;
             }
         }
@@ -325,28 +326,38 @@
         .popup-header {
             display: flex;
             justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 15px;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border);
         }
 
         .popup-title {
-            font-size: 1.3em;
+            font-size: 1.4em;
             font-weight: 700;
-            color: white;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
+        }
+
+        .popup-emoji {
+            font-size: 1.3em;
+            filter: drop-shadow(0 0 10px rgba(0, 217, 255, 0.5));
         }
 
         .popup-close {
-            background: rgba(255, 255, 255, 0.2);
-            border: none;
-            color: white;
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
             cursor: pointer;
-            font-size: 1.2em;
+            font-size: 1.3em;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -354,61 +365,84 @@
         }
 
         .popup-close:hover {
-            background: rgba(255, 255, 255, 0.3);
+            background: var(--primary);
+            color: var(--bg-dark);
+            border-color: var(--primary);
             transform: rotate(90deg);
         }
 
         .popup-content {
-            color: rgba(255, 255, 255, 0.95);
+            color: var(--text-secondary);
             font-size: 0.95em;
             line-height: 1.6;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
 
         .popup-list {
-            margin: 15px 0;
-            padding-left: 20px;
+            margin: 20px 0;
+            padding: 0;
+            list-style: none;
         }
 
         .popup-list li {
-            margin: 8px 0;
-            color: rgba(255, 255, 255, 0.9);
+            margin: 12px 0;
+            padding: 12px 15px;
+            background: var(--bg-dark);
+            border-radius: 10px;
+            border-left: 3px solid var(--primary);
+            color: var(--text-primary);
+            transition: all 0.3s;
+        }
+
+        .popup-list li:hover {
+            border-left-width: 5px;
+            transform: translateX(5px);
+            background: rgba(0, 217, 255, 0.1);
+        }
+
+        .popup-list li strong {
+            color: var(--primary);
+            font-weight: 600;
         }
 
         .popup-buttons {
             display: flex;
-            gap: 10px;
-            margin-top: 15px;
+            gap: 12px;
+            margin-top: 20px;
         }
 
         .popup-btn {
             flex: 1;
-            padding: 10px 15px;
+            padding: 12px 20px;
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
-            font-size: 0.9em;
+            font-size: 0.95em;
         }
 
         .popup-btn-primary {
-            background: white;
-            color: #667eea;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            color: var(--bg-dark);
+            box-shadow: 0 4px 15px rgba(0, 217, 255, 0.3);
         }
 
         .popup-btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(255, 255, 255, 0.3);
+            box-shadow: 0 6px 20px rgba(0, 217, 255, 0.4);
         }
 
         .popup-btn-secondary {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
         }
 
         .popup-btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.3);
+            background: var(--bg-dark);
+            border-color: var(--primary);
+            color: var(--primary);
         }
 
         @media (max-width: 768px) {
@@ -430,23 +464,22 @@
     <div id="update-popup" class="update-popup hidden">
         <div class="popup-header">
             <div class="popup-title">
-                <span>🚀</span>
-                <span>Big Update Coming Soon!</span>
+                <span class="popup-emoji">🚀</span>
+                <span>Big Updates Coming!</span>
             </div>
             <button class="popup-close" onclick="closePopup()">&times;</button>
         </div>
         <div class="popup-content">
-            We're working on exciting new features to enhance your trading experience:
-            <ul class="popup-list">
-                <li>📅 <strong>Calendar</strong> - Enhanced economic events tracking</li>
-                <li>👁️ <strong>Watchlist</strong> - Advanced portfolio monitoring</li>
-                <li>📰 <strong>News</strong> - AI-powered market sentiment analysis</li>
-                <li>🤖 <strong>Qunex AI Score</strong> - Smart stock rating system</li>
-            </ul>
-            Stay tuned for these amazing updates!
+            We're building exciting new features for you:
         </div>
+        <ul class="popup-list">
+            <li>📅 <strong>Calendar</strong> - Enhanced economic events</li>
+            <li>👁️ <strong>Watchlist</strong> - Portfolio monitoring</li>
+            <li>📰 <strong>News</strong> - AI sentiment analysis</li>
+            <li>🤖 <strong>AI Score</strong> - Smart stock ratings</li>
+        </ul>
         <div class="popup-buttons">
-            <button class="popup-btn popup-btn-secondary" onclick="hideForDay()">Don't show for 24h</button>
+            <button class="popup-btn popup-btn-secondary" onclick="hideForDay()">Hide for 24h</button>
             <button class="popup-btn popup-btn-primary" onclick="closePopup()">Got it!</button>
         </div>
     </div>
