@@ -83,9 +83,28 @@ def update_ai_scores():
 
             logger.info(f"Found {len(tickers)} unique tickers in watchlists")
 
+            # If no watchlist tickers, use default popular stocks for demo
             if not tickers:
-                logger.info("No tickers to process")
-                return True
+                logger.info("No watchlist tickers found. Using default popular stocks.")
+                tickers = [
+                    # FAANG + Popular Tech
+                    'AAPL', 'MSFT', 'GOOGL', 'AMZN', 'META', 'NVDA', 'TSLA', 'NFLX',
+                    # Major Indices ETFs
+                    'SPY', 'QQQ', 'DIA',
+                    # Popular Growth
+                    'AMD', 'AVGO', 'CRM', 'ORCL', 'ADBE', 'INTC',
+                    # Financials
+                    'JPM', 'BAC', 'WFC', 'GS', 'MS', 'V', 'MA',
+                    # Healthcare
+                    'JNJ', 'UNH', 'PFE', 'ABBV', 'LLY', 'MRK',
+                    # Consumer
+                    'WMT', 'HD', 'MCD', 'NKE', 'SBUX', 'COST',
+                    # Energy
+                    'XOM', 'CVX',
+                    # Communication
+                    'T', 'VZ', 'DIS'
+                ]
+                logger.info(f"Processing {len(tickers)} default tickers")
 
             updated_count = 0
             failed_count = 0
