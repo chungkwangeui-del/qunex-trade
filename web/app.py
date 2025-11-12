@@ -532,6 +532,193 @@ def screener():
     return render_template("screener.html", user=current_user)
 
 
+@app.route("/dashboard")
+@login_required
+def dashboard():
+    """
+    Personal Dashboard - User's hub page with customized data.
+
+    Displays:
+    - User's watchlist
+    - AI scores for watched stocks
+    - Related news articles
+    - Portfolio summary
+
+    Returns:
+        str: Rendered dashboard template with personalized data
+    """
+    try:
+        from sqlalchemy.orm import joinedload
+
+        # Get user's watchlist with optimized query (avoid N+1)
+        user_watchlist = Watchlist.query.filter_by(user_id=current_user.id).all()
+        watchlist_tickers = [w.ticker for w in user_watchlist]
+
+        # Get AI scores for watchlist tickers (single query)
+        ai_scores = {}
+        if watchlist_tickers:
+            from database import AIScore
+            scores = AIScore.query.filter(AIScore.ticker.in_(watchlist_tickers)).all()
+            ai_scores = {score.ticker: score.to_dict() for score in scores}
+
+        # Get recent news related to watchlist tickers
+        related_news = []
+        if watchlist_tickers:
+            # Search for news mentioning any watchlist ticker
+            for ticker in watchlist_tickers[:5]:  # Limit to 5 tickers for performance
+                ticker_news = NewsArticle.query.filter(
+                    NewsArticle.title.contains(ticker)
+                ).order_by(NewsArticle.published_at.desc()).limit(3).all()
+                related_news.extend([article.to_dict() for article in ticker_news])
+
+        # Remove duplicates and limit
+        seen_urls = set()
+        unique_news = []
+        for news in related_news:
+            if news['url'] not in seen_urls:
+                seen_urls.add(news['url'])
+                unique_news.append(news)
+                if len(unique_news) >= 10:
+                    break
+
+        return render_template(
+            "dashboard.html",
+            user=current_user,
+            watchlist=watchlist_tickers,
+            ai_scores=ai_scores,
+            related_news=unique_news
+        )
+
+    except Exception as e:
+        logger.error(f"Error loading dashboard: {e}", exc_info=True)
+        return render_template(
+            "dashboard.html",
+            user=current_user,
+            watchlist=[],
+            ai_scores={},
+            related_news=[]
+        )
+
+
+@app.route("/portfolio")
+@login_required
+def portfolio():
+    """
+    Portfolio Management page - Track stock holdings and P&L.
+
+    Displays:
+    - All user transactions
+    - Current holdings (calculated from buy/sell)
+    - Real-time prices via Polygon
+    - Total cost basis vs current value
+    - Profit/Loss per position
+
+    Returns:
+        str: Rendered portfolio template with holdings data
+    """
+    try:
+        from database import Transaction
+        from collections import defaultdict
+        from decimal import Decimal
+
+        # Get all user transactions
+        transactions = Transaction.query.filter_by(
+            user_id=current_user.id
+        ).order_by(Transaction.transaction_date.desc()).all()
+
+        # Calculate current holdings
+        holdings = defaultdict(lambda: {'shares': Decimal('0'), 'cost_basis': Decimal('0')})
+
+        for txn in transactions:
+            ticker = txn.ticker
+            shares = Decimal(str(txn.shares))
+            price = Decimal(str(txn.price))
+
+            if txn.transaction_type == 'buy':
+                holdings[ticker]['shares'] += shares
+                holdings[ticker]['cost_basis'] += shares * price
+            elif txn.transaction_type == 'sell':
+                holdings[ticker]['shares'] -= shares
+                # Reduce cost basis proportionally
+                if holdings[ticker]['shares'] > 0:
+                    avg_cost = holdings[ticker]['cost_basis'] / (holdings[ticker]['shares'] + shares)
+                    holdings[ticker]['cost_basis'] -= shares * avg_cost
+
+        # Filter out zero holdings
+        current_holdings = {
+            ticker: data for ticker, data in holdings.items()
+            if data['shares'] > 0
+        }
+
+        # Get current prices for holdings
+        portfolio_data = []
+        total_value = Decimal('0')
+        total_cost = Decimal('0')
+
+        try:
+            from polygon_service import get_polygon_service
+            polygon = get_polygon_service()
+
+            for ticker, holding in current_holdings.items():
+                try:
+                    quote = polygon.get_stock_quote(ticker)
+                    current_price = Decimal(str(quote.get('price', 0))) if quote else Decimal('0')
+
+                    shares = holding['shares']
+                    cost_basis = holding['cost_basis']
+                    current_value = shares * current_price
+                    pnl = current_value - cost_basis
+                    pnl_percent = (pnl / cost_basis * 100) if cost_basis > 0 else Decimal('0')
+
+                    portfolio_data.append({
+                        'ticker': ticker,
+                        'shares': float(shares),
+                        'avg_cost': float(cost_basis / shares) if shares > 0 else 0,
+                        'current_price': float(current_price),
+                        'cost_basis': float(cost_basis),
+                        'current_value': float(current_value),
+                        'pnl': float(pnl),
+                        'pnl_percent': float(pnl_percent)
+                    })
+
+                    total_value += current_value
+                    total_cost += cost_basis
+
+                except Exception as e:
+                    logger.error(f"Error fetching price for {ticker}: {e}")
+                    continue
+
+        except Exception as e:
+            logger.error(f"Error fetching portfolio prices: {e}", exc_info=True)
+
+        total_pnl = total_value - total_cost
+        total_pnl_percent = (total_pnl / total_cost * 100) if total_cost > 0 else Decimal('0')
+
+        return render_template(
+            "portfolio.html",
+            user=current_user,
+            transactions=[txn.to_dict() for txn in transactions],
+            portfolio=portfolio_data,
+            total_cost=float(total_cost),
+            total_value=float(total_value),
+            total_pnl=float(total_pnl),
+            total_pnl_percent=float(total_pnl_percent)
+        )
+
+    except Exception as e:
+        logger.error(f"Error loading portfolio: {e}", exc_info=True)
+        return render_template(
+            "portfolio.html",
+            user=current_user,
+            transactions=[],
+            portfolio=[],
+            total_cost=0,
+            total_value=0,
+            total_pnl=0,
+            total_pnl_percent=0
+        )
+
+
 @app.route("/watchlist")
 @login_required
 def watchlist():
@@ -1340,6 +1527,108 @@ def auto_refresh_news() -> None:
 # CLOUD-NATIVE: Background tasks moved to Render Cron Jobs
 # Auto-refresh is now handled by /scripts/refresh_data_cron.py
 # This thread is disabled in production to support stateless deployments
+@app.route("/api/portfolio/transaction", methods=["POST"])
+@login_required
+def add_transaction():
+    """
+    Add new portfolio transaction (buy/sell).
+
+    Request JSON:
+        ticker (str): Stock ticker symbol
+        shares (float): Number of shares
+        price (float): Price per share
+        transaction_type (str): 'buy' or 'sell'
+        notes (str, optional): User notes
+
+    Returns:
+        JSON: Success message or error
+    """
+    try:
+        from database import Transaction
+
+        data = request.get_json()
+
+        # Validate required fields
+        required_fields = ['ticker', 'shares', 'price', 'transaction_type']
+        for field in required_fields:
+            if field not in data:
+                return jsonify({"error": f"Missing required field: {field}"}), 400
+
+        # Validate transaction_type
+        if data['transaction_type'] not in ['buy', 'sell']:
+            return jsonify({"error": "transaction_type must be 'buy' or 'sell'"}), 400
+
+        # Validate numeric fields
+        try:
+            shares = float(data['shares'])
+            price = float(data['price'])
+            if shares <= 0 or price <= 0:
+                return jsonify({"error": "Shares and price must be positive"}), 400
+        except (ValueError, TypeError):
+            return jsonify({"error": "Invalid numeric value"}), 400
+
+        # Create transaction
+        transaction = Transaction(
+            user_id=current_user.id,
+            ticker=data['ticker'].upper(),
+            shares=shares,
+            price=price,
+            transaction_type=data['transaction_type'],
+            notes=data.get('notes', '')
+        )
+
+        db.session.add(transaction)
+        db.session.commit()
+
+        return jsonify({
+            "success": True,
+            "message": "Transaction added successfully",
+            "transaction": transaction.to_dict()
+        }), 201
+
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"Error adding transaction: {e}", exc_info=True)
+        return jsonify({"error": "Failed to add transaction"}), 500
+
+
+@app.route("/api/portfolio/transaction/<int:transaction_id>", methods=["DELETE"])
+@login_required
+def delete_transaction(transaction_id):
+    """
+    Delete a portfolio transaction.
+
+    Args:
+        transaction_id (int): Transaction ID to delete
+
+    Returns:
+        JSON: Success message or error
+    """
+    try:
+        from database import Transaction
+
+        transaction = Transaction.query.filter_by(
+            id=transaction_id,
+            user_id=current_user.id
+        ).first()
+
+        if not transaction:
+            return jsonify({"error": "Transaction not found"}), 404
+
+        db.session.delete(transaction)
+        db.session.commit()
+
+        return jsonify({
+            "success": True,
+            "message": "Transaction deleted successfully"
+        }), 200
+
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"Error deleting transaction: {e}", exc_info=True)
+        return jsonify({"error": "Failed to delete transaction"}), 500
+
+
 if os.getenv("ENABLE_BACKGROUND_THREAD", "false").lower() == "true":
     news_thread = threading.Thread(target=auto_refresh_news, daemon=True)
     news_thread.start()

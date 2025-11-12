@@ -237,7 +237,7 @@ class EconomicEvent(db.Model):
 
 
 class AIScore(db.Model):
-    """Pre-computed AI scores for stocks"""
+    """Pre-computed AI scores for stocks with SHAP explainability"""
 
     __tablename__ = "ai_scores"
 
@@ -246,6 +246,7 @@ class AIScore(db.Model):
     score = db.Column(db.Integer, nullable=False, index=True)  # 0-100
     rating = db.Column(db.String(20), nullable=False)  # Strong Buy/Buy/Hold/Sell/Strong Sell
     features_json = db.Column(db.Text, nullable=True)  # JSON string of features
+    explanation_json = db.Column(db.Text, nullable=True)  # SHAP values (feature contributions)
     updated_at = db.Column(
         db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, index=True
     )
@@ -259,6 +260,7 @@ class AIScore(db.Model):
             "score": self.score,
             "rating": self.rating,
             "features": json.loads(self.features_json) if self.features_json else {},
+            "explanation": json.loads(self.explanation_json) if self.explanation_json else {},
             "updated_at": self.updated_at.isoformat() if self.updated_at else None,
         }
 
