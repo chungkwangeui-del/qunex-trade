@@ -42,7 +42,7 @@ services:
     envVars:
       # Inherits DATABASE_URL, REDIS_URL, API keys from environment
 
-  # Cron Job - AI Score Update (runs daily at midnight)
+  # Cron Job - AI Score Update (runs every hour)
   - type: cron
     name: qunex-ai-score-update
     runtime: python
@@ -50,7 +50,7 @@ services:
     region: oregon
     plan: free
     branch: main
-    schedule: "0 0 * * *"  # Daily at midnight (00:00)
+    schedule: "0 * * * *"  # Every hour at minute 0 (same as data refresh)
     buildCommand: bash build.sh
     startCommand: python cron_update_ai_scores.py
     runtimeVersion: "3.13.1"
