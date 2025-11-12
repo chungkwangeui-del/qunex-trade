@@ -34,7 +34,9 @@ def get_watchlist() -> Tuple[Any, int]:
         results = []
 
         for item in watchlist_items:
+            # Get current price and previous close to calculate changes
             quote = polygon.get_stock_quote(item.ticker)
+            prev_data = polygon.get_previous_close(item.ticker)
 
             stock_data = {
                 'id': item.id,
@@ -46,23 +48,42 @@ def get_watchlist() -> Tuple[Any, int]:
                 'alert_price_below': item.alert_price_below
             }
 
-            if quote:
+            if quote and prev_data:
+                current_price = quote.get('price')
+                prev_close = prev_data.get('close')
+
+                # Calculate change and change_percent
+                change = current_price - prev_close if (current_price and prev_close) else 0
+                change_percent = (change / prev_close * 100) if prev_close else 0
+
                 stock_data.update({
-                    'price': quote.get('price'),
-                    'change': quote.get('change'),
-                    'change_percent': quote.get('change_percent'),
-                    'volume': quote.get('volume'),
-                    'high': quote.get('high'),
-                    'low': quote.get('low'),
-                    'open': quote.get('open'),
-                    'prev_close': quote.get('prev_close')
+                    'price': current_price,
+                    'change': change,
+                    'change_percent': change_percent,
+                    'volume': prev_data.get('volume'),
+                    'high': prev_data.get('high'),
+                    'low': prev_data.get('low'),
+                    'open': prev_data.get('open'),
+                    'prev_close': prev_close
+                })
+            elif prev_data:
+                # Use previous close data only
+                stock_data.update({
+                    'price': prev_data.get('close'),
+                    'change': 0,
+                    'change_percent': 0,
+                    'volume': prev_data.get('volume'),
+                    'high': prev_data.get('high'),
+                    'low': prev_data.get('low'),
+                    'open': prev_data.get('open'),
+                    'prev_close': prev_data.get('close')
                 })
             else:
                 stock_data.update({
-                    'price': None,
-                    'change': None,
-                    'change_percent': None,
-                    'volume': None,
+                    'price': 0,
+                    'change': 0,
+                    'change_percent': 0,
+                    'volume': 0,
                     'error': 'Quote data unavailable'
                 })
 
@@ -205,30 +226,38 @@ def get_watchlist_stats():
         worst_change = float('inf')
 
         for item in watchlist_items:
+            # Get current price and previous close to calculate change
             quote = polygon.get_stock_quote(item.ticker)
-            if quote and quote.get('change_percent') is not None:
-                change_pct = quote['change_percent']
+            prev_data = polygon.get_previous_close(item.ticker)
 
-                if change_pct > 0:
-                    gainers += 1
-                elif change_pct < 0:
-                    losers += 1
+            if quote and prev_data:
+                current_price = quote.get('price')
+                prev_close = prev_data.get('close')
 
-                if change_pct > best_change:
-                    best_change = change_pct
-                    best_performer = {
-                        'ticker': item.ticker,
-                        'change_percent': change_pct,
-                        'price': quote.get('price')
-                    }
+                if current_price and prev_close:
+                    change = current_price - prev_close
+                    change_pct = (change / prev_close * 100)
 
-                if change_pct < worst_change:
-                    worst_change = change_pct
-                    worst_performer = {
-                        'ticker': item.ticker,
-                        'change_percent': change_pct,
-                        'price': quote.get('price')
-                    }
+                    if change_pct > 0:
+                        gainers += 1
+                    elif change_pct < 0:
+                        losers += 1
+
+                    if change_pct > best_change:
+                        best_change = change_pct
+                        best_performer = {
+                            'ticker': item.ticker,
+                            'change_percent': change_pct,
+                            'price': current_price
+                        }
+
+                    if change_pct < worst_change:
+                        worst_change = change_pct
+                        worst_performer = {
+                            'ticker': item.ticker,
+                            'change_percent': change_pct,
+                            'price': current_price
+                        }
 
         return jsonify({
             'total_stocks': len(watchlist_items),
