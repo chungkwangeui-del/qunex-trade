@@ -514,6 +514,22 @@ def calendar():
     """
     return render_template('calendar.html', user=current_user)
 
+@app.route('/stocks')
+def stocks():
+    """
+    Render Stocks page with popular stocks and search functionality.
+
+    Provides:
+    - Stock search bar
+    - Popular stocks grid (Tech, Finance, Indices)
+    - Category filters
+    - Real-time stock data
+
+    Returns:
+        str: Rendered stocks template
+    """
+    return render_template('stocks.html', user=current_user)
+
 @app.route('/stock/<symbol>')
 def stock_chart(symbol):
     """
