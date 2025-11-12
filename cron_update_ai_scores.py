@@ -15,8 +15,10 @@ import logging
 import json
 from datetime import datetime, timedelta
 
-# Add parent directory to path for imports
+# Add parent directory and web directory to path for imports
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+web_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'web')
+sys.path.insert(0, web_dir)
 
 # Set up logging
 logging.basicConfig(
@@ -37,9 +39,9 @@ def update_ai_scores():
         bool: True if update succeeded, False otherwise
     """
     try:
-        from web.database import db, Watchlist, AIScore, NewsArticle
-        from web.app import app
-        from web.polygon_service import PolygonService
+        # Import Flask and create minimal app (avoid circular imports)
+        from flask import Flask
+        from flask_sqlalchemy import SQLAlchemy
         import numpy as np
 
         logger.info("Starting AI score update...")
@@ -49,6 +51,28 @@ def update_ai_scores():
         if not polygon_key or polygon_key.strip() == '':
             logger.critical("CRITICAL ERROR: POLYGON_API_KEY is missing. Aborting AI score update.")
             return False
+
+        # Get DATABASE_URL and fix driver
+        database_url = os.getenv('DATABASE_URL')
+        if not database_url:
+            logger.critical("CRITICAL ERROR: DATABASE_URL is missing.")
+            return False
+
+        # Fix psycopg2 driver issue
+        if database_url.startswith('postgresql://'):
+            database_url = database_url.replace('postgresql://', 'postgresql+psycopg://')
+        elif database_url.startswith('postgres://'):
+            database_url = database_url.replace('postgres://', 'postgresql+psycopg://')
+
+        # Create minimal Flask app
+        app = Flask(__name__)
+        app.config['SQLALCHEMY_DATABASE_URI'] = database_url
+        app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+        db = SQLAlchemy(app)
+
+        # Import models after db is created
+        from database import Watchlist, AIScore, NewsArticle
+        from polygon_service import PolygonService
 
         polygon = PolygonService()
 
