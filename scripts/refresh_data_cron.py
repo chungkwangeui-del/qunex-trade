@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 
 def refresh_news_data():
     """
-    Fetch and analyze latest news articles from NewsAPI.
+    Fetch and analyze latest news articles from Polygon News API.
 
     Collects news articles, analyzes them with Claude AI to generate
     ratings and sentiment, and stores results in PostgreSQL database.
@@ -49,14 +49,14 @@ def refresh_news_data():
         logger.info("Starting news refresh...")
 
         # CRITICAL: Validate required API keys
-        newsapi_key = os.getenv("NEWSAPI_KEY")
+        polygon_key = os.getenv("POLYGON_API_KEY")
         anthropic_key = os.getenv("ANTHROPIC_API_KEY")
 
-        if not newsapi_key or newsapi_key.strip() == "":
+        if not polygon_key or polygon_key.strip() == "":
             logger.critical(
-                "CRITICAL ERROR: NEWSAPI_KEY is missing or empty. Aborting news refresh."
+                "CRITICAL ERROR: POLYGON_API_KEY is missing or empty. Aborting news refresh."
             )
-            logger.critical("Get a free API key from: https://newsapi.org/")
+            logger.critical("Get API key from: https://polygon.io/dashboard/api-keys")
             return False
 
         if not anthropic_key or anthropic_key.strip() == "":
@@ -86,16 +86,25 @@ def refresh_news_data():
                     analysis = analyze_with_claude(article_data)
 
                     # Create new article
+                    # Parse published_at (Polygon uses 'published_at' field)
+                    published_at_str = article_data.get("published_at", "")
+                    if published_at_str:
+                        try:
+                            # Polygon format: "2025-01-13T12:00:00Z"
+                            if published_at_str.endswith('Z'):
+                                published_at_str = published_at_str[:-1] + '+00:00'
+                            published_at = datetime.fromisoformat(published_at_str)
+                        except ValueError:
+                            published_at = datetime.utcnow()
+                    else:
+                        published_at = datetime.utcnow()
+
                     article = NewsArticle(
                         title=article_data["title"],
                         description=article_data.get("description"),
                         url=article_data["url"],
                         source=article_data.get("source"),
-                        published_at=(
-                            datetime.fromisoformat(article_data["published"])
-                            if isinstance(article_data["published"], str)
-                            else article_data["published"]
-                        ),
+                        published_at=published_at,
                         ai_rating=analysis.get("rating"),
                         ai_analysis=analysis.get("analysis"),
                         sentiment=analysis.get("sentiment"),
