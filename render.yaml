@@ -196,16 +196,3 @@ envVarGroups:
 
       # Admin (Add in Render Dashboard)
       # - ADMIN_EMAIL: Admin panel access email
-
-# ==================================================
-# NOTES
-# ==================================================
-# 1. All services use Python 3.11 (eventlet compatible)
-# 2. All services share the same environment variables via envVarGroups
-# 3. Free plan limitations:
-#    - Web service: Always running
-#    - Worker: Always running
-#    - Cron jobs: Run on schedule only
-# 4. Add sensitive environment variables in Render Dashboard
-# 5. Database: Use Supabase PostgreSQL (permanent free tier)
-# 6. Redis: Use Upstash Redis (free tier with 10K commands/day)
