@@ -440,11 +440,74 @@ class PolygonService:
         }
 
     def get_market_indices(self) -> Dict[str, Dict]:
-        """Get major market indices using ETF proxies - Cached for 1 minute"""
+        """
+        Get major market indices - Cached for 1 minute
+
+        Uses Polygon Indices Free API if configured (accurate index values),
+        otherwise falls back to ETF proxies (15-min delayed approximations).
+
+        To enable Polygon Indices Free API:
+        1. Get free API key from https://polygon.io/dashboard/api-keys
+        2. Set POLYGON_INDICES_API_KEY in .env
+        3. Set USE_FREE_INDICES=true in .env
+        """
         cache_key = "market_indices"
         cached = self.cache.get(cache_key)
         if cached is not None:
             return cached
+
+        # Check if Polygon Indices Free API is enabled
+        use_free_indices = os.getenv("USE_FREE_INDICES", "false").lower() == "true"
+
+        if use_free_indices:
+            # Use Polygon Indices Free API for accurate index values
+            try:
+                from web.indices_service import get_indices_service
+
+                indices_service = get_indices_service()
+                indices_data = indices_service.get_indices_snapshot()
+
+                if indices_data:
+                    logger.info("[Polygon] Using Indices Free API for market indices")
+
+                    # Convert format to match existing dashboard expectations
+                    result = {}
+                    ticker_map = {
+                        "SPX": "SPY",  # Map to existing keys
+                        "DJI": "DIA",
+                        "NDX": "QQQ",
+                        "RUT": "IWM",
+                        "VIX": "VXX"
+                    }
+
+                    for short_name, ticker_key in ticker_map.items():
+                        if short_name in indices_data:
+                            idx = indices_data[short_name]
+                            result[ticker_key] = {
+                                "name": idx["name"],
+                                "price": idx["value"],
+                                "change": idx["change"],
+                                "change_percent": idx["change_percent"],
+                                "prev_close": idx["value"] - idx["change"],
+                                # Fill in defaults for compatibility
+                                "open": idx["value"],
+                                "high": idx["value"],
+                                "low": idx["value"],
+                                "volume": 0,
+                                "day_high": idx["value"],
+                                "day_low": idx["value"],
+                            }
+
+                    if result:
+                        self.cache.set(cache_key, result, self.cache_ttl["market_indices"])
+                        return result
+                    else:
+                        logger.warning("[Polygon] Indices Free API returned no data, falling back to ETF proxy")
+            except Exception as e:
+                logger.warning(f"[Polygon] Indices Free API failed: {e}, falling back to ETF proxy")
+
+        # Fallback: Use ETF proxies (original implementation)
+        logger.info("[Polygon] Using ETF proxy for market indices")
 
         # Use ETF proxies since Polygon doesn't support index tickers directly
         indices = {
