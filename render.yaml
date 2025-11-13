@@ -1,5 +1,7 @@
 services:
-  # Web Service - Flask App with WebSocket support
+  # ==================================================
+  # WEB SERVICE - Flask App with WebSocket Support
+  # ==================================================
   - type: web
     name: qunex-trade
     runtime: python
@@ -10,24 +12,14 @@ services:
     buildCommand: bash build.sh
     startCommand: cd web && gunicorn --worker-class eventlet -w 1 --bind 0.0.0.0:$PORT --timeout 120 app:app
     runtimeVersion: "3.11"
-    envVars:
-      - key: SECRET_KEY
-        generateValue: true
-      - key: PYTHON_VERSION
-        value: 3.11
-      - key: ENABLE_BACKGROUND_THREAD
-        value: false
-      # Add these in Render Dashboard:
-      # - DATABASE_URL (from Supabase PostgreSQL - permanent free!)
-      # - REDIS_URL (from Upstash)
-      # - POLYGON_API_KEY
-      # - NEWSAPI_KEY
-      # - ANTHROPIC_API_KEY
-      # - MAIL_USERNAME
-      # - MAIL_PASSWORD
-      # - RECAPTCHA_SECRET_KEY
+    envVarGroups:
+      - qunex-prod-env
+    healthCheckPath: /
 
-  # Background Worker - Polygon WebSocket Client
+  # ==================================================
+  # BACKGROUND WORKER - Polygon WebSocket Client
+  # Real-time stock price updates via WebSocket
+  # ==================================================
   - type: worker
     name: qunex-websocket-worker
     runtime: python
@@ -38,10 +30,14 @@ services:
     buildCommand: bash build.sh
     startCommand: python scripts/polygon_websocket_client.py
     runtimeVersion: "3.11"
-    envVars:
-      # Inherits REDIS_URL, POLYGON_API_KEY from environment
+    envVarGroups:
+      - qunex-prod-env
 
-  # Cron Job - Data Refresh (runs every hour)
+  # ==================================================
+  # CRON JOB 1: Data Refresh (News + Calendar)
+  # Fetches latest news and economic calendar events
+  # Schedule: Every hour at minute 0
+  # ==================================================
   - type: cron
     name: qunex-data-refresh
     runtime: python
@@ -49,14 +45,18 @@ services:
     region: oregon
     plan: free
     branch: main
-    schedule: "0 * * * *"  # Every hour at minute 0
+    schedule: "0 * * * *"
     buildCommand: bash build.sh
     startCommand: python scripts/refresh_data_cron.py
     runtimeVersion: "3.11"
-    envVars:
-      # Inherits DATABASE_URL, REDIS_URL, API keys from environment
+    envVarGroups:
+      - qunex-prod-env
 
-  # Cron Job - AI Score Update (runs every hour)
+  # ==================================================
+  # CRON JOB 2: AI Score Update
+  # Calculates AI scores for watchlist stocks
+  # Schedule: Daily at midnight (0:00 UTC)
+  # ==================================================
   - type: cron
     name: qunex-ai-score-update
     runtime: python
@@ -64,14 +64,18 @@ services:
     region: oregon
     plan: free
     branch: main
-    schedule: "0 * * * *"  # Every hour at minute 0 (same as data refresh)
+    schedule: "0 0 * * *"
     buildCommand: bash build.sh
     startCommand: python cron_update_ai_scores.py
     runtimeVersion: "3.11"
-    envVars:
-      # Inherits DATABASE_URL, POLYGON_API_KEY from environment
+    envVarGroups:
+      - qunex-prod-env
 
-  # Cron Job - Model Retraining (runs weekly on Sunday at midnight)
+  # ==================================================
+  # CRON JOB 3: Model Retraining (MLOps)
+  # Retrains AI model with latest data
+  # Schedule: Weekly on Sunday at midnight (0:00 UTC)
+  # ==================================================
   - type: cron
     name: qunex-model-retrain
     runtime: python
@@ -79,14 +83,18 @@ services:
     region: oregon
     plan: free
     branch: main
-    schedule: "0 0 * * 0"  # Every Sunday at 00:00 UTC
+    schedule: "0 0 * * 0"
     buildCommand: bash build.sh
     startCommand: python scripts/cron_retrain_model.py
     runtimeVersion: "3.11"
-    envVars:
-      # Inherits DATABASE_URL, POLYGON_API_KEY from environment
+    envVarGroups:
+      - qunex-prod-env
 
-  # Cron Job - Backtest Processor (runs every minute)
+  # ==================================================
+  # CRON JOB 4: Backtest Processor
+  # Processes pending backtest jobs
+  # Schedule: Every minute
+  # ==================================================
   - type: cron
     name: qunex-backtest-processor
     runtime: python
@@ -94,12 +102,110 @@ services:
     region: oregon
     plan: free
     branch: main
-    schedule: "* * * * *"  # Every minute
+    schedule: "* * * * *"
     buildCommand: bash build.sh
     startCommand: python scripts/cron_run_backtests.py
     runtimeVersion: "3.11"
-    envVars:
-      # Inherits DATABASE_URL, POLYGON_API_KEY from environment
+    envVarGroups:
+      - qunex-prod-env
 
-# No databases section - using Supabase PostgreSQL (permanent free tier)
-# Add DATABASE_URL in Render Dashboard pointing to Supabase
+  # ==================================================
+  # CRON JOB 5: Price Alerts Checker
+  # Checks if stock prices hit user alert thresholds
+  # Schedule: Every 5 minutes
+  # ==================================================
+  - type: cron
+    name: qunex-check-alerts
+    runtime: python
+    env: python
+    region: oregon
+    plan: free
+    branch: main
+    schedule: "*/5 * * * *"
+    buildCommand: bash build.sh
+    startCommand: python scripts/cron_check_alerts.py
+    runtimeVersion: "3.11"
+    envVarGroups:
+      - qunex-prod-env
+
+  # ==================================================
+  # CRON JOB 6: Insider Trading Refresh
+  # Fetches latest insider trading data
+  # Schedule: Daily at 1:00 AM UTC
+  # ==================================================
+  - type: cron
+    name: qunex-refresh-insider
+    runtime: python
+    env: python
+    region: oregon
+    plan: free
+    branch: main
+    schedule: "0 1 * * *"
+    buildCommand: bash build.sh
+    startCommand: python scripts/cron_refresh_insider.py
+    runtimeVersion: "3.11"
+    envVarGroups:
+      - qunex-prod-env
+
+# ==================================================
+# ENVIRONMENT VARIABLE GROUP
+# Shared across all services
+# ==================================================
+envVarGroups:
+  - name: qunex-prod-env
+    envVars:
+      # Flask Configuration
+      - key: SECRET_KEY
+        generateValue: true
+      - key: FLASK_ENV
+        value: production
+      - key: PYTHON_VERSION
+        value: "3.11"
+      - key: ENABLE_BACKGROUND_THREAD
+        value: "false"
+
+      # Database (Add in Render Dashboard)
+      # - DATABASE_URL: from Supabase PostgreSQL
+
+      # Redis Cache & WebSocket (Add in Render Dashboard)
+      # - REDIS_URL: from Upstash Redis
+
+      # Market Data APIs (Add in Render Dashboard)
+      # - POLYGON_API_KEY: Polygon.io API key
+      # - ALPHA_VANTAGE_API_KEY: Alpha Vantage API key (for AI scores)
+      # - FINNHUB_API_KEY: Finnhub API key (for calendar)
+
+      # News & AI (Add in Render Dashboard)
+      # - NEWSAPI_KEY: NewsAPI key
+      # - ANTHROPIC_API_KEY: Claude AI key
+
+      # Email (Add in Render Dashboard)
+      # - MAIL_USERNAME: Gmail address
+      # - MAIL_PASSWORD: Gmail app password
+
+      # Security (Add in Render Dashboard)
+      # - RECAPTCHA_SECRET_KEY: Google reCAPTCHA key
+
+      # OAuth (Add in Render Dashboard - Optional)
+      # - GOOGLE_CLIENT_ID: Google OAuth client ID
+      # - GOOGLE_CLIENT_SECRET: Google OAuth client secret
+
+      # Payments (Add in Render Dashboard - Optional)
+      # - STRIPE_SECRET_KEY: Stripe secret key
+      # - STRIPE_PUBLISHABLE_KEY: Stripe publishable key
+
+      # Admin (Add in Render Dashboard)
+      # - ADMIN_EMAIL: Admin panel access email
+
+# ==================================================
+# NOTES
+# ==================================================
+# 1. All services use Python 3.11 (eventlet compatible)
+# 2. All services share the same environment variables via envVarGroups
+# 3. Free plan limitations:
+#    - Web service: Always running
+#    - Worker: Always running
+#    - Cron jobs: Run on schedule only
+# 4. Add sensitive environment variables in Render Dashboard
+# 5. Database: Use Supabase PostgreSQL (permanent free tier)
+# 6. Redis: Use Upstash Redis (free tier with 10K commands/day)

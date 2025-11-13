@@ -339,6 +339,8 @@ class BacktestJob(db.Model):
 
     def to_dict(self):
         """Convert to dictionary for JSON serialization"""
+        import json
+
         return {
             "id": self.id,
             "user_id": self.user_id,
@@ -351,4 +353,90 @@ class BacktestJob(db.Model):
             "error_message": self.error_message,
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "completed_at": self.completed_at.isoformat() if self.completed_at else None,
+        }
+
+
+class PriceAlert(db.Model):
+    """
+    Price alerts for watchlist stocks.
+
+    Users can set alerts to be notified when a stock price crosses a threshold.
+    Checked every 5 minutes by cron_check_alerts.py cron job.
+    """
+
+    __tablename__ = "price_alerts"
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False, index=True)
+    ticker = db.Column(db.String(10), nullable=False, index=True)
+    condition = db.Column(db.String(10), nullable=False)  # 'above' or 'below'
+    threshold = db.Column(db.Numeric(precision=10, scale=2), nullable=False)  # Alert price
+    is_triggered = db.Column(db.Boolean, default=False, index=True)
+    triggered_at = db.Column(db.DateTime, nullable=True)
+    triggered_price = db.Column(db.Numeric(precision=10, scale=2), nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+
+    # Relationship
+    user = db.relationship("User", backref=db.backref("price_alerts", lazy=True))
+
+    def __repr__(self):
+        return f"<PriceAlert {self.ticker} {self.condition} ${self.threshold}>"
+
+    def to_dict(self):
+        """Convert to dictionary for JSON serialization"""
+        return {
+            "id": self.id,
+            "user_id": self.user_id,
+            "ticker": self.ticker,
+            "condition": self.condition,
+            "threshold": float(self.threshold),
+            "is_triggered": self.is_triggered,
+            "triggered_at": self.triggered_at.isoformat() if self.triggered_at else None,
+            "triggered_price": float(self.triggered_price) if self.triggered_price else None,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+        }
+
+
+class InsiderTrade(db.Model):
+    """
+    Insider trading transactions.
+
+    Tracks insider buy/sell activity for stocks in watchlists.
+    Updated daily by cron_refresh_insider.py cron job.
+    """
+
+    __tablename__ = "insider_trades"
+
+    id = db.Column(db.Integer, primary_key=True)
+    ticker = db.Column(db.String(10), nullable=False, index=True)
+    insider_name = db.Column(db.String(200), nullable=False)
+    position = db.Column(db.String(100), nullable=True)  # CEO, CFO, Director, etc.
+    transaction_type = db.Column(db.String(10), nullable=False, index=True)  # 'buy' or 'sell'
+    shares = db.Column(db.Integer, nullable=False)
+    price = db.Column(db.Numeric(precision=10, scale=2), nullable=True)
+    transaction_date = db.Column(db.Date, nullable=False, index=True)
+    filing_date = db.Column(db.Date, nullable=False, index=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+
+    # Unique constraint to avoid duplicates
+    __table_args__ = (
+        db.UniqueConstraint("ticker", "filing_date", "insider_name", name="unique_insider_trade"),
+    )
+
+    def __repr__(self):
+        return f"<InsiderTrade {self.ticker} {self.insider_name} {self.transaction_type}>"
+
+    def to_dict(self):
+        """Convert to dictionary for JSON serialization"""
+        return {
+            "id": self.id,
+            "ticker": self.ticker,
+            "insider_name": self.insider_name,
+            "position": self.position,
+            "transaction_type": self.transaction_type,
+            "shares": self.shares,
+            "price": float(self.price) if self.price else None,
+            "transaction_date": self.transaction_date.isoformat() if self.transaction_date else None,
+            "filing_date": self.filing_date.isoformat() if self.filing_date else None,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
         }

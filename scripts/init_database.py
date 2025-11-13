@@ -54,7 +54,17 @@ def init_db():
 
         # Import all models to register them with SQLAlchemy
         print("\nImporting database models...")
-        from database import User, Watchlist, NewsArticle, EconomicEvent, AIScore, Transaction, BacktestJob
+        from database import (
+            User,
+            Watchlist,
+            NewsArticle,
+            EconomicEvent,
+            AIScore,
+            Transaction,
+            BacktestJob,
+            PriceAlert,
+            InsiderTrade,
+        )
 
         # Create all tables
         with app.app_context():
@@ -73,7 +83,13 @@ def init_db():
                 print(f"  ✓ {table}")
 
             # Verify critical tables
-            critical_tables = ["ai_scores", "backtest_jobs", "transactions"]
+            critical_tables = [
+                "ai_scores",
+                "backtest_jobs",
+                "transactions",
+                "price_alerts",
+                "insider_trades",
+            ]
             for table_name in critical_tables:
                 if table_name in tables:
                     print(f"\n🎯 SUCCESS: {table_name} table created successfully!")
