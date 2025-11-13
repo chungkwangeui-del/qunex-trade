@@ -18,6 +18,7 @@ import threading
 import time
 import traceback
 import logging
+import bleach
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
 from typing import Dict, List, Any, Optional, Union
@@ -43,12 +44,17 @@ except ImportError:
 
 # Configure structured logging
 try:
-    from logging_config import configure_structured_logging, get_logger
+    from web.logging_config import configure_structured_logging, get_logger
     configure_structured_logging()
     logger = get_logger(__name__)
 except ImportError:
-    # Fallback to standard logging
-    logger = logging.getLogger(__name__)
+    try:
+        from logging_config import configure_structured_logging, get_logger
+        configure_structured_logging()
+        logger = get_logger(__name__)
+    except ImportError:
+        # Fallback to standard logging
+        logger = logging.getLogger(__name__)
 
 
 # Helper Functions for Database Queries
@@ -1683,7 +1689,6 @@ def add_transaction():
             return jsonify({"error": "Invalid numeric value"}), 400
 
         # Sanitize notes to prevent XSS
-        import bleach
         notes = data.get('notes', '')
         if notes:
             notes = bleach.clean(notes, tags=[], attributes={}, strip=True)

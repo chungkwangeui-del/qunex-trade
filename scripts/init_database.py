@@ -54,7 +54,7 @@ def init_db():
 
         # Import all models to register them with SQLAlchemy
         print("\nImporting database models...")
-        from database import User, Watchlist, NewsArticle, EconomicEvent, AIScore
+        from database import User, Watchlist, NewsArticle, EconomicEvent, AIScore, Transaction, BacktestJob
 
         # Create all tables
         with app.app_context():
@@ -72,11 +72,13 @@ def init_db():
             for table in sorted(tables):
                 print(f"  ✓ {table}")
 
-            # Verify AIScore table specifically
-            if "ai_scores" in tables:
-                print("\n🎯 SUCCESS: ai_scores table is ready for AI Score cron job!")
-            else:
-                print("\n⚠️  WARNING: ai_scores table not found!")
+            # Verify critical tables
+            critical_tables = ["ai_scores", "backtest_jobs", "transactions"]
+            for table_name in critical_tables:
+                if table_name in tables:
+                    print(f"\n🎯 SUCCESS: {table_name} table created successfully!")
+                else:
+                    print(f"\n⚠️  WARNING: {table_name} table not found!")
 
             return True
 
