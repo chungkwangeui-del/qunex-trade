@@ -66,7 +66,7 @@ services:
     branch: main
     schedule: "0 0 * * *"
     buildCommand: bash build.sh
-    startCommand: python cron_update_ai_scores.py
+    startCommand: python scripts/cron_update_ai_scores.py
     runtimeVersion: "3.11"
     envVarGroups:
       - qunex-prod-env
