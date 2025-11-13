@@ -18,183 +18,31 @@ class NewsCollector:
     """Collect real-time financial news from reliable sources"""
 
     def __init__(self):
-        self.newsapi_key = os.getenv("NEWSAPI_KEY")
         self.polygon_key = os.getenv("POLYGON_API_KEY")
 
-        # Reliable financial news sources (tier 1 credibility)
-        self.tier1_sources = [
-            "bloomberg",
-            "reuters",
-            "financial-times",
-            "wall-street-journal",
-            "cnbc",
-            "marketwatch",
-            "the-economist",
-            "fortune",
+        # Polygon News API keywords for filtering (market-moving events)
+        self.priority_keywords = [
+            # Macro/Policy events
+            "federal reserve", "fed", "interest rate", "inflation", "gdp", "cpi",
+            "trump", "biden", "government", "congress", "senate", "treasury",
+            # Market events
+            "market crash", "market rally", "s&p 500", "nasdaq", "dow jones",
+            # Company events
+            "earnings", "merger", "acquisition", "ceo", "ipo", "bankruptcy",
         ]
 
-        # Additional credible sources (tier 2)
-        self.tier2_sources = [
-            "business-insider",
-            "associated-press",
-            "bbc-news",
-            "cnn",
-            "abc-news",
-            "nbc-news",
-        ]
-
-    def collect_from_newsapi(self, hours: int = 6, tier1_only: bool = True) -> List[Dict]:
+    def collect_from_polygon_filtered(self, limit: int = 100) -> List[Dict]:
         """
-        Collect news from NewsAPI
+        Collect market news from Polygon.io with enhanced filtering
+
+        Uses Polygon's built-in ticker filtering to get relevant news.
+        Polygon Starter plan includes unlimited API calls with hourly updates.
 
         Args:
-            hours: How many hours back to fetch news
-            tier1_only: If True, only fetch from tier 1 sources (most reliable)
-        """
-        if not self.newsapi_key:
-            print("[ERROR] NewsAPI key not found")
-            return []
-
-        sources = self.tier1_sources if tier1_only else self.tier1_sources + self.tier2_sources
-
-        # Calculate time range
-        to_time = datetime.now()
-        from_time = to_time - timedelta(hours=hours)
-
-        news_items = []
-
-        # PRIORITY 1: Macro/Policy news (REAL EVENTS - affects entire market)
-        macro_keywords = [
-            "Trump announces",
-            "Trump signs",
-            "Biden signs",
-            "Federal Reserve announces",
-            "Fed announces",
-            "Fed cuts",
-            "Fed raises",
-            "FOMC decision",
-            "Jerome Powell speech",
-            "rate decision",
-            "interest rate decision",
-            "CPI data",
-            "inflation data",
-            "PCE data",
-            "GDP report",
-            "GDP data",
-            "economic data",
-            "unemployment data",
-            "jobs report",
-            "NFP data",
-            "Treasury announces",
-            "government announces",
-            "Congress passes",
-            "Senate approves",
-            "tariff imposed",
-            "sanctions announced",
-        ]
-
-        # PRIORITY 2: Market-moving EVENTS (not predictions)
-        market_keywords = [
-            "market crash",
-            "market plunge",
-            "market selloff",
-            "market surge",
-            "market rally",
-            "record high",
-            "S&P 500 hits",
-            "Nasdaq closes",
-            "Dow Jones",
-            "trading halted",
-            "circuit breaker",
-            "volatility spike",
-        ]
-
-        # PRIORITY 3: Major company EVENTS (actual events, not analysis)
-        company_keywords = [
-            "reports earnings",
-            "announces merger",
-            "acquires",
-            "CEO resigns",
-            "CEO appointed",
-            "layoffs announced",
-            "bankruptcy filed",
-            "IPO launches",
-            "dividend announced",
-            "recall announced",
-            "lawsuit filed",
-            "settles lawsuit",
-        ]
-
-        # Combine all keywords (macro gets priority)
-        keywords = macro_keywords + market_keywords + company_keywords
-
-        for keyword in keywords:
-            try:
-                url = "https://newsapi.org/v2/everything"
-                params = {
-                    "q": keyword,
-                    "from": from_time.strftime("%Y-%m-%dT%H:%M:%S"),
-                    "to": to_time.strftime("%Y-%m-%dT%H:%M:%S"),
-                    "language": "en",
-                    "sortBy": "publishedAt",
-                    "apiKey": self.newsapi_key,
-                    "pageSize": 10,
-                }
-
-                # Add sources if available
-                if sources:
-                    params["sources"] = ",".join(sources)
-
-                response = requests.get(url, params=params, timeout=10)
-
-                if response.status_code == 200:
-                    data = response.json()
-                    articles = data.get("articles", [])
-
-                    for article in articles:
-                        # Filter out low-quality news
-                        if self._is_quality_news(article):
-                            news_items.append(
-                                {
-                                    "title": article["title"],
-                                    "description": article.get("description", ""),
-                                    "content": article.get("content", ""),
-                                    "url": article["url"],
-                                    "source": article["source"]["name"],
-                                    "published_at": article["publishedAt"],
-                                    "image_url": article.get("urlToImage"),
-                                    "collector": "newsapi",
-                                    "keyword": keyword,
-                                }
-                            )
-
-                    print(f"[NewsAPI] Collected {len(articles)} articles for keyword: {keyword}")
-                else:
-                    print(f"[NewsAPI] Error {response.status_code} for keyword: {keyword}")
-
-                # Respect rate limits
-                time.sleep(0.5)
-
-            except Exception as e:
-                logger.error(
-                    f"Error collecting keyword '{keyword}' from NewsAPI: {e}", exc_info=True
-                )
-                continue
-
-        # Remove duplicates based on title
-        unique_news = {}
-        for item in news_items:
-            if item["title"] not in unique_news:
-                unique_news[item["title"]] = item
-
-        return list(unique_news.values())
-
-    def collect_from_polygon(self, limit: int = 50) -> List[Dict]:
-        """
-        Collect market news from Polygon.io (highly reliable, real-time)
+            limit: Maximum number of articles to fetch (default 100)
         """
         if not self.polygon_key:
-            print("[ERROR] Polygon API key not found")
+            logger.error("Polygon API key not found")
             return []
 
         news_items = []
@@ -214,46 +62,41 @@ class NewsCollector:
                 articles = data.get("results", [])
 
                 for article in articles:
-                    # Polygon.io has high-quality, verified news
-                    news_items.append(
-                        {
-                            "title": article["title"],
-                            "description": article.get("description", ""),
-                            "content": article.get(
-                                "description", ""
-                            ),  # Polygon doesn't provide full content
-                            "url": article["article_url"],
-                            "source": article["publisher"]["name"],
-                            "published_at": article["published_utc"],
-                            "image_url": article.get("image_url"),
-                            "tickers": article.get("tickers", []),  # Stock tickers mentioned
-                            "collector": "polygon",
-                            "keywords": article.get("keywords", []),
-                        }
-                    )
+                    # Apply quality filter
+                    if self._is_quality_news_polygon(article):
+                        news_items.append(
+                            {
+                                "title": article["title"],
+                                "description": article.get("description", ""),
+                                "content": article.get("description", ""),
+                                "url": article["article_url"],
+                                "source": article["publisher"]["name"],
+                                "published_at": article["published_utc"],
+                                "image_url": article.get("image_url"),
+                                "tickers": article.get("tickers", []),
+                                "collector": "polygon",
+                                "keywords": article.get("keywords", []),
+                            }
+                        )
 
-                print(f"[Polygon] Collected {len(articles)} articles")
+                logger.info(f"[Polygon] Collected {len(news_items)} quality articles from {len(articles)} total")
             else:
-                print(f"[Polygon] Error {response.status_code}")
+                logger.error(f"[Polygon] API error {response.status_code}")
 
         except Exception as e:
             logger.error(f"Error collecting from Polygon API: {e}", exc_info=True)
 
         return news_items
 
-    def _is_quality_news(self, article: Dict) -> bool:
+    def _is_quality_news_polygon(self, article: Dict) -> bool:
         """
-        Filter out low-quality news and analyst opinions
-        Focus on REAL EVENTS and DATA only
+        Filter Polygon news for quality and relevance.
+        Focus on REAL EVENTS, not analyst opinions or predictions.
         """
         title = article.get("title", "")
         description = article.get("description", "")
 
-        # Remove articles with missing critical info
-        if not title or title == "[Removed]":
-            return False
-
-        if not description or len(description) < 50:
+        if not title or not description:
             return False
 
         title_lower = title.lower()
@@ -262,50 +105,25 @@ class NewsCollector:
 
         # FILTER OUT: Analyst opinions, predictions, recommendations
         analyst_keywords = [
-            "analyst says",
-            "analyst predicts",
-            "analyst expects",
-            "should you buy",
-            "should you sell",
-            "time to buy",
-            "stock to watch",
-            "stocks to buy",
-            "top picks",
-            "buy rating",
-            "sell rating",
-            "upgrade",
-            "downgrade",
-            "price target",
-            "bull case",
-            "bear case",
-            "my prediction",
-            "i think",
-            "could reach",
-            "may hit",
-            "might see",
-            "potential upside",
-            "investor alert",
-            "opportunity",
-            "hot stock",
+            "analyst says", "analyst predicts", "analyst expects",
+            "should you buy", "should you sell", "time to buy",
+            "stock to watch", "stocks to buy", "top picks",
+            "buy rating", "sell rating", "price target",
+            "bull case", "bear case", "my prediction",
+            "could reach", "may hit", "might see",
+            "investor alert", "hot stock",
         ]
 
         for keyword in analyst_keywords:
             if keyword in combined_text:
                 return False
 
-        # FILTER OUT: Promotional and spam content
+        # FILTER OUT: Promotional content
         spam_keywords = [
-            "subscribe",
-            "click here",
-            "limited time",
-            "buy now",
-            "discount",
-            "free trial",
-            "advertisement",
-            "sponsored",
-            "webinar",
-            "register now",
-            "sign up",
+            "subscribe", "click here", "limited time",
+            "buy now", "discount", "free trial",
+            "advertisement", "sponsored", "webinar",
+            "register now", "sign up",
         ]
 
         for keyword in spam_keywords:
@@ -314,46 +132,46 @@ class NewsCollector:
 
         return True
 
-    def collect_all_news(self, hours: int = 6) -> List[Dict]:
+
+    def collect_all_news(self, limit: int = 100) -> List[Dict]:
         """
-        Collect news from all sources
+        Collect news from Polygon.io only (replaced NewsAPI)
+
+        Polygon Starter plan benefits:
+        - Unlimited API calls (no 100/day limit like NewsAPI)
+        - Real-time news (no 24-hour delay like NewsAPI free tier)
+        - Production-ready (NewsAPI free tier is dev-only)
+        - Already included in existing $29/month plan
+
+        Args:
+            limit: Maximum articles to fetch (default 100)
 
         Returns:
             List of news items sorted by published time (most recent first)
         """
-        print(f"\n{'='*60}")
-        print(f"[NEWS COLLECTOR] Starting collection (last {hours} hours)")
-        print(f"{'='*60}\n")
+        logger.info("="*60)
+        logger.info(f"[NEWS COLLECTOR] Starting Polygon news collection")
+        logger.info("="*60)
 
-        all_news = []
-
-        # Collect from NewsAPI (tier 1 sources only for credibility)
-        print("[1/2] Collecting from NewsAPI...")
-        newsapi_items = self.collect_from_newsapi(hours=hours, tier1_only=True)
-        all_news.extend(newsapi_items)
-
-        # Collect from Polygon.io
-        print("\n[2/2] Collecting from Polygon.io...")
-        polygon_items = self.collect_from_polygon(limit=50)
-        all_news.extend(polygon_items)
-
-        # Remove duplicates
-        unique_news = {}
-        for item in all_news:
-            title = item["title"]
-            if title not in unique_news:
-                unique_news[title] = item
-
-        final_news = list(unique_news.values())
+        # Collect from Polygon.io with quality filtering
+        all_news = self.collect_from_polygon_filtered(limit=limit)
 
         # Sort by published time (most recent first)
-        final_news.sort(key=lambda x: x.get("published_at", ""), reverse=True)
+        all_news.sort(key=lambda x: x.get("published_at", ""), reverse=True)
 
-        print(f"\n{'='*60}")
-        print(f"[SUCCESS] Collected {len(final_news)} unique news items")
-        print(f"{'='*60}\n")
+        logger.info("="*60)
+        logger.info(f"[SUCCESS] Collected {len(all_news)} quality news items")
+        logger.info("="*60)
 
-        return final_news
+        return all_news
+
+
+def collect_news() -> List[Dict]:
+    """
+    Main function to collect news (used by cron job)
+    """
+    collector = NewsCollector()
+    return collector.collect_all_news(limit=100)
 
 
 if __name__ == "__main__":
@@ -362,11 +180,12 @@ if __name__ == "__main__":
 
     load_dotenv()
 
-    collector = NewsCollector()
-    news = collector.collect_all_news(hours=12)
+    news = collect_news()
 
     print(f"\nCollected {len(news)} news items:")
     for i, item in enumerate(news[:5], 1):
         print(f"\n{i}. {item['title']}")
         print(f"   Source: {item['source']}")
         print(f"   Time: {item['published_at']}")
+        if item.get('tickers'):
+            print(f"   Tickers: {', '.join(item['tickers'][:5])}")
