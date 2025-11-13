@@ -1,7 +1,4 @@
 services:
-  # ==================================================
-  # WEB SERVICE - Flask App with WebSocket Support
-  # ==================================================
   - type: web
     name: qunex-trade
     runtime: python
@@ -16,10 +13,6 @@ services:
       - qunex-prod-env
     healthCheckPath: /
 
-  # ==================================================
-  # BACKGROUND WORKER - Polygon WebSocket Client
-  # Real-time stock price updates via WebSocket
-  # ==================================================
   - type: worker
     name: qunex-websocket-worker
     runtime: python
@@ -33,11 +26,6 @@ services:
     envVarGroups:
       - qunex-prod-env
 
-  # ==================================================
-  # CRON JOB 1: Data Refresh (News + Calendar)
-  # Fetches latest news and economic calendar events
-  # Schedule: Every hour at minute 0
-  # ==================================================
   - type: cron
     name: qunex-data-refresh
     runtime: python
@@ -52,11 +40,6 @@ services:
     envVarGroups:
       - qunex-prod-env
 
-  # ==================================================
-  # CRON JOB 2: AI Score Update
-  # Calculates AI scores for watchlist stocks
-  # Schedule: Daily at midnight (0:00 UTC)
-  # ==================================================
   - type: cron
     name: qunex-ai-score-update
     runtime: python
@@ -71,11 +54,6 @@ services:
     envVarGroups:
       - qunex-prod-env
 
-  # ==================================================
-  # CRON JOB 3: Model Retraining (MLOps)
-  # Retrains AI model with latest data
-  # Schedule: Weekly on Sunday at midnight (0:00 UTC)
-  # ==================================================
   - type: cron
     name: qunex-model-retrain
     runtime: python
@@ -90,11 +68,6 @@ services:
     envVarGroups:
       - qunex-prod-env
 
-  # ==================================================
-  # CRON JOB 4: Backtest Processor
-  # Processes pending backtest jobs
-  # Schedule: Every minute
-  # ==================================================
   - type: cron
     name: qunex-backtest-processor
     runtime: python
@@ -109,11 +82,6 @@ services:
     envVarGroups:
       - qunex-prod-env
 
-  # ==================================================
-  # CRON JOB 5: Price Alerts Checker
-  # Checks if stock prices hit user alert thresholds
-  # Schedule: Every 5 minutes
-  # ==================================================
   - type: cron
     name: qunex-check-alerts
     runtime: python
@@ -128,11 +96,6 @@ services:
     envVarGroups:
       - qunex-prod-env
 
-  # ==================================================
-  # CRON JOB 6: Insider Trading Refresh
-  # Fetches latest insider trading data
-  # Schedule: Daily at 1:00 AM UTC
-  # ==================================================
   - type: cron
     name: qunex-refresh-insider
     runtime: python
@@ -150,7 +113,6 @@ services:
 envVarGroups:
   - name: qunex-prod-env
     envVars:
-      # Flask Configuration
       - key: SECRET_KEY
         generateValue: true
       - key: FLASK_ENV
