@@ -463,50 +463,50 @@ def calculate_feature_contributions(features: dict) -> dict:
     contributions = {}
 
     # Technical indicators contributions
-    rsi = features.get('rsi', 50)
+    rsi = features.get("rsi", 50)
     if rsi < 30:
-        contributions['RSI (Oversold)'] = +0.10
+        contributions["RSI (Oversold)"] = +0.10
     elif rsi > 70:
-        contributions['RSI (Overbought)'] = -0.10
+        contributions["RSI (Overbought)"] = -0.10
     else:
-        contributions['RSI'] = 0.05
+        contributions["RSI"] = 0.05
 
-    macd = features.get('macd', 0)
+    macd = features.get("macd", 0)
     if macd > 0:
-        contributions['MACD (Bullish)'] = +0.10
+        contributions["MACD (Bullish)"] = +0.10
     else:
-        contributions['MACD (Bearish)'] = -0.10
+        contributions["MACD (Bearish)"] = -0.10
 
-    price_to_ma50 = features.get('price_to_ma50', 1.0)
+    price_to_ma50 = features.get("price_to_ma50", 1.0)
     if price_to_ma50 > 1.05:
-        contributions['Price vs MA50'] = +0.05
+        contributions["Price vs MA50"] = +0.05
     elif price_to_ma50 < 0.95:
-        contributions['Price vs MA50'] = -0.05
+        contributions["Price vs MA50"] = -0.05
 
     # Fundamental indicators contributions
-    pe_ratio = features.get('pe_ratio', 20)
+    pe_ratio = features.get("pe_ratio", 20)
     if 10 <= pe_ratio <= 25:
-        contributions['P/E Ratio'] = +0.10
+        contributions["P/E Ratio"] = +0.10
     elif pe_ratio > 40:
-        contributions['P/E Ratio (High)'] = -0.05
+        contributions["P/E Ratio (High)"] = -0.05
 
-    eps_growth = features.get('eps_growth', 0)
+    eps_growth = features.get("eps_growth", 0)
     if eps_growth > 0.15:
-        contributions['EPS Growth (Strong)'] = +0.10
+        contributions["EPS Growth (Strong)"] = +0.10
     elif eps_growth < 0:
-        contributions['EPS Growth (Negative)'] = -0.10
+        contributions["EPS Growth (Negative)"] = -0.10
     else:
-        contributions['EPS Growth'] = 0.05
+        contributions["EPS Growth"] = 0.05
 
     # News sentiment contribution
-    news_sentiment = features.get('news_sentiment_7d', 0.5)
+    news_sentiment = features.get("news_sentiment_7d", 0.5)
     sentiment_contrib = (news_sentiment - 0.5) * 0.30
     if sentiment_contrib > 0.05:
-        contributions['News Sentiment (Positive)'] = sentiment_contrib
+        contributions["News Sentiment (Positive)"] = sentiment_contrib
     elif sentiment_contrib < -0.05:
-        contributions['News Sentiment (Negative)'] = sentiment_contrib
+        contributions["News Sentiment (Negative)"] = sentiment_contrib
     else:
-        contributions['News Sentiment'] = sentiment_contrib
+        contributions["News Sentiment"] = sentiment_contrib
 
     return contributions
 

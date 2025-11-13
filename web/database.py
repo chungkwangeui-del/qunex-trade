@@ -278,11 +278,11 @@ class Transaction(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False, index=True)
     ticker = db.Column(db.String(10), nullable=False, index=True)
-    shares = db.Column(db.Numeric(precision=10, scale=4), nullable=False)  # Supports fractional shares
+    shares = db.Column(
+        db.Numeric(precision=10, scale=4), nullable=False
+    )  # Supports fractional shares
     price = db.Column(db.Numeric(precision=10, scale=2), nullable=False)  # Price per share
-    transaction_type = db.Column(
-        db.String(10), nullable=False, index=True
-    )  # 'buy' or 'sell'
+    transaction_type = db.Column(db.String(10), nullable=False, index=True)  # 'buy' or 'sell'
     transaction_date = db.Column(db.DateTime, default=datetime.utcnow, index=True)
     notes = db.Column(db.Text, nullable=True)  # Optional user notes
 
@@ -301,7 +301,9 @@ class Transaction(db.Model):
             "shares": float(self.shares),
             "price": float(self.price),
             "transaction_type": self.transaction_type,
-            "transaction_date": self.transaction_date.isoformat() if self.transaction_date else None,
+            "transaction_date": (
+                self.transaction_date.isoformat() if self.transaction_date else None
+            ),
             "total_cost": float(self.shares * self.price),
             "notes": self.notes,
         }
@@ -436,7 +438,9 @@ class InsiderTrade(db.Model):
             "transaction_type": self.transaction_type,
             "shares": self.shares,
             "price": float(self.price) if self.price else None,
-            "transaction_date": self.transaction_date.isoformat() if self.transaction_date else None,
+            "transaction_date": (
+                self.transaction_date.isoformat() if self.transaction_date else None
+            ),
             "filing_date": self.filing_date.isoformat() if self.filing_date else None,
             "created_at": self.created_at.isoformat() if self.created_at else None,
         }

@@ -188,9 +188,7 @@ class TestUpdateAIScoresCron:
         monkeypatch.setenv("DATABASE_URL", "sqlite:///:memory:")
 
         # Mock API services
-        with patch(
-            "cron_update_ai_scores.FundamentalData", return_value=mock_alpha_vantage_api
-        ):
+        with patch("cron_update_ai_scores.FundamentalData", return_value=mock_alpha_vantage_api):
             with patch("cron_update_ai_scores.PolygonService", return_value=mock_polygon_api):
                 # Import and run
                 import cron_update_ai_scores

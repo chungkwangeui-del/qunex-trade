@@ -52,9 +52,7 @@ def check_price_alerts():
         # CRITICAL: Validate required API keys
         polygon_key = os.getenv("POLYGON_API_KEY")
         if not polygon_key or polygon_key.strip() == "":
-            logger.critical(
-                "CRITICAL ERROR: POLYGON_API_KEY is missing. Cannot fetch prices."
-            )
+            logger.critical("CRITICAL ERROR: POLYGON_API_KEY is missing. Cannot fetch prices.")
             return False
 
         # Get DATABASE_URL and fix driver
@@ -169,7 +167,7 @@ View your watchlist: https://qunextrade.com/dashboard
 
 ---
 QUNEX Trade - Smart Trading Platform
-                                        """.strip()
+                                        """.strip(),
                                     )
                                     mail.send(msg)
                                     logger.info(f"Email sent to {user.email}")

@@ -25,9 +25,9 @@ def client():
     Yields:
         FlaskClient: Test client for making requests
     """
-    app.config['TESTING'] = True
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
-    app.config['WTF_CSRF_ENABLED'] = False
+    app.config["TESTING"] = True
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
+    app.config["WTF_CSRF_ENABLED"] = False
 
     with app.app_context():
         db.create_all()
@@ -50,7 +50,7 @@ class TestNewsArticleModel:
                 published_at=datetime.utcnow(),
                 ai_rating=5,
                 ai_analysis="Positive outlook for tech stocks",
-                sentiment="positive"
+                sentiment="positive",
             )
             db.session.add(article)
             db.session.commit()
@@ -70,7 +70,7 @@ class TestNewsArticleModel:
                 title="Article 1",
                 url="https://example.com/same-url",
                 source="Source 1",
-                published_at=datetime.utcnow()
+                published_at=datetime.utcnow(),
             )
             db.session.add(article1)
             db.session.commit()
@@ -80,7 +80,7 @@ class TestNewsArticleModel:
                 title="Article 2",
                 url="https://example.com/same-url",
                 source="Source 2",
-                published_at=datetime.utcnow()
+                published_at=datetime.utcnow(),
             )
             db.session.add(article2)
 
@@ -99,7 +99,7 @@ class TestNewsArticleModel:
                 published_at=datetime(2025, 1, 1, 12, 0, 0),
                 ai_rating=4,
                 ai_analysis="Good analysis",
-                sentiment="neutral"
+                sentiment="neutral",
             )
             db.session.add(article)
             db.session.commit()
@@ -107,11 +107,11 @@ class TestNewsArticleModel:
             # Convert to dict
             article_dict = article.to_dict()
 
-            assert article_dict['title'] == "Serialization Test"
-            assert article_dict['ai_rating'] == 4
-            assert article_dict['sentiment'] == "neutral"
-            assert 'published' in article_dict
-            assert 'id' in article_dict
+            assert article_dict["title"] == "Serialization Test"
+            assert article_dict["ai_rating"] == 4
+            assert article_dict["sentiment"] == "neutral"
+            assert "published" in article_dict
+            assert "id" in article_dict
 
     def test_news_article_query_by_rating(self, client):
         """Test filtering news articles by AI rating"""
@@ -123,7 +123,7 @@ class TestNewsArticleModel:
                     url=f"https://example.com/article-{i}",
                     source="Test",
                     published_at=datetime.utcnow(),
-                    ai_rating=i
+                    ai_rating=i,
                 )
                 db.session.add(article)
             db.session.commit()
@@ -153,15 +153,13 @@ class TestEconomicEventModel:
                 actual="5.25%",
                 forecast="5.00%",
                 previous="4.75%",
-                source="Finnhub"
+                source="Finnhub",
             )
             db.session.add(event)
             db.session.commit()
 
             # Retrieve and verify
-            saved_event = EconomicEvent.query.filter_by(
-                title="Fed Interest Rate Decision"
-            ).first()
+            saved_event = EconomicEvent.query.filter_by(title="Fed Interest Rate Decision").first()
             assert saved_event is not None
             assert saved_event.importance == "high"
             assert saved_event.country == "US"
@@ -173,20 +171,14 @@ class TestEconomicEventModel:
 
             # Create first event
             event1 = EconomicEvent(
-                title="CPI Report",
-                date=event_date,
-                country="US",
-                importance="high"
+                title="CPI Report", date=event_date, country="US", importance="high"
             )
             db.session.add(event1)
             db.session.commit()
 
             # Try to create duplicate
             event2 = EconomicEvent(
-                title="CPI Report",
-                date=event_date,
-                country="US",
-                importance="high"
+                title="CPI Report", date=event_date, country="US", importance="high"
             )
             db.session.add(event2)
 
@@ -205,7 +197,7 @@ class TestEconomicEventModel:
                 importance="medium",
                 actual="2.1%",
                 forecast="2.0%",
-                previous="1.9%"
+                previous="1.9%",
             )
             db.session.add(event)
             db.session.commit()
@@ -213,31 +205,29 @@ class TestEconomicEventModel:
             # Convert to dict
             event_dict = event.to_dict()
 
-            assert event_dict['title'] == "GDP Report"
-            assert event_dict['importance'] == "medium"
-            assert event_dict['actual'] == "2.1%"
-            assert 'date' in event_dict
-            assert 'id' in event_dict
+            assert event_dict["title"] == "GDP Report"
+            assert event_dict["importance"] == "medium"
+            assert event_dict["actual"] == "2.1%"
+            assert "date" in event_dict
+            assert "id" in event_dict
 
     def test_economic_event_query_by_importance(self, client):
         """Test filtering events by importance"""
         with app.app_context():
             # Create events with different importance
-            importances = ['low', 'medium', 'high']
+            importances = ["low", "medium", "high"]
             for i, imp in enumerate(importances):
                 event = EconomicEvent(
                     title=f"Event {i}",
                     date=datetime.utcnow() + timedelta(days=i),
                     importance=imp,
-                    country="US"
+                    country="US",
                 )
                 db.session.add(event)
             db.session.commit()
 
             # Query high importance events
-            high_importance = EconomicEvent.query.filter(
-                EconomicEvent.importance == 'high'
-            ).all()
+            high_importance = EconomicEvent.query.filter(EconomicEvent.importance == "high").all()
             assert len(high_importance) == 1
 
     def test_economic_event_date_range_query(self, client):
@@ -251,7 +241,7 @@ class TestEconomicEventModel:
                     title=f"Event in {days_ahead} days",
                     date=today + timedelta(days=days_ahead),
                     country="US",
-                    importance="medium"
+                    importance="medium",
                 )
                 db.session.add(event)
             db.session.commit()
@@ -259,12 +249,11 @@ class TestEconomicEventModel:
             # Query events in next 60 days
             end_date = today + timedelta(days=60)
             upcoming_events = EconomicEvent.query.filter(
-                EconomicEvent.date >= today,
-                EconomicEvent.date <= end_date
+                EconomicEvent.date >= today, EconomicEvent.date <= end_date
             ).all()
 
             assert len(upcoming_events) == 3  # 1, 7, 30 days
 
 
-if __name__ == '__main__':
-    pytest.main([__file__, '-v'])
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

@@ -163,7 +163,9 @@ def refresh_insider_data():
                             continue
 
                         # Determine transaction type
-                        transaction_type = "buy" if trade.get("transactionCode") in ["P", "M"] else "sell"
+                        transaction_type = (
+                            "buy" if trade.get("transactionCode") in ["P", "M"] else "sell"
+                        )
 
                         # Create new insider trade record
                         insider_trade = InsiderTrade(
@@ -176,9 +178,7 @@ def refresh_insider_data():
                             transaction_date=datetime.strptime(
                                 trade["transactionDate"], "%Y-%m-%d"
                             ).date(),
-                            filing_date=datetime.strptime(
-                                trade["filingDate"], "%Y-%m-%d"
-                            ).date(),
+                            filing_date=datetime.strptime(trade["filingDate"], "%Y-%m-%d").date(),
                         )
 
                         db.session.add(insider_trade)

@@ -67,9 +67,7 @@ def main():
         metrics = {
             "accuracy": float(accuracy),
             "f1_weighted": float(f1),
-            "per_class_f1": {
-                name: float(report[name]["f1-score"]) for name in label_names
-            },
+            "per_class_f1": {name: float(report[name]["f1-score"]) for name in label_names},
         }
 
         # Save evaluation metrics

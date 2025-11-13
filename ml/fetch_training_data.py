@@ -127,9 +127,7 @@ def fetch_training_data():
         df = df.dropna()
 
         # Save to CSV
-        output_path = os.path.join(
-            os.path.dirname(__file__), "data", "training_data.csv"
-        )
+        output_path = os.path.join(os.path.dirname(__file__), "data", "training_data.csv")
         df.to_csv(output_path, index=False)
 
         print(f"\n✓ Training data saved: {len(df)} rows")

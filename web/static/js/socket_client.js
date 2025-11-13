@@ -1,90 +1,80 @@
 /**
- * WebSocket Client for Real-time Market Data
+ * AJAX Polling Client for Market Data
  *
+ * Replaces WebSocket with polling for compatibility with Render free tier.
  * Features:
- * - Automatic reconnection with exponential backoff
- * - Toast notifications for connection status
- * - Event-driven architecture
+ * - Automatic polling every 15 seconds
+ * - Toast notifications for status
+ * - Event-driven architecture (maintains API compatibility)
  */
 
-class MarketDataSocket {
+class MarketDataPoller {
     constructor() {
-        this.socket = null;
-        this.reconnectAttempts = 0;
-        this.maxReconnectAttempts = 10;
-        this.reconnectDelay = 1000; // Start with 1 second
-        this.maxReconnectDelay = 30000; // Max 30 seconds
+        this.pollInterval = null;
+        this.pollFrequency = 15000; // 15 seconds
         this.subscribedTickers = new Set();
         this.callbacks = {};
+        this.isPolling = false;
     }
 
     connect() {
-        console.log('[WebSocket] Connecting...');
+        console.log('[Polling] Starting market data polling...');
 
-        this.socket = io({
-            transports: ['websocket', 'polling'],
-            upgrade: true,
-            reconnection: true,
-            reconnectionDelay: this.reconnectDelay,
-            reconnectionAttempts: this.maxReconnectAttempts,
-        });
-
-        this._setupEventHandlers();
+        if (!this.isPolling) {
+            this.isPolling = true;
+            this._startPolling();
+            this._showToast('Connected to market data', 'success');
+        }
     }
 
-    _setupEventHandlers() {
-        this.socket.on('connect', () => {
-            console.log('[WebSocket] Connected');
-            this.reconnectAttempts = 0;
-            this.reconnectDelay = 1000;
-            this._showToast('Connected to live market data', 'success');
+    _startPolling() {
+        // Clear any existing interval
+        if (this.pollInterval) {
+            clearInterval(this.pollInterval);
+        }
 
-            // Resubscribe to tickers
-            this.subscribedTickers.forEach(ticker => {
-                this._subscribeToTicker(ticker);
+        // Start polling immediately
+        this._poll();
+
+        // Then poll every 15 seconds
+        this.pollInterval = setInterval(() => {
+            this._poll();
+        }, this.pollFrequency);
+    }
+
+    async _poll() {
+        if (this.subscribedTickers.size === 0) {
+            return; // Nothing to poll
+        }
+
+        const tickers = Array.from(this.subscribedTickers);
+
+        try {
+            const response = await fetch('/api/market-data', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': this._getCSRFToken()
+                },
+                body: JSON.stringify({ tickers })
             });
-        });
 
-        this.socket.on('disconnect', (reason) => {
-            console.log('[WebSocket] Disconnected:', reason);
-            this._showToast('Disconnected from live data', 'warning');
-        });
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
 
-        this.socket.on('reconnect_attempt', (attemptNumber) => {
-            console.log(`[WebSocket] Reconnection attempt ${attemptNumber}`);
-            this._showToast(`Reconnecting... (attempt ${attemptNumber})`, 'info');
-        });
+            const data = await response.json();
 
-        this.socket.on('reconnect_error', (error) => {
-            console.error('[WebSocket] Reconnection error:', error);
-        });
-
-        this.socket.on('reconnect_failed', () => {
-            console.error('[WebSocket] Reconnection failed');
-            this._showToast('Failed to reconnect. Please refresh the page.', 'error');
-        });
-
-        this.socket.on('connection_established', (data) => {
-            console.log('[WebSocket] Connection established:', data);
-        });
-
-        this.socket.on('error', (data) => {
-            console.error('[WebSocket] Error:', data.message);
-            this._showToast(`Error: ${data.message}`, 'error');
-        });
-
-        this.socket.on('subscribed', (data) => {
-            console.log('[WebSocket] Subscribed to:', data.ticker);
-        });
-
-        this.socket.on('unsubscribed', (data) => {
-            console.log('[WebSocket] Unsubscribed from:', data.ticker);
-        });
-
-        this.socket.on('market_update', (data) => {
-            console.log('[WebSocket] Market update:', data);
-            this._handleMarketUpdate(data);
-        });
+            if (data.success && data.data) {
+                // Process each ticker's data
+                Object.entries(data.data).forEach(([ticker, tickerData]) => {
+                    this._handleMarketUpdate({ ticker, ...tickerData });
+                });
+            }
+        } catch (error) {
+            console.error('[Polling] Error fetching market data:', error);
+            // Don't show toast for every error to avoid spam
+        }
     }
 
     subscribe(ticker, callback) {
@@ -100,7 +90,15 @@ class MarketDataSocket {
             this.callbacks[ticker].push(callback);
         }
 
-        this._subscribeToTicker(ticker);
+        // Start polling if not already started
+        if (!this.isPolling) {
+            this.connect();
+        } else {
+            // Trigger immediate poll for new subscription
+            this._poll();
+        }
+
+        console.log('[Polling] Subscribed to:', ticker);
     }
 
     unsubscribe(ticker) {
@@ -110,14 +108,20 @@ class MarketDataSocket {
         this.subscribedTickers.delete(ticker);
         delete this.callbacks[ticker];
 
-        if (this.socket && this.socket.connected) {
-            this.socket.emit('unsubscribe_ticker', { ticker });
+        console.log('[Polling] Unsubscribed from:', ticker);
+
+        // Stop polling if no more subscriptions
+        if (this.subscribedTickers.size === 0) {
+            this._stopPolling();
         }
     }
 
-    _subscribeToTicker(ticker) {
-        if (this.socket && this.socket.connected) {
-            this.socket.emit('subscribe_ticker', { ticker });
+    _stopPolling() {
+        if (this.pollInterval) {
+            clearInterval(this.pollInterval);
+            this.pollInterval = null;
+            this.isPolling = false;
+            console.log('[Polling] Stopped polling');
         }
     }
 
@@ -131,10 +135,15 @@ class MarketDataSocket {
                 try {
                     callback(data);
                 } catch (error) {
-                    console.error('[WebSocket] Callback error:', error);
+                    console.error('[Polling] Callback error:', error);
                 }
             });
         }
+    }
+
+    _getCSRFToken() {
+        const meta = document.querySelector('meta[name="csrf-token"]');
+        return meta ? meta.content : '';
     }
 
     _showToast(message, type = 'info') {
@@ -161,23 +170,25 @@ class MarketDataSocket {
         setTimeout(() => {
             toast.style.animation = 'slideOut 0.3s ease-out';
             setTimeout(() => {
-                document.body.removeChild(toast);
+                if (toast.parentNode) {
+                    document.body.removeChild(toast);
+                }
             }, 300);
         }, 3000);
     }
 
     disconnect() {
-        if (this.socket) {
-            this.socket.disconnect();
-            this.socket = null;
-        }
+        this._stopPolling();
+        this.subscribedTickers.clear();
+        this.callbacks = {};
+        this._showToast('Disconnected from market data', 'warning');
     }
 }
 
 // Add CSS animations
-if (!document.getElementById('socket-animations')) {
+if (!document.getElementById('polling-animations')) {
     const style = document.createElement('style');
-    style.id = 'socket-animations';
+    style.id = 'polling-animations';
     style.textContent = `
         @keyframes slideIn {
             from {
@@ -204,16 +215,17 @@ if (!document.getElementById('socket-animations')) {
     document.head.appendChild(style);
 }
 
-// Global instance
-const marketSocket = new MarketDataSocket();
+// Global instance (maintains backward compatibility)
+const marketSocket = new MarketDataPoller();
 
 // Auto-connect when page loads
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
-        marketSocket.connect();
+        // Don't auto-connect, wait for subscriptions
+        console.log('[Polling] Market data poller ready');
     });
 } else {
-    marketSocket.connect();
+    console.log('[Polling] Market data poller ready');
 }
 
 // Export for use in other scripts

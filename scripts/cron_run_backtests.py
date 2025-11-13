@@ -29,7 +29,7 @@ def run_backtests():
 
         with app.app_context():
             # Get pending jobs
-            pending_jobs = BacktestJob.query.filter_by(status='pending').limit(5).all()
+            pending_jobs = BacktestJob.query.filter_by(status="pending").limit(5).all()
 
             if not pending_jobs:
                 print("No pending backtest jobs")
@@ -42,21 +42,23 @@ def run_backtests():
             for job in pending_jobs:
                 try:
                     # Update status to running
-                    job.status = 'running'
+                    job.status = "running"
                     db.session.commit()
 
-                    print(f"Running backtest {job.id}: {job.ticker} from {job.start_date} to {job.end_date}")
+                    print(
+                        f"Running backtest {job.id}: {job.ticker} from {job.start_date} to {job.end_date}"
+                    )
 
                     # Fetch historical data
-                    start_str = job.start_date.strftime('%Y-%m-%d')
-                    end_str = job.end_date.strftime('%Y-%m-%d')
+                    start_str = job.start_date.strftime("%Y-%m-%d")
+                    end_str = job.end_date.strftime("%Y-%m-%d")
 
                     bars = polygon.get_aggregates(
                         ticker=job.ticker,
                         multiplier=1,
-                        timespan='day',
+                        timespan="day",
                         from_date=start_str,
-                        to_date=end_str
+                        to_date=end_str,
                     )
 
                     if not bars or len(bars) < 10:
@@ -64,8 +66,8 @@ def run_backtests():
 
                     # Simple backtest strategy: Buy and Hold
                     initial_capital = float(job.initial_capital)
-                    entry_price = bars[0].get('c', 0)  # First close price
-                    exit_price = bars[-1].get('c', 0)  # Last close price
+                    entry_price = bars[0].get("c", 0)  # First close price
+                    exit_price = bars[-1].get("c", 0)  # Last close price
 
                     if entry_price == 0 or exit_price == 0:
                         raise ValueError("Invalid price data")
@@ -78,31 +80,35 @@ def run_backtests():
                     # Calculate daily returns for charting
                     daily_values = []
                     for bar in bars:
-                        day_price = bar.get('c', 0)
+                        day_price = bar.get("c", 0)
                         day_value = shares * day_price
-                        daily_values.append({
-                            'date': datetime.fromtimestamp(bar['t'] / 1000).strftime('%Y-%m-%d'),
-                            'value': round(day_value, 2)
-                        })
+                        daily_values.append(
+                            {
+                                "date": datetime.fromtimestamp(bar["t"] / 1000).strftime(
+                                    "%Y-%m-%d"
+                                ),
+                                "value": round(day_value, 2),
+                            }
+                        )
 
                     # Build result
                     result = {
-                        'ticker': job.ticker,
-                        'strategy': 'Buy and Hold',
-                        'initial_capital': initial_capital,
-                        'final_value': round(final_value, 2),
-                        'profit': round(profit, 2),
-                        'profit_pct': round(profit_pct, 2),
-                        'entry_price': round(entry_price, 2),
-                        'exit_price': round(exit_price, 2),
-                        'shares': round(shares, 4),
-                        'num_days': len(bars),
-                        'daily_values': daily_values
+                        "ticker": job.ticker,
+                        "strategy": "Buy and Hold",
+                        "initial_capital": initial_capital,
+                        "final_value": round(final_value, 2),
+                        "profit": round(profit, 2),
+                        "profit_pct": round(profit_pct, 2),
+                        "entry_price": round(entry_price, 2),
+                        "exit_price": round(exit_price, 2),
+                        "shares": round(shares, 4),
+                        "num_days": len(bars),
+                        "daily_values": daily_values,
                     }
 
                     # Save result
                     job.result_json = json.dumps(result)
-                    job.status = 'completed'
+                    job.status = "completed"
                     job.completed_at = datetime.utcnow()
                     job.error_message = None
 
@@ -112,7 +118,7 @@ def run_backtests():
 
                 except Exception as e:
                     # Mark as failed
-                    job.status = 'failed'
+                    job.status = "failed"
                     job.error_message = str(e)
                     job.completed_at = datetime.utcnow()
                     db.session.commit()
@@ -124,6 +130,7 @@ def run_backtests():
     except Exception as e:
         print(f"✗ Error processing backtests: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 

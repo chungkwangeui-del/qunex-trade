@@ -224,9 +224,7 @@ def init_admin(app):
     # Add model views with security
     admin.add_view(UserAdminView(User, db.session, name="Users"))
     admin.add_view(NewsArticleAdminView(NewsArticle, db.session, name="News"))
-    admin.add_view(
-        EconomicEventAdminView(EconomicEvent, db.session, name="Economic Calendar")
-    )
+    admin.add_view(EconomicEventAdminView(EconomicEvent, db.session, name="Economic Calendar"))
     admin.add_view(AIScoreAdminView(AIScore, db.session, name="AI Scores"))
     admin.add_view(WatchlistAdminView(Watchlist, db.session, name="Watchlists"))
 

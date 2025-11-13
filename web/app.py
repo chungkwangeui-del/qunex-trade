@@ -10,7 +10,6 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_wtf.csrf import CSRFProtect
 from flask_caching import Cache
-from flask_socketio import SocketIO, emit
 import os
 import sys
 import json
@@ -45,11 +44,13 @@ except ImportError:
 # Configure structured logging
 try:
     from web.logging_config import configure_structured_logging, get_logger
+
     configure_structured_logging()
     logger = get_logger(__name__)
 except ImportError:
     try:
         from logging_config import configure_structured_logging, get_logger
+
         configure_structured_logging()
         logger = get_logger(__name__)
     except ImportError:
@@ -162,32 +163,20 @@ csrf = CSRFProtect(app)
 
 # Initialize Flask-Caching with Redis (Upstash)
 REDIS_URL = os.getenv("REDIS_URL", "memory://")
-cache = Cache(app, config={
-    'CACHE_TYPE': 'RedisCache' if REDIS_URL != 'memory://' else 'SimpleCache',
-    'CACHE_REDIS_URL': REDIS_URL if REDIS_URL != 'memory://' else None,
-    'CACHE_DEFAULT_TIMEOUT': 300,  # 5 minutes default
-    'CACHE_KEY_PREFIX': 'qunex_',
-})
+cache = Cache(
+    app,
+    config={
+        "CACHE_TYPE": "RedisCache" if REDIS_URL != "memory://" else "SimpleCache",
+        "CACHE_REDIS_URL": REDIS_URL if REDIS_URL != "memory://" else None,
+        "CACHE_DEFAULT_TIMEOUT": 300,  # 5 minutes default
+        "CACHE_KEY_PREFIX": "qunex_",
+    },
+)
 
-if REDIS_URL == 'memory://':
+if REDIS_URL == "memory://":
     logger.warning("Caching using memory storage (development mode)")
 else:
     logger.info(f"Caching using Redis: {REDIS_URL[:20]}...")
-
-# Initialize SocketIO with Redis message queue for horizontal scaling
-socketio = SocketIO(
-    app,
-    message_queue=REDIS_URL if REDIS_URL != 'memory://' else None,
-    cors_allowed_origins="*",  # Configure properly in production
-    async_mode='eventlet',
-    logger=True,
-    engineio_logger=True,
-)
-
-if REDIS_URL == 'memory://':
-    logger.warning("WebSocket using eventlet (single worker mode)")
-else:
-    logger.info("WebSocket using Redis message queue for multi-worker support")
 
 # Exempt email verification endpoints from CSRF protection
 csrf.exempt("auth.send_verification_code")
@@ -588,8 +577,10 @@ def dashboard():
     """
     try:
         from sqlalchemy.orm import joinedload
+        from database import Watchlist
 
         # Get user's watchlist with optimized query (avoid N+1)
+        # Note: Watchlist doesn't have relationships, so no joinedload needed
         user_watchlist = Watchlist.query.filter_by(user_id=current_user.id).all()
         watchlist_tickers = [w.ticker for w in user_watchlist]
 
@@ -597,25 +588,38 @@ def dashboard():
         ai_scores = {}
         if watchlist_tickers:
             from database import AIScore
+
             scores = AIScore.query.filter(AIScore.ticker.in_(watchlist_tickers)).all()
             ai_scores = {score.ticker: score.to_dict() for score in scores}
 
-        # Get recent news related to watchlist tickers
+        # Get recent news related to watchlist tickers (optimized - single query)
         related_news = []
         if watchlist_tickers:
-            # Search for news mentioning any watchlist ticker
-            for ticker in watchlist_tickers[:5]:  # Limit to 5 tickers for performance
-                ticker_news = NewsArticle.query.filter(
-                    NewsArticle.title.contains(ticker)
-                ).order_by(NewsArticle.published_at.desc()).limit(3).all()
-                related_news.extend([article.to_dict() for article in ticker_news])
+            # Build OR filter to search for news mentioning any watchlist ticker (single query)
+            from sqlalchemy import or_
+
+            # Limit to first 5 tickers for performance
+            search_tickers = watchlist_tickers[:5]
+
+            # Create OR conditions for all tickers
+            filters = [NewsArticle.title.contains(ticker) for ticker in search_tickers]
+
+            # Execute single query instead of N queries
+            ticker_news = (
+                NewsArticle.query
+                .filter(or_(*filters))
+                .order_by(NewsArticle.published_at.desc())
+                .limit(15)  # 3 per ticker * 5 tickers
+                .all()
+            )
+            related_news = [article.to_dict() for article in ticker_news]
 
         # Remove duplicates and limit
         seen_urls = set()
         unique_news = []
         for news in related_news:
-            if news['url'] not in seen_urls:
-                seen_urls.add(news['url'])
+            if news["url"] not in seen_urls:
+                seen_urls.add(news["url"])
                 unique_news.append(news)
                 if len(unique_news) >= 10:
                     break
@@ -625,17 +629,13 @@ def dashboard():
             user=current_user,
             watchlist=watchlist_tickers,
             ai_scores=ai_scores,
-            related_news=unique_news
+            related_news=unique_news,
         )
 
     except Exception as e:
         logger.error(f"Error loading dashboard: {e}", exc_info=True)
         return render_template(
-            "dashboard.html",
-            user=current_user,
-            watchlist=[],
-            ai_scores={},
-            related_news=[]
+            "dashboard.html", user=current_user, watchlist=[], ai_scores={}, related_news=[]
         )
 
 
@@ -659,66 +659,73 @@ def portfolio():
         from database import Transaction
         from collections import defaultdict
         from decimal import Decimal
+        from sqlalchemy.orm import joinedload
 
-        # Get all user transactions
-        transactions = Transaction.query.filter_by(
-            user_id=current_user.id
-        ).order_by(Transaction.transaction_date.desc()).all()
+        # Get all user transactions with eager loading (avoid N+1)
+        transactions = (
+            Transaction.query
+            .options(joinedload(Transaction.user))
+            .filter_by(user_id=current_user.id)
+            .order_by(Transaction.transaction_date.desc())
+            .all()
+        )
 
         # Calculate current holdings
-        holdings = defaultdict(lambda: {'shares': Decimal('0'), 'cost_basis': Decimal('0')})
+        holdings = defaultdict(lambda: {"shares": Decimal("0"), "cost_basis": Decimal("0")})
 
         for txn in transactions:
             ticker = txn.ticker
             shares = Decimal(str(txn.shares))
             price = Decimal(str(txn.price))
 
-            if txn.transaction_type == 'buy':
-                holdings[ticker]['shares'] += shares
-                holdings[ticker]['cost_basis'] += shares * price
-            elif txn.transaction_type == 'sell':
-                holdings[ticker]['shares'] -= shares
+            if txn.transaction_type == "buy":
+                holdings[ticker]["shares"] += shares
+                holdings[ticker]["cost_basis"] += shares * price
+            elif txn.transaction_type == "sell":
+                holdings[ticker]["shares"] -= shares
                 # Reduce cost basis proportionally
-                if holdings[ticker]['shares'] > 0:
-                    avg_cost = holdings[ticker]['cost_basis'] / (holdings[ticker]['shares'] + shares)
-                    holdings[ticker]['cost_basis'] -= shares * avg_cost
+                if holdings[ticker]["shares"] > 0:
+                    avg_cost = holdings[ticker]["cost_basis"] / (
+                        holdings[ticker]["shares"] + shares
+                    )
+                    holdings[ticker]["cost_basis"] -= shares * avg_cost
 
         # Filter out zero holdings
-        current_holdings = {
-            ticker: data for ticker, data in holdings.items()
-            if data['shares'] > 0
-        }
+        current_holdings = {ticker: data for ticker, data in holdings.items() if data["shares"] > 0}
 
         # Get current prices for holdings
         portfolio_data = []
-        total_value = Decimal('0')
-        total_cost = Decimal('0')
+        total_value = Decimal("0")
+        total_cost = Decimal("0")
 
         try:
             from polygon_service import get_polygon_service
+
             polygon = get_polygon_service()
 
             for ticker, holding in current_holdings.items():
                 try:
                     quote = polygon.get_stock_quote(ticker)
-                    current_price = Decimal(str(quote.get('price', 0))) if quote else Decimal('0')
+                    current_price = Decimal(str(quote.get("price", 0))) if quote else Decimal("0")
 
-                    shares = holding['shares']
-                    cost_basis = holding['cost_basis']
+                    shares = holding["shares"]
+                    cost_basis = holding["cost_basis"]
                     current_value = shares * current_price
                     pnl = current_value - cost_basis
-                    pnl_percent = (pnl / cost_basis * 100) if cost_basis > 0 else Decimal('0')
+                    pnl_percent = (pnl / cost_basis * 100) if cost_basis > 0 else Decimal("0")
 
-                    portfolio_data.append({
-                        'ticker': ticker,
-                        'shares': float(shares),
-                        'avg_cost': float(cost_basis / shares) if shares > 0 else 0,
-                        'current_price': float(current_price),
-                        'cost_basis': float(cost_basis),
-                        'current_value': float(current_value),
-                        'pnl': float(pnl),
-                        'pnl_percent': float(pnl_percent)
-                    })
+                    portfolio_data.append(
+                        {
+                            "ticker": ticker,
+                            "shares": float(shares),
+                            "avg_cost": float(cost_basis / shares) if shares > 0 else 0,
+                            "current_price": float(current_price),
+                            "cost_basis": float(cost_basis),
+                            "current_value": float(current_value),
+                            "pnl": float(pnl),
+                            "pnl_percent": float(pnl_percent),
+                        }
+                    )
 
                     total_value += current_value
                     total_cost += cost_basis
@@ -731,7 +738,7 @@ def portfolio():
             logger.error(f"Error fetching portfolio prices: {e}", exc_info=True)
 
         total_pnl = total_value - total_cost
-        total_pnl_percent = (total_pnl / total_cost * 100) if total_cost > 0 else Decimal('0')
+        total_pnl_percent = (total_pnl / total_cost * 100) if total_cost > 0 else Decimal("0")
 
         return render_template(
             "portfolio.html",
@@ -741,7 +748,7 @@ def portfolio():
             total_cost=float(total_cost),
             total_value=float(total_value),
             total_pnl=float(total_pnl),
-            total_pnl_percent=float(total_pnl_percent)
+            total_pnl_percent=float(total_pnl_percent),
         )
 
     except Exception as e:
@@ -754,7 +761,7 @@ def portfolio():
             total_cost=0,
             total_value=0,
             total_pnl=0,
-            total_pnl_percent=0
+            total_pnl_percent=0,
         )
 
 
@@ -765,15 +772,20 @@ def backtest():
     Render Backtest page for testing AI trading strategies.
     """
     try:
-        # Get user's backtest jobs
-        jobs = BacktestJob.query.filter_by(user_id=current_user.id).order_by(
-            BacktestJob.created_at.desc()
-        ).limit(20).all()
+        from sqlalchemy.orm import joinedload
+
+        # Get user's backtest jobs with eager loading (avoid N+1)
+        jobs = (
+            BacktestJob.query
+            .options(joinedload(BacktestJob.user))
+            .filter_by(user_id=current_user.id)
+            .order_by(BacktestJob.created_at.desc())
+            .limit(20)
+            .all()
+        )
 
         return render_template(
-            "backtest.html",
-            user=current_user,
-            jobs=[job.to_dict() for job in jobs]
+            "backtest.html", user=current_user, jobs=[job.to_dict() for job in jobs]
         )
 
     except Exception as e:
@@ -789,15 +801,16 @@ def create_backtest():
         data = request.get_json()
 
         # Validate required fields
-        required_fields = ['ticker', 'start_date', 'end_date']
+        required_fields = ["ticker", "start_date", "end_date"]
         for field in required_fields:
             if field not in data:
                 return jsonify({"error": f"Missing required field: {field}"}), 400
 
         # Parse dates
         from datetime import datetime
-        start_date = datetime.fromisoformat(data['start_date'].replace('Z', '+00:00'))
-        end_date = datetime.fromisoformat(data['end_date'].replace('Z', '+00:00'))
+
+        start_date = datetime.fromisoformat(data["start_date"].replace("Z", "+00:00"))
+        end_date = datetime.fromisoformat(data["end_date"].replace("Z", "+00:00"))
 
         # Validate date range
         if start_date >= end_date:
@@ -806,11 +819,11 @@ def create_backtest():
         # Create backtest job
         job = BacktestJob(
             user_id=current_user.id,
-            ticker=data['ticker'].upper(),
+            ticker=data["ticker"].upper(),
             start_date=start_date,
             end_date=end_date,
-            initial_capital=float(data.get('initial_capital', 10000)),
-            status='pending'
+            initial_capital=float(data.get("initial_capital", 10000)),
+            status="pending",
         )
 
         db.session.add(job)
@@ -818,11 +831,16 @@ def create_backtest():
 
         logger.info(f"Backtest job created: {job.id} for {job.ticker}")
 
-        return jsonify({
-            "success": True,
-            "job_id": job.id,
-            "message": "Backtest job created. Processing will begin shortly."
-        }), 201
+        return (
+            jsonify(
+                {
+                    "success": True,
+                    "job_id": job.id,
+                    "message": "Backtest job created. Processing will begin shortly.",
+                }
+            ),
+            201,
+        )
 
     except ValueError as e:
         db.session.rollback()
@@ -929,7 +947,7 @@ def stock_chart(symbol):
 
 
 @app.route("/news")
-@cache.cached(timeout=3600, key_prefix='news_page')  # Cache for 1 hour
+@cache.cached(timeout=3600, key_prefix="news_page")  # Cache for 1 hour
 def news() -> str:
     """
     Market News & Analysis page (Beta/Developer Only).
@@ -1094,7 +1112,7 @@ def api_critical_news():
 
 
 @app.route("/api/economic-calendar")
-@cache.cached(timeout=3600, key_prefix='economic_calendar')  # Cache for 1 hour
+@cache.cached(timeout=3600, key_prefix="economic_calendar")  # Cache for 1 hour
 def api_economic_calendar():
     """
     Get upcoming economic calendar events.
@@ -1619,6 +1637,52 @@ def api_stock_news(symbol):
         return jsonify({"articles": []}), 500
 
 
+@app.route("/api/market-data", methods=["POST"])
+@login_required
+def api_market_data():
+    """
+    Get market data for multiple tickers (replaces WebSocket)
+
+    Request: {"tickers": ["AAPL", "TSLA"]}
+    Response: {"success": true, "data": {"AAPL": {...}, "TSLA": {...}}}
+    """
+    try:
+        data = request.get_json()
+        tickers = data.get("tickers", [])
+
+        if not tickers or not isinstance(tickers, list):
+            return jsonify({"success": False, "error": "Invalid tickers"}), 400
+
+        # Limit to 10 tickers per request
+        tickers = tickers[:10]
+
+        result = {}
+        from polygon_service import PolygonService
+
+        polygon = PolygonService()
+
+        for ticker in tickers:
+            try:
+                ticker_data = polygon.get_ticker_details(ticker)
+                if ticker_data and "results" in ticker_data:
+                    result[ticker] = {
+                        "price": ticker_data["results"].get("prevClose"),
+                        "change": ticker_data["results"].get("todaysChange"),
+                        "change_percent": ticker_data["results"].get("todaysChangePerc"),
+                        "volume": ticker_data["results"].get("volume"),
+                        "market_cap": ticker_data["results"].get("market_cap"),
+                    }
+            except Exception as e:
+                logger.error(f"Error fetching {ticker}: {e}")
+                continue
+
+        return jsonify({"success": True, "data": result})
+
+    except Exception as e:
+        logger.error(f"Market data API error: {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
 # Auto-refresh news every hour in background
 def auto_refresh_news() -> None:
     """
@@ -1680,47 +1744,52 @@ def add_transaction():
         data = request.get_json()
 
         # Validate required fields
-        required_fields = ['ticker', 'shares', 'price', 'transaction_type']
+        required_fields = ["ticker", "shares", "price", "transaction_type"]
         for field in required_fields:
             if field not in data:
                 return jsonify({"error": f"Missing required field: {field}"}), 400
 
         # Validate transaction_type
-        if data['transaction_type'] not in ['buy', 'sell']:
+        if data["transaction_type"] not in ["buy", "sell"]:
             return jsonify({"error": "transaction_type must be 'buy' or 'sell'"}), 400
 
         # Validate numeric fields
         try:
-            shares = float(data['shares'])
-            price = float(data['price'])
+            shares = float(data["shares"])
+            price = float(data["price"])
             if shares <= 0 or price <= 0:
                 return jsonify({"error": "Shares and price must be positive"}), 400
         except (ValueError, TypeError):
             return jsonify({"error": "Invalid numeric value"}), 400
 
         # Sanitize notes to prevent XSS
-        notes = data.get('notes', '')
+        notes = data.get("notes", "")
         if notes:
             notes = bleach.clean(notes, tags=[], attributes={}, strip=True)
 
         # Create transaction
         transaction = Transaction(
             user_id=current_user.id,
-            ticker=data['ticker'].upper(),
+            ticker=data["ticker"].upper(),
             shares=shares,
             price=price,
-            transaction_type=data['transaction_type'],
-            notes=notes
+            transaction_type=data["transaction_type"],
+            notes=notes,
         )
 
         db.session.add(transaction)
         db.session.commit()
 
-        return jsonify({
-            "success": True,
-            "message": "Transaction added successfully",
-            "transaction": transaction.to_dict()
-        }), 201
+        return (
+            jsonify(
+                {
+                    "success": True,
+                    "message": "Transaction added successfully",
+                    "transaction": transaction.to_dict(),
+                }
+            ),
+            201,
+        )
 
     except Exception as e:
         db.session.rollback()
@@ -1744,8 +1813,7 @@ def delete_transaction(transaction_id):
         from database import Transaction
 
         transaction = Transaction.query.filter_by(
-            id=transaction_id,
-            user_id=current_user.id
+            id=transaction_id, user_id=current_user.id
         ).first()
 
         if not transaction:
@@ -1754,59 +1822,12 @@ def delete_transaction(transaction_id):
         db.session.delete(transaction)
         db.session.commit()
 
-        return jsonify({
-            "success": True,
-            "message": "Transaction deleted successfully"
-        }), 200
+        return jsonify({"success": True, "message": "Transaction deleted successfully"}), 200
 
     except Exception as e:
         db.session.rollback()
         logger.error(f"Error deleting transaction: {e}", exc_info=True)
         return jsonify({"error": "Failed to delete transaction"}), 500
-
-
-# WebSocket Event Handlers
-@socketio.on('connect')
-def handle_connect():
-    """Handle client connection"""
-    logger.info(f"Client connected: {request.sid}")
-    emit('connection_established', {'status': 'connected'})
-
-
-@socketio.on('disconnect')
-def handle_disconnect():
-    """Handle client disconnection"""
-    logger.info(f"Client disconnected: {request.sid}")
-
-
-@socketio.on('subscribe_ticker')
-def handle_subscribe_ticker(data):
-    """Handle ticker subscription for real-time updates"""
-    try:
-        ticker = data.get('ticker', '').upper()
-        if not ticker:
-            emit('error', {'message': 'Invalid ticker'})
-            return
-
-        logger.info(f"Client {request.sid} subscribed to {ticker}")
-        emit('subscribed', {'ticker': ticker, 'status': 'success'})
-
-    except Exception as e:
-        logger.error(f"Error subscribing to ticker: {e}", exc_info=True)
-        emit('error', {'message': 'Subscription failed'})
-
-
-@socketio.on('unsubscribe_ticker')
-def handle_unsubscribe_ticker(data):
-    """Handle ticker unsubscription"""
-    try:
-        ticker = data.get('ticker', '').upper()
-        logger.info(f"Client {request.sid} unsubscribed from {ticker}")
-        emit('unsubscribed', {'ticker': ticker, 'status': 'success'})
-
-    except Exception as e:
-        logger.error(f"Error unsubscribing from ticker: {e}", exc_info=True)
-        emit('error', {'message': 'Unsubscription failed'})
 
 
 if os.getenv("ENABLE_BACKGROUND_THREAD", "false").lower() == "true":
@@ -1819,5 +1840,4 @@ else:
     logger.info("Background thread disabled (using Render Cron Jobs instead)")
 
 if __name__ == "__main__":
-    # Use socketio.run() instead of app.run() for WebSocket support
-    socketio.run(app, debug=True, host="0.0.0.0", port=5000)
+    app.run(debug=True, host="0.0.0.0", port=5000)

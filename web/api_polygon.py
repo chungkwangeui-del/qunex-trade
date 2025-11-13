@@ -282,7 +282,7 @@ def get_sector_map():
 
 
 @api_polygon.route("/api/market/movers")
-@cache.cached(timeout=300, key_prefix='market_movers')  # Cache for 5 minutes
+@cache.cached(timeout=300, key_prefix="market_movers")  # Cache for 5 minutes
 def get_movers():
     """
     Get both top gainers and top losers for the trading day.

@@ -45,9 +45,7 @@ class TestWatchlistAPI:
         assert data["status"] == "success"
 
         # Verify in database
-        watchlist_entry = Watchlist.query.filter_by(
-            user_id=test_user.id, ticker="AAPL"
-        ).first()
+        watchlist_entry = Watchlist.query.filter_by(user_id=test_user.id, ticker="AAPL").first()
         assert watchlist_entry is not None
 
     def test_add_duplicate_watchlist_entry(self, client, test_user, db_session):
@@ -145,9 +143,7 @@ class TestPolygonAPI:
         with client.session_transaction() as sess:
             sess["_user_id"] = str(test_user.id)
 
-        with pytest.mock.patch(
-            "web.api_polygon.PolygonService", return_value=mock_polygon_api
-        ):
+        with pytest.mock.patch("web.api_polygon.PolygonService", return_value=mock_polygon_api):
             response = client.get("/api/polygon/market-movers")
 
             assert response.status_code == 200
@@ -247,9 +243,7 @@ class TestAPICaching:
         with client.session_transaction() as sess:
             sess["_user_id"] = str(test_user.id)
 
-        with pytest.mock.patch(
-            "web.api_polygon.PolygonService", return_value=mock_polygon_api
-        ):
+        with pytest.mock.patch("web.api_polygon.PolygonService", return_value=mock_polygon_api):
             # First call
             response1 = client.get("/api/polygon/market-movers")
             data1 = json.loads(response1.data)

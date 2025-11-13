@@ -47,12 +47,6 @@ scikit-learn==1.4.0
 # MLOps & Data Versioning
 dvc==3.48.0
 
-# Real-time WebSocket
-Flask-SocketIO==5.3.6
-eventlet==0.35.2
-backoff==2.2.1
-websocket-client==1.7.0
-
 # Structured Logging
 structlog==24.1.0
 

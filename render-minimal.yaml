@@ -7,7 +7,7 @@ services:
     plan: free
     branch: main
     buildCommand: bash build.sh
-    startCommand: gunicorn --bind 0.0.0.0:$PORT --timeout 120 web.app:app
+    startCommand: cd web && gunicorn --worker-class eventlet -w 1 --bind 0.0.0.0:$PORT --timeout 120 app:app
     runtimeVersion: "3.11"
     healthCheckPath: /
 
