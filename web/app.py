@@ -37,12 +37,18 @@ AUTO_REFRESH_INTERVAL = 3600  # 1 hour
 
 # Import database first
 try:
-    from database import db, User, NewsArticle, EconomicEvent
+    from database import db, User, NewsArticle, EconomicEvent, BacktestJob
 except ImportError:
-    from web.database import db, User, NewsArticle, EconomicEvent
+    from web.database import db, User, NewsArticle, EconomicEvent, BacktestJob
 
-# Configure logging
-logger = logging.getLogger(__name__)
+# Configure structured logging
+try:
+    from logging_config import configure_structured_logging, get_logger
+    configure_structured_logging()
+    logger = get_logger(__name__)
+except ImportError:
+    # Fallback to standard logging
+    logger = logging.getLogger(__name__)
 
 
 # Helper Functions for Database Queries
@@ -734,6 +740,98 @@ def portfolio():
             total_pnl=0,
             total_pnl_percent=0
         )
+
+
+@app.route("/backtest")
+@login_required
+def backtest():
+    """
+    Render Backtest page for testing AI trading strategies.
+    """
+    try:
+        # Get user's backtest jobs
+        jobs = BacktestJob.query.filter_by(user_id=current_user.id).order_by(
+            BacktestJob.created_at.desc()
+        ).limit(20).all()
+
+        return render_template(
+            "backtest.html",
+            user=current_user,
+            jobs=[job.to_dict() for job in jobs]
+        )
+
+    except Exception as e:
+        logger.error(f"Error loading backtest page: {e}", exc_info=True)
+        return render_template("backtest.html", user=current_user, jobs=[])
+
+
+@app.route("/api/backtest", methods=["POST"])
+@login_required
+def create_backtest():
+    """Create a new backtest job."""
+    try:
+        data = request.get_json()
+
+        # Validate required fields
+        required_fields = ['ticker', 'start_date', 'end_date']
+        for field in required_fields:
+            if field not in data:
+                return jsonify({"error": f"Missing required field: {field}"}), 400
+
+        # Parse dates
+        from datetime import datetime
+        start_date = datetime.fromisoformat(data['start_date'].replace('Z', '+00:00'))
+        end_date = datetime.fromisoformat(data['end_date'].replace('Z', '+00:00'))
+
+        # Validate date range
+        if start_date >= end_date:
+            return jsonify({"error": "Start date must be before end date"}), 400
+
+        # Create backtest job
+        job = BacktestJob(
+            user_id=current_user.id,
+            ticker=data['ticker'].upper(),
+            start_date=start_date,
+            end_date=end_date,
+            initial_capital=float(data.get('initial_capital', 10000)),
+            status='pending'
+        )
+
+        db.session.add(job)
+        db.session.commit()
+
+        logger.info(f"Backtest job created: {job.id} for {job.ticker}")
+
+        return jsonify({
+            "success": True,
+            "job_id": job.id,
+            "message": "Backtest job created. Processing will begin shortly."
+        }), 201
+
+    except ValueError as e:
+        db.session.rollback()
+        return jsonify({"error": f"Invalid date format: {str(e)}"}), 400
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"Error creating backtest job: {e}", exc_info=True)
+        return jsonify({"error": "Failed to create backtest job"}), 500
+
+
+@app.route("/api/backtest-status/<int:job_id>")
+@login_required
+def get_backtest_status(job_id):
+    """Get status of a backtest job."""
+    try:
+        job = BacktestJob.query.filter_by(id=job_id, user_id=current_user.id).first()
+
+        if not job:
+            return jsonify({"error": "Backtest job not found"}), 404
+
+        return jsonify(job.to_dict()), 200
+
+    except Exception as e:
+        logger.error(f"Error getting backtest status: {e}", exc_info=True)
+        return jsonify({"error": "Failed to get backtest status"}), 500
 
 
 @app.route("/watchlist")
@@ -1584,6 +1682,12 @@ def add_transaction():
         except (ValueError, TypeError):
             return jsonify({"error": "Invalid numeric value"}), 400
 
+        # Sanitize notes to prevent XSS
+        import bleach
+        notes = data.get('notes', '')
+        if notes:
+            notes = bleach.clean(notes, tags=[], attributes={}, strip=True)
+
         # Create transaction
         transaction = Transaction(
             user_id=current_user.id,
@@ -1591,7 +1695,7 @@ def add_transaction():
             shares=shares,
             price=price,
             transaction_type=data['transaction_type'],
-            notes=data.get('notes', '')
+            notes=notes
         )
 
         db.session.add(transaction)

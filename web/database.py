@@ -305,3 +305,50 @@ class Transaction(db.Model):
             "total_cost": float(self.shares * self.price),
             "notes": self.notes,
         }
+
+
+class BacktestJob(db.Model):
+    """
+    Backtest job for testing AI trading strategies.
+
+    Users can submit backtest requests which are processed asynchronously
+    by a cron job. Results are stored in result_json.
+    """
+
+    __tablename__ = "backtest_jobs"
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False, index=True)
+    status = db.Column(
+        db.String(20), default="pending", index=True
+    )  # pending, running, completed, failed
+    ticker = db.Column(db.String(10), nullable=False)
+    start_date = db.Column(db.DateTime, nullable=False)
+    end_date = db.Column(db.DateTime, nullable=False)
+    initial_capital = db.Column(db.Numeric(precision=12, scale=2), default=10000)
+    result_json = db.Column(db.Text, nullable=True)  # Backtest results as JSON
+    error_message = db.Column(db.Text, nullable=True)  # Error message if failed
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    completed_at = db.Column(db.DateTime, nullable=True)
+
+    # Relationship
+    user = db.relationship("User", backref=db.backref("backtest_jobs", lazy=True))
+
+    def __repr__(self):
+        return f"<BacktestJob {self.id} {self.ticker} {self.status}>"
+
+    def to_dict(self):
+        """Convert to dictionary for JSON serialization"""
+        return {
+            "id": self.id,
+            "user_id": self.user_id,
+            "status": self.status,
+            "ticker": self.ticker,
+            "start_date": self.start_date.isoformat() if self.start_date else None,
+            "end_date": self.end_date.isoformat() if self.end_date else None,
+            "initial_capital": float(self.initial_capital) if self.initial_capital else 10000,
+            "result": json.loads(self.result_json) if self.result_json else None,
+            "error_message": self.error_message,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "completed_at": self.completed_at.isoformat() if self.completed_at else None,
+        }

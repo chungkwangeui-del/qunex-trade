@@ -86,5 +86,20 @@ services:
     envVars:
       # Inherits DATABASE_URL, POLYGON_API_KEY from environment
 
+  # Cron Job - Backtest Processor (runs every minute)
+  - type: cron
+    name: qunex-backtest-processor
+    runtime: python
+    env: python
+    region: oregon
+    plan: free
+    branch: main
+    schedule: "* * * * *"  # Every minute
+    buildCommand: bash build.sh
+    startCommand: python scripts/cron_run_backtests.py
+    runtimeVersion: "3.13.1"
+    envVars:
+      # Inherits DATABASE_URL, POLYGON_API_KEY from environment
+
 # No databases section - using Supabase PostgreSQL (permanent free tier)
 # Add DATABASE_URL in Render Dashboard pointing to Supabase
