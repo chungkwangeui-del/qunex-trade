@@ -195,7 +195,7 @@ csrf.exempt("auth.verify_code")
 
 # Initialize rate limiter
 # CLOUD-NATIVE: Use Redis for distributed rate limiting (Upstash)
-REDIS_URL = os.getenv("REDIS_URL", "memory://")  # Falls back to memory in development
+# Note: REDIS_URL already defined above (line 164)
 limiter = Limiter(
     app=app,
     key_func=get_remote_address,
@@ -234,20 +234,23 @@ app.register_blueprint(api_polygon)
 app.register_blueprint(api_watchlist)
 
 # Apply rate limiting to auth routes (after blueprint registration)
-limiter.limit(f"{RATE_LIMITS['auth_per_minute']} per minute")(app.view_functions["auth.login"])
-limiter.limit("5 per minute")(app.view_functions["auth.signup"])
-limiter.limit("3 per minute")(app.view_functions["auth.forgot_password"])
-limiter.limit("5 per minute")(app.view_functions["auth.reset_password"])
-limiter.limit("3 per minute")(app.view_functions["auth.send_verification_code"])
-limiter.limit(f"{RATE_LIMITS['auth_per_minute']} per minute")(
-    app.view_functions["auth.verify_code"]
-)
-limiter.limit(f"{RATE_LIMITS['auth_per_minute']} per minute")(
-    app.view_functions["auth.google_login"]
-)
-limiter.limit(f"{RATE_LIMITS['auth_per_minute']} per minute")(
-    app.view_functions["auth.google_callback"]
-)
+# Use defensive checks to avoid KeyError if view function doesn't exist
+auth_routes = [
+    ("auth.login", f"{RATE_LIMITS['auth_per_minute']} per minute"),
+    ("auth.signup", "5 per minute"),
+    ("auth.forgot_password", "3 per minute"),
+    ("auth.reset_password", "5 per minute"),
+    ("auth.send_verification_code", "3 per minute"),
+    ("auth.verify_code", f"{RATE_LIMITS['auth_per_minute']} per minute"),
+    ("auth.google_login", f"{RATE_LIMITS['auth_per_minute']} per minute"),
+    ("auth.google_callback", f"{RATE_LIMITS['auth_per_minute']} per minute"),
+]
+
+for route_name, rate_limit in auth_routes:
+    if route_name in app.view_functions:
+        limiter.limit(rate_limit)(app.view_functions[route_name])
+    else:
+        logger.warning(f"View function '{route_name}' not found, skipping rate limit")
 
 
 @login_manager.user_loader
@@ -272,9 +275,16 @@ with app.app_context():
 try:
     from admin_views import init_admin
 except ImportError:
-    from web.admin_views import init_admin
+    try:
+        from web.admin_views import init_admin
+    except ImportError as e:
+        logger.warning(f"Failed to import admin_views: {e}. Admin interface will not be available.")
+        init_admin = None
 
-admin = init_admin(app)
+if init_admin:
+    admin = init_admin(app)
+else:
+    admin = None
 
 
 # Security headers middleware
