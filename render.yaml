@@ -147,10 +147,6 @@ services:
     envVarGroups:
       - qunex-prod-env
 
-# ==================================================
-# ENVIRONMENT VARIABLE GROUP
-# Shared across all services
-# ==================================================
 envVarGroups:
   - name: qunex-prod-env
     envVars:
@@ -163,36 +159,3 @@ envVarGroups:
         value: "3.11"
       - key: ENABLE_BACKGROUND_THREAD
         value: "false"
-
-      # Database (Add in Render Dashboard)
-      # - DATABASE_URL: from Supabase PostgreSQL
-
-      # Redis Cache & WebSocket (Add in Render Dashboard)
-      # - REDIS_URL: from Upstash Redis
-
-      # Market Data APIs (Add in Render Dashboard)
-      # - POLYGON_API_KEY: Polygon.io API key
-      # - ALPHA_VANTAGE_API_KEY: Alpha Vantage API key (for AI scores)
-      # - FINNHUB_API_KEY: Finnhub API key (for calendar)
-
-      # News & AI (Add in Render Dashboard)
-      # - NEWSAPI_KEY: NewsAPI key
-      # - ANTHROPIC_API_KEY: Claude AI key
-
-      # Email (Add in Render Dashboard)
-      # - MAIL_USERNAME: Gmail address
-      # - MAIL_PASSWORD: Gmail app password
-
-      # Security (Add in Render Dashboard)
-      # - RECAPTCHA_SECRET_KEY: Google reCAPTCHA key
-
-      # OAuth (Add in Render Dashboard - Optional)
-      # - GOOGLE_CLIENT_ID: Google OAuth client ID
-      # - GOOGLE_CLIENT_SECRET: Google OAuth client secret
-
-      # Payments (Add in Render Dashboard - Optional)
-      # - STRIPE_SECRET_KEY: Stripe secret key
-      # - STRIPE_PUBLISHABLE_KEY: Stripe publishable key
-
-      # Admin (Add in Render Dashboard)
-      # - ADMIN_EMAIL: Admin panel access email
