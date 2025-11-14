@@ -1,7 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Bash(Out-String)"
+      "Bash(Out-String)",
+      "Bash(gh run list:*)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []

@@ -11,6 +11,21 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -28,9 +43,10 @@ jobs:
 
       - name: Run tests with coverage
         env:
-          DATABASE_URL: postgresql://test:test@localhost/test
+          DATABASE_URL: postgresql://test:test@localhost:5432/test
           SECRET_KEY: test-secret-key
           FLASK_ENV: testing
+          TESTING: true
         run: |
           pytest tests/ -v --cov=. --cov-report=term-missing --cov-report=xml
 

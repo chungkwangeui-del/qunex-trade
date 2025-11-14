@@ -27,6 +27,7 @@ jobs:
       - name: Run insider trading refresh
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
           FINNHUB_API_KEY: ${{ secrets.FINNHUB_API_KEY }}
         run: |
           python scripts/cron_refresh_insider.py

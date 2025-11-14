@@ -257,9 +257,12 @@ def load_user(user_id: str) -> Optional[User]:
     return db.session.get(User, int(user_id))
 
 
-# Create tables
-with app.app_context():
-    db.create_all()
+# Create tables (skip if database URL is not configured properly)
+try:
+    with app.app_context():
+        db.create_all()
+except Exception as e:
+    logger.warning(f"Failed to create database tables: {e}. This is expected in test environments.")
 
 # Initialize Flask-Admin
 try:

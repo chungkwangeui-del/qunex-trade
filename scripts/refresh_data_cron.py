@@ -44,10 +44,11 @@ def refresh_news_data():
         - Commits database transactions
     """
     try:
+        # Import app first to ensure proper initialization
+        from web.app import app
+        from web.database import db, NewsArticle
         from src.news_collector import collect_news
         from src.news_analyzer import analyze_with_claude
-        from web.database import db, NewsArticle
-        from web.app import app
 
         logger.info("Starting news refresh...")
 
@@ -149,8 +150,9 @@ def refresh_calendar_data():
         bool: True if refresh succeeded, False otherwise
     """
     try:
-        from web.database import db, EconomicEvent
+        # Import app first to ensure proper initialization
         from web.app import app
+        from web.database import db, EconomicEvent
         import requests
         from datetime import datetime, timedelta
 

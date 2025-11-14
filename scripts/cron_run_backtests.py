@@ -28,7 +28,7 @@ def run_backtests():
         # Import within function to avoid circular imports
         from web.app import app
         from web.database import db, BacktestJob
-        from src.polygon_service import PolygonService
+        from web.polygon_service import PolygonService
 
         with app.app_context():
             # Get pending jobs
