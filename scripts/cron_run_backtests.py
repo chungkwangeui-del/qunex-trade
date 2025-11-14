@@ -11,8 +11,11 @@ import json
 from datetime import datetime, timedelta
 from decimal import Decimal
 
-# Add parent directory to path
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# Add parent directory and web directory to path for imports
+parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+web_dir = os.path.join(parent_dir, "web")
+sys.path.insert(0, web_dir)
+sys.path.insert(0, parent_dir)
 
 from dotenv import load_dotenv
 
