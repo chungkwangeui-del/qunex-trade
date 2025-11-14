@@ -207,13 +207,24 @@ def calculate_enhanced_features(ticker: str, polygon, alpha_vantage, db):
         # 1. TECHNICAL INDICATORS (from Polygon if available)
         if polygon:
             technicals = polygon.get_technical_indicators(ticker, days=200)
-            if technicals:
-                features["rsi"] = technicals.get("rsi", 50)
-                features["macd"] = technicals.get("macd", 0)
-                features["price_to_ma50"] = technicals.get("price_to_ma50", 1.0)
-                features["price_to_ma200"] = technicals.get("price_to_ma200", 1.0)
+            if technicals and technicals.get("current_price"):
+                # Use actual Polygon data
+                features["rsi"] = technicals.get("rsi_14", 50)
+                current_price = technicals.get("current_price", 0)
+                sma_50 = technicals.get("sma_50", current_price)
+                features["price_to_ma50"] = current_price / sma_50 if sma_50 else 1.0
+
+                # MACD not available - use default
+                features["macd"] = 0
+                # MA200 not available - use default
+                features["price_to_ma200"] = 1.0
+
+                logger.info(
+                    f"Polygon technical data fetched: RSI={features['rsi']:.2f}, Price/MA50={features['price_to_ma50']:.2f}"
+                )
             else:
                 # Use defaults if no data
+                logger.warning(f"No Polygon technical data for {ticker}, using defaults")
                 features["rsi"] = 50
                 features["macd"] = 0
                 features["price_to_ma50"] = 1.0
