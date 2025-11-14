@@ -45,13 +45,96 @@ jobs:
           python scripts/migrate_add_explanation_json.py
 
       - name: Run AI score update
+        id: ai_score_update
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           ALPHA_VANTAGE_API_KEY: ${{ secrets.ALPHAVANTAGE_KEY }}
           POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
         run: |
-          python scripts/cron_update_ai_scores.py
+          python scripts/cron_update_ai_scores.py 2>&1 | tee ai_score_output.log
+          echo "log_file=ai_score_output.log" >> $GITHUB_OUTPUT
+
+      - name: Generate Summary
+        if: always()
+        run: |
+          echo "# 🤖 AI Score Update Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Workflow Run:** ${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Triggered by:** ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Time:** $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Check if workflow succeeded
+          if [ -f ai_score_output.log ]; then
+            # Extract key metrics from log
+            echo "## 📊 Results" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+
+            # ML Model Status
+            if grep -q "ML model loaded successfully" ai_score_output.log; then
+              echo "✅ **ML Model:** Loaded successfully" >> $GITHUB_STEP_SUMMARY
+            elif grep -q "Could not load ML model" ai_score_output.log; then
+              echo "⚠️ **ML Model:** Failed to load (using rule-based scoring)" >> $GITHUB_STEP_SUMMARY
+              grep "Could not load ML model" ai_score_output.log | head -1 >> $GITHUB_STEP_SUMMARY
+            else
+              echo "❓ **ML Model:** Status unknown" >> $GITHUB_STEP_SUMMARY
+            fi
+            echo "" >> $GITHUB_STEP_SUMMARY
+
+            # Stocks processed
+            STOCKS_PROCESSED=$(grep -o "Processing [0-9]* tickers" ai_score_output.log | grep -o "[0-9]*" | head -1 || echo "0")
+            echo "📈 **Stocks Processed:** $STOCKS_PROCESSED" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+
+            # Success/Failed counts
+            SUCCESS_COUNT=$(grep -c "ML model score for" ai_score_output.log || echo "0")
+            FAILED_COUNT=$(grep -c "Could not calculate features for" ai_score_output.log || echo "0")
+
+            echo "| Status | Count |" >> $GITHUB_STEP_SUMMARY
+            echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+            echo "| ✅ Success | $SUCCESS_COUNT |" >> $GITHUB_STEP_SUMMARY
+            echo "| ❌ Failed | $FAILED_COUNT |" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+
+            # API Status
+            echo "## 🔌 API Status" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+
+            if grep -q "Polygon technical data fetched" ai_score_output.log; then
+              POLYGON_COUNT=$(grep -c "Polygon technical data fetched" ai_score_output.log || echo "0")
+              echo "✅ **Polygon API:** Working ($POLYGON_COUNT calls)" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "⚠️ **Polygon API:** No data fetched" >> $GITHUB_STEP_SUMMARY
+            fi
+
+            if grep -q "Alpha Vantage fundamental data" ai_score_output.log; then
+              AV_COUNT=$(grep -c "Alpha Vantage fundamental data" ai_score_output.log || echo "0")
+              echo "✅ **Alpha Vantage API:** Working ($AV_COUNT calls)" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "⚠️ **Alpha Vantage API:** No data fetched" >> $GITHUB_STEP_SUMMARY
+            fi
+            echo "" >> $GITHUB_STEP_SUMMARY
+
+            # Duration
+            DURATION=$(grep "CRON JOB COMPLETED in" ai_score_output.log | grep -o "[0-9.]*" | head -1 || echo "N/A")
+            echo "⏱️ **Duration:** ${DURATION}s" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+
+            # Overall status
+            if grep -q "✓ SUCCESS" ai_score_output.log; then
+              echo "## ✅ Overall Status: SUCCESS" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "## ❌ Overall Status: FAILED" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "### Error Details" >> $GITHUB_STEP_SUMMARY
+              echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+              grep -i "error\|critical\|failed" ai_score_output.log | tail -10 >> $GITHUB_STEP_SUMMARY
+              echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            fi
+          else
+            echo "❌ **Status:** Workflow failed - no output log found" >> $GITHUB_STEP_SUMMARY
+          fi
 
       - name: Notify on failure
         if: failure()
-        run: echo "AI score update failed - check logs"
+        run: echo "AI score update failed - check logs and summary"

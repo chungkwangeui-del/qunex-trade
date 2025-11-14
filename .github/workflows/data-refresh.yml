@@ -48,14 +48,127 @@ jobs:
           echo "All required secrets are configured"
 
       - name: Run data refresh script
+        id: data_refresh
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           FINNHUB_API_KEY: ${{ secrets.FINNHUB_API_KEY }}
         run: |
-          python scripts/refresh_data_cron.py
+          python scripts/refresh_data_cron.py 2>&1 | tee data_refresh_output.log
+          echo "log_file=data_refresh_output.log" >> $GITHUB_OUTPUT
+
+      - name: Generate Summary
+        if: always()
+        run: |
+          echo "# 📰 Data Refresh Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Workflow Run:** ${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Triggered by:** ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Time:** $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ -f data_refresh_output.log ]; then
+            echo "## 📊 Results" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+
+            # News Collection Status
+            echo "### 📰 News Collection" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+
+            if grep -q "NEWS REFRESH SUMMARY" data_refresh_output.log; then
+              TOTAL_COLLECTED=$(grep "Total collected:" data_refresh_output.log | grep -o "[0-9]*" | tail -1 || echo "0")
+              SAVED_NEW=$(grep "Saved (new):" data_refresh_output.log | grep -o "[0-9]*" | tail -1 || echo "0")
+              SKIPPED=$(grep "Skipped (duplicate/filtered):" data_refresh_output.log | grep -o "[0-9]*" | tail -1 || echo "0")
+              ERRORS=$(grep "Errors:" data_refresh_output.log | grep -o "[0-9]*" | tail -1 || echo "0")
+
+              echo "| Metric | Count |" >> $GITHUB_STEP_SUMMARY
+              echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+              echo "| 📥 Total Collected | $TOTAL_COLLECTED |" >> $GITHUB_STEP_SUMMARY
+              echo "| ✅ Saved (New) | $SAVED_NEW |" >> $GITHUB_STEP_SUMMARY
+              echo "| ⏭️ Skipped | $SKIPPED |" >> $GITHUB_STEP_SUMMARY
+              echo "| ❌ Errors | $ERRORS |" >> $GITHUB_STEP_SUMMARY
+
+              # Check if NewsAnalyzer was initialized
+              if grep -q "NewsAnalyzer initialized successfully" data_refresh_output.log; then
+                echo "" >> $GITHUB_STEP_SUMMARY
+                echo "✅ **NewsAnalyzer (Claude AI):** Initialized successfully" >> $GITHUB_STEP_SUMMARY
+              fi
+            else
+              echo "⚠️ News collection did not complete" >> $GITHUB_STEP_SUMMARY
+            fi
+            echo "" >> $GITHUB_STEP_SUMMARY
+
+            # Calendar Status
+            echo "### 📅 Economic Calendar" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+
+            if grep -q "Saved.*new events" data_refresh_output.log; then
+              CALENDAR_SAVED=$(grep "Saved.*new events" data_refresh_output.log | grep -o "[0-9]*" | head -1 || echo "0")
+              CALENDAR_UPDATED=$(grep "updated.*events" data_refresh_output.log | grep -o "[0-9]*" | head -1 || echo "0")
+              CALENDAR_DELETED=$(grep "Deleted.*old events" data_refresh_output.log | grep -o "[0-9]*" | tail -1 || echo "0")
+
+              echo "| Metric | Count |" >> $GITHUB_STEP_SUMMARY
+              echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+              echo "| ➕ New Events | $CALENDAR_SAVED |" >> $GITHUB_STEP_SUMMARY
+              echo "| 🔄 Updated Events | $CALENDAR_UPDATED |" >> $GITHUB_STEP_SUMMARY
+              echo "| 🗑️ Deleted (Old) | $CALENDAR_DELETED |" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "⚠️ Calendar refresh did not complete" >> $GITHUB_STEP_SUMMARY
+            fi
+            echo "" >> $GITHUB_STEP_SUMMARY
+
+            # API Status
+            echo "## 🔌 API Status" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+
+            if grep -q "Polygon.*Retrieved.*articles" data_refresh_output.log; then
+              POLYGON_ARTICLES=$(grep "Polygon.*Retrieved.*articles" data_refresh_output.log | grep -o "[0-9]*" | head -1 || echo "0")
+              echo "✅ **Polygon News API:** Working ($POLYGON_ARTICLES articles)" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "⚠️ **Polygon News API:** No articles fetched" >> $GITHUB_STEP_SUMMARY
+            fi
+
+            if grep -q "Analyzed.*stars" data_refresh_output.log; then
+              ANALYZED_COUNT=$(grep -c "Analyzed.*stars" data_refresh_output.log || echo "0")
+              echo "✅ **Anthropic Claude API:** Working ($ANALYZED_COUNT analyses)" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "⚠️ **Anthropic Claude API:** No analyses performed" >> $GITHUB_STEP_SUMMARY
+            fi
+
+            if grep -q "Retrieved.*economic events" data_refresh_output.log; then
+              FINNHUB_COUNT=$(grep "Retrieved.*economic events" data_refresh_output.log | grep -o "[0-9]*" | head -1 || echo "0")
+              echo "✅ **Finnhub API:** Working ($FINNHUB_COUNT events)" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "⚠️ **Finnhub API:** No events fetched" >> $GITHUB_STEP_SUMMARY
+            fi
+            echo "" >> $GITHUB_STEP_SUMMARY
+
+            # Duration
+            DURATION=$(grep "CRON JOB COMPLETED in" data_refresh_output.log | grep -o "[0-9.]*" | head -1 || echo "N/A")
+            echo "⏱️ **Duration:** ${DURATION}s" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+
+            # Overall status
+            NEWS_SUCCESS=$(grep "News:.*SUCCESS" data_refresh_output.log || echo "")
+            CALENDAR_SUCCESS=$(grep "Calendar:.*SUCCESS" data_refresh_output.log || echo "")
+
+            if [ -n "$NEWS_SUCCESS" ] && [ -n "$CALENDAR_SUCCESS" ]; then
+              echo "## ✅ Overall Status: SUCCESS" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "## ⚠️ Overall Status: PARTIAL SUCCESS" >> $GITHUB_STEP_SUMMARY
+              [ -z "$NEWS_SUCCESS" ] && echo "- ❌ News refresh failed" >> $GITHUB_STEP_SUMMARY
+              [ -z "$CALENDAR_SUCCESS" ] && echo "- ❌ Calendar refresh failed" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "### Error Details" >> $GITHUB_STEP_SUMMARY
+              echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+              grep -i "error\|critical\|failed" data_refresh_output.log | tail -10 >> $GITHUB_STEP_SUMMARY
+              echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+            fi
+          else
+            echo "❌ **Status:** Workflow failed - no output log found" >> $GITHUB_STEP_SUMMARY
+          fi
 
       - name: Notify on failure
         if: failure()
-        run: echo "Data refresh failed - check logs"
+        run: echo "Data refresh failed - check logs and summary"
