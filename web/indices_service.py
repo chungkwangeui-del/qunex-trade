@@ -54,7 +54,9 @@ class IndicesService:
             return self._cache
 
         if not self.api_key:
-            logger.warning("[Indices] POLYGON_INDICES_API_KEY not configured, falling back to ETF proxy")
+            logger.warning(
+                "[Indices] POLYGON_INDICES_API_KEY not configured, falling back to ETF proxy"
+            )
             return {}
 
         try:
@@ -71,10 +73,7 @@ class IndicesService:
             tickers_str = ",".join(indices_map.keys())
             url = f"{self.base_url}/v3/snapshot/indices"
 
-            params = {
-                "ticker.any_of": tickers_str,
-                "apiKey": self.api_key
-            }
+            params = {"ticker.any_of": tickers_str, "apiKey": self.api_key}
 
             logger.info(f"[Indices] Fetching data for {len(indices_map)} indices")
             response = requests.get(url, params=params, timeout=10)
@@ -124,7 +123,7 @@ class IndicesService:
                     "change": round(change, 2),
                     "change_percent": round(change_percent, 2),
                     "updated_at": session.get("close_time", ""),
-                    "ticker": ticker
+                    "ticker": ticker,
                 }
 
             logger.info(f"[Indices] Successfully fetched {len(indices_data)} indices")

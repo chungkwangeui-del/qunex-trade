@@ -23,12 +23,31 @@ class NewsCollector:
         # Polygon News API keywords for filtering (market-moving events)
         self.priority_keywords = [
             # Macro/Policy events
-            "federal reserve", "fed", "interest rate", "inflation", "gdp", "cpi",
-            "trump", "biden", "government", "congress", "senate", "treasury",
+            "federal reserve",
+            "fed",
+            "interest rate",
+            "inflation",
+            "gdp",
+            "cpi",
+            "trump",
+            "biden",
+            "government",
+            "congress",
+            "senate",
+            "treasury",
             # Market events
-            "market crash", "market rally", "s&p 500", "nasdaq", "dow jones",
+            "market crash",
+            "market rally",
+            "s&p 500",
+            "nasdaq",
+            "dow jones",
             # Company events
-            "earnings", "merger", "acquisition", "ceo", "ipo", "bankruptcy",
+            "earnings",
+            "merger",
+            "acquisition",
+            "ceo",
+            "ipo",
+            "bankruptcy",
         ]
 
     def collect_from_polygon_filtered(self, limit: int = 100) -> List[Dict]:
@@ -79,7 +98,9 @@ class NewsCollector:
                             }
                         )
 
-                logger.info(f"[Polygon] Collected {len(news_items)} quality articles from {len(articles)} total")
+                logger.info(
+                    f"[Polygon] Collected {len(news_items)} quality articles from {len(articles)} total"
+                )
             else:
                 logger.error(f"[Polygon] API error {response.status_code}")
 
@@ -105,13 +126,26 @@ class NewsCollector:
 
         # FILTER OUT: Analyst opinions, predictions, recommendations
         analyst_keywords = [
-            "analyst says", "analyst predicts", "analyst expects",
-            "should you buy", "should you sell", "time to buy",
-            "stock to watch", "stocks to buy", "top picks",
-            "buy rating", "sell rating", "price target",
-            "bull case", "bear case", "my prediction",
-            "could reach", "may hit", "might see",
-            "investor alert", "hot stock",
+            "analyst says",
+            "analyst predicts",
+            "analyst expects",
+            "should you buy",
+            "should you sell",
+            "time to buy",
+            "stock to watch",
+            "stocks to buy",
+            "top picks",
+            "buy rating",
+            "sell rating",
+            "price target",
+            "bull case",
+            "bear case",
+            "my prediction",
+            "could reach",
+            "may hit",
+            "might see",
+            "investor alert",
+            "hot stock",
         ]
 
         for keyword in analyst_keywords:
@@ -120,10 +154,17 @@ class NewsCollector:
 
         # FILTER OUT: Promotional content
         spam_keywords = [
-            "subscribe", "click here", "limited time",
-            "buy now", "discount", "free trial",
-            "advertisement", "sponsored", "webinar",
-            "register now", "sign up",
+            "subscribe",
+            "click here",
+            "limited time",
+            "buy now",
+            "discount",
+            "free trial",
+            "advertisement",
+            "sponsored",
+            "webinar",
+            "register now",
+            "sign up",
         ]
 
         for keyword in spam_keywords:
@@ -131,7 +172,6 @@ class NewsCollector:
                 return False
 
         return True
-
 
     def collect_all_news(self, limit: int = 100) -> List[Dict]:
         """
@@ -149,9 +189,9 @@ class NewsCollector:
         Returns:
             List of news items sorted by published time (most recent first)
         """
-        logger.info("="*60)
+        logger.info("=" * 60)
         logger.info(f"[NEWS COLLECTOR] Starting Polygon news collection")
-        logger.info("="*60)
+        logger.info("=" * 60)
 
         # Collect from Polygon.io with quality filtering
         all_news = self.collect_from_polygon_filtered(limit=limit)
@@ -159,9 +199,9 @@ class NewsCollector:
         # Sort by published time (most recent first)
         all_news.sort(key=lambda x: x.get("published_at", ""), reverse=True)
 
-        logger.info("="*60)
+        logger.info("=" * 60)
         logger.info(f"[SUCCESS] Collected {len(all_news)} quality news items")
-        logger.info("="*60)
+        logger.info("=" * 60)
 
         return all_news
 
@@ -187,5 +227,5 @@ if __name__ == "__main__":
         print(f"\n{i}. {item['title']}")
         print(f"   Source: {item['source']}")
         print(f"   Time: {item['published_at']}")
-        if item.get('tickers'):
+        if item.get("tickers"):
             print(f"   Tickers: {', '.join(item['tickers'][:5])}")

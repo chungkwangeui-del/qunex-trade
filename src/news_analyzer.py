@@ -101,7 +101,7 @@ SOURCE: {source}"""
                     {
                         "type": "text",
                         "text": self.system_prompt,
-                        "cache_control": {"type": "ephemeral"}  # Cache this prompt
+                        "cache_control": {"type": "ephemeral"},  # Cache this prompt
                     }
                 ],
                 messages=[{"role": "user", "content": user_prompt}],
@@ -250,14 +250,14 @@ def analyze_with_claude(news_item: Dict) -> Dict:
         return {
             "rating": 2,
             "sentiment": "neutral",
-            "analysis": "News filtered out - not important enough or low credibility"
+            "analysis": "News filtered out - not important enough or low credibility",
         }
 
     # Convert to format expected by database
     return {
         "rating": analysis.get("importance", 3),
         "sentiment": analysis.get("sentiment", "neutral"),
-        "analysis": analysis.get("impact_summary", "")
+        "analysis": analysis.get("impact_summary", ""),
     }
 
 

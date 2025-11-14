@@ -23,9 +23,9 @@ from web.polygon_service import PolygonService
 
 def test_indices_service():
     """Test IndicesService directly"""
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("TEST 1: IndicesService Direct Test")
-    print("="*70)
+    print("=" * 70)
 
     api_key = os.getenv("POLYGON_INDICES_API_KEY")
 
@@ -59,9 +59,9 @@ def test_indices_service():
 
 def test_polygon_service_integration():
     """Test PolygonService integration with IndicesService"""
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("TEST 2: PolygonService Integration Test")
-    print("="*70)
+    print("=" * 70)
 
     use_free_indices = os.getenv("USE_FREE_INDICES", "false").lower() == "true"
 
@@ -90,9 +90,9 @@ def test_polygon_service_integration():
 
 def test_fallback_mechanism():
     """Test that fallback to ETF proxy works when Indices API is disabled"""
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("TEST 3: Fallback Mechanism Test")
-    print("="*70)
+    print("=" * 70)
 
     # Temporarily disable USE_FREE_INDICES
     original_value = os.getenv("USE_FREE_INDICES")
@@ -123,13 +123,17 @@ def test_fallback_mechanism():
 
 def main():
     """Run all tests"""
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print(" POLYGON INDICES FREE API - INTEGRATION TEST")
-    print("="*70)
+    print("=" * 70)
 
     print("\nCurrent Configuration:")
-    print(f"  POLYGON_API_KEY (Stocks): {'[OK] Set' if os.getenv('POLYGON_API_KEY') else '[X] Not set'}")
-    print(f"  POLYGON_INDICES_API_KEY: {'[OK] Set' if os.getenv('POLYGON_INDICES_API_KEY') else '[!] Not set (optional)'}")
+    print(
+        f"  POLYGON_API_KEY (Stocks): {'[OK] Set' if os.getenv('POLYGON_API_KEY') else '[X] Not set'}"
+    )
+    print(
+        f"  POLYGON_INDICES_API_KEY: {'[OK] Set' if os.getenv('POLYGON_INDICES_API_KEY') else '[!] Not set (optional)'}"
+    )
     print(f"  USE_FREE_INDICES: {os.getenv('USE_FREE_INDICES', 'false')}")
 
     results = []
@@ -159,9 +163,9 @@ def main():
         results.append(("Fallback Mechanism", False))
 
     # Summary
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print(" TEST SUMMARY")
-    print("="*70)
+    print("=" * 70)
 
     for test_name, passed in results:
         status = "[OK] PASS" if passed else "[X] FAIL"
@@ -170,9 +174,9 @@ def main():
     total_tests = len(results)
     passed_tests = sum(1 for _, passed in results if passed)
 
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print(f"Total: {passed_tests}/{total_tests} tests passed")
-    print("="*70)
+    print("=" * 70)
 
     if passed_tests == total_tests:
         print("\n[OK] All tests passed! Integration is working correctly.")

@@ -34,8 +34,7 @@ def test_portfolio_query():
 
         # NEW WAY (Optimized): Eager load user relationship
         transactions = (
-            Transaction.query
-            .options(joinedload(Transaction.user))
+            Transaction.query.options(joinedload(Transaction.user))
             .filter_by(user_id=user_id)
             .order_by(Transaction.transaction_date.desc())
             .all()
@@ -54,8 +53,7 @@ def test_backtest_query():
 
         # NEW WAY (Optimized): Eager load user relationship
         jobs = (
-            BacktestJob.query
-            .options(joinedload(BacktestJob.user))
+            BacktestJob.query.options(joinedload(BacktestJob.user))
             .filter_by(user_id=user_id)
             .order_by(BacktestJob.created_at.desc())
             .limit(20)
@@ -71,7 +69,7 @@ def test_dashboard_news_query():
     print("\n=== Testing Dashboard News Query ===")
 
     with app.app_context():
-        watchlist_tickers = ['AAPL', 'TSLA', 'GOOGL', 'MSFT', 'AMZN']
+        watchlist_tickers = ["AAPL", "TSLA", "GOOGL", "MSFT", "AMZN"]
 
         # OLD WAY (N+1): Would execute 5 separate queries
         # for ticker in watchlist_tickers[:5]:
@@ -85,8 +83,7 @@ def test_dashboard_news_query():
         filters = [NewsArticle.title.contains(ticker) for ticker in search_tickers]
 
         ticker_news = (
-            NewsArticle.query
-            .filter(or_(*filters))
+            NewsArticle.query.filter(or_(*filters))
             .order_by(NewsArticle.published_at.desc())
             .limit(15)
             .all()
@@ -103,7 +100,7 @@ def test_ai_score_bulk_query():
     with app.app_context():
         from web.database import AIScore
 
-        watchlist_tickers = ['AAPL', 'TSLA', 'GOOGL']
+        watchlist_tickers = ["AAPL", "TSLA", "GOOGL"]
 
         # OPTIMIZED: Single query using IN clause (already in app.py)
         if watchlist_tickers:
@@ -116,9 +113,9 @@ def test_ai_score_bulk_query():
 
 def main():
     """Run all tests"""
-    print("="*60)
+    print("=" * 60)
     print("N+1 Query Fix Verification Tests")
-    print("="*60)
+    print("=" * 60)
 
     try:
         test_portfolio_query()
@@ -126,15 +123,16 @@ def main():
         test_dashboard_news_query()
         test_ai_score_bulk_query()
 
-        print("\n" + "="*60)
+        print("\n" + "=" * 60)
         print("✓ All tests passed! N+1 queries have been optimized.")
-        print("="*60)
+        print("=" * 60)
 
     except Exception as e:
         print(f"\n✗ Test failed: {e}")
         import traceback
+
         traceback.print_exc()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

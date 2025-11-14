@@ -95,8 +95,8 @@ def refresh_news_data():
                     if published_at_str:
                         try:
                             # Polygon format: "2025-01-13T12:00:00Z"
-                            if published_at_str.endswith('Z'):
-                                published_at_str = published_at_str[:-1] + '+00:00'
+                            if published_at_str.endswith("Z"):
+                                published_at_str = published_at_str[:-1] + "+00:00"
                             published_at = datetime.fromisoformat(published_at_str)
                         except ValueError:
                             published_at = datetime.utcnow()

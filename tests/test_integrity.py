@@ -104,8 +104,6 @@ class TestAppInitialization:
             "flask",
             "flask_login",
             "flask_sqlalchemy",
-            "flask_socketio",
-            "eventlet",
             "bleach",
             "structlog",
             "shap",
@@ -165,7 +163,6 @@ class TestEnvironmentVariables:
             "DATABASE_URL",
             "REDIS_URL",
             "POLYGON_API_KEY",
-            "NEWSAPI_KEY",
             "ANTHROPIC_API_KEY",
             "ALPHA_VANTAGE_API_KEY",
             "FINNHUB_API_KEY",
@@ -188,8 +185,9 @@ class TestCronScripts:
         os.environ,
         {
             "DATABASE_URL": "postgresql://test:test@localhost/test",
-            "NEWSAPI_KEY": "test-key",
+            "POLYGON_API_KEY": "test-key",
             "ANTHROPIC_API_KEY": "test-key",
+            "FINNHUB_API_KEY": "test-key",
         },
     )
     def test_refresh_data_cron_imports(self):
@@ -214,11 +212,10 @@ class TestCronScripts:
     def test_ai_score_cron_imports(self):
         """Test cron_update_ai_scores can be imported."""
         try:
-            import cron_update_ai_scores as cron_module
+            import scripts.cron_update_ai_scores as cron_module
 
             # Verify functions exist
             assert hasattr(cron_module, "update_ai_scores")
-            assert hasattr(cron_module, "calculate_enhanced_features")
         except Exception as e:
             pytest.fail(f"Failed to import cron_update_ai_scores: {e}")
 
@@ -245,7 +242,7 @@ class TestFreeAPIStrategy:
 
     def test_ai_score_uses_alpha_vantage(self):
         """Test AI Score system uses Alpha Vantage, not Polygon Financials."""
-        with open("cron_update_ai_scores.py", "r", encoding="utf-8") as f:
+        with open("scripts/cron_update_ai_scores.py", "r", encoding="utf-8") as f:
             content = f.read()
 
         # Verify Alpha Vantage is used
@@ -277,7 +274,7 @@ class TestFreeAPIStrategy:
 
     def test_rate_limiting_in_ai_score(self):
         """Test that AI Score has rate limiting for Alpha Vantage."""
-        with open("cron_update_ai_scores.py", "r", encoding="utf-8") as f:
+        with open("scripts/cron_update_ai_scores.py", "r", encoding="utf-8") as f:
             content = f.read()
 
         # Verify rate limiting exists

@@ -610,8 +610,7 @@ def dashboard():
 
             # Execute single query instead of N queries
             ticker_news = (
-                NewsArticle.query
-                .filter(or_(*filters))
+                NewsArticle.query.filter(or_(*filters))
                 .order_by(NewsArticle.published_at.desc())
                 .limit(15)  # 3 per ticker * 5 tickers
                 .all()
@@ -667,8 +666,7 @@ def portfolio():
 
         # Get all user transactions with eager loading (avoid N+1)
         transactions = (
-            Transaction.query
-            .options(joinedload(Transaction.user))
+            Transaction.query.options(joinedload(Transaction.user))
             .filter_by(user_id=current_user.id)
             .order_by(Transaction.transaction_date.desc())
             .all()
@@ -780,8 +778,7 @@ def backtest():
 
         # Get user's backtest jobs with eager loading (avoid N+1)
         jobs = (
-            BacktestJob.query
-            .options(joinedload(BacktestJob.user))
+            BacktestJob.query.options(joinedload(BacktestJob.user))
             .filter_by(user_id=current_user.id)
             .order_by(BacktestJob.created_at.desc())
             .limit(20)

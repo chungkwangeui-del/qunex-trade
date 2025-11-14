@@ -477,7 +477,7 @@ class PolygonService:
                         "DJI": "DIA",
                         "NDX": "QQQ",
                         "RUT": "IWM",
-                        "VIX": "VXX"
+                        "VIX": "VXX",
                     }
 
                     for short_name, ticker_key in ticker_map.items():
@@ -502,7 +502,9 @@ class PolygonService:
                         self.cache.set(cache_key, result, self.cache_ttl["market_indices"])
                         return result
                     else:
-                        logger.warning("[Polygon] Indices Free API returned no data, falling back to ETF proxy")
+                        logger.warning(
+                            "[Polygon] Indices Free API returned no data, falling back to ETF proxy"
+                        )
             except Exception as e:
                 logger.warning(f"[Polygon] Indices Free API failed: {e}, falling back to ETF proxy")
 

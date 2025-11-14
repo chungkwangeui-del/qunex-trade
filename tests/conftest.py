@@ -21,13 +21,24 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(
 @pytest.fixture
 def app():
     """Create Flask test app with in-memory SQLite database"""
-    from web.app import app as flask_app
-    from web.database import db
+    # Set testing environment variables before importing app
+    os.environ["TESTING"] = "true"
+    os.environ["DATABASE_URL"] = "sqlite:///:memory:"
+    os.environ["SECRET_KEY"] = "test-secret-key"
 
+    from web.database import db
+    from flask import Flask
+
+    # Create a fresh Flask app for testing
+    flask_app = Flask(__name__)
     flask_app.config["TESTING"] = True
     flask_app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
-    flask_app.config["WTF_CSRF_ENABLED"] = False  # Disable CSRF for testing
+    flask_app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    flask_app.config["WTF_CSRF_ENABLED"] = False
     flask_app.config["SECRET_KEY"] = "test-secret-key"
+
+    # Initialize db with the test app
+    db.init_app(flask_app)
 
     with flask_app.app_context():
         db.create_all()
