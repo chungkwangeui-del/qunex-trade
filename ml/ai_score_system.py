@@ -511,23 +511,45 @@ class AIScoreModel:
         logger.info(f"Model saved to {model_path}")
 
     def load(self, filename: str = "ai_score_model.pkl"):
-        """Load trained model from disk"""
+        """Load trained model from disk with numpy compatibility handling"""
         model_path = os.path.join(self.model_dir, filename)
 
         if not os.path.exists(model_path):
             logger.warning(f"Model file not found: {model_path}")
             return False
 
-        with open(model_path, "rb") as f:
-            model_data = pickle.load(f)
+        try:
+            # Try loading with default pickle
+            with open(model_path, "rb") as f:
+                model_data = pickle.load(f)
+        except (ModuleNotFoundError, AttributeError) as e:
+            # Handle numpy version incompatibility
+            logger.warning(f"Model pickle incompatible with current numpy version: {e}")
+            logger.warning("Attempting to load with compatibility mode...")
 
-        self.model = model_data["model"]
-        self.scaler = model_data["scaler"]
-        self.feature_names = model_data["feature_names"]
-        self.is_trained = True
+            try:
+                # Try with encoding parameter for older pickle files
+                with open(model_path, "rb") as f:
+                    model_data = pickle.load(f, encoding='latin1')
+                logger.info("Model loaded successfully with latin1 encoding")
+            except Exception as e2:
+                logger.error(f"Failed to load model even with compatibility mode: {e2}")
+                logger.error("Model needs to be retrained with current numpy/sklearn/xgboost versions")
+                return False
 
-        logger.info(f"Model loaded from {model_path}")
-        return True
+        try:
+            self.model = model_data["model"]
+            self.scaler = model_data["scaler"]
+            self.feature_names = model_data["feature_names"]
+            self.is_trained = True
+
+            logger.info(f"Model loaded successfully from {model_path}")
+            logger.info(f"Model type: {type(self.model).__name__}")
+            logger.info(f"Features: {len(self.feature_names)}")
+            return True
+        except Exception as e:
+            logger.error(f"Error extracting model components: {e}")
+            return False
 
 
 if __name__ == "__main__":
