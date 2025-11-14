@@ -200,6 +200,7 @@ def calculate_enhanced_features(ticker: str, polygon, alpha_vantage, db):
     """
     try:
         import numpy as np
+        from web.database import NewsArticle
 
         features = {}
 
