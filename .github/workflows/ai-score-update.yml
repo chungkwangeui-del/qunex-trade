@@ -38,6 +38,12 @@ jobs:
           fi
           echo "All required secrets are configured"
 
+      - name: Run database migration
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          python scripts/migrate_add_explanation_json.py
+
       - name: Run AI score update
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
