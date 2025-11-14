@@ -38,10 +38,12 @@ def update_ai_scores():
         bool: True if update succeeded, False otherwise
     """
     try:
-        # Import Flask and create minimal app (avoid circular imports)
-        from flask import Flask
-        from flask_sqlalchemy import SQLAlchemy
+        # Import app first to ensure proper initialization
         import numpy as np
+        from web.app import app
+        from web.database import db, Watchlist, AIScore, NewsArticle
+        from web.polygon_service import PolygonService
+        from alpha_vantage.fundamentaldata import FundamentalData
 
         logger.info("Starting AI score update...")
 
@@ -60,29 +62,6 @@ def update_ai_scores():
                 "WARNING: POLYGON_API_KEY is missing. Technical indicators will be limited."
             )
             # Continue anyway - we can still use Alpha Vantage for fundamentals
-
-        # Get DATABASE_URL and fix driver
-        database_url = os.getenv("DATABASE_URL")
-        if not database_url:
-            logger.critical("CRITICAL ERROR: DATABASE_URL is missing.")
-            return False
-
-        # Fix psycopg2 driver issue
-        if database_url.startswith("postgresql://"):
-            database_url = database_url.replace("postgresql://", "postgresql+psycopg://")
-        elif database_url.startswith("postgres://"):
-            database_url = database_url.replace("postgres://", "postgresql+psycopg://")
-
-        # Create minimal Flask app
-        app = Flask(__name__)
-        app.config["SQLALCHEMY_DATABASE_URI"] = database_url
-        app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-        db = SQLAlchemy(app)
-
-        # Import models after db is created
-        from database import Watchlist, AIScore, NewsArticle
-        from polygon_service import PolygonService
-        from alpha_vantage.fundamentaldata import FundamentalData
 
         # Initialize API services
         polygon = PolygonService() if polygon_key else None
@@ -330,8 +309,6 @@ def calculate_enhanced_features(ticker: str, polygon, alpha_vantage, db):
             features["revenue_growth"] = 0.15
 
         # 3. NEWS SENTIMENT (7-day average)
-        from web.database import NewsArticle
-
         cutoff_date = datetime.utcnow() - timedelta(days=7)
 
         # Query news articles mentioning this ticker
