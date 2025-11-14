@@ -163,6 +163,10 @@ csrf = CSRFProtect(app)
 
 # Initialize Flask-Caching with Redis (Upstash)
 REDIS_URL = os.getenv("REDIS_URL", "memory://")
+# Handle empty string as if it were not set (fallback to memory)
+if not REDIS_URL or REDIS_URL.strip() == "":
+    REDIS_URL = "memory://"
+
 cache = Cache(
     app,
     config={

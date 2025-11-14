@@ -73,7 +73,7 @@ Set these in Render Dashboard → Environment:
 ```bash
 # Core
 DATABASE_URL=postgresql://...                    # Render PostgreSQL
-REDIS_URL=redis://...                           # Render Redis (or Upstash)
+REDIS_URL=redis://...                           # Render Redis (or Upstash) - OPTIONAL, will use memory if empty
 FLASK_SECRET_KEY=...                            # Generate random string
 
 # APIs
@@ -248,9 +248,38 @@ git push origin main
 
 ---
 
+## Common Deployment Errors & Fixes
+
+### **Error: "Redis URL must specify one of the following schemes"**
+
+**Problem:**
+```
+ValueError: Redis URL must specify one of the following schemes (redis://, rediss://, unix://)
+```
+
+**Cause:** REDIS_URL environment variable is set to empty string "" instead of a valid Redis URL.
+
+**Fix Applied:**
+Updated `web/app.py` to handle empty REDIS_URL:
+```python
+REDIS_URL = os.getenv("REDIS_URL", "memory://")
+# Handle empty string as if it were not set (fallback to memory)
+if not REDIS_URL or REDIS_URL.strip() == "":
+    REDIS_URL = "memory://"
+```
+
+**Result:** App will use in-memory caching if REDIS_URL is missing or empty. No error thrown.
+
+**Note:** REDIS_URL is now OPTIONAL. The app will:
+- Use Redis if REDIS_URL is set to a valid redis:// URL
+- Fall back to in-memory caching if REDIS_URL is empty/missing
+- For production with multiple instances, Redis is recommended but not required
+
+---
+
 ## Recent Fixes Applied (2025-01-13)
 
-### Commit: "Fix NEWSAPI to Polygon migration"
+### Commit 1: "Fix NEWSAPI to Polygon migration"
 **Changes:**
 1. ✅ Updated GitHub Actions workflow (data-refresh.yml)
 2. ✅ Fixed cron script API validation (refresh_data_cron.py)
@@ -262,6 +291,16 @@ git push origin main
 - `scripts/refresh_data_cron.py`
 - `RENDER_DEPLOYMENT_FIX.md` (this file)
 - `GITHUB_ACTIONS_VERIFICATION.md`
+
+### Commit 2: "Fix Redis URL configuration for deployment"
+**Changes:**
+1. ✅ Fixed Redis URL empty string handling in web/app.py
+2. ✅ Updated RENDER_DEPLOYMENT_FIX.md with common errors
+3. ✅ Made REDIS_URL truly optional (falls back to memory)
+
+**Files Changed:**
+- `web/app.py`
+- `RENDER_DEPLOYMENT_FIX.md` (this file)
 
 ---
 
