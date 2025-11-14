@@ -67,6 +67,27 @@ def update_ai_scores():
         polygon = PolygonService() if polygon_key else None
         alpha_vantage = FundamentalData(key=alpha_vantage_key, output_format="json")
 
+        # Initialize ML model (load once for efficiency)
+        ml_model = None
+        try:
+            import sys
+
+            ml_dir = os.path.join(parent_dir, "ml")
+            if ml_dir not in sys.path:
+                sys.path.insert(0, ml_dir)
+
+            from ai_score_system import AIScoreModel
+
+            ml_model = AIScoreModel(model_dir=os.path.join(parent_dir, "ml", "models"))
+            if ml_model.load():
+                logger.info("ML model loaded successfully")
+            else:
+                logger.warning("ML model file not found, will use rule-based scoring")
+                ml_model = None
+        except Exception as ml_error:
+            logger.warning(f"Could not load ML model: {ml_error}, will use rule-based scoring")
+            ml_model = None
+
         with app.app_context():
             # RATE LIMITING STRATEGY: Update only 20 oldest stocks per day
             # This keeps us within Alpha Vantage's 500 calls/day limit
@@ -136,8 +157,18 @@ def update_ai_scores():
                         failed_count += 1
                         continue
 
-                    # Calculate AI score (0-100)
-                    score = calculate_ai_score(features)
+                    # Calculate AI score (0-100) using ML model or fallback to rule-based
+                    if ml_model:
+                        try:
+                            score = ml_model.predict_score(features)
+                            logger.info(f"ML model score for {ticker}: {score}")
+                        except Exception as ml_error:
+                            logger.warning(
+                                f"ML model prediction error for {ticker}: {ml_error}, using rule-based scoring"
+                            )
+                            score = calculate_ai_score(features)
+                    else:
+                        score = calculate_ai_score(features)
 
                     # Determine rating
                     rating = determine_rating(score)
