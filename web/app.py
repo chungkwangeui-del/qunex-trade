@@ -35,11 +35,8 @@ NEWS_ANALYSIS_LIMIT = 50
 CALENDAR_DAYS_AHEAD = 60
 AUTO_REFRESH_INTERVAL = 3600  # 1 hour
 
-# Import database first
-try:
-    from database import db, User, NewsArticle, EconomicEvent, BacktestJob
-except ImportError:
-    from web.database import db, User, NewsArticle, EconomicEvent, BacktestJob
+# Import database first (always use web.database for consistency)
+from web.database import db, User, NewsArticle, EconomicEvent, BacktestJob
 
 # Configure structured logging
 try:
@@ -202,17 +199,11 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "auth.login"
 
-# Import blueprints
-try:
-    from auth import auth, oauth
-    from payments import payments
-    from api_polygon import api_polygon
-    from api_watchlist import api_watchlist
-except ImportError:
-    from web.auth import auth, oauth
-    from web.payments import payments
-    from web.api_polygon import api_polygon
-    from web.api_watchlist import api_watchlist
+# Import blueprints (always use web. prefix for consistency)
+from web.auth import auth, oauth
+from web.payments import payments
+from web.api_polygon import api_polygon
+from web.api_watchlist import api_watchlist
 
 # Initialize OAuth with app
 oauth.init_app(app)
@@ -266,13 +257,10 @@ except Exception as e:
 
 # Initialize Flask-Admin
 try:
-    from admin_views import init_admin
-except ImportError:
-    try:
-        from web.admin_views import init_admin
-    except ImportError as e:
-        logger.warning(f"Failed to import admin_views: {e}. Admin interface will not be available.")
-        init_admin = None
+    from web.admin_views import init_admin
+except ImportError as e:
+    logger.warning(f"Failed to import admin_views: {e}. Admin interface will not be available.")
+    init_admin = None
 
 if init_admin:
     admin = init_admin(app)
