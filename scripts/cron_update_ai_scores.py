@@ -67,7 +67,7 @@ def update_ai_scores():
         polygon = PolygonService() if polygon_key else None
         alpha_vantage = FundamentalData(key=alpha_vantage_key, output_format="json")
 
-        # Initialize ML model (load once for efficiency)
+        # Initialize Multi-Timeframe ML models (load once for efficiency)
         ml_model = None
         try:
             import sys
@@ -76,16 +76,16 @@ def update_ai_scores():
             if ml_dir not in sys.path:
                 sys.path.insert(0, ml_dir)
 
-            from ai_score_system import AIScoreModel
+            from ai_score_system import MultiTimeframeAIScoreModel
 
-            ml_model = AIScoreModel(model_dir=os.path.join(parent_dir, "ml", "models"))
-            if ml_model.load():
-                logger.info("ML model loaded successfully")
+            ml_model = MultiTimeframeAIScoreModel(model_dir=os.path.join(parent_dir, "ml", "models"))
+            if ml_model.load_all_models():
+                logger.info("✓ Multi-timeframe ML models loaded successfully (5d, 20d, 60d)")
             else:
-                logger.warning("ML model file not found, will use rule-based scoring")
+                logger.warning("Some ML models failed to load, will use rule-based scoring")
                 ml_model = None
         except Exception as ml_error:
-            logger.warning(f"Could not load ML model: {ml_error}, will use rule-based scoring")
+            logger.warning(f"Could not load ML models: {ml_error}, will use rule-based scoring")
             ml_model = None
 
         with app.app_context():
@@ -157,32 +157,55 @@ def update_ai_scores():
                         failed_count += 1
                         continue
 
-                    # Calculate AI score (0-100) using ML model or fallback to rule-based
+                    # Calculate AI scores for all timeframes using ML models
                     if ml_model:
                         try:
-                            score = ml_model.predict_score(features)
-                            logger.info(f"ML model score for {ticker}: {score}")
+                            # Get scores for all 3 timeframes
+                            scores_dict = ml_model.predict_all_timeframes(features)
+                            ratings_dict = ml_model.get_ratings(scores_dict)
+
+                            # Extract values (use medium-term as primary for backward compatibility)
+                            score = scores_dict.get("medium_term_score", 50)
+                            rating = ratings_dict.get("medium_term_rating", "Hold")
+                            short_term_score = scores_dict.get("short_term_score")
+                            short_term_rating = ratings_dict.get("short_term_rating")
+                            long_term_score = scores_dict.get("long_term_score")
+                            long_term_rating = ratings_dict.get("long_term_rating")
+
+                            logger.info(f"ML model scores for {ticker}: Short={short_term_score}, Medium={score}, Long={long_term_score}")
                         except Exception as ml_error:
                             logger.warning(
                                 f"ML model prediction error for {ticker}: {ml_error}, using rule-based scoring"
                             )
                             score = calculate_ai_score(features)
+                            rating = determine_rating(score)
+                            short_term_score = None
+                            short_term_rating = None
+                            long_term_score = None
+                            long_term_rating = None
                     else:
+                        # Fallback to rule-based scoring (medium-term only)
                         score = calculate_ai_score(features)
-
-                    # Determine rating
-                    rating = determine_rating(score)
+                        rating = determine_rating(score)
+                        short_term_score = None
+                        short_term_rating = None
+                        long_term_score = None
+                        long_term_rating = None
 
                     # Calculate feature explanations (simplified SHAP-like)
                     explanation = calculate_feature_contributions(features)
 
-                    # Store in database
+                    # Store in database with all timeframe scores
                     ai_score_record = AIScore.query.filter_by(ticker=ticker).first()
 
                     if ai_score_record:
                         # Update existing
-                        ai_score_record.score = score
+                        ai_score_record.score = score  # Medium-term (primary)
                         ai_score_record.rating = rating
+                        ai_score_record.short_term_score = short_term_score
+                        ai_score_record.short_term_rating = short_term_rating
+                        ai_score_record.long_term_score = long_term_score
+                        ai_score_record.long_term_rating = long_term_rating
                         ai_score_record.features_json = json.dumps(features)
                         ai_score_record.explanation_json = json.dumps(explanation)
                         ai_score_record.updated_at = datetime.utcnow()
@@ -192,6 +215,10 @@ def update_ai_scores():
                             ticker=ticker,
                             score=score,
                             rating=rating,
+                            short_term_score=short_term_score,
+                            short_term_rating=short_term_rating,
+                            long_term_score=long_term_score,
+                            long_term_rating=long_term_rating,
                             explanation_json=json.dumps(explanation),
                             features_json=json.dumps(features),
                         )
@@ -199,7 +226,7 @@ def update_ai_scores():
 
                     db.session.commit()
                     updated_count += 1
-                    logger.info(f"{ticker}: Score={score}, Rating={rating}")
+                    logger.info(f"{ticker}: Short={short_term_score}/{short_term_rating}, Medium={score}/{rating}, Long={long_term_score}/{long_term_rating}")
 
                 except Exception as e:
                     logger.error(f"Error processing {ticker}: {e}", exc_info=True)

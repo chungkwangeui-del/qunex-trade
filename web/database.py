@@ -237,14 +237,25 @@ class EconomicEvent(db.Model):
 
 
 class AIScore(db.Model):
-    """Pre-computed AI scores for stocks with SHAP explainability"""
+    """Pre-computed AI scores for stocks with SHAP explainability and multi-timeframe support"""
 
     __tablename__ = "ai_scores"
 
     id = db.Column(db.Integer, primary_key=True)
     ticker = db.Column(db.String(10), unique=True, nullable=False, index=True)
+
+    # Medium-term scores (20-day, primary/default)
     score = db.Column(db.Integer, nullable=False, index=True)  # 0-100
     rating = db.Column(db.String(20), nullable=False)  # Strong Buy/Buy/Hold/Sell/Strong Sell
+
+    # Short-term scores (5-day) - for day/swing traders
+    short_term_score = db.Column(db.Integer, nullable=True, index=True)  # 0-100
+    short_term_rating = db.Column(db.String(20), nullable=True)
+
+    # Long-term scores (60-day) - for long-term investors
+    long_term_score = db.Column(db.Integer, nullable=True, index=True)  # 0-100
+    long_term_rating = db.Column(db.String(20), nullable=True)
+
     features_json = db.Column(db.Text, nullable=True)  # JSON string of features
     explanation_json = db.Column(db.Text, nullable=True)  # SHAP values (feature contributions)
     updated_at = db.Column(
@@ -252,13 +263,21 @@ class AIScore(db.Model):
     )
 
     def to_dict(self):
-        """Convert to dictionary for JSON serialization"""
+        """Convert to dictionary for JSON serialization with all timeframes"""
         import json
 
         return {
             "ticker": self.ticker,
+            # Medium-term (default/primary)
             "score": self.score,
             "rating": self.rating,
+            # Short-term (5-day)
+            "short_term_score": self.short_term_score,
+            "short_term_rating": self.short_term_rating,
+            # Long-term (60-day)
+            "long_term_score": self.long_term_score,
+            "long_term_rating": self.long_term_rating,
+            # Metadata
             "features": json.loads(self.features_json) if self.features_json else {},
             "explanation": json.loads(self.explanation_json) if self.explanation_json else {},
             "updated_at": self.updated_at.isoformat() if self.updated_at else None,

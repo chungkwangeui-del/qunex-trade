@@ -552,6 +552,124 @@ class AIScoreModel:
             return False
 
 
+class MultiTimeframeAIScoreModel:
+    """
+    Multi-timeframe AI Score predictor
+
+    Loads and manages 3 separate models for different investment horizons:
+    - Short-term (5-day): For day/swing traders
+    - Medium-term (20-day): For position traders
+    - Long-term (60-day): For long-term investors
+    """
+
+    def __init__(self, model_dir: str = "models"):
+        self.model_dir = model_dir
+        self.short_term_model = None
+        self.medium_term_model = None
+        self.long_term_model = None
+
+    def load_all_models(self) -> bool:
+        """
+        Load all 3 timeframe models
+
+        Returns:
+            True if all models loaded successfully
+        """
+        logger.info("Loading multi-timeframe AI Score models...")
+
+        # Load short-term model (5-day)
+        self.short_term_model = AIScoreModel(model_dir=self.model_dir)
+        short_loaded = self.short_term_model.load("ai_score_model_5d.pkl")
+
+        # Load medium-term model (20-day)
+        self.medium_term_model = AIScoreModel(model_dir=self.model_dir)
+        medium_loaded = self.medium_term_model.load("ai_score_model_20d.pkl")
+
+        # Load long-term model (60-day)
+        self.long_term_model = AIScoreModel(model_dir=self.model_dir)
+        long_loaded = self.long_term_model.load("ai_score_model_60d.pkl")
+
+        if short_loaded and medium_loaded and long_loaded:
+            logger.info("✓ All 3 timeframe models loaded successfully")
+            return True
+        else:
+            logger.warning(f"Some models failed to load: short={short_loaded}, medium={medium_loaded}, long={long_loaded}")
+            return False
+
+    def predict_all_timeframes(self, features: Dict[str, float]) -> Dict[str, int]:
+        """
+        Predict AI scores for all timeframes
+
+        Args:
+            features: Dictionary of stock features
+
+        Returns:
+            Dictionary with keys: short_term_score, medium_term_score, long_term_score
+        """
+        scores = {}
+
+        if self.short_term_model and self.short_term_model.is_trained:
+            scores["short_term_score"] = self.short_term_model.predict_score(features)
+        else:
+            scores["short_term_score"] = None
+            logger.warning("Short-term model not available")
+
+        if self.medium_term_model and self.medium_term_model.is_trained:
+            scores["medium_term_score"] = self.medium_term_model.predict_score(features)
+        else:
+            scores["medium_term_score"] = None
+            logger.warning("Medium-term model not available")
+
+        if self.long_term_model and self.long_term_model.is_trained:
+            scores["long_term_score"] = self.long_term_model.predict_score(features)
+        else:
+            scores["long_term_score"] = None
+            logger.warning("Long-term model not available")
+
+        return scores
+
+    def get_ratings(self, scores: Dict[str, int]) -> Dict[str, str]:
+        """
+        Convert scores to ratings for all timeframes
+
+        Args:
+            scores: Dictionary with timeframe scores
+
+        Returns:
+            Dictionary with ratings (Strong Sell, Sell, Hold, Buy, Strong Buy)
+        """
+        def score_to_rating(score: int) -> str:
+            if score >= 75:
+                return "Strong Buy"
+            elif score >= 60:
+                return "Buy"
+            elif score >= 40:
+                return "Hold"
+            elif score >= 25:
+                return "Sell"
+            else:
+                return "Strong Sell"
+
+        ratings = {}
+
+        if scores.get("short_term_score") is not None:
+            ratings["short_term_rating"] = score_to_rating(scores["short_term_score"])
+        else:
+            ratings["short_term_rating"] = None
+
+        if scores.get("medium_term_score") is not None:
+            ratings["medium_term_rating"] = score_to_rating(scores["medium_term_score"])
+        else:
+            ratings["medium_term_rating"] = None
+
+        if scores.get("long_term_score") is not None:
+            ratings["long_term_rating"] = score_to_rating(scores["long_term_score"])
+        else:
+            ratings["long_term_rating"] = None
+
+        return ratings
+
+
 if __name__ == "__main__":
     # Example usage
     logging.basicConfig(level=logging.INFO)

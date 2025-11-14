@@ -5,8 +5,8 @@ Manage user stock watchlists with real-time data
 
 from flask import Blueprint, jsonify, request
 from flask_login import login_required, current_user
-from database import db, Watchlist
-from polygon_service import get_polygon_service
+from web.database import db, Watchlist
+from web.polygon_service import get_polygon_service
 from datetime import datetime
 from typing import Dict, Any, Tuple
 import logging
