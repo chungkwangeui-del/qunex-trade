@@ -61,7 +61,7 @@ class NewsCollector:
             limit: Maximum number of articles to fetch (default 100)
         """
         if not self.polygon_key:
-            logger.error("Polygon API key not found")
+            logger.error("POLYGON_API_KEY not found in environment")
             return []
 
         news_items = []
@@ -74,36 +74,77 @@ class NewsCollector:
                 "order": "desc",  # Most recent first
             }
 
+            logger.info(f"Fetching news from Polygon API (limit={limit})")
             response = requests.get(url, params=params, timeout=10)
 
             if response.status_code == 200:
                 data = response.json()
+
+                # Check for API errors in response
+                if data.get("status") == "ERROR":
+                    logger.error(f"[Polygon] API returned error: {data.get('error', 'Unknown error')}")
+                    return []
+
                 articles = data.get("results", [])
 
-                for article in articles:
-                    # Apply quality filter
-                    if self._is_quality_news_polygon(article):
-                        news_items.append(
-                            {
-                                "title": article["title"],
-                                "description": article.get("description", ""),
-                                "content": article.get("description", ""),
-                                "url": article["article_url"],
-                                "source": article["publisher"]["name"],
-                                "published_at": article["published_utc"],
-                                "image_url": article.get("image_url"),
-                                "tickers": article.get("tickers", []),
-                                "collector": "polygon",
-                                "keywords": article.get("keywords", []),
-                            }
-                        )
+                if not articles:
+                    logger.warning("[Polygon] No articles returned from API")
+                    return []
+
+                logger.info(f"[Polygon] Retrieved {len(articles)} articles from API")
+
+                for i, article in enumerate(articles):
+                    try:
+                        # Validate required fields
+                        if not article.get("title"):
+                            logger.warning(f"Article {i} missing title, skipping")
+                            continue
+
+                        if not article.get("article_url"):
+                            logger.warning(f"Article {i} missing URL, skipping")
+                            continue
+
+                        if not article.get("publisher"):
+                            logger.warning(f"Article {i} missing publisher, skipping")
+                            continue
+
+                        # Apply quality filter
+                        if self._is_quality_news_polygon(article):
+                            news_items.append(
+                                {
+                                    "title": article["title"],
+                                    "description": article.get("description", ""),
+                                    "content": article.get("description", ""),
+                                    "url": article["article_url"],
+                                    "source": article["publisher"]["name"],
+                                    "published_at": article["published_utc"],
+                                    "image_url": article.get("image_url"),
+                                    "tickers": article.get("tickers", []),
+                                    "collector": "polygon",
+                                    "keywords": article.get("keywords", []),
+                                }
+                            )
+                    except KeyError as ke:
+                        logger.error(f"Article {i} missing required field: {ke}")
+                        continue
+                    except Exception as e:
+                        logger.error(f"Error processing article {i}: {e}")
+                        continue
 
                 logger.info(
                     f"[Polygon] Collected {len(news_items)} quality articles from {len(articles)} total"
                 )
+            elif response.status_code == 401:
+                logger.error("[Polygon] API authentication failed - check POLYGON_API_KEY")
+            elif response.status_code == 429:
+                logger.error("[Polygon] API rate limit exceeded")
             else:
-                logger.error(f"[Polygon] API error {response.status_code}")
+                logger.error(f"[Polygon] API error {response.status_code}: {response.text[:200]}")
 
+        except requests.Timeout:
+            logger.error("Polygon API request timed out after 10 seconds")
+        except requests.ConnectionError as ce:
+            logger.error(f"Failed to connect to Polygon API: {ce}")
         except Exception as e:
             logger.error(f"Error collecting from Polygon API: {e}", exc_info=True)
 

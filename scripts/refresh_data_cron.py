@@ -48,7 +48,7 @@ def refresh_news_data():
         from web.app import app
         from web.database import db, NewsArticle
         from src.news_collector import collect_news
-        from src.news_analyzer import analyze_with_claude
+        from src.news_analyzer import NewsAnalyzer
 
         logger.info("Starting news refresh...")
 
@@ -73,21 +73,49 @@ def refresh_news_data():
         # Use app context for database operations
         with app.app_context():
             # Collect news from APIs
-            news_articles = collect_news()
-            logger.info(f"Collected {len(news_articles)} articles")
+            try:
+                news_articles = collect_news()
+                logger.info(f"Collected {len(news_articles)} articles from Polygon")
+            except Exception as e:
+                logger.error(f"Failed to collect news: {e}", exc_info=True)
+                return False
+
+            if not news_articles:
+                logger.info("No news articles collected - nothing to process")
+                return True
+
+            # Initialize NewsAnalyzer once for all articles (more efficient)
+            try:
+                analyzer = NewsAnalyzer()
+                logger.info("NewsAnalyzer initialized successfully")
+            except Exception as e:
+                logger.error(f"Failed to initialize NewsAnalyzer: {e}", exc_info=True)
+                return False
 
             # Analyze and store each article
             saved_count = 0
-            for article_data in news_articles:
+            skipped_count = 0
+            error_count = 0
+
+            for i, article_data in enumerate(news_articles, 1):
                 try:
+                    logger.debug(f"Processing article {i}/{len(news_articles)}: {article_data['title'][:60]}")
+
                     # Check if article already exists (by URL)
                     existing = NewsArticle.query.filter_by(url=article_data["url"]).first()
                     if existing:
                         logger.debug(f"Article already exists: {article_data['title'][:50]}")
+                        skipped_count += 1
                         continue
 
-                    # Analyze with Claude AI
-                    analysis = analyze_with_claude(article_data)
+                    # Analyze with Claude AI (reuse analyzer instance)
+                    analysis = analyzer.analyze_single_news(article_data)
+
+                    # Skip if analysis failed or news is not important
+                    if not analysis:
+                        logger.debug(f"Article filtered out: {article_data['title'][:60]}")
+                        skipped_count += 1
+                        continue
 
                     # Create new article
                     # Parse published_at (Polygon uses 'published_at' field)
@@ -98,7 +126,8 @@ def refresh_news_data():
                             if published_at_str.endswith("Z"):
                                 published_at_str = published_at_str[:-1] + "+00:00"
                             published_at = datetime.fromisoformat(published_at_str)
-                        except ValueError:
+                        except ValueError as ve:
+                            logger.warning(f"Invalid date format: {published_at_str}, using current time")
                             published_at = datetime.utcnow()
                     else:
                         published_at = datetime.utcnow()
@@ -109,27 +138,47 @@ def refresh_news_data():
                         url=article_data["url"],
                         source=article_data.get("source"),
                         published_at=published_at,
-                        ai_rating=analysis.get("rating"),
-                        ai_analysis=analysis.get("analysis"),
-                        sentiment=analysis.get("sentiment"),
+                        ai_rating=analysis.get("importance", 3),
+                        ai_analysis=analysis.get("impact_summary", ""),
+                        sentiment=analysis.get("sentiment", "neutral"),
                     )
 
                     db.session.add(article)
                     saved_count += 1
+                    logger.info(f"Added article [{saved_count}]: {article_data['title'][:60]} (rating={analysis.get('importance')})")
 
                 except Exception as e:
-                    logger.error(f"Error processing article: {e}", exc_info=True)
+                    error_count += 1
+                    logger.error(f"Error processing article {i}: {e}", exc_info=True)
                     continue
 
             # Commit all new articles
-            db.session.commit()
-            logger.info(f"Saved {saved_count} new articles to database")
+            try:
+                db.session.commit()
+                logger.info(f"Successfully saved {saved_count} new articles to database")
+            except Exception as e:
+                logger.error(f"Failed to commit articles to database: {e}", exc_info=True)
+                db.session.rollback()
+                return False
 
             # Clean up old articles (keep last 30 days)
-            cutoff_date = datetime.utcnow() - timedelta(days=30)
-            deleted = NewsArticle.query.filter(NewsArticle.published_at < cutoff_date).delete()
-            db.session.commit()
-            logger.info(f"Deleted {deleted} old articles")
+            try:
+                cutoff_date = datetime.utcnow() - timedelta(days=30)
+                deleted = NewsArticle.query.filter(NewsArticle.published_at < cutoff_date).delete()
+                db.session.commit()
+                logger.info(f"Deleted {deleted} old articles")
+            except Exception as e:
+                logger.error(f"Failed to delete old articles: {e}", exc_info=True)
+                db.session.rollback()
+
+            # Summary
+            logger.info("=" * 60)
+            logger.info("NEWS REFRESH SUMMARY:")
+            logger.info(f"  Total collected: {len(news_articles)}")
+            logger.info(f"  Saved (new): {saved_count}")
+            logger.info(f"  Skipped (duplicate/filtered): {skipped_count}")
+            logger.info(f"  Errors: {error_count}")
+            logger.info("=" * 60)
 
             return True
 
@@ -149,11 +198,12 @@ def refresh_calendar_data():
     Returns:
         bool: True if refresh succeeded, False otherwise
     """
+    import requests
+
     try:
         # Import app first to ensure proper initialization
         from web.app import app
         from web.database import db, EconomicEvent
-        import requests
         from datetime import datetime, timedelta
 
         logger.info("Starting calendar refresh...")

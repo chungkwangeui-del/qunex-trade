@@ -116,7 +116,7 @@ SOURCE: {source}"""
             # Validate required fields
             required_fields = ["importance", "credibility", "impact_summary"]
             if not all(field in analysis for field in required_fields):
-                print(f"[WARN] Missing required fields in analysis")
+                logger.warning(f"Missing required fields in analysis for: {title[:60]}")
                 return None
 
             # Only keep important and credible news (4-5 stars on both)
@@ -124,8 +124,8 @@ SOURCE: {source}"""
             credibility = analysis.get("credibility", 0)
 
             if importance < 4 or credibility < 3:
-                print(
-                    f"[FILTER] Filtered out: {title[:60]}... (importance={importance}, credibility={credibility})"
+                logger.debug(
+                    f"Filtered out: {title[:60]}... (importance={importance}, credibility={credibility})"
                 )
                 return None
 
@@ -137,7 +137,7 @@ SOURCE: {source}"""
             analysis["image_url"] = news_item.get("image_url", "")
             analysis["analyzed_at"] = datetime.now().isoformat()
 
-            print(f"[ANALYZED] {importance}/5 stars - {title[:60]}...")
+            logger.info(f"Analyzed {importance}/5 stars - {title[:60]}...")
 
             return analysis
 
@@ -161,17 +161,17 @@ SOURCE: {source}"""
             List of analyzed news (only important ones)
         """
         if not news_list:
-            print("[WARN] No news to analyze")
+            logger.warning("No news to analyze")
             return []
 
-        print(f"\n{'='*60}")
-        print(f"[NEWS ANALYZER] Starting analysis of {min(len(news_list), max_items)} items")
-        print(f"{'='*60}\n")
+        logger.info("=" * 60)
+        logger.info(f"Starting analysis of {min(len(news_list), max_items)} news items")
+        logger.info("=" * 60)
 
         analyzed_news = []
 
         for i, news_item in enumerate(news_list[:max_items], 1):
-            print(f"\n[{i}/{min(len(news_list), max_items)}] Analyzing...")
+            logger.info(f"Analyzing [{i}/{min(len(news_list), max_items)}]...")
 
             try:
                 analysis = self.analyze_single_news(news_item)
@@ -198,12 +198,12 @@ SOURCE: {source}"""
         # Count market-wide vs specific news
         market_wide_count = len([n for n in analyzed_news if n.get("market_wide_impact", False)])
 
-        print(f"\n{'='*60}")
-        print(f"[SUCCESS] Analyzed {len(analyzed_news)} important news items")
-        print(f"  - Market-Wide Impact: {market_wide_count}")
-        print(f"  - 5 stars: {len([n for n in analyzed_news if n.get('importance') == 5])}")
-        print(f"  - 4 stars: {len([n for n in analyzed_news if n.get('importance') == 4])}")
-        print(f"{'='*60}\n")
+        logger.info("=" * 60)
+        logger.info(f"Analyzed {len(analyzed_news)} important news items")
+        logger.info(f"  - Market-Wide Impact: {market_wide_count}")
+        logger.info(f"  - 5 stars: {len([n for n in analyzed_news if n.get('importance') == 5])}")
+        logger.info(f"  - 4 stars: {len([n for n in analyzed_news if n.get('importance') == 4])}")
+        logger.info("=" * 60)
 
         return analyzed_news
 
@@ -225,8 +225,8 @@ SOURCE: {source}"""
             with open(output_path, "w", encoding="utf-8") as f:
                 json.dump(analyzed_news, f, indent=2, ensure_ascii=False)
 
-            print(f"[SAVED] Analysis saved to: {output_path}")
-            print(f"[INFO] Total news items: {len(analyzed_news)}")
+            logger.info(f"Analysis saved to: {output_path}")
+            logger.info(f"Total news items saved: {len(analyzed_news)}")
 
         except Exception as e:
             logger.error(f"Failed to save analysis in save_analysis: {e}", exc_info=True)
