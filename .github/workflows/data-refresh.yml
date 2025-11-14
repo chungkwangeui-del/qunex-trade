@@ -24,6 +24,29 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Verify required secrets
+        run: |
+          if [ -z "${{ secrets.POLYGON_API_KEY }}" ]; then
+            echo "ERROR: POLYGON_API_KEY secret is not set"
+            echo "Please add it in GitHub Settings > Secrets and variables > Actions"
+            exit 1
+          fi
+          if [ -z "${{ secrets.ANTHROPIC_API_KEY }}" ]; then
+            echo "ERROR: ANTHROPIC_API_KEY secret is not set"
+            echo "Please add it in GitHub Settings > Secrets and variables > Actions"
+            exit 1
+          fi
+          if [ -z "${{ secrets.FINNHUB_API_KEY }}" ]; then
+            echo "ERROR: FINNHUB_API_KEY secret is not set"
+            echo "Please add it in GitHub Settings > Secrets and variables > Actions"
+            exit 1
+          fi
+          if [ -z "${{ secrets.DATABASE_URL }}" ]; then
+            echo "ERROR: DATABASE_URL secret is not set"
+            exit 1
+          fi
+          echo "All required secrets are configured"
+
       - name: Run data refresh script
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
