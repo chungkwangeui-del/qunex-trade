@@ -187,19 +187,16 @@ csrf.exempt("auth.send_verification_code")
 csrf.exempt("auth.verify_code")
 
 # Initialize rate limiter
-# CLOUD-NATIVE: Use Redis for distributed rate limiting (Upstash)
-# Note: REDIS_URL already defined above (line 164)
+# Use memory storage for rate limiting (simple and reliable)
+# For production with multiple instances, consider using Redis
 limiter = Limiter(
     app=app,
     key_func=get_remote_address,
     default_limits=[f"{RATE_LIMITS['daily']} per day", f"{RATE_LIMITS['hourly']} per hour"],
-    storage_uri=REDIS_URL,
+    storage_uri="memory://",  # Use in-memory storage (works on single instance)
 )
 
-if REDIS_URL == "memory://":
-    logger.warning("Rate limiting using memory storage (development mode)")
-else:
-    logger.info(f"Rate limiting using Redis: {REDIS_URL[:20]}...")
+logger.info("Rate limiting using memory storage")
 
 login_manager = LoginManager()
 login_manager.init_app(app)
