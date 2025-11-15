@@ -110,7 +110,8 @@ class PolygonService:
         endpoint = f"/v2/last/trade/{ticker}"
         data = self._make_request(endpoint)
 
-        if not data or data.get("status") != "OK":
+        # Accept both "OK" and "DELAYED" status
+        if not data or data.get("status") not in ["OK", "DELAYED"]:
             return None
 
         result = data.get("results", {})
@@ -127,7 +128,8 @@ class PolygonService:
         endpoint = f"/v2/aggs/ticker/{ticker}/prev"
         data = self._make_request(endpoint)
 
-        if not data or data.get("status") != "OK":
+        # Accept both "OK" and "DELAYED" status
+        if not data or data.get("status") not in ["OK", "DELAYED"]:
             return None
 
         results = data.get("results", [])
@@ -177,10 +179,24 @@ class PolygonService:
 
         data = self._make_request(endpoint, params)
 
-        if not data or data.get("status") != "OK":
+        if not data:
+            logger.warning(f"Polygon get_aggregates: No data returned for {ticker}")
+            return None
+
+        # Accept both "OK" and "DELAYED" status (starter plans return delayed data)
+        status = data.get("status", "")
+        if status not in ["OK", "DELAYED"]:
+            error_msg = data.get("error", data.get("message", "No error message"))
+            logger.warning(f"Polygon get_aggregates: API returned status={status} for {ticker}: {error_msg}")
             return None
 
         results = data.get("results", [])
+        if not results:
+            logger.warning(f"Polygon get_aggregates: Empty results for {ticker} (from={from_date}, to={to_date}, limit={limit})")
+            return None
+
+        logger.debug(f"Polygon get_aggregates: Retrieved {len(results)} bars for {ticker}")
+
         return [
             {
                 "timestamp": r.get("t"),
@@ -200,7 +216,8 @@ class PolygonService:
         endpoint = f"/v3/reference/tickers/{ticker}"
         data = self._make_request(endpoint)
 
-        if not data or data.get("status") != "OK":
+        # Accept both "OK" and "DELAYED" status
+        if not data or data.get("status") not in ["OK", "DELAYED"]:
             return None
 
         result = data.get("results", {})
@@ -236,7 +253,8 @@ class PolygonService:
         endpoint = "/v2/snapshot/locale/us/markets/stocks/tickers"
         data = self._make_request(endpoint)
 
-        if not data or data.get("status") != "OK":
+        # Accept both "OK" and "DELAYED" status
+        if not data or data.get("status") not in ["OK", "DELAYED"]:
             return {}
 
         results = data.get("tickers", [])
@@ -294,7 +312,8 @@ class PolygonService:
         endpoint = f"/v2/snapshot/locale/us/markets/stocks/{direction}"
         data = self._make_request(endpoint)
 
-        if not data or data.get("status") != "OK":
+        # Accept both "OK" and "DELAYED" status
+        if not data or data.get("status") not in ["OK", "DELAYED"]:
             return []
 
         results = data.get("tickers", [])
@@ -369,7 +388,8 @@ class PolygonService:
 
         data = self._make_request(endpoint, params)
 
-        if not data or data.get("status") != "OK":
+        # Accept both "OK" and "DELAYED" status
+        if not data or data.get("status") not in ["OK", "DELAYED"]:
             return []
 
         results = data.get("results", [])
@@ -397,7 +417,12 @@ class PolygonService:
 
         aggs = self.get_aggregates(ticker, 1, "day", from_date, to_date, limit=days + 50)
 
-        if not aggs or len(aggs) < 20:
+        if not aggs:
+            logger.warning(f"Polygon get_technical_indicators: No aggregates data for {ticker}")
+            return {}
+
+        if len(aggs) < 20:
+            logger.warning(f"Polygon get_technical_indicators: Insufficient data for {ticker} (got {len(aggs)} bars, need 20+)")
             return {}
 
         # Calculate simple indicators
@@ -648,7 +673,8 @@ class PolygonService:
         endpoint = "/v2/snapshot/locale/us/markets/stocks/tickers"
         data = self._make_request(endpoint)
 
-        if not data or data.get("status") != "OK":
+        # Accept both "OK" and "DELAYED" status
+        if not data or data.get("status") not in ["OK", "DELAYED"]:
             return []
 
         tickers = data.get("tickers", [])
