@@ -49,13 +49,14 @@ jobs:
 
       - name: Run data refresh script
         id: data_refresh
+        continue-on-error: true  # Don't fail workflow if script has issues
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           FINNHUB_API_KEY: ${{ secrets.FINNHUB_API_KEY }}
         run: |
-          python scripts/refresh_data_cron.py 2>&1 | tee data_refresh_output.log
+          python scripts/refresh_data_cron.py 2>&1 | tee data_refresh_output.log || true
           echo "log_file=data_refresh_output.log" >> $GITHUB_OUTPUT
 
       - name: Generate Summary
@@ -158,11 +159,24 @@ jobs:
             else
               echo "## ⚠️ Overall Status: PARTIAL SUCCESS" >> $GITHUB_STEP_SUMMARY
               [ -z "$NEWS_SUCCESS" ] && echo "- ❌ News refresh failed" >> $GITHUB_STEP_SUMMARY
-              [ -z "$CALENDAR_SUCCESS" ] && echo "- ❌ Calendar refresh failed" >> $GITHUB_STEP_SUMMARY
+              [ -z "$CALENDAR_SUCCESS" ] && echo "- ⚠️ Calendar refresh incomplete (may be API key issue)" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "### Common Issues" >> $GITHUB_STEP_SUMMARY
+
+              # Check for specific API errors
+              if grep -q "authentication_error\|invalid x-api-key" data_refresh_output.log; then
+                echo "- 🔑 **Anthropic API Key Invalid**: Update \`ANTHROPIC_API_KEY\` in GitHub Secrets" >> $GITHUB_STEP_SUMMARY
+              fi
+
+              if grep -q "403.*Forbidden.*finnhub" data_refresh_output.log; then
+                echo "- 🔑 **Finnhub API Key Invalid/Limited**: Check \`FINNHUB_API_KEY\` in GitHub Secrets" >> $GITHUB_STEP_SUMMARY
+                echo "  - Free tier may have rate limits - consider upgrading" >> $GITHUB_STEP_SUMMARY
+              fi
+
               echo "" >> $GITHUB_STEP_SUMMARY
               echo "### Error Details" >> $GITHUB_STEP_SUMMARY
               echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-              grep -i "error\|critical\|failed" data_refresh_output.log | tail -10 >> $GITHUB_STEP_SUMMARY
+              grep -i "error\|critical\|warning.*api" data_refresh_output.log | tail -15 >> $GITHUB_STEP_SUMMARY
               echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
             fi
           else

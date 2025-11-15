@@ -88,9 +88,14 @@ def refresh_news_data():
             try:
                 analyzer = NewsAnalyzer()
                 logger.info("NewsAnalyzer initialized successfully")
+                analyzer_available = True
             except Exception as e:
                 logger.error(f"Failed to initialize NewsAnalyzer: {e}", exc_info=True)
-                return False
+                logger.warning(
+                    "AI analysis unavailable - check ANTHROPIC_API_KEY. Continuing with news collection only."
+                )
+                analyzer = None
+                analyzer_available = False
 
             # Analyze and store each article
             saved_count = 0
@@ -111,7 +116,26 @@ def refresh_news_data():
                         continue
 
                     # Analyze with Claude AI (reuse analyzer instance)
-                    analysis = analyzer.analyze_single_news(article_data)
+                    if analyzer_available and analyzer:
+                        try:
+                            analysis = analyzer.analyze_single_news(article_data)
+                        except Exception as analysis_error:
+                            # If AI analysis fails (e.g. invalid API key), save article without analysis
+                            logger.warning(
+                                f"AI analysis failed for article, saving without analysis: {analysis_error}"
+                            )
+                            analysis = {
+                                "importance": 3,  # default medium importance
+                                "impact_summary": "AI analysis unavailable",
+                                "sentiment": "neutral",
+                            }
+                    else:
+                        # No analyzer available, use defaults
+                        analysis = {
+                            "importance": 3,  # default medium importance
+                            "impact_summary": "AI analysis unavailable - check API key",
+                            "sentiment": "neutral",
+                        }
 
                     # Skip if analysis failed or news is not important
                     if not analysis:
@@ -329,10 +353,14 @@ def refresh_calendar_data():
 
     except requests.RequestException as e:
         logger.error(f"Calendar API request failed: {e}", exc_info=True)
-        return False
+        logger.warning("Continuing despite calendar API failure - check your FINNHUB_API_KEY")
+        # Return True to not fail the entire job if calendar fails
+        # Calendar is less critical than news
+        return True
     except Exception as e:
         logger.error(f"Calendar refresh failed: {e}", exc_info=True)
-        return False
+        logger.warning("Continuing despite calendar failure")
+        return True
 
 
 def main():
