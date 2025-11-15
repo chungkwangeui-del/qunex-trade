@@ -82,7 +82,9 @@ class NewsCollector:
 
                 # Check for API errors in response
                 if data.get("status") == "ERROR":
-                    logger.error(f"[Polygon] API returned error: {data.get('error', 'Unknown error')}")
+                    logger.error(
+                        f"[Polygon] API returned error: {data.get('error', 'Unknown error')}"
+                    )
                     return []
 
                 articles = data.get("results", [])

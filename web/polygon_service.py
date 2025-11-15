@@ -187,12 +187,16 @@ class PolygonService:
         status = data.get("status", "")
         if status not in ["OK", "DELAYED"]:
             error_msg = data.get("error", data.get("message", "No error message"))
-            logger.warning(f"Polygon get_aggregates: API returned status={status} for {ticker}: {error_msg}")
+            logger.warning(
+                f"Polygon get_aggregates: API returned status={status} for {ticker}: {error_msg}"
+            )
             return None
 
         results = data.get("results", [])
         if not results:
-            logger.warning(f"Polygon get_aggregates: Empty results for {ticker} (from={from_date}, to={to_date}, limit={limit})")
+            logger.warning(
+                f"Polygon get_aggregates: Empty results for {ticker} (from={from_date}, to={to_date}, limit={limit})"
+            )
             return None
 
         logger.debug(f"Polygon get_aggregates: Retrieved {len(results)} bars for {ticker}")
@@ -422,7 +426,9 @@ class PolygonService:
             return {}
 
         if len(aggs) < 20:
-            logger.warning(f"Polygon get_technical_indicators: Insufficient data for {ticker} (got {len(aggs)} bars, need 20+)")
+            logger.warning(
+                f"Polygon get_technical_indicators: Insufficient data for {ticker} (got {len(aggs)} bars, need 20+)"
+            )
             return {}
 
         # Calculate simple indicators

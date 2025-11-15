@@ -78,7 +78,9 @@ def update_ai_scores():
 
             from ai_score_system import MultiTimeframeAIScoreModel
 
-            ml_model = MultiTimeframeAIScoreModel(model_dir=os.path.join(parent_dir, "ml", "models"))
+            ml_model = MultiTimeframeAIScoreModel(
+                model_dir=os.path.join(parent_dir, "ml", "models")
+            )
             if ml_model.load_all_models():
                 logger.info("✓ Multi-timeframe ML models loaded successfully (5d, 20d, 60d)")
             else:
@@ -172,7 +174,9 @@ def update_ai_scores():
                             long_term_score = scores_dict.get("long_term_score")
                             long_term_rating = ratings_dict.get("long_term_rating")
 
-                            logger.info(f"ML model scores for {ticker}: Short={short_term_score}, Medium={score}, Long={long_term_score}")
+                            logger.info(
+                                f"ML model scores for {ticker}: Short={short_term_score}, Medium={score}, Long={long_term_score}"
+                            )
                         except Exception as ml_error:
                             logger.warning(
                                 f"ML model prediction error for {ticker}: {ml_error}, using rule-based scoring"
@@ -226,7 +230,9 @@ def update_ai_scores():
 
                     db.session.commit()
                     updated_count += 1
-                    logger.info(f"{ticker}: Short={short_term_score}/{short_term_rating}, Medium={score}/{rating}, Long={long_term_score}/{long_term_rating}")
+                    logger.info(
+                        f"{ticker}: Short={short_term_score}/{short_term_rating}, Medium={score}/{rating}, Long={long_term_score}/{long_term_rating}"
+                    )
 
                 except Exception as e:
                     logger.error(f"Error processing {ticker}: {e}", exc_info=True)
@@ -256,8 +262,8 @@ def is_etf(ticker: str, polygon) -> bool:
     """
     if not polygon:
         # If no Polygon API, use simple heuristic (common ETF patterns)
-        etf_patterns = ['SPY', 'QQQ', 'IWM', 'DIA', 'VOO', 'VTI', 'AGG', 'BND']
-        if ticker in etf_patterns or ticker.endswith('ETF'):
+        etf_patterns = ["SPY", "QQQ", "IWM", "DIA", "VOO", "VTI", "AGG", "BND"]
+        if ticker in etf_patterns or ticker.endswith("ETF"):
             return True
         return False
 
@@ -337,7 +343,9 @@ def calculate_enhanced_features(ticker: str, polygon, alpha_vantage, db):
         # 2. FUNDAMENTAL INDICATORS (from Alpha Vantage)
         # Skip for ETFs - they don't have individual company fundamentals
         if is_etf_flag:
-            logger.info(f"{ticker} is an ETF - using default fundamental values (ETFs don't have P/E, EPS, etc.)")
+            logger.info(
+                f"{ticker} is an ETF - using default fundamental values (ETFs don't have P/E, EPS, etc.)"
+            )
             features["market_cap_log"] = 9.0  # Neutral value
             features["pe_ratio"] = 20.0  # Neutral value
             features["pb_ratio"] = 3.0  # Neutral value
@@ -356,14 +364,18 @@ def calculate_enhanced_features(ticker: str, polygon, alpha_vantage, db):
                     market_cap_str = overview_data.get("MarketCapitalization", "0")
                     try:
                         market_cap = float(market_cap_str) if market_cap_str else 0
-                        features["market_cap_log"] = np.log10(market_cap + 1) if market_cap > 0 else 9.0
+                        features["market_cap_log"] = (
+                            np.log10(market_cap + 1) if market_cap > 0 else 9.0
+                        )
                     except (ValueError, TypeError):
                         features["market_cap_log"] = 9.0
 
                     # Parse P/E ratio
                     pe_str = overview_data.get("PERatio", "20.0")
                     try:
-                        features["pe_ratio"] = float(pe_str) if pe_str and pe_str != "None" else 20.0
+                        features["pe_ratio"] = (
+                            float(pe_str) if pe_str and pe_str != "None" else 20.0
+                        )
                     except (ValueError, TypeError):
                         features["pe_ratio"] = 20.0
 

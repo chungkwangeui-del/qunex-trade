@@ -68,9 +68,15 @@ def test_multiframe_system():
         ratings = multi_model.get_ratings(scores)
 
         logger.info("\n✓ Bullish Stock Predictions:")
-        logger.info(f"  Short-term (5d):  {scores['short_term_score']}/100 - {ratings['short_term_rating']}")
-        logger.info(f"  Medium-term (20d): {scores['medium_term_score']}/100 - {ratings['medium_term_rating']}")
-        logger.info(f"  Long-term (60d):  {scores['long_term_score']}/100 - {ratings['long_term_rating']}")
+        logger.info(
+            f"  Short-term (5d):  {scores['short_term_score']}/100 - {ratings['short_term_rating']}"
+        )
+        logger.info(
+            f"  Medium-term (20d): {scores['medium_term_score']}/100 - {ratings['medium_term_rating']}"
+        )
+        logger.info(
+            f"  Long-term (60d):  {scores['long_term_score']}/100 - {ratings['long_term_rating']}"
+        )
 
         # Test with bearish features
         logger.info("\n[3/3] Testing with bearish features...")
@@ -103,9 +109,15 @@ def test_multiframe_system():
         ratings = multi_model.get_ratings(scores)
 
         logger.info("\n✓ Bearish Stock Predictions:")
-        logger.info(f"  Short-term (5d):  {scores['short_term_score']}/100 - {ratings['short_term_rating']}")
-        logger.info(f"  Medium-term (20d): {scores['medium_term_score']}/100 - {ratings['medium_term_rating']}")
-        logger.info(f"  Long-term (60d):  {scores['long_term_score']}/100 - {ratings['long_term_rating']}")
+        logger.info(
+            f"  Short-term (5d):  {scores['short_term_score']}/100 - {ratings['short_term_rating']}"
+        )
+        logger.info(
+            f"  Medium-term (20d): {scores['medium_term_score']}/100 - {ratings['medium_term_rating']}"
+        )
+        logger.info(
+            f"  Long-term (60d):  {scores['long_term_score']}/100 - {ratings['long_term_rating']}"
+        )
 
         logger.info("\n" + "=" * 80)
         logger.info("✓ SUCCESS: Multi-timeframe AI Score system working correctly!")

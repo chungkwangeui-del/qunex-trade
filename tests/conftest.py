@@ -50,12 +50,14 @@ def app():
 
     # Initialize Flask-Login for authentication tests
     from flask_login import LoginManager
+
     login_manager = LoginManager()
     login_manager.init_app(flask_app)
 
     @login_manager.user_loader
     def load_user(user_id):
         from web.database import User
+
         return User.query.get(int(user_id))
 
     # Import and register blueprints from the actual app
@@ -63,12 +65,14 @@ def app():
         # Import blueprints after app context is set
         try:
             from web.api_watchlist import api_watchlist
+
             flask_app.register_blueprint(api_watchlist)
         except (ImportError, Exception) as e:
             print(f"Warning: Could not import api_watchlist: {e}")
 
         try:
             from web.api_polygon import api_polygon
+
             flask_app.register_blueprint(api_polygon)
         except (ImportError, Exception) as e:
             print(f"Warning: Could not import api_polygon: {e}")

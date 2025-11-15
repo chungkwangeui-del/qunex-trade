@@ -530,11 +530,13 @@ class AIScoreModel:
             try:
                 # Try with encoding parameter for older pickle files
                 with open(model_path, "rb") as f:
-                    model_data = pickle.load(f, encoding='latin1')
+                    model_data = pickle.load(f, encoding="latin1")
                 logger.info("Model loaded successfully with latin1 encoding")
             except Exception as e2:
                 logger.error(f"Failed to load model even with compatibility mode: {e2}")
-                logger.error("Model needs to be retrained with current numpy/sklearn/xgboost versions")
+                logger.error(
+                    "Model needs to be retrained with current numpy/sklearn/xgboost versions"
+                )
                 return False
 
         try:
@@ -593,7 +595,9 @@ class MultiTimeframeAIScoreModel:
             logger.info("✓ All 3 timeframe models loaded successfully")
             return True
         else:
-            logger.warning(f"Some models failed to load: short={short_loaded}, medium={medium_loaded}, long={long_loaded}")
+            logger.warning(
+                f"Some models failed to load: short={short_loaded}, medium={medium_loaded}, long={long_loaded}"
+            )
             return False
 
     def predict_all_timeframes(self, features: Dict[str, float]) -> Dict[str, int]:
@@ -638,6 +642,7 @@ class MultiTimeframeAIScoreModel:
         Returns:
             Dictionary with ratings (Strong Sell, Sell, Hold, Buy, Strong Buy)
         """
+
         def score_to_rating(score: int) -> str:
             if score >= 75:
                 return "Strong Buy"

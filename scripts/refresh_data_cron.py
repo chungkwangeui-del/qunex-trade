@@ -99,7 +99,9 @@ def refresh_news_data():
 
             for i, article_data in enumerate(news_articles, 1):
                 try:
-                    logger.debug(f"Processing article {i}/{len(news_articles)}: {article_data['title'][:60]}")
+                    logger.debug(
+                        f"Processing article {i}/{len(news_articles)}: {article_data['title'][:60]}"
+                    )
 
                     # Check if article already exists (by URL)
                     existing = NewsArticle.query.filter_by(url=article_data["url"]).first()
@@ -127,7 +129,9 @@ def refresh_news_data():
                                 published_at_str = published_at_str[:-1] + "+00:00"
                             published_at = datetime.fromisoformat(published_at_str)
                         except ValueError as ve:
-                            logger.warning(f"Invalid date format: {published_at_str}, using current time")
+                            logger.warning(
+                                f"Invalid date format: {published_at_str}, using current time"
+                            )
                             published_at = datetime.utcnow()
                     else:
                         published_at = datetime.utcnow()
@@ -145,7 +149,9 @@ def refresh_news_data():
 
                     db.session.add(article)
                     saved_count += 1
-                    logger.info(f"Added article [{saved_count}]: {article_data['title'][:60]} (rating={analysis.get('importance')})")
+                    logger.info(
+                        f"Added article [{saved_count}]: {article_data['title'][:60]} (rating={analysis.get('importance')})"
+                    )
 
                 except Exception as e:
                     error_count += 1

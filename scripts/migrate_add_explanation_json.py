@@ -34,6 +34,7 @@ def migrate():
         with app.app_context():
             # Check if column already exists (SQLite-compatible)
             from sqlalchemy import inspect
+
             inspector = inspect(db.engine)
             columns = [col["name"] for col in inspector.get_columns("ai_scores")]
 

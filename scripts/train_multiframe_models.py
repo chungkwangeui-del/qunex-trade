@@ -48,16 +48,30 @@ def generate_training_data(n_samples=2000, timeframe="medium"):
     # Feature schema (same for all timeframes)
     feature_names = [
         # Technical Indicators
-        "rsi", "macd", "price_to_ma50", "price_to_ma200",
-        "volume_trend", "volatility", "momentum",
-
+        "rsi",
+        "macd",
+        "price_to_ma50",
+        "price_to_ma200",
+        "volume_trend",
+        "volatility",
+        "momentum",
         # Fundamental Metrics
-        "market_cap_log", "pe_ratio", "pb_ratio", "ps_ratio",
-        "eps_growth", "revenue_growth", "profit_margin", "roe", "roa",
-        "debt_to_equity", "current_ratio", "peg_ratio",
-
+        "market_cap_log",
+        "pe_ratio",
+        "pb_ratio",
+        "ps_ratio",
+        "eps_growth",
+        "revenue_growth",
+        "profit_margin",
+        "roe",
+        "roa",
+        "debt_to_equity",
+        "current_ratio",
+        "peg_ratio",
         # Sentiment
-        "news_sentiment_avg", "news_sentiment_trend", "news_volume",
+        "news_sentiment_avg",
+        "news_sentiment_trend",
+        "news_volume",
     ]
 
     n_features = len(feature_names)

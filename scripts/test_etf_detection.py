@@ -14,9 +14,11 @@ sys.path.insert(0, parent_dir)
 
 # Set up environment
 from dotenv import load_dotenv
+
 load_dotenv()
 
 import logging
+
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
 # Import after sys.path setup
@@ -57,7 +59,9 @@ def test_etf_detection():
         status = "OK" if result == expected_etf else "FAIL"
         results.append((ticker, result, expected_etf, status))
 
-        print(f"  {ticker:6} - Expected: {'ETF' if expected_etf else 'Stock':5} | Detected: {'ETF' if result else 'Stock':5} | {status:4} - {description}")
+        print(
+            f"  {ticker:6} - Expected: {'ETF' if expected_etf else 'Stock':5} | Detected: {'ETF' if result else 'Stock':5} | {status:4} - {description}"
+        )
 
     print("\n" + "=" * 80)
     passed = sum(1 for _, _, _, status in results if status == "OK")
@@ -81,5 +85,6 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"\nERROR - Test failed: {e}")
         import traceback
+
         traceback.print_exc()
         sys.exit(1)

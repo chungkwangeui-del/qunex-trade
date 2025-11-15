@@ -15,12 +15,15 @@ sys.path.insert(0, parent_dir)
 
 # Set up environment
 from dotenv import load_dotenv
+
 load_dotenv()
 
 import logging
+
 logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s")
 
 from polygon_service import PolygonService
+
 
 def test_polygon_api():
     """Test Polygon API with TSLA to see what's happening"""
@@ -100,5 +103,6 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"\nERROR - Test failed with exception: {e}")
         import traceback
+
         traceback.print_exc()
         sys.exit(1)

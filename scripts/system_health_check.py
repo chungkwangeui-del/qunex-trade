@@ -80,7 +80,12 @@ class SystemHealthChecker:
 
                 # Check ai_scores columns for multi-timeframe
                 columns = [col["name"] for col in inspector.get_columns("ai_scores")]
-                multi_frame_cols = ["short_term_score", "short_term_rating", "long_term_score", "long_term_rating"]
+                multi_frame_cols = [
+                    "short_term_score",
+                    "short_term_rating",
+                    "long_term_score",
+                    "long_term_rating",
+                ]
 
                 all_cols_exist = all(col in columns for col in multi_frame_cols)
                 if all_cols_exist:
@@ -88,7 +93,9 @@ class SystemHealthChecker:
                 else:
                     missing = [col for col in multi_frame_cols if col not in columns]
                     result["details"].append(f"⚠️ Missing columns: {missing}")
-                    self.warnings.append(f"Run migration: python scripts/migrate_add_multiframe_scores.py")
+                    self.warnings.append(
+                        f"Run migration: python scripts/migrate_add_multiframe_scores.py"
+                    )
 
                 # Count records
                 ai_score_count = db.session.query(AIScore).count()
@@ -148,10 +155,14 @@ class SystemHealthChecker:
                     result["details"].append("✅ All models loaded successfully")
 
                     # Test prediction
-                    test_features = {name: 0.0 for name in multi_model.short_term_model.feature_names}
+                    test_features = {
+                        name: 0.0 for name in multi_model.short_term_model.feature_names
+                    }
                     scores = multi_model.predict_all_timeframes(test_features)
 
-                    result["details"].append(f"✅ Test prediction: Short={scores['short_term_score']}, Medium={scores['medium_term_score']}, Long={scores['long_term_score']}")
+                    result["details"].append(
+                        f"✅ Test prediction: Short={scores['short_term_score']}, Medium={scores['medium_term_score']}, Long={scores['long_term_score']}"
+                    )
                     result["status"] = "healthy"
                     self.successes.append("All ML models loaded and tested")
                 else:
@@ -236,7 +247,9 @@ class SystemHealthChecker:
                     count = NewsArticle.query.filter_by(sentiment=sentiment).count()
                     sentiment_counts[sentiment] = count
 
-                result["details"].append(f"📊 Sentiment: Positive={sentiment_counts.get('positive', 0)}, Neutral={sentiment_counts.get('neutral', 0)}, Negative={sentiment_counts.get('negative', 0)}")
+                result["details"].append(
+                    f"📊 Sentiment: Positive={sentiment_counts.get('positive', 0)}, Neutral={sentiment_counts.get('neutral', 0)}, Negative={sentiment_counts.get('negative', 0)}"
+                )
 
         except Exception as e:
             result["status"] = "error"
@@ -272,7 +285,9 @@ class SystemHealthChecker:
                 result["details"].append(f"📊 With short-term scores: {with_short}/{total_scores}")
                 result["details"].append(f"📊 With long-term scores: {with_long}/{total_scores}")
 
-                coverage = min(with_short, with_long) / total_scores * 100 if total_scores > 0 else 0
+                coverage = (
+                    min(with_short, with_long) / total_scores * 100 if total_scores > 0 else 0
+                )
                 result["details"].append(f"📊 Multi-timeframe coverage: {coverage:.1f}%")
 
                 # Check recent updates
@@ -293,7 +308,9 @@ class SystemHealthChecker:
                 # Sample scores
                 sample = AIScore.query.first()
                 if sample and sample.short_term_score:
-                    result["details"].append(f"📊 Sample ({sample.ticker}): Short={sample.short_term_score}, Medium={sample.score}, Long={sample.long_term_score}")
+                    result["details"].append(
+                        f"📊 Sample ({sample.ticker}): Short={sample.short_term_score}, Medium={sample.score}, Long={sample.long_term_score}"
+                    )
 
         except Exception as e:
             result["status"] = "error"
@@ -326,7 +343,9 @@ class SystemHealthChecker:
         if all_exist:
             result["status"] = "healthy"
             self.successes.append("All GitHub Actions workflows configured")
-            result["details"].append("\n💡 Check workflow runs at: https://github.com/YOUR_USERNAME/YOUR_REPO/actions")
+            result["details"].append(
+                "\n💡 Check workflow runs at: https://github.com/YOUR_USERNAME/YOUR_REPO/actions"
+            )
         else:
             result["status"] = "error"
 
@@ -352,7 +371,11 @@ class SystemHealthChecker:
 
         # Print each component
         for component, result in results.items():
-            status_icon = "✅" if result["status"] == "healthy" else ("⚠️" if result["status"] == "warning" else "❌")
+            status_icon = (
+                "✅"
+                if result["status"] == "healthy"
+                else ("⚠️" if result["status"] == "warning" else "❌")
+            )
             logger.info(f"\n{status_icon} {component.upper()}: {result['status'].upper()}")
             for detail in result["details"]:
                 logger.info(f"  {detail}")

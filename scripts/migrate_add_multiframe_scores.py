@@ -37,6 +37,7 @@ def run_migration():
 
             # Check if columns already exist
             from sqlalchemy import inspect
+
             inspector = inspect(db.engine)
             columns = [col["name"] for col in inspector.get_columns("ai_scores")]
 
@@ -64,33 +65,33 @@ def run_migration():
             with db.engine.connect() as conn:
                 if "short_term_score" in columns_to_add:
                     logger.info("Adding short_term_score column (INTEGER)...")
-                    conn.execute(db.text(
-                        "ALTER TABLE ai_scores ADD COLUMN short_term_score INTEGER"
-                    ))
+                    conn.execute(
+                        db.text("ALTER TABLE ai_scores ADD COLUMN short_term_score INTEGER")
+                    )
                     conn.commit()
                     logger.info("✓ short_term_score column added")
 
                 if "short_term_rating" in columns_to_add:
                     logger.info("Adding short_term_rating column (VARCHAR)...")
-                    conn.execute(db.text(
-                        "ALTER TABLE ai_scores ADD COLUMN short_term_rating VARCHAR(20)"
-                    ))
+                    conn.execute(
+                        db.text("ALTER TABLE ai_scores ADD COLUMN short_term_rating VARCHAR(20)")
+                    )
                     conn.commit()
                     logger.info("✓ short_term_rating column added")
 
                 if "long_term_score" in columns_to_add:
                     logger.info("Adding long_term_score column (INTEGER)...")
-                    conn.execute(db.text(
-                        "ALTER TABLE ai_scores ADD COLUMN long_term_score INTEGER"
-                    ))
+                    conn.execute(
+                        db.text("ALTER TABLE ai_scores ADD COLUMN long_term_score INTEGER")
+                    )
                     conn.commit()
                     logger.info("✓ long_term_score column added")
 
                 if "long_term_rating" in columns_to_add:
                     logger.info("Adding long_term_rating column (VARCHAR)...")
-                    conn.execute(db.text(
-                        "ALTER TABLE ai_scores ADD COLUMN long_term_rating VARCHAR(20)"
-                    ))
+                    conn.execute(
+                        db.text("ALTER TABLE ai_scores ADD COLUMN long_term_rating VARCHAR(20)")
+                    )
                     conn.commit()
                     logger.info("✓ long_term_rating column added")
 
@@ -101,15 +102,37 @@ def run_migration():
             logger.info("\n" + "=" * 80)
             logger.info("MIGRATION VERIFICATION")
             logger.info("=" * 80)
-            logger.info(f"✓ short_term_score: {'EXISTS' if 'short_term_score' in columns_after else 'MISSING'}")
-            logger.info(f"✓ short_term_rating: {'EXISTS' if 'short_term_rating' in columns_after else 'MISSING'}")
-            logger.info(f"✓ score (medium-term): {'EXISTS' if 'score' in columns_after else 'MISSING'}")
-            logger.info(f"✓ rating (medium-term): {'EXISTS' if 'rating' in columns_after else 'MISSING'}")
-            logger.info(f"✓ long_term_score: {'EXISTS' if 'long_term_score' in columns_after else 'MISSING'}")
-            logger.info(f"✓ long_term_rating: {'EXISTS' if 'long_term_rating' in columns_after else 'MISSING'}")
+            logger.info(
+                f"✓ short_term_score: {'EXISTS' if 'short_term_score' in columns_after else 'MISSING'}"
+            )
+            logger.info(
+                f"✓ short_term_rating: {'EXISTS' if 'short_term_rating' in columns_after else 'MISSING'}"
+            )
+            logger.info(
+                f"✓ score (medium-term): {'EXISTS' if 'score' in columns_after else 'MISSING'}"
+            )
+            logger.info(
+                f"✓ rating (medium-term): {'EXISTS' if 'rating' in columns_after else 'MISSING'}"
+            )
+            logger.info(
+                f"✓ long_term_score: {'EXISTS' if 'long_term_score' in columns_after else 'MISSING'}"
+            )
+            logger.info(
+                f"✓ long_term_rating: {'EXISTS' if 'long_term_rating' in columns_after else 'MISSING'}"
+            )
 
             # Check if all expected columns exist
-            all_exist = all(col in columns_after for col in ["short_term_score", "short_term_rating", "long_term_score", "long_term_rating", "score", "rating"])
+            all_exist = all(
+                col in columns_after
+                for col in [
+                    "short_term_score",
+                    "short_term_rating",
+                    "long_term_score",
+                    "long_term_rating",
+                    "score",
+                    "rating",
+                ]
+            )
 
             if all_exist:
                 logger.info("\n✓ SUCCESS: All multi-timeframe score columns ready")
