@@ -101,15 +101,24 @@ jobs:
             echo "📈 **Stocks Processed:** $STOCKS_PROCESSED" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
 
-            # Success/Failed counts - FIXED: Look for actual success pattern
-            SUCCESS_COUNT=$(grep -c "AI score updated for" ai_score_output.log || echo "0")
-            FAILED_COUNT=$(grep -c "Could not calculate features for" ai_score_output.log || echo "0")
-            SAVED_COUNT=$(grep -c "saved to database" ai_score_output.log || echo "0")
+            # Success/Failed counts - Parse from actual log patterns
+            # Pattern: "NVDA: Short=34/Sell, Medium=55/Hold, Long=50/Hold"
+            SUCCESS_COUNT=$(grep -cE "[A-Z]+: Short=[0-9]+/.*, Medium=[0-9]+/.*, Long=[0-9]+/" ai_score_output.log || echo "0")
+
+            # Pattern: "AI score update complete: X updated, Y failed"
+            FINAL_SUMMARY=$(grep "AI score update complete:" ai_score_output.log | tail -1)
+            if [ -n "$FINAL_SUMMARY" ]; then
+              UPDATED_COUNT=$(echo "$FINAL_SUMMARY" | grep -o "[0-9]* updated" | grep -o "[0-9]*" || echo "0")
+              FAILED_COUNT=$(echo "$FINAL_SUMMARY" | grep -o "[0-9]* failed" | grep -o "[0-9]*" || echo "0")
+            else
+              UPDATED_COUNT=$SUCCESS_COUNT
+              FAILED_COUNT=$(grep -c "Error processing" ai_score_output.log || echo "0")
+            fi
 
             echo "| Status | Count |" >> $GITHUB_STEP_SUMMARY
             echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
             echo "| ✅ Scores Calculated | $SUCCESS_COUNT |" >> $GITHUB_STEP_SUMMARY
-            echo "| 💾 Saved to Database | $SAVED_COUNT |" >> $GITHUB_STEP_SUMMARY
+            echo "| 💾 Saved to Database | $UPDATED_COUNT |" >> $GITHUB_STEP_SUMMARY
             echo "| ❌ Failed | $FAILED_COUNT |" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
 
@@ -119,13 +128,11 @@ jobs:
 
             # Polygon API - check multiple patterns for accuracy
             POLYGON_TECHNICAL=$(grep -c "Polygon technical data fetched" ai_score_output.log || echo "0")
-            POLYGON_RETRIEVED=$(grep -c "Polygon get_aggregates: Retrieved" ai_score_output.log || echo "0")
             POLYGON_WARNINGS=$(grep -c "No Polygon technical data" ai_score_output.log || echo "0")
 
-            if [ "$POLYGON_TECHNICAL" -gt 0 ] || [ "$POLYGON_RETRIEVED" -gt 0 ]; then
+            if [ "$POLYGON_TECHNICAL" -gt 0 ]; then
               echo "✅ **Polygon API:** Working" >> $GITHUB_STEP_SUMMARY
               echo "  - Technical indicators fetched: $POLYGON_TECHNICAL stocks" >> $GITHUB_STEP_SUMMARY
-              echo "  - Aggregate data retrieved: $POLYGON_RETRIEVED calls" >> $GITHUB_STEP_SUMMARY
               if [ "$POLYGON_WARNINGS" -gt 0 ]; then
                 echo "  - ⚠️ Warnings: $POLYGON_WARNINGS stocks with default values" >> $GITHUB_STEP_SUMMARY
               fi
