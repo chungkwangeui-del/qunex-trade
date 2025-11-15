@@ -101,49 +101,135 @@ jobs:
             echo "📈 **Stocks Processed:** $STOCKS_PROCESSED" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
 
-            # Success/Failed counts
-            SUCCESS_COUNT=$(grep -c "ML model score for" ai_score_output.log || echo "0")
+            # Success/Failed counts - FIXED: Look for actual success pattern
+            SUCCESS_COUNT=$(grep -c "AI score updated for" ai_score_output.log || echo "0")
             FAILED_COUNT=$(grep -c "Could not calculate features for" ai_score_output.log || echo "0")
+            SAVED_COUNT=$(grep -c "saved to database" ai_score_output.log || echo "0")
 
             echo "| Status | Count |" >> $GITHUB_STEP_SUMMARY
             echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
-            echo "| ✅ Success | $SUCCESS_COUNT |" >> $GITHUB_STEP_SUMMARY
+            echo "| ✅ Scores Calculated | $SUCCESS_COUNT |" >> $GITHUB_STEP_SUMMARY
+            echo "| 💾 Saved to Database | $SAVED_COUNT |" >> $GITHUB_STEP_SUMMARY
             echo "| ❌ Failed | $FAILED_COUNT |" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
 
-            # API Status
+            # API Status - Enhanced with detailed metrics
             echo "## 🔌 API Status" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
 
-            if grep -q "Polygon technical data fetched" ai_score_output.log; then
-              POLYGON_COUNT=$(grep -c "Polygon technical data fetched" ai_score_output.log || echo "0")
-              echo "✅ **Polygon API:** Working ($POLYGON_COUNT calls)" >> $GITHUB_STEP_SUMMARY
-            else
-              echo "⚠️ **Polygon API:** No data fetched" >> $GITHUB_STEP_SUMMARY
-            fi
+            # Polygon API - check multiple patterns for accuracy
+            POLYGON_TECHNICAL=$(grep -c "Polygon technical data fetched" ai_score_output.log || echo "0")
+            POLYGON_RETRIEVED=$(grep -c "Polygon get_aggregates: Retrieved" ai_score_output.log || echo "0")
+            POLYGON_WARNINGS=$(grep -c "No Polygon technical data" ai_score_output.log || echo "0")
 
-            if grep -q "Alpha Vantage fundamental data" ai_score_output.log; then
-              AV_COUNT=$(grep -c "Alpha Vantage fundamental data" ai_score_output.log || echo "0")
-              echo "✅ **Alpha Vantage API:** Working ($AV_COUNT calls)" >> $GITHUB_STEP_SUMMARY
+            if [ "$POLYGON_TECHNICAL" -gt 0 ] || [ "$POLYGON_RETRIEVED" -gt 0 ]; then
+              echo "✅ **Polygon API:** Working" >> $GITHUB_STEP_SUMMARY
+              echo "  - Technical indicators fetched: $POLYGON_TECHNICAL stocks" >> $GITHUB_STEP_SUMMARY
+              echo "  - Aggregate data retrieved: $POLYGON_RETRIEVED calls" >> $GITHUB_STEP_SUMMARY
+              if [ "$POLYGON_WARNINGS" -gt 0 ]; then
+                echo "  - ⚠️ Warnings: $POLYGON_WARNINGS stocks with default values" >> $GITHUB_STEP_SUMMARY
+              fi
+            else
+              echo "⚠️ **Polygon API:** No data fetched (check API key or rate limits)" >> $GITHUB_STEP_SUMMARY
+              if [ "$POLYGON_WARNINGS" -gt 0 ]; then
+                echo "  - $POLYGON_WARNINGS stocks using default technical indicators" >> $GITHUB_STEP_SUMMARY
+              fi
+            fi
+            echo "" >> $GITHUB_STEP_SUMMARY
+
+            # Alpha Vantage API - check multiple patterns
+            AV_FETCHED=$(grep -c "Alpha Vantage data fetched" ai_score_output.log || echo "0")
+            AV_FETCHING=$(grep -c "Fetching fundamental data from Alpha Vantage" ai_score_output.log || echo "0")
+            AV_WARNINGS=$(grep -c "Alpha Vantage returned no data" ai_score_output.log || echo "0")
+            ETF_SKIPPED=$(grep -c "is an ETF - using default fundamental values" ai_score_output.log || echo "0")
+
+            if [ "$AV_FETCHED" -gt 0 ]; then
+              echo "✅ **Alpha Vantage API:** Working" >> $GITHUB_STEP_SUMMARY
+              echo "  - Fundamental data fetched: $AV_FETCHED stocks" >> $GITHUB_STEP_SUMMARY
+              echo "  - API calls attempted: $AV_FETCHING stocks" >> $GITHUB_STEP_SUMMARY
+              if [ "$ETF_SKIPPED" -gt 0 ]; then
+                echo "  - ETFs skipped (correct): $ETF_SKIPPED tickers" >> $GITHUB_STEP_SUMMARY
+              fi
+              if [ "$AV_WARNINGS" -gt 0 ]; then
+                echo "  - ⚠️ No data returned: $AV_WARNINGS stocks (using defaults)" >> $GITHUB_STEP_SUMMARY
+              fi
             else
               echo "⚠️ **Alpha Vantage API:** No data fetched" >> $GITHUB_STEP_SUMMARY
+              echo "  - API calls attempted: $AV_FETCHING" >> $GITHUB_STEP_SUMMARY
+              if [ "$ETF_SKIPPED" -gt 0 ]; then
+                echo "  - ✅ ETFs correctly skipped: $ETF_SKIPPED" >> $GITHUB_STEP_SUMMARY
+              fi
+              if [ "$AV_WARNINGS" -gt 0 ]; then
+                echo "  - ⚠️ Using defaults: $AV_WARNINGS stocks" >> $GITHUB_STEP_SUMMARY
+              fi
             fi
             echo "" >> $GITHUB_STEP_SUMMARY
 
-            # Duration
-            DURATION=$(grep "CRON JOB COMPLETED in" ai_score_output.log | grep -o "[0-9.]*" | head -1 || echo "N/A")
-            echo "⏱️ **Duration:** ${DURATION}s" >> $GITHUB_STEP_SUMMARY
+            # Performance Metrics
+            echo "## ⏱️ Performance" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
 
-            # Overall status
+            DURATION=$(grep "CRON JOB COMPLETED in" ai_score_output.log | grep -o "[0-9.]*" | head -1 || echo "N/A")
+            if [ "$DURATION" != "N/A" ]; then
+              # Calculate per-stock average
+              if [ "$STOCKS_PROCESSED" -gt 0 ]; then
+                AVG_TIME=$(echo "scale=2; $DURATION / $STOCKS_PROCESSED" | bc)
+                echo "- **Total Duration:** ${DURATION}s" >> $GITHUB_STEP_SUMMARY
+                echo "- **Average per Stock:** ${AVG_TIME}s" >> $GITHUB_STEP_SUMMARY
+              else
+                echo "- **Total Duration:** ${DURATION}s" >> $GITHUB_STEP_SUMMARY
+              fi
+            else
+              echo "- **Total Duration:** N/A" >> $GITHUB_STEP_SUMMARY
+            fi
+            echo "" >> $GITHUB_STEP_SUMMARY
+
+            # Data Quality Summary
+            echo "## 📊 Data Quality" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+
+            REAL_TECHNICAL=$(grep -c "Polygon technical data fetched" ai_score_output.log || echo "0")
+            REAL_FUNDAMENTAL=$(grep -c "Alpha Vantage data fetched" ai_score_output.log || echo "0")
+            DEFAULT_TECHNICAL=$(grep -c "No Polygon technical data" ai_score_output.log || echo "0")
+            DEFAULT_FUNDAMENTAL=$(grep -c "Alpha Vantage returned no data" ai_score_output.log || echo "0")
+
+            if [ "$STOCKS_PROCESSED" -gt 0 ]; then
+              REAL_TECH_PCT=$(echo "scale=1; 100 * $REAL_TECHNICAL / $STOCKS_PROCESSED" | bc)
+              REAL_FUND_PCT=$(echo "scale=1; 100 * $REAL_FUNDAMENTAL / $STOCKS_PROCESSED" | bc)
+
+              echo "| Data Source | Real Data | Defaults | Coverage |" >> $GITHUB_STEP_SUMMARY
+              echo "|-------------|-----------|----------|----------|" >> $GITHUB_STEP_SUMMARY
+              echo "| Technical (Polygon) | $REAL_TECHNICAL | $DEFAULT_TECHNICAL | ${REAL_TECH_PCT}% |" >> $GITHUB_STEP_SUMMARY
+              echo "| Fundamental (Alpha Vantage) | $REAL_FUNDAMENTAL | $DEFAULT_FUNDAMENTAL | ${REAL_FUND_PCT}% |" >> $GITHUB_STEP_SUMMARY
+            fi
+            echo "" >> $GITHUB_STEP_SUMMARY
+
+            # Overall status with detailed breakdown
             if grep -q "✓ SUCCESS" ai_score_output.log; then
               echo "## ✅ Overall Status: SUCCESS" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+
+              # Check for any warnings
+              WARNING_COUNT=$(grep -c "WARNING" ai_score_output.log || echo "0")
+              if [ "$WARNING_COUNT" -gt 0 ]; then
+                echo "⚠️ **Warnings:** $WARNING_COUNT (check logs for details)" >> $GITHUB_STEP_SUMMARY
+                echo "" >> $GITHUB_STEP_SUMMARY
+                echo "<details>" >> $GITHUB_STEP_SUMMARY
+                echo "<summary>View Warnings</summary>" >> $GITHUB_STEP_SUMMARY
+                echo "" >> $GITHUB_STEP_SUMMARY
+                echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+                grep "WARNING" ai_score_output.log | head -20 >> $GITHUB_STEP_SUMMARY
+                echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+                echo "</details>" >> $GITHUB_STEP_SUMMARY
+              else
+                echo "✅ No warnings - all stocks processed cleanly" >> $GITHUB_STEP_SUMMARY
+              fi
             else
               echo "## ❌ Overall Status: FAILED" >> $GITHUB_STEP_SUMMARY
               echo "" >> $GITHUB_STEP_SUMMARY
               echo "### Error Details" >> $GITHUB_STEP_SUMMARY
               echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-              grep -i "error\|critical\|failed" ai_score_output.log | tail -10 >> $GITHUB_STEP_SUMMARY
+              grep -i "error\|critical\|failed" ai_score_output.log | tail -20 >> $GITHUB_STEP_SUMMARY
               echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
             fi
           else
