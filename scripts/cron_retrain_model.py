@@ -29,11 +29,18 @@ load_dotenv()
 
 
 def run_command(cmd):
-    """Run shell command and return output."""
+    """Run shell command and return output.
+
+    Security: Uses shell=False with command list to prevent command injection.
+    """
     try:
+        # Convert string command to list for shell=False
+        if isinstance(cmd, str):
+            cmd = cmd.split()
+
         result = subprocess.run(
             cmd,
-            shell=True,
+            shell=False,  # nosec B602 - Security: prevent command injection
             check=True,
             capture_output=True,
             text=True,

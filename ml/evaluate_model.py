@@ -28,9 +28,10 @@ def main():
         params = load_params()
 
         # Load model
+        # Security note: Only loading model files we created ourselves
         model_path = os.path.join(os.path.dirname(__file__), "models", "model.pkl")
         with open(model_path, "rb") as f:
-            model_data = pickle.load(f)
+            model_data = pickle.load(f)  # nosec B301 - loading trusted model files
         model = model_data["model"]
         feature_cols = model_data["features"]
 

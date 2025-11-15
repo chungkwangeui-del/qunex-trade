@@ -520,8 +520,9 @@ class AIScoreModel:
 
         try:
             # Try loading with default pickle
+            # Security note: Only loading model files we created ourselves
             with open(model_path, "rb") as f:
-                model_data = pickle.load(f)
+                model_data = pickle.load(f)  # nosec B301 - loading trusted model files
         except (ModuleNotFoundError, AttributeError) as e:
             # Handle numpy version incompatibility
             logger.warning(f"Model pickle incompatible with current numpy version: {e}")
@@ -530,7 +531,7 @@ class AIScoreModel:
             try:
                 # Try with encoding parameter for older pickle files
                 with open(model_path, "rb") as f:
-                    model_data = pickle.load(f, encoding="latin1")
+                    model_data = pickle.load(f, encoding="latin1")  # nosec B301
                 logger.info("Model loaded successfully with latin1 encoding")
             except Exception as e2:
                 logger.error(f"Failed to load model even with compatibility mode: {e2}")

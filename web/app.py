@@ -1829,4 +1829,7 @@ else:
     logger.info("Background thread disabled (using Render Cron Jobs instead)")
 
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=5000)
+    # Only enable debug mode in development environment
+    # In production, this code doesn't run (Gunicorn is used instead)
+    debug_mode = os.getenv("FLASK_ENV") == "development"
+    app.run(debug=debug_mode, host="0.0.0.0", port=5000)
