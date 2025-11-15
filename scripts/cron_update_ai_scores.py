@@ -241,6 +241,43 @@ def update_ai_scores():
         return False
 
 
+def is_etf(ticker: str, polygon) -> bool:
+    """
+    Check if a ticker is an ETF or fund.
+
+    ETFs don't have individual fundamental metrics like P/E ratio, EPS growth, etc.
+
+    Args:
+        ticker: Stock ticker symbol
+        polygon: PolygonService instance
+
+    Returns:
+        bool: True if ticker is an ETF/fund, False otherwise
+    """
+    if not polygon:
+        # If no Polygon API, use simple heuristic (common ETF patterns)
+        etf_patterns = ['SPY', 'QQQ', 'IWM', 'DIA', 'VOO', 'VTI', 'AGG', 'BND']
+        if ticker in etf_patterns or ticker.endswith('ETF'):
+            return True
+        return False
+
+    try:
+        details = polygon.get_ticker_details(ticker)
+        if details and details.get("type"):
+            ticker_type = details.get("type", "").upper()
+            # Polygon returns types like "ETF", "ETN", "FUND", "ADRC", etc.
+            # ETF = Exchange Traded Fund
+            # ETN = Exchange Traded Note
+            # FUND = Mutual Fund
+            if ticker_type in ["ETF", "ETN", "FUND"]:
+                logger.info(f"{ticker} detected as {ticker_type} - will skip fundamental data")
+                return True
+        return False
+    except Exception as e:
+        logger.warning(f"Could not determine ticker type for {ticker}: {e}")
+        return False
+
+
 def calculate_enhanced_features(ticker: str, polygon, alpha_vantage, db):
     """
     Calculate enhanced features for a ticker.
@@ -261,6 +298,9 @@ def calculate_enhanced_features(ticker: str, polygon, alpha_vantage, db):
         from web.database import NewsArticle
 
         features = {}
+
+        # Check if ticker is an ETF (ETFs don't have P/E, EPS, etc.)
+        is_etf_flag = is_etf(ticker, polygon)
 
         # 1. TECHNICAL INDICATORS (from Polygon if available)
         if polygon:
@@ -295,88 +335,98 @@ def calculate_enhanced_features(ticker: str, polygon, alpha_vantage, db):
             features["price_to_ma200"] = 1.0
 
         # 2. FUNDAMENTAL INDICATORS (from Alpha Vantage)
-        try:
-            logger.info(f"Fetching fundamental data from Alpha Vantage for {ticker}...")
+        # Skip for ETFs - they don't have individual company fundamentals
+        if is_etf_flag:
+            logger.info(f"{ticker} is an ETF - using default fundamental values (ETFs don't have P/E, EPS, etc.)")
+            features["market_cap_log"] = 9.0  # Neutral value
+            features["pe_ratio"] = 20.0  # Neutral value
+            features["pb_ratio"] = 3.0  # Neutral value
+            features["eps_growth"] = 0.10  # Neutral 10% growth
+            features["revenue_growth"] = 0.15  # Neutral 15% growth
+        else:
+            # Fetch fundamentals for stocks (not ETFs)
+            try:
+                logger.info(f"Fetching fundamental data from Alpha Vantage for {ticker}...")
 
-            # Fetch company overview (P/E, P/B, Market Cap, etc.)
-            overview_data, overview_meta = alpha_vantage.get_company_overview(ticker)
+                # Fetch company overview (P/E, P/B, Market Cap, etc.)
+                overview_data, overview_meta = alpha_vantage.get_company_overview(ticker)
 
-            if overview_data and isinstance(overview_data, dict):
-                # Parse market cap
-                market_cap_str = overview_data.get("MarketCapitalization", "0")
-                try:
-                    market_cap = float(market_cap_str) if market_cap_str else 0
-                    features["market_cap_log"] = np.log10(market_cap + 1) if market_cap > 0 else 9.0
-                except (ValueError, TypeError):
+                if overview_data and isinstance(overview_data, dict):
+                    # Parse market cap
+                    market_cap_str = overview_data.get("MarketCapitalization", "0")
+                    try:
+                        market_cap = float(market_cap_str) if market_cap_str else 0
+                        features["market_cap_log"] = np.log10(market_cap + 1) if market_cap > 0 else 9.0
+                    except (ValueError, TypeError):
+                        features["market_cap_log"] = 9.0
+
+                    # Parse P/E ratio
+                    pe_str = overview_data.get("PERatio", "20.0")
+                    try:
+                        features["pe_ratio"] = float(pe_str) if pe_str and pe_str != "None" else 20.0
+                    except (ValueError, TypeError):
+                        features["pe_ratio"] = 20.0
+
+                    # Parse P/B ratio
+                    pb_str = overview_data.get("PriceToBookRatio", "3.0")
+                    try:
+                        features["pb_ratio"] = float(pb_str) if pb_str and pb_str != "None" else 3.0
+                    except (ValueError, TypeError):
+                        features["pb_ratio"] = 3.0
+
+                    # Parse EPS
+                    eps_str = overview_data.get("EPS", "0")
+                    try:
+                        eps = float(eps_str) if eps_str and eps_str != "None" else 0
+                    except (ValueError, TypeError):
+                        eps = 0
+
+                    # Parse quarterly earnings growth (YoY)
+                    earnings_growth_str = overview_data.get("QuarterlyEarningsGrowthYOY", "0.10")
+                    try:
+                        # Alpha Vantage returns as percentage string like "0.15" for 15%
+                        features["eps_growth"] = (
+                            float(earnings_growth_str)
+                            if earnings_growth_str and earnings_growth_str != "None"
+                            else 0.10
+                        )
+                    except (ValueError, TypeError):
+                        features["eps_growth"] = 0.10
+
+                    # Parse quarterly revenue growth (YoY)
+                    revenue_growth_str = overview_data.get("QuarterlyRevenueGrowthYOY", "0.15")
+                    try:
+                        features["revenue_growth"] = (
+                            float(revenue_growth_str)
+                            if revenue_growth_str and revenue_growth_str != "None"
+                            else 0.15
+                        )
+                    except (ValueError, TypeError):
+                        features["revenue_growth"] = 0.15
+
+                    logger.info(
+                        f"Alpha Vantage data fetched: P/E={features['pe_ratio']:.2f}, P/B={features['pb_ratio']:.2f}, EPS Growth={features['eps_growth']:.2%}"
+                    )
+
+                else:
+                    # Alpha Vantage returned empty or error - use defaults
+                    logger.warning(
+                        f"Alpha Vantage returned no data for {ticker}. Using default fundamental values."
+                    )
                     features["market_cap_log"] = 9.0
-
-                # Parse P/E ratio
-                pe_str = overview_data.get("PERatio", "20.0")
-                try:
-                    features["pe_ratio"] = float(pe_str) if pe_str and pe_str != "None" else 20.0
-                except (ValueError, TypeError):
                     features["pe_ratio"] = 20.0
-
-                # Parse P/B ratio
-                pb_str = overview_data.get("PriceToBookRatio", "3.0")
-                try:
-                    features["pb_ratio"] = float(pb_str) if pb_str and pb_str != "None" else 3.0
-                except (ValueError, TypeError):
                     features["pb_ratio"] = 3.0
-
-                # Parse EPS
-                eps_str = overview_data.get("EPS", "0")
-                try:
-                    eps = float(eps_str) if eps_str and eps_str != "None" else 0
-                except (ValueError, TypeError):
-                    eps = 0
-
-                # Parse quarterly earnings growth (YoY)
-                earnings_growth_str = overview_data.get("QuarterlyEarningsGrowthYOY", "0.10")
-                try:
-                    # Alpha Vantage returns as percentage string like "0.15" for 15%
-                    features["eps_growth"] = (
-                        float(earnings_growth_str)
-                        if earnings_growth_str and earnings_growth_str != "None"
-                        else 0.10
-                    )
-                except (ValueError, TypeError):
                     features["eps_growth"] = 0.10
-
-                # Parse quarterly revenue growth (YoY)
-                revenue_growth_str = overview_data.get("QuarterlyRevenueGrowthYOY", "0.15")
-                try:
-                    features["revenue_growth"] = (
-                        float(revenue_growth_str)
-                        if revenue_growth_str and revenue_growth_str != "None"
-                        else 0.15
-                    )
-                except (ValueError, TypeError):
                     features["revenue_growth"] = 0.15
 
-                logger.info(
-                    f"Alpha Vantage data fetched: P/E={features['pe_ratio']:.2f}, P/B={features['pb_ratio']:.2f}, EPS Growth={features['eps_growth']:.2%}"
-                )
-
-            else:
-                # Alpha Vantage returned empty or error - use defaults
-                logger.warning(
-                    f"Alpha Vantage returned no data for {ticker}. Using default fundamental values."
-                )
+            except Exception as av_error:
+                logger.error(f"Alpha Vantage API error for {ticker}: {av_error}", exc_info=True)
+                # Use defaults on API error
                 features["market_cap_log"] = 9.0
                 features["pe_ratio"] = 20.0
                 features["pb_ratio"] = 3.0
                 features["eps_growth"] = 0.10
                 features["revenue_growth"] = 0.15
-
-        except Exception as av_error:
-            logger.error(f"Alpha Vantage API error for {ticker}: {av_error}", exc_info=True)
-            # Use defaults on API error
-            features["market_cap_log"] = 9.0
-            features["pe_ratio"] = 20.0
-            features["pb_ratio"] = 3.0
-            features["eps_growth"] = 0.10
-            features["revenue_growth"] = 0.15
 
         # 3. NEWS SENTIMENT (7-day average)
         cutoff_date = datetime.utcnow() - timedelta(days=7)
