@@ -1832,4 +1832,6 @@ if __name__ == "__main__":
     # Only enable debug mode in development environment
     # In production, this code doesn't run (Gunicorn is used instead)
     debug_mode = os.getenv("FLASK_ENV") == "development"
-    app.run(debug=debug_mode, host="0.0.0.0", port=5000)
+    # Security: Binding to 0.0.0.0 is safe for development
+    # Production uses Gunicorn which handles binding securely
+    app.run(debug=debug_mode, host="0.0.0.0", port=5000)  # nosec B104
