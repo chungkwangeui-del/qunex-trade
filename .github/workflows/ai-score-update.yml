@@ -75,16 +75,26 @@ jobs:
             echo "## 📊 Results" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
 
-            # ML Model Status
-            if grep -q "ML model loaded successfully" ai_score_output.log; then
-              echo "✅ **ML Model:** Loaded successfully" >> $GITHUB_STEP_SUMMARY
-            elif grep -q "Could not load ML model" ai_score_output.log; then
-              echo "⚠️ **ML Model:** Failed to load (using rule-based scoring)" >> $GITHUB_STEP_SUMMARY
-              grep "Could not load ML model" ai_score_output.log | head -1 >> $GITHUB_STEP_SUMMARY
+            # ML Model Status (Multi-Timeframe)
+            if grep -q "Multi-timeframe ML models loaded successfully" ai_score_output.log; then
+              echo "✅ **ML Models:** All 3 timeframes loaded (5d, 20d, 60d)" >> $GITHUB_STEP_SUMMARY
+            elif grep -q "Some ML models failed to load" ai_score_output.log; then
+              echo "⚠️ **ML Models:** Partial load (using rule-based fallback)" >> $GITHUB_STEP_SUMMARY
+              grep "Some ML models failed to load" ai_score_output.log | head -1 >> $GITHUB_STEP_SUMMARY
             else
-              echo "❓ **ML Model:** Status unknown" >> $GITHUB_STEP_SUMMARY
+              echo "❓ **ML Models:** Status unknown" >> $GITHUB_STEP_SUMMARY
             fi
             echo "" >> $GITHUB_STEP_SUMMARY
+
+            # Multi-Timeframe Score Examples (show first processed stock)
+            if grep -q "Short=" ai_score_output.log; then
+              echo "### 📊 Sample Multi-Timeframe Scores" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+              grep "Short=" ai_score_output.log | head -3 >> $GITHUB_STEP_SUMMARY
+              echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+              echo "" >> $GITHUB_STEP_SUMMARY
+            fi
 
             # Stocks processed
             STOCKS_PROCESSED=$(grep -o "Processing [0-9]* tickers" ai_score_output.log | grep -o "[0-9]*" | head -1 || echo "0")

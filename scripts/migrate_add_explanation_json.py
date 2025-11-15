@@ -32,19 +32,12 @@ def migrate():
         logger.info("Starting migration: Add explanation_json column to ai_scores table")
 
         with app.app_context():
-            # Check if column already exists
-            result = db.session.execute(
-                text(
-                    """
-                    SELECT column_name
-                    FROM information_schema.columns
-                    WHERE table_name = 'ai_scores'
-                    AND column_name = 'explanation_json'
-                """
-                )
-            )
+            # Check if column already exists (SQLite-compatible)
+            from sqlalchemy import inspect
+            inspector = inspect(db.engine)
+            columns = [col["name"] for col in inspector.get_columns("ai_scores")]
 
-            if result.fetchone():
+            if "explanation_json" in columns:
                 logger.info(
                     "Column explanation_json already exists in ai_scores table. Skipping migration."
                 )
@@ -71,7 +64,7 @@ if __name__ == "__main__":
     success = migrate()
 
     print("=" * 80)
-    print(f"Migration Status: {'✓ SUCCESS' if success else '✗ FAILED'}")
+    print(f"Migration Status: {'SUCCESS' if success else 'FAILED'}")
     print("=" * 80)
 
     sys.exit(0 if success else 1)
