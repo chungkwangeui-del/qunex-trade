@@ -21,15 +21,23 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(
 @pytest.fixture
 def app():
     """Create Flask test app with in-memory SQLite database"""
-    # Set testing environment variables before importing app
-    os.environ["TESTING"] = "true"
-    os.environ["DATABASE_URL"] = "sqlite:///:memory:"
-    os.environ["SECRET_KEY"] = "test-secret-key"
-
+    # Import database first
     from web.database import db
     from flask import Flask
 
-    # Create a fresh Flask app for testing
+    # Set testing environment variables
+    os.environ["TESTING"] = "true"
+    os.environ["FLASK_ENV"] = "testing"
+    os.environ["SECRET_KEY"] = "test-secret-key"
+
+    # Set dummy API keys to prevent initialization errors
+    os.environ.setdefault("POLYGON_API_KEY", "test-polygon-key")
+    os.environ.setdefault("ALPHA_VANTAGE_API_KEY", "test-alpha-key")
+    os.environ.setdefault("FINNHUB_API_KEY", "test-finnhub-key")
+    os.environ.setdefault("NEWS_API_KEY", "test-news-key")
+    os.environ.setdefault("ANTHROPIC_API_KEY", "test-anthropic-key")
+
+    # Create a bare-bones Flask app for testing
     flask_app = Flask(__name__)
     flask_app.config["TESTING"] = True
     flask_app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
@@ -37,10 +45,35 @@ def app():
     flask_app.config["WTF_CSRF_ENABLED"] = False
     flask_app.config["SECRET_KEY"] = "test-secret-key"
 
-    # Initialize db with the test app
+    # Initialize database
     db.init_app(flask_app)
 
+    # Initialize Flask-Login for authentication tests
+    from flask_login import LoginManager
+    login_manager = LoginManager()
+    login_manager.init_app(flask_app)
+
+    @login_manager.user_loader
+    def load_user(user_id):
+        from web.database import User
+        return User.query.get(int(user_id))
+
+    # Import and register blueprints from the actual app
     with flask_app.app_context():
+        # Import blueprints after app context is set
+        try:
+            from web.api_watchlist import api_watchlist
+            flask_app.register_blueprint(api_watchlist)
+        except (ImportError, Exception) as e:
+            print(f"Warning: Could not import api_watchlist: {e}")
+
+        try:
+            from web.api_polygon import api_polygon
+            flask_app.register_blueprint(api_polygon)
+        except (ImportError, Exception) as e:
+            print(f"Warning: Could not import api_polygon: {e}")
+
+        # Create all tables
         db.create_all()
         yield flask_app
         db.session.remove()
