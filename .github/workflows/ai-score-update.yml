@@ -45,9 +45,9 @@ jobs:
           python scripts/migrate_add_explanation_json.py
           python scripts/migrate_add_multiframe_scores.py
 
-      - name: Train multi-timeframe ML models
-        run: |
-          python scripts/train_multiframe_models.py
+      # NOTE: Model training is NOT needed in production
+      # Models are pre-trained and committed to git (ml/models/*.pkl)
+      # Only retrain if you update training data or features
 
       - name: Run AI score update
         id: ai_score_update
