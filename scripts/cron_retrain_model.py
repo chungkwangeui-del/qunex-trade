@@ -15,7 +15,7 @@ import sys
 import json
 import shutil
 import subprocess
-from datetime import datetime
+from datetime import datetime, timezone
 
 # Add parent directory and web directory to path for imports
 parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -55,7 +55,7 @@ def main():
     log_file = "retrain.log"
 
     def log(msg):
-        timestamp = datetime.utcnow().isoformat()
+        timestamp = datetime.now(timezone.utc).isoformat()
         log_msg = f"[{timestamp}] {msg}"
         print(log_msg)
         with open(log_file, "a") as f:
@@ -123,7 +123,7 @@ def main():
 
         # Backup existing production model
         if os.path.exists(prod_model_path):
-            backup_timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
+            backup_timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
             backup_model_path = os.path.join(
                 ml_dir, "models", f"backup_model_{backup_timestamp}.pkl"
             )

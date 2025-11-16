@@ -7,6 +7,7 @@ from flask import Blueprint, jsonify, request, make_response
 from datetime import datetime, timedelta
 import csv
 import io
+import re
 
 try:
     from polygon_service import get_polygon_service
@@ -16,6 +17,20 @@ except ImportError:
     from web.app import cache
 
 api_polygon = Blueprint("api_polygon", __name__)
+
+
+def validate_ticker(ticker: str) -> bool:
+    """
+    Validate ticker format: 1-5 uppercase letters only.
+    Security: Prevent SQL injection and XSS through ticker input.
+
+    Args:
+        ticker: Ticker symbol to validate
+
+    Returns:
+        bool: True if valid, False otherwise
+    """
+    return bool(re.match(r"^[A-Z]{1,5}$", ticker))
 
 
 @api_polygon.route("/api/market/quote/<ticker>")
@@ -29,8 +44,12 @@ def get_quote(ticker):
     Returns:
         flask.Response: JSON quote data or error with 404 status
     """
+    ticker = ticker.upper()
+    if not validate_ticker(ticker):
+        return jsonify({"error": "Invalid ticker format. Must be 1-5 uppercase letters."}), 400
+
     polygon = get_polygon_service()
-    quote = polygon.get_stock_quote(ticker.upper())
+    quote = polygon.get_stock_quote(ticker)
 
     if not quote:
         return jsonify({"error": "Quote not found"}), 404
@@ -106,6 +125,19 @@ def get_snapshot():
 
     if not tickers:
         return jsonify({"error": "No tickers provided"}), 400
+
+    # Validate all tickers
+    invalid_tickers = [t for t in tickers if not validate_ticker(t)]
+    if invalid_tickers:
+        return (
+            jsonify(
+                {
+                    "error": "Invalid ticker format. Must be 1-5 uppercase letters.",
+                    "invalid_tickers": invalid_tickers,
+                }
+            ),
+            400,
+        )
 
     polygon = get_polygon_service()
     snapshot = polygon.get_market_snapshot(tickers)
@@ -326,6 +358,19 @@ def get_batch_quotes():
 
     if not tickers:
         return jsonify({"error": "No tickers provided"}), 400
+
+    # Validate all tickers
+    invalid_tickers = [t for t in tickers if not validate_ticker(t)]
+    if invalid_tickers:
+        return (
+            jsonify(
+                {
+                    "error": "Invalid ticker format. Must be 1-5 uppercase letters.",
+                    "invalid_tickers": invalid_tickers,
+                }
+            ),
+            400,
+        )
 
     polygon = get_polygon_service()
 

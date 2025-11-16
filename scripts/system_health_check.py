@@ -13,7 +13,7 @@ System Health Check - 시스템 전체 상태 점검
 import os
 import sys
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Tuple
 
 # Add parent directory to path
@@ -224,7 +224,7 @@ class SystemHealthChecker:
 
             with app.app_context():
                 # Check recent news (last 24 hours)
-                cutoff = datetime.utcnow() - timedelta(hours=24)
+                cutoff = datetime.now(timezone.utc) - timedelta(hours=24)
                 recent_count = NewsArticle.query.filter(NewsArticle.published_at >= cutoff).count()
 
                 total_count = db.session.query(NewsArticle).count()
@@ -291,7 +291,7 @@ class SystemHealthChecker:
                 result["details"].append(f"📊 Multi-timeframe coverage: {coverage:.1f}%")
 
                 # Check recent updates
-                cutoff = datetime.utcnow() - timedelta(hours=48)
+                cutoff = datetime.now(timezone.utc) - timedelta(hours=48)
                 recent_updates = AIScore.query.filter(AIScore.updated_at >= cutoff).count()
 
                 result["details"].append(f"🔄 Updated last 48h: {recent_updates} stocks")

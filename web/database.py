@@ -5,7 +5,7 @@ Database models for user authentication and subscriptions
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime
+from datetime import datetime, timezone
 
 db = SQLAlchemy()
 
@@ -17,7 +17,8 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False, index=True)
     username = db.Column(db.String(80), unique=True, nullable=False, index=True)
     password_hash = db.Column(db.String(200), nullable=True)  # Nullable for OAuth users
-    created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    # Fix deprecated datetime.utcnow() - use timezone-aware datetime
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), index=True)
 
     # OAuth fields
     google_id = db.Column(db.String(200), unique=True, nullable=True, index=True)
@@ -84,7 +85,7 @@ class Payment(db.Model):
     currency = db.Column(db.String(10), default="USD")
     status = db.Column(db.String(20), nullable=False, index=True)  # succeeded, failed, pending
     stripe_payment_id = db.Column(db.String(100), nullable=True, index=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), index=True)
 
     user = db.relationship("User", backref=db.backref("payments", lazy=True))
 
@@ -99,7 +100,7 @@ class Watchlist(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False, index=True)
     ticker = db.Column(db.String(10), nullable=False, index=True)
     company_name = db.Column(db.String(200), nullable=True)
-    added_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    added_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), index=True)
     notes = db.Column(db.Text, nullable=True)  # User's personal notes about the stock
 
     # Price alerts (optional)
@@ -139,7 +140,7 @@ class SavedScreener(db.Model):
     rsi_max = db.Column(db.Float, nullable=True)
     has_macd_signal = db.Column(db.Boolean, default=False)
 
-    created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), index=True)
     last_used = db.Column(db.DateTime, nullable=True)
 
     user = db.relationship(
@@ -168,8 +169,12 @@ class NewsArticle(db.Model):
     sentiment = db.Column(db.String(20), nullable=True, index=True)  # positive, negative, neutral
 
     # Metadata
-    created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), index=True)
+    updated_at = db.Column(
+        db.DateTime,
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc),
+    )
 
     def __repr__(self):
         return f"<NewsArticle {self.id} - {self.title[:50]}>"
@@ -210,8 +215,12 @@ class EconomicEvent(db.Model):
 
     # Metadata
     source = db.Column(db.String(100), nullable=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), index=True)
+    updated_at = db.Column(
+        db.DateTime,
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc),
+    )
 
     # Unique constraint to avoid duplicates
     __table_args__ = (db.UniqueConstraint("title", "date", name="unique_event_date"),)
@@ -259,7 +268,10 @@ class AIScore(db.Model):
     features_json = db.Column(db.Text, nullable=True)  # JSON string of features
     explanation_json = db.Column(db.Text, nullable=True)  # SHAP values (feature contributions)
     updated_at = db.Column(
-        db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, index=True
+        db.DateTime,
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc),
+        index=True,
     )
 
     def to_dict(self):
@@ -302,7 +314,9 @@ class Transaction(db.Model):
     )  # Supports fractional shares
     price = db.Column(db.Numeric(precision=10, scale=2), nullable=False)  # Price per share
     transaction_type = db.Column(db.String(10), nullable=False, index=True)  # 'buy' or 'sell'
-    transaction_date = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    transaction_date = db.Column(
+        db.DateTime, default=lambda: datetime.now(timezone.utc), index=True
+    )
     notes = db.Column(db.Text, nullable=True)  # Optional user notes
 
     # Relationship
@@ -349,7 +363,7 @@ class BacktestJob(db.Model):
     initial_capital = db.Column(db.Numeric(precision=12, scale=2), default=10000)
     result_json = db.Column(db.Text, nullable=True)  # Backtest results as JSON
     error_message = db.Column(db.Text, nullable=True)  # Error message if failed
-    created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), index=True)
     completed_at = db.Column(db.DateTime, nullable=True)
 
     # Relationship
@@ -395,7 +409,7 @@ class PriceAlert(db.Model):
     is_triggered = db.Column(db.Boolean, default=False, index=True)
     triggered_at = db.Column(db.DateTime, nullable=True)
     triggered_price = db.Column(db.Numeric(precision=10, scale=2), nullable=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), index=True)
 
     # Relationship
     user = db.relationship("User", backref=db.backref("price_alerts", lazy=True))
@@ -437,7 +451,7 @@ class InsiderTrade(db.Model):
     price = db.Column(db.Numeric(precision=10, scale=2), nullable=True)
     transaction_date = db.Column(db.Date, nullable=False, index=True)
     filing_date = db.Column(db.Date, nullable=False, index=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), index=True)
 
     # Unique constraint to avoid duplicates
     __table_args__ = (

@@ -15,7 +15,7 @@ from flask import (
 )
 from flask_login import login_user, logout_user, login_required, current_user
 from flask_mail import Message
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from authlib.integrations.flask_client import OAuth
 from typing import Dict, Any, Optional, Tuple, Union
 import os
@@ -237,16 +237,21 @@ def admin_dashboard():
     return render_template("admin_dashboard.html", users=all_users, stats=stats)
 
 
-@auth.route("/admin/upgrade-user/<email>/<tier>")
+@auth.route("/admin/upgrade-user/<email>/<tier>", methods=["POST"])
 def admin_upgrade_user(email, tier):
     """Admin endpoint to upgrade users (use with caution!)"""
-    # Simple security: require admin password in query param
+    # Security: Require admin password in POST body, NOT query string
+    # Query strings are logged in server logs, browser history, and proxy logs
     import os
 
     admin_password = os.getenv("ADMIN_PASSWORD", "change-me-in-production")
 
-    if request.args.get("password") != admin_password:
-        return jsonify({"error": "Unauthorized"}), 403
+    # Get password from POST body (JSON or form data)
+    data = request.get_json() or {}
+    provided_password = data.get("password") or request.form.get("password")
+
+    if not provided_password or provided_password != admin_password:
+        return jsonify({"error": "Unauthorized - admin password required"}), 403
 
     if tier not in ["free", "pro", "premium", "beta", "developer"]:
         return jsonify({"error": "Invalid tier"}), 400
@@ -403,13 +408,16 @@ def send_verification_code():
     if not email:
         return jsonify({"success": False, "message": "Email is required"}), 400
 
-    # Generate 6-digit code
-    code = "".join([str(random.randint(0, 9)) for _ in range(6)])
+    # Generate 6-digit code using cryptographically secure random
+    # Security: Use secrets module instead of random for security-sensitive tokens
+    code = "".join([str(secrets.randbelow(10)) for _ in range(6)])
 
     # Store code in session temporarily (expires in 10 minutes)
     session["verification_code"] = code
     session["verification_email"] = email
-    session["verification_expiry"] = (datetime.utcnow() + timedelta(minutes=10)).isoformat()
+    session["verification_expiry"] = (
+        datetime.now(timezone.utc) + timedelta(minutes=10)
+    ).isoformat()
 
     # Send email
     try:
@@ -525,16 +533,20 @@ Qunex Trade Team
     except Exception as e:
         logger.error(f"Error sending email: {type(e).__name__}: {e}", exc_info=True)
 
-        # FALLBACK: Return code in response when email fails
-        # This allows signup to work even when email service is unavailable
-        logger.warning(f"Email sending failed. Returning code in response for {email}")
-        return jsonify(
-            {
-                "success": True,
-                "message": f"Email service temporarily unavailable. Your verification code is: {code}",
-                "dev_code": code,
-            }
-        )
+        # Security: NEVER return verification codes in API responses
+        # Fail closed - require email service to be working for verification
+        # Alternative: Use SMS or other backup delivery method
+        logger.critical(f"Email sending failed for {email}. Verification cannot proceed.")
+        return (
+            jsonify(
+                {
+                    "success": False,
+                    "error": "Email service is temporarily unavailable. Please try again later or contact support.",
+                    "message": "We're unable to send the verification code at this time.",
+                }
+            ),
+            503,
+        )  # Service Unavailable
 
 
 @auth.route("/verify-code", methods=["POST"])
@@ -563,7 +575,7 @@ def verify_code():
         )
 
     expiry = datetime.fromisoformat(expiry_str)
-    if datetime.utcnow() > expiry:
+    if datetime.now(timezone.utc) > expiry:
         return (
             jsonify(
                 {
@@ -608,7 +620,9 @@ def forgot_password():
             # Generate reset token
             token = secrets.token_urlsafe(32)
             user.reset_token = token
-            user.reset_token_expiry = datetime.utcnow() + timedelta(hours=1)  # 1 hour expiry
+            user.reset_token_expiry = datetime.now(timezone.utc) + timedelta(
+                hours=1
+            )  # 1 hour expiry
             db.session.commit()
 
             # Send reset email
@@ -671,7 +685,11 @@ def reset_password(token):
     user = db.session.execute(db.select(User).filter_by(reset_token=token)).scalar_one_or_none()
 
     # Check if token is valid and not expired
-    if not user or not user.reset_token_expiry or user.reset_token_expiry < datetime.utcnow():
+    if (
+        not user
+        or not user.reset_token_expiry
+        or user.reset_token_expiry < datetime.now(timezone.utc)
+    ):
         flash("Invalid or expired reset link. Please request a new one.", "error")
         return redirect(url_for("auth.forgot_password"))
 

@@ -18,6 +18,7 @@ import time
 import traceback
 import logging
 import bleach
+import re
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
 from typing import Dict, List, Any, Optional, Union
@@ -1040,6 +1041,18 @@ def api_search_news():
     """
     ticker = request.args.get("ticker", "").upper()
     keyword = request.args.get("keyword", "").lower()
+
+    # Validate ticker format if provided
+    if ticker and not re.match(r"^[A-Z]{1,5}$", ticker):
+        return (
+            jsonify(
+                {
+                    "success": False,
+                    "message": "Invalid ticker format. Must be 1-5 uppercase letters.",
+                }
+            ),
+            400,
+        )
 
     try:
         # Load news data from database

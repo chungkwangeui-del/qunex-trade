@@ -14,7 +14,7 @@ This replaces the old threading-based background task system.
 import os
 import sys
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 # Add parent directory and web directory to path for imports
 parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -156,9 +156,9 @@ def refresh_news_data():
                             logger.warning(
                                 f"Invalid date format: {published_at_str}, using current time"
                             )
-                            published_at = datetime.utcnow()
+                            published_at = datetime.now(timezone.utc)
                     else:
-                        published_at = datetime.utcnow()
+                        published_at = datetime.now(timezone.utc)
 
                     article = NewsArticle(
                         title=article_data["title"],
@@ -193,7 +193,7 @@ def refresh_news_data():
 
             # Clean up old articles (keep last 30 days)
             try:
-                cutoff_date = datetime.utcnow() - timedelta(days=30)
+                cutoff_date = datetime.now(timezone.utc) - timedelta(days=30)
                 deleted = NewsArticle.query.filter(NewsArticle.published_at < cutoff_date).delete()
                 db.session.commit()
                 logger.info(f"Deleted {deleted} old articles")
@@ -250,8 +250,8 @@ def refresh_calendar_data():
         with app.app_context():
             # Fetch economic calendar from Finnhub
             # Date range: today to 30 days ahead
-            from_date = datetime.utcnow().strftime("%Y-%m-%d")
-            to_date = (datetime.utcnow() + timedelta(days=30)).strftime("%Y-%m-%d")
+            from_date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+            to_date = (datetime.now(timezone.utc) + timedelta(days=30)).strftime("%Y-%m-%d")
 
             url = f"https://finnhub.io/api/v1/calendar/economic"
             params = {"token": api_key, "from": from_date, "to": to_date}
@@ -317,7 +317,7 @@ def refresh_calendar_data():
                         )  # Finnhub uses 'prev' not 'previous'
                         existing.importance = importance
                         existing.country = country
-                        existing.updated_at = datetime.utcnow()
+                        existing.updated_at = datetime.now(timezone.utc)
                         updated_count += 1
                     else:
                         # Create new event
@@ -344,7 +344,7 @@ def refresh_calendar_data():
             logger.info(f"Saved {saved_count} new events, updated {updated_count} events")
 
             # Clean up old events (older than 7 days)
-            cutoff_date = datetime.utcnow() - timedelta(days=7)
+            cutoff_date = datetime.now(timezone.utc) - timedelta(days=7)
             deleted = EconomicEvent.query.filter(EconomicEvent.date < cutoff_date).delete()
             db.session.commit()
             logger.info(f"Deleted {deleted} old events")
@@ -369,7 +369,7 @@ def main():
     logger.info("RENDER CRON JOB: Data Refresh Started")
     logger.info("=" * 80)
 
-    start_time = datetime.utcnow()
+    start_time = datetime.now(timezone.utc)
 
     # Refresh news
     news_success = refresh_news_data()
@@ -377,7 +377,7 @@ def main():
     # Refresh calendar
     calendar_success = refresh_calendar_data()
 
-    end_time = datetime.utcnow()
+    end_time = datetime.now(timezone.utc)
     duration = (end_time - start_time).total_seconds()
 
     logger.info("=" * 80)

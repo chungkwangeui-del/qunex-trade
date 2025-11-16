@@ -11,7 +11,9 @@
       "Bash(python -m black:*)",
       "Bash(python:*)",
       "Bash(where:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(bandit:*)",
+      "Bash(pytest:*)"
     ],
     "deny": [],
     "ask": []

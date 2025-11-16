@@ -16,7 +16,7 @@ import os
 import sys
 import logging
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 from decimal import Decimal
 
 # Add parent directory and web directory to path for imports
@@ -149,7 +149,7 @@ def check_price_alerts():
 
                             # Update alert status
                             alert.is_triggered = True
-                            alert.triggered_at = datetime.utcnow()
+                            alert.triggered_at = datetime.now(timezone.utc)
                             alert.triggered_price = float(current_price)
 
                             # Send email notification
@@ -164,7 +164,7 @@ Your price alert for {ticker} has been triggered!
 
 Alert Condition: {alert.condition.upper()} ${alert.threshold}
 Current Price: ${current_price}
-Triggered At: {datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')}
+Triggered At: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}
 
 View your watchlist: https://qunextrade.com/dashboard
 

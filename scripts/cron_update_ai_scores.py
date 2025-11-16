@@ -14,7 +14,7 @@ import sys
 import logging
 import json
 import time
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 # Add parent directory and web directory to path for imports
 parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -212,7 +212,7 @@ def update_ai_scores():
                         ai_score_record.long_term_rating = long_term_rating
                         ai_score_record.features_json = json.dumps(features)
                         ai_score_record.explanation_json = json.dumps(explanation)
-                        ai_score_record.updated_at = datetime.utcnow()
+                        ai_score_record.updated_at = datetime.now(timezone.utc)
                     else:
                         # Insert new
                         ai_score_record = AIScore(
@@ -441,7 +441,7 @@ def calculate_enhanced_features(ticker: str, polygon, alpha_vantage, db):
                 features["revenue_growth"] = 0.15
 
         # 3. NEWS SENTIMENT (7-day average)
-        cutoff_date = datetime.utcnow() - timedelta(days=7)
+        cutoff_date = datetime.now(timezone.utc) - timedelta(days=7)
 
         # Query news articles mentioning this ticker
         recent_news = NewsArticle.query.filter(

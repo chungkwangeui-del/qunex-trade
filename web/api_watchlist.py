@@ -10,6 +10,7 @@ from web.polygon_service import get_polygon_service
 from datetime import datetime
 from typing import Dict, Any, Tuple
 import logging
+import re
 
 logger = logging.getLogger(__name__)
 
@@ -117,6 +118,19 @@ def add_to_watchlist():
 
         if not ticker:
             return jsonify({"error": "Ticker is required"}), 400
+
+        # Validate ticker format: 1-5 uppercase letters only
+        # Security: Prevent SQL injection and XSS through ticker input
+        if not re.match(r"^[A-Z]{1,5}$", ticker):
+            return (
+                jsonify(
+                    {
+                        "error": "Invalid ticker format. Ticker must be 1-5 uppercase letters only.",
+                        "example": "Valid tickers: AAPL, TSLA, GOOGL",
+                    }
+                ),
+                400,
+            )
 
         # Check if already in watchlist
         existing = Watchlist.query.filter_by(user_id=current_user.id, ticker=ticker).first()
