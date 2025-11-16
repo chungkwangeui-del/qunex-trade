@@ -67,14 +67,18 @@ class NewsCollector:
         news_items = []
 
         try:
+            # Get news from last 2 hours only to avoid duplicates
+            published_after = (datetime.utcnow() - timedelta(hours=2)).strftime("%Y-%m-%dT%H:%M:%S")
+
             url = "https://api.polygon.io/v2/reference/news"
             params = {
                 "apiKey": self.polygon_key,
                 "limit": limit,
                 "order": "desc",  # Most recent first
+                "published_utc.gte": published_after,  # Only last 2 hours
             }
 
-            logger.info(f"Fetching news from Polygon API (limit={limit})")
+            logger.info(f"Fetching news from Polygon API (limit={limit}, after={published_after})")
             response = requests.get(url, params=params, timeout=10)
 
             if response.status_code == 200:
