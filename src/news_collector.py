@@ -68,8 +68,9 @@ class NewsCollector:
 
         try:
             # Get news from last 2 hours only to avoid duplicates
+            # Format: "2025-11-16T19:10:06Z" (must include 'Z' for UTC timezone)
             published_after = (datetime.now(timezone.utc) - timedelta(hours=2)).strftime(
-                "%Y-%m-%dT%H:%M:%S"
+                "%Y-%m-%dT%H:%M:%SZ"
             )
 
             url = "https://api.polygon.io/v2/reference/news"
