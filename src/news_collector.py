@@ -67,9 +67,9 @@ class NewsCollector:
         news_items = []
 
         try:
-            # Get news from last 2 hours only to avoid duplicates
+            # Get news from last 24 hours to capture all recent articles
             # Format: "2025-11-16T19:10:06Z" (must include 'Z' for UTC timezone)
-            published_after = (datetime.now(timezone.utc) - timedelta(hours=2)).strftime(
+            published_after = (datetime.now(timezone.utc) - timedelta(hours=24)).strftime(
                 "%Y-%m-%dT%H:%M:%SZ"
             )
 

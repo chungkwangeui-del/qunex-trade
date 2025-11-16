@@ -8,7 +8,7 @@ Run this after migrating to Supabase to restore admin access.
 
 import os
 import sys
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 # Set console encoding to UTF-8 for emoji support
 if sys.platform == "win32":
@@ -55,8 +55,8 @@ def create_admin():
                 existing_admin.set_password(admin_password)
                 existing_admin.subscription_tier = "developer"
                 existing_admin.subscription_status = "active"
-                existing_admin.subscription_start = datetime.utcnow()
-                existing_admin.subscription_end = datetime.utcnow() + timedelta(
+                existing_admin.subscription_start = datetime.now(timezone.utc)
+                existing_admin.subscription_end = datetime.now(timezone.utc) + timedelta(
                     days=365 * 10
                 )  # 10 years
                 existing_admin.email_verified = True
@@ -77,10 +77,10 @@ def create_admin():
                     username=admin_username,
                     subscription_tier="developer",
                     subscription_status="active",
-                    subscription_start=datetime.utcnow(),
-                    subscription_end=datetime.utcnow() + timedelta(days=365 * 10),  # 10 years
+                    subscription_start=datetime.now(timezone.utc),
+                    subscription_end=datetime.now(timezone.utc) + timedelta(days=365 * 10),  # 10 years
                     email_verified=True,
-                    created_at=datetime.utcnow(),
+                    created_at=datetime.now(timezone.utc),
                 )
 
                 admin_user.set_password(admin_password)
