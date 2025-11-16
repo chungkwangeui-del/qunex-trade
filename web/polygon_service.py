@@ -123,6 +123,10 @@ class PolygonService:
             "exchange": result.get("x"),
         }
 
+    # Backwards-compatible alias used in tests
+    def get_quote(self, ticker: str) -> Optional[Dict]:
+        return self.get_stock_quote(ticker)
+
     def get_previous_close(self, ticker: str) -> Optional[Dict]:
         """Get previous day's close data"""
         endpoint = f"/v2/aggs/ticker/{ticker}/prev"
@@ -354,6 +358,10 @@ class PolygonService:
 
         self.cache.set(cache_key, filtered, self.cache_ttl["gainers_losers"])
         return filtered
+
+    def get_market_movers(self) -> Dict[str, List[Dict]]:
+        """Return combined gainers and losers for convenience."""
+        return {"gainers": self.get_gainers_losers("gainers"), "losers": self.get_gainers_losers("losers")}
 
     def get_market_status(self) -> Optional[Dict]:
         """Get current market status (open/closed) - Cached for 5 minutes"""
