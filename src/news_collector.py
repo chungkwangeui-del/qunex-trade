@@ -6,7 +6,7 @@ Collects credible financial news from multiple reliable sources
 import os
 import requests
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import List, Dict
 import time
 
@@ -68,7 +68,9 @@ class NewsCollector:
 
         try:
             # Get news from last 2 hours only to avoid duplicates
-            published_after = (datetime.utcnow() - timedelta(hours=2)).strftime("%Y-%m-%dT%H:%M:%S")
+            published_after = (datetime.now(timezone.utc) - timedelta(hours=2)).strftime(
+                "%Y-%m-%dT%H:%M:%S"
+            )
 
             url = "https://api.polygon.io/v2/reference/news"
             params = {

@@ -4,7 +4,7 @@ Quick script to check if data exists in database
 
 import os
 import sys
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 # Add web directory to path
 web_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "web")
@@ -26,7 +26,7 @@ with app.app_context():
     # Check NewsArticle
     total_news = NewsArticle.query.count()
     recent_news = NewsArticle.query.filter(
-        NewsArticle.published_at >= datetime.utcnow() - timedelta(hours=24)
+        NewsArticle.published_at >= datetime.now(timezone.utc) - timedelta(hours=24)
     ).count()
 
     print(f"\nNEWS ARTICLES:")
@@ -44,7 +44,7 @@ with app.app_context():
     # Check AIScore
     total_scores = AIScore.query.count()
     recent_scores = AIScore.query.filter(
-        AIScore.updated_at >= datetime.utcnow() - timedelta(hours=24)
+        AIScore.updated_at >= datetime.now(timezone.utc) - timedelta(hours=24)
     ).count()
 
     print(f"\nAI SCORES:")
@@ -62,7 +62,9 @@ with app.app_context():
 
     # Check EconomicEvent
     total_events = EconomicEvent.query.count()
-    upcoming_events = EconomicEvent.query.filter(EconomicEvent.date >= datetime.utcnow()).count()
+    upcoming_events = EconomicEvent.query.filter(
+        EconomicEvent.date >= datetime.now(timezone.utc)
+    ).count()
 
     print(f"\nECONOMIC EVENTS:")
     print(f"  Total: {total_events}")
@@ -70,7 +72,7 @@ with app.app_context():
 
     if upcoming_events > 0:
         next_event = (
-            EconomicEvent.query.filter(EconomicEvent.date >= datetime.utcnow())
+            EconomicEvent.query.filter(EconomicEvent.date >= datetime.now(timezone.utc))
             .order_by(EconomicEvent.date.asc())
             .first()
         )

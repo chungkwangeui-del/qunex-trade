@@ -85,8 +85,16 @@ def get_history(ticker):
       - days: Number of days (default 30)
       - timespan: minute/hour/day/week/month (default day)
     """
-    days = int(request.args.get("days", 30))
+    try:
+        days = int(request.args.get("days", 30))
+        if days < 1 or days > 365:
+            return jsonify({"error": "days must be between 1 and 365"}), 400
+    except (ValueError, TypeError):
+        return jsonify({"error": "Invalid days parameter - must be an integer"}), 400
+
     timespan = request.args.get("timespan", "day")
+    if timespan not in ["minute", "hour", "day", "week", "month"]:
+        return jsonify({"error": "Invalid timespan - must be minute/hour/day/week/month"}), 400
 
     from_date = (datetime.now() - timedelta(days=days)).strftime("%Y-%m-%d")
     to_date = datetime.now().strftime("%Y-%m-%d")

@@ -17,7 +17,7 @@ import logging
 import json
 import pickle
 import yaml
-from datetime import datetime
+from datetime import datetime, timezone
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
@@ -143,7 +143,7 @@ def main():
             "train_accuracy": float(train_acc),
             "test_accuracy": float(test_acc),
             "test_f1": float(test_f1),
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
 
         logger.info("\nModel Performance:")

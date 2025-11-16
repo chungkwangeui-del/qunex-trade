@@ -4,7 +4,7 @@ Payment processing with Stripe
 
 from flask import Blueprint, render_template, redirect, url_for, flash, request, jsonify
 from flask_login import login_required, current_user
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import os
 
 try:
@@ -90,8 +90,8 @@ def create_checkout_session():
         # Update user subscription
         current_user.subscription_tier = tier
         current_user.subscription_status = "active"
-        current_user.subscription_start = datetime.utcnow()
-        current_user.subscription_end = datetime.utcnow() + timedelta(days=30)
+        current_user.subscription_start = datetime.now(timezone.utc)
+        current_user.subscription_end = datetime.now(timezone.utc) + timedelta(days=30)
 
         db.session.commit()
 

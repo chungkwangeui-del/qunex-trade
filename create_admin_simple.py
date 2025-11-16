@@ -15,7 +15,7 @@ os.chdir(web_dir)
 sys.path.insert(0, web_dir)
 
 # Now import
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from app import app
 from database import db, User
 
@@ -41,8 +41,8 @@ def main():
                 existing.set_password(admin_password)
                 existing.subscription_tier = "developer"
                 existing.subscription_status = "active"
-                existing.subscription_start = datetime.utcnow()
-                existing.subscription_end = datetime.utcnow() + timedelta(days=3650)
+                existing.subscription_start = datetime.now(timezone.utc)
+                existing.subscription_end = datetime.now(timezone.utc) + timedelta(days=3650)
                 existing.email_verified = True
 
                 db.session.commit()
@@ -56,8 +56,8 @@ def main():
                     username=admin_username,
                     subscription_tier="developer",
                     subscription_status="active",
-                    subscription_start=datetime.utcnow(),
-                    subscription_end=datetime.utcnow() + timedelta(days=3650),
+                    subscription_start=datetime.now(timezone.utc),
+                    subscription_end=datetime.now(timezone.utc) + timedelta(days=3650),
                     email_verified=True,
                 )
                 admin.set_password(admin_password)

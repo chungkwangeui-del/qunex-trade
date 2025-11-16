@@ -8,7 +8,7 @@ proper creation, retrieval, and serialization.
 import pytest
 import sys
 import os
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 # Add parent directory to path for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -47,7 +47,7 @@ class TestNewsArticleModel:
                 description="Test description",
                 url="https://example.com/test",
                 source="Test Source",
-                published_at=datetime.utcnow(),
+                published_at=datetime.now(timezone.utc),
                 ai_rating=5,
                 ai_analysis="Positive outlook for tech stocks",
                 sentiment="positive",
@@ -70,7 +70,7 @@ class TestNewsArticleModel:
                 title="Article 1",
                 url="https://example.com/same-url",
                 source="Source 1",
-                published_at=datetime.utcnow(),
+                published_at=datetime.now(timezone.utc),
             )
             db.session.add(article1)
             db.session.commit()
@@ -80,7 +80,7 @@ class TestNewsArticleModel:
                 title="Article 2",
                 url="https://example.com/same-url",
                 source="Source 2",
-                published_at=datetime.utcnow(),
+                published_at=datetime.now(timezone.utc),
             )
             db.session.add(article2)
 
@@ -122,7 +122,7 @@ class TestNewsArticleModel:
                     title=f"Article {i}",
                     url=f"https://example.com/article-{i}",
                     source="Test",
-                    published_at=datetime.utcnow(),
+                    published_at=datetime.now(timezone.utc),
                     ai_rating=i,
                 )
                 db.session.add(article)
@@ -219,7 +219,7 @@ class TestEconomicEventModel:
             for i, imp in enumerate(importances):
                 event = EconomicEvent(
                     title=f"Event {i}",
-                    date=datetime.utcnow() + timedelta(days=i),
+                    date=datetime.now(timezone.utc) + timedelta(days=i),
                     importance=imp,
                     country="US",
                 )
@@ -233,7 +233,7 @@ class TestEconomicEventModel:
     def test_economic_event_date_range_query(self, client):
         """Test querying events within date range"""
         with app.app_context():
-            today = datetime.utcnow()
+            today = datetime.now(timezone.utc)
 
             # Create events at different dates
             for days_ahead in [1, 7, 30, 90]:

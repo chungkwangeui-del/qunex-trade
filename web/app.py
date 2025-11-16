@@ -19,7 +19,7 @@ import traceback
 import logging
 import bleach
 import re
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from dotenv import load_dotenv
 from typing import Dict, List, Any, Optional, Union
 
@@ -94,11 +94,11 @@ def get_economic_events(days_ahead: int = 60) -> List[Dict]:
     try:
         from datetime import datetime, timedelta
 
-        end_date = datetime.utcnow() + timedelta(days=days_ahead)
+        end_date = datetime.now(timezone.utc) + timedelta(days=days_ahead)
 
         events = (
             EconomicEvent.query.filter(
-                EconomicEvent.date >= datetime.utcnow(), EconomicEvent.date <= end_date
+                EconomicEvent.date >= datetime.now(timezone.utc), EconomicEvent.date <= end_date
             )
             .order_by(EconomicEvent.date.asc())
             .all()
@@ -113,7 +113,16 @@ def get_economic_events(days_ahead: int = 60) -> List[Dict]:
 app = Flask(__name__)
 
 # Configuration
-app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "dev-secret-key-change-in-production")
+# Security: Require SECRET_KEY in production, use fallback only in development
+SECRET_KEY = os.getenv("SECRET_KEY")
+if not SECRET_KEY:
+    if os.getenv("RENDER"):  # Running on Render (production)
+        raise ValueError("SECRET_KEY environment variable must be set in production!")
+    else:
+        # Development only - use insecure fallback with warning
+        logger.warning("Using insecure dev SECRET_KEY - DO NOT use in production!")
+        SECRET_KEY = "dev-secret-key-for-testing-only"
+app.config["SECRET_KEY"] = SECRET_KEY
 
 # Database configuration - Use PostgreSQL in production, SQLite in development
 DATABASE_URL = os.getenv("DATABASE_URL")
@@ -410,6 +419,23 @@ def filter_signals_by_subscription(signals):
     return []
 
 
+@app.route("/health")
+def health_check():
+    """
+    Health check endpoint for load balancers and monitoring.
+
+    Returns:
+        JSON response with status and database connectivity check
+    """
+    try:
+        # Check database connection
+        db.session.execute(db.select(1)).scalar()
+        return jsonify({"status": "healthy", "database": "connected"}), 200
+    except Exception as e:
+        logger.error(f"Health check failed: {e}")
+        return jsonify({"status": "unhealthy", "error": str(e)}), 503
+
+
 @app.route("/")
 def index():
     """
@@ -570,7 +596,7 @@ def dashboard():
     """
     try:
         from sqlalchemy.orm import joinedload
-        from database import Watchlist
+        from web.database import Watchlist
 
         # Get user's watchlist with optimized query (avoid N+1)
         # Note: Watchlist doesn't have relationships, so no joinedload needed
@@ -580,7 +606,7 @@ def dashboard():
         # Get AI scores for watchlist tickers (single query)
         ai_scores = {}
         if watchlist_tickers:
-            from database import AIScore
+            from web.database import AIScore
 
             scores = AIScore.query.filter(AIScore.ticker.in_(watchlist_tickers)).all()
             ai_scores = {score.ticker: score.to_dict() for score in scores}
@@ -648,7 +674,7 @@ def portfolio():
         str: Rendered portfolio template with holdings data
     """
     try:
-        from database import Transaction
+        from web.database import Transaction
         from collections import defaultdict
         from decimal import Decimal
         from sqlalchemy.orm import joinedload
@@ -1442,7 +1468,7 @@ def calculate_ai_score_features(ticker):
         dict: Feature dictionary or None if calculation failed
     """
     try:
-        from database import NewsArticle
+        from web.database import NewsArticle
         from web.polygon_service import PolygonService
         import numpy as np
 
@@ -1480,7 +1506,7 @@ def calculate_ai_score_features(ticker):
         features["revenue_growth"] = 0.15
 
         # 3. NEWS SENTIMENT (7-day average)
-        cutoff_date = datetime.utcnow() - timedelta(days=7)
+        cutoff_date = datetime.now(timezone.utc) - timedelta(days=7)
         recent_news = NewsArticle.query.filter(
             NewsArticle.published_at >= cutoff_date, NewsArticle.title.contains(ticker)
         ).all()
@@ -1741,7 +1767,7 @@ def add_transaction():
         JSON: Success message or error
     """
     try:
-        from database import Transaction
+        from web.database import Transaction
 
         data = request.get_json()
 
@@ -1812,7 +1838,7 @@ def delete_transaction(transaction_id):
         JSON: Success message or error
     """
     try:
-        from database import Transaction
+        from web.database import Transaction
 
         transaction = Transaction.query.filter_by(
             id=transaction_id, user_id=current_user.id

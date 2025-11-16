@@ -11,7 +11,7 @@ import os
 import sys
 import pytest
 from unittest.mock import Mock, MagicMock, patch
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 # Add parent directory to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -108,8 +108,8 @@ def test_user(app, db_session):
         username="testuser",
         subscription_tier="premium",
         subscription_status="active",
-        subscription_start=datetime.utcnow(),
-        subscription_end=datetime.utcnow() + timedelta(days=365),
+        subscription_start=datetime.now(timezone.utc),
+        subscription_end=datetime.now(timezone.utc) + timedelta(days=365),
         email_verified=True,
     )
     user.set_password("testpassword123")
@@ -130,8 +130,8 @@ def admin_user(app, db_session):
         username="admin",
         subscription_tier="developer",
         subscription_status="active",
-        subscription_start=datetime.utcnow(),
-        subscription_end=datetime.utcnow() + timedelta(days=3650),
+        subscription_start=datetime.now(timezone.utc),
+        subscription_end=datetime.now(timezone.utc) + timedelta(days=3650),
         email_verified=True,
     )
     admin.set_password("admin")

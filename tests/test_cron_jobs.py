@@ -9,7 +9,7 @@ Tests all background cron jobs with mocked API responses:
 
 import pytest
 from unittest.mock import patch, MagicMock
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import json
 
 
@@ -70,7 +70,7 @@ class TestRefreshNewsCron:
             title="Old News",
             url="https://example.com/old",
             source="Test",
-            published_at=datetime.utcnow() - timedelta(days=35),
+            published_at=datetime.now(timezone.utc) - timedelta(days=35),
             ai_rating=3.0,
         )
         db_session.add(old_article)

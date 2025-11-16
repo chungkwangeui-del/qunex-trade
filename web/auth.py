@@ -238,11 +238,19 @@ def admin_dashboard():
 
 
 @auth.route("/admin/upgrade-user/<email>/<tier>", methods=["POST"])
+@login_required
 def admin_upgrade_user(email, tier):
     """Admin endpoint to upgrade users (use with caution!)"""
     # Security: Require admin password in POST body, NOT query string
     # Query strings are logged in server logs, browser history, and proxy logs
     import os
+
+    # Security: Verify that current user is a developer/admin
+    if current_user.subscription_tier != "developer":
+        logger.warning(
+            f"Unauthorized admin upgrade attempt by user {current_user.email} (tier: {current_user.subscription_tier})"
+        )
+        return jsonify({"error": "Unauthorized - developer tier required"}), 403
 
     admin_password = os.getenv("ADMIN_PASSWORD", "change-me-in-production")
 
@@ -250,7 +258,10 @@ def admin_upgrade_user(email, tier):
     data = request.get_json() or {}
     provided_password = data.get("password") or request.form.get("password")
 
-    if not provided_password or provided_password != admin_password:
+    # Security: Use constant-time comparison to prevent timing attacks
+    if not provided_password or not secrets.compare_digest(
+        str(provided_password), str(admin_password)
+    ):
         return jsonify({"error": "Unauthorized - admin password required"}), 403
 
     if tier not in ["free", "pro", "premium", "beta", "developer"]:

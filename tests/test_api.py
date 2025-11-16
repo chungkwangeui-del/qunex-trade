@@ -8,7 +8,7 @@ and handle edge cases properly.
 import pytest
 import sys
 import os
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from unittest.mock import patch, MagicMock
 
 # Add parent directory to path for imports
@@ -51,7 +51,7 @@ def _seed_test_data():
             description=f"Description {i}",
             url=f"https://example.com/article-{i}",
             source="Test Source",
-            published_at=datetime.utcnow() - timedelta(hours=i),
+            published_at=datetime.now(timezone.utc) - timedelta(hours=i),
             ai_rating=i,
             ai_analysis=f"Analysis {i}",
             sentiment="positive" if i > 3 else "neutral",
@@ -62,7 +62,7 @@ def _seed_test_data():
     for i in range(1, 4):
         event = EconomicEvent(
             title=f"Economic Event {i}",
-            date=datetime.utcnow() + timedelta(days=i),
+            date=datetime.now(timezone.utc) + timedelta(days=i),
             time="9:00 AM EST",
             country="US",
             importance="high" if i == 1 else "medium",
@@ -112,7 +112,7 @@ class TestNewsAPI:
                 title="AAPL Stock Surges",
                 url="https://example.com/aapl-news",
                 source="Test",
-                published_at=datetime.utcnow(),
+                published_at=datetime.now(timezone.utc),
                 ai_rating=4,
             )
             db.session.add(article)
@@ -206,7 +206,7 @@ class TestStockAPI:
                 title="TSLA Announces New Model",
                 url="https://example.com/tsla",
                 source="Test",
-                published_at=datetime.utcnow(),
+                published_at=datetime.now(timezone.utc),
             )
             db.session.add(article)
             db.session.commit()

@@ -9,7 +9,7 @@ Tests all database models for:
 """
 
 import pytest
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 
 class TestUserModel:
@@ -74,7 +74,7 @@ class TestUserModel:
             username="expired",
             subscription_tier="premium",
             subscription_status="active",
-            subscription_end=datetime.utcnow() - timedelta(days=1),
+            subscription_end=datetime.now(timezone.utc) - timedelta(days=1),
         )
         db_session.add(expired_user)
 
@@ -84,7 +84,7 @@ class TestUserModel:
             username="active",
             subscription_tier="premium",
             subscription_status="active",
-            subscription_end=datetime.utcnow() + timedelta(days=30),
+            subscription_end=datetime.now(timezone.utc) + timedelta(days=30),
         )
         db_session.add(active_user)
         db_session.commit()
@@ -162,7 +162,7 @@ class TestNewsArticleModel:
             description="Test description",
             url="https://example.com/article",
             source="Test Source",
-            published_at=datetime.utcnow(),
+            published_at=datetime.now(timezone.utc),
             ai_rating=4.2,
             ai_analysis="Positive outlook for tech stocks",
             sentiment="positive",
@@ -184,7 +184,7 @@ class TestNewsArticleModel:
             title="Article 1",
             url="https://example.com/same-url",
             source="Source",
-            published_at=datetime.utcnow(),
+            published_at=datetime.now(timezone.utc),
         )
         db_session.add(article1)
         db_session.commit()
@@ -194,7 +194,7 @@ class TestNewsArticleModel:
             title="Article 2",
             url="https://example.com/same-url",
             source="Source",
-            published_at=datetime.utcnow(),
+            published_at=datetime.now(timezone.utc),
         )
         db_session.add(article2)
 
@@ -211,7 +211,7 @@ class TestEconomicEventModel:
 
         event = EconomicEvent(
             title="GDP Growth Rate",
-            date=datetime.utcnow(),
+            date=datetime.now(timezone.utc),
             time="08:30 EST",
             country="US",
             importance="high",
@@ -235,7 +235,7 @@ class TestEconomicEventModel:
         for importance in ["low", "medium", "high"]:
             event = EconomicEvent(
                 title=f"Event {importance}",
-                date=datetime.utcnow(),
+                date=datetime.now(timezone.utc),
                 time="10:00 EST",
                 country="US",
                 importance=importance,
@@ -305,7 +305,7 @@ class TestModelDefensiveProgramming:
             title="Minimal Article",
             url="https://example.com/minimal",
             source="Test",
-            published_at=datetime.utcnow(),
+            published_at=datetime.now(timezone.utc),
         )
         db_session.add(article)
         db_session.commit()
