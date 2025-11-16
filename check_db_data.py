@@ -1,6 +1,7 @@
 """
 Quick script to check if data exists in database
 """
+
 import os
 import sys
 from datetime import datetime, timedelta
@@ -61,9 +62,7 @@ with app.app_context():
 
     # Check EconomicEvent
     total_events = EconomicEvent.query.count()
-    upcoming_events = EconomicEvent.query.filter(
-        EconomicEvent.date >= datetime.utcnow()
-    ).count()
+    upcoming_events = EconomicEvent.query.filter(EconomicEvent.date >= datetime.utcnow()).count()
 
     print(f"\nECONOMIC EVENTS:")
     print(f"  Total: {total_events}")
