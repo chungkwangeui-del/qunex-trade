@@ -30,7 +30,7 @@ def main():
         print("STEP 1: Collecting news from reliable sources...")
         print("-" * 70)
         collector = NewsCollector()
-        news_list = collector.collect_all_news(hours=12)  # Last 12 hours
+        news_list = collector.collect_all_news()  # Last 2 hours (hardcoded in collector)
 
         if not news_list:
             print("\n[ERROR] No news collected. Please check your API keys.")

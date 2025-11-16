@@ -987,7 +987,7 @@ def api_refresh_news() -> Dict[str, Any]:
         logger.info("Starting news refresh")
 
         collector = NewsCollector()
-        news_list = collector.collect_all_news(hours=NEWS_COLLECTION_HOURS)
+        news_list = collector.collect_all_news()
 
         logger.info(f"Collected {len(news_list)} news items")
 
@@ -1701,7 +1701,7 @@ def auto_refresh_news() -> None:
             from src.news_analyzer import NewsAnalyzer
 
             collector = NewsCollector()
-            news_list = collector.collect_all_news(hours=NEWS_COLLECTION_HOURS)
+            news_list = collector.collect_all_news()
 
             if news_list:
                 analyzer = NewsAnalyzer()
