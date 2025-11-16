@@ -423,7 +423,7 @@ def index():
     Returns:
         str: Rendered HTML template with market data
     """
-    from polygon_service import PolygonService
+    from web.polygon_service import PolygonService
 
     # Initialize Polygon service
     polygon = PolygonService()
@@ -690,7 +690,7 @@ def portfolio():
         total_cost = Decimal("0")
 
         try:
-            from polygon_service import get_polygon_service
+            from web.polygon_service import get_polygon_service
 
             polygon = get_polygon_service()
 
@@ -1278,7 +1278,7 @@ def api_stock_chart(symbol):
             - error (str): Error message if failed
     """
     try:
-        from polygon_service import PolygonService
+        from web.polygon_service import PolygonService
         import sys
         import os
 
@@ -1443,7 +1443,7 @@ def calculate_ai_score_features(ticker):
     """
     try:
         from database import NewsArticle
-        from polygon_service import PolygonService
+        from web.polygon_service import PolygonService
         import numpy as np
 
         features = {}
@@ -1606,7 +1606,7 @@ def api_stock_news(symbol):
                 - image (str): Article image URL
     """
     try:
-        from polygon_service import PolygonService
+        from web.polygon_service import PolygonService
 
         polygon = PolygonService()
 
@@ -1659,7 +1659,7 @@ def api_market_data():
         tickers = tickers[:10]
 
         result = {}
-        from polygon_service import PolygonService
+        from web.polygon_service import PolygonService
 
         polygon = PolygonService()
 
