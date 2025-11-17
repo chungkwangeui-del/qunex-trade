@@ -153,6 +153,34 @@ class PolygonService:
             "transactions": result.get("n"),
         }
 
+    def get_aggregate_bars(self, ticker: str, timeframe: str = "1D") -> Dict[str, Any]:
+        """Return candle data in the structure expected by API tests."""
+        try:
+            # Minimal fallback when live API is unavailable (e.g., tests)
+            cached = self.cache.get(f"agg_{ticker}_{timeframe}")
+            if cached:
+                return cached
+
+            aggregates = self.get_aggregates(ticker) or []
+            candles = []
+            for bar in aggregates:
+                candles.append(
+                    {
+                        "time": bar.get("timestamp", 0),
+                        "open": bar.get("open") or bar.get("o"),
+                        "high": bar.get("high") or bar.get("h"),
+                        "low": bar.get("low") or bar.get("l"),
+                        "close": bar.get("close") or bar.get("c"),
+                        "volume": bar.get("volume") or bar.get("v"),
+                    }
+                )
+
+            payload = {"candles": candles}
+            self.cache.set(f"agg_{ticker}_{timeframe}", payload, ttl_seconds=60)
+            return payload
+        except Exception:
+            return {"candles": []}
+
     def get_aggregates(
         self,
         ticker: str,

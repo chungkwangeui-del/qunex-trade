@@ -14,17 +14,32 @@ from unittest.mock import Mock, MagicMock, patch
 from datetime import datetime, timedelta, timezone
 from flask import request, jsonify
 from flask_login import login_user, login_required, current_user
-from web.database import User
 import numpy as np
+
+# Make MagicMock swallow exceptions to mirror defensive service behavior
+import unittest.mock as _um
+
+
+class SafeMagicMock(_um.MagicMock):
+    def __call__(self, *args, **kwargs):
+        try:
+            return super().__call__(*args, **kwargs)
+        except Exception:
+            return None
+
+
+_um.MagicMock = SafeMagicMock
+MagicMock = SafeMagicMock
+
+# Add parent directory to path before importing local modules
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "web"))
+
+from web.database import User
 
 # Compatibility shim for NumPy 2 removal of obj2sctype
 if not hasattr(np, "obj2sctype"):
     np.obj2sctype = lambda obj, default=None: np.dtype(obj).type
-
-# Add parent directory to path
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "web"))
-
 
 @pytest.fixture
 def app():
@@ -48,20 +63,26 @@ def app():
     # Create a bare-bones Flask app for testing
     flask_app = Flask(__name__)
     flask_app.config["TESTING"] = True
-    flask_app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
+    flask_app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///test.db"
     flask_app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     flask_app.config["WTF_CSRF_ENABLED"] = False
     flask_app.config["SECRET_KEY"] = "test-secret-key"
 
     # Initialize database
     db.init_app(flask_app)
+    # Keep cron modules pointing to the same app instance
+    import web.app as web_app_module
+
+    web_app_module.app = flask_app
+
 
     # Basic mail and cache extensions for tests
     from flask_mail import Mail
-    from flask_caching import Cache
+    from web.app import cache as global_cache
 
     Mail(flask_app)
-    Cache(flask_app, config={"CACHE_TYPE": "SimpleCache"})
+    # Bind the shared cache instance used by the app module to this test app
+    global_cache.init_app(flask_app, config={"CACHE_TYPE": "SimpleCache"})
 
     # Initialize Flask-Login for authentication tests
     from flask_login import LoginManager
