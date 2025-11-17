@@ -123,6 +123,10 @@ class PolygonService:
             "exchange": result.get("x"),
         }
 
+    # Backwards-compatible alias used in tests
+    def get_quote(self, ticker: str) -> Optional[Dict]:
+        return self.get_stock_quote(ticker)
+
     def get_previous_close(self, ticker: str) -> Optional[Dict]:
         """Get previous day's close data"""
         endpoint = f"/v2/aggs/ticker/{ticker}/prev"
@@ -148,6 +152,34 @@ class PolygonService:
             "timestamp": result.get("t"),
             "transactions": result.get("n"),
         }
+
+    def get_aggregate_bars(self, ticker: str, timeframe: str = "1D") -> Dict[str, Any]:
+        """Return candle data in the structure expected by API tests."""
+        try:
+            # Minimal fallback when live API is unavailable (e.g., tests)
+            cached = self.cache.get(f"agg_{ticker}_{timeframe}")
+            if cached:
+                return cached
+
+            aggregates = self.get_aggregates(ticker) or []
+            candles = []
+            for bar in aggregates:
+                candles.append(
+                    {
+                        "time": bar.get("timestamp", 0),
+                        "open": bar.get("open") or bar.get("o"),
+                        "high": bar.get("high") or bar.get("h"),
+                        "low": bar.get("low") or bar.get("l"),
+                        "close": bar.get("close") or bar.get("c"),
+                        "volume": bar.get("volume") or bar.get("v"),
+                    }
+                )
+
+            payload = {"candles": candles}
+            self.cache.set(f"agg_{ticker}_{timeframe}", payload, ttl_seconds=60)
+            return payload
+        except Exception:
+            return {"candles": []}
 
     def get_aggregates(
         self,
@@ -354,6 +386,10 @@ class PolygonService:
 
         self.cache.set(cache_key, filtered, self.cache_ttl["gainers_losers"])
         return filtered
+
+    def get_market_movers(self) -> Dict[str, List[Dict]]:
+        """Return combined gainers and losers for convenience."""
+        return {"gainers": self.get_gainers_losers("gainers"), "losers": self.get_gainers_losers("losers")}
 
     def get_market_status(self) -> Optional[Dict]:
         """Get current market status (open/closed) - Cached for 5 minutes"""
