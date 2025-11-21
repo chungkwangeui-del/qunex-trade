@@ -17,7 +17,7 @@ class TestPolygonService:
 
     def test_polygon_service_initialization(self, app):
         """Test PolygonService can be initialized"""
-        from src.polygon_service import PolygonService
+        from web.polygon_service import PolygonService
 
         service = PolygonService()
         assert service is not None
@@ -220,11 +220,11 @@ class TestDefensiveProgramming:
 
     def test_handles_none_api_response(self, app):
         """Test code handles None API responses"""
-        from src.polygon_service import PolygonService
+        from web.polygon_service import PolygonService
 
-        with patch.object(PolygonService, "get_quote", return_value=None):
+        with patch.object(PolygonService, "get_stock_quote", return_value=None):
             service = PolygonService()
-            result = service.get_quote("INVALID")
+            result = service.get_stock_quote("INVALID")
 
             assert result is None
 
@@ -244,7 +244,7 @@ class TestDefensiveProgramming:
             sess["_user_id"] = str(test_user.id)
 
         response = client.post(
-            "/api/watchlist/add",
+            "/api/watchlist",
             data="invalid json{{{",
             content_type="application/json",
         )

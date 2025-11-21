@@ -11,10 +11,10 @@ import re
 
 try:
     from polygon_service import get_polygon_service
-    from app import cache
+    from web.extensions import cache
 except ImportError:
     from web.polygon_service import get_polygon_service
-    from web.app import cache
+    from web.extensions import cache
 
 api_polygon = Blueprint("api_polygon", __name__)
 

@@ -52,7 +52,7 @@ class SecureModelView(ModelView):
         Returns:
             Flask redirect to home page
         """
-        return redirect(url_for("index"))
+        return redirect(url_for("main.index"))
 
 
 class SecureAdminIndexView(AdminIndexView):
@@ -68,7 +68,7 @@ class SecureAdminIndexView(AdminIndexView):
 
     def inaccessible_callback(self, name, **kwargs):
         """Redirect unauthorized users"""
-        return redirect(url_for("index"))
+        return redirect(url_for("main.index"))
 
     @expose("/")
     def index(self):

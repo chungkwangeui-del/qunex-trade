@@ -4,7 +4,7 @@ Render Cron Job: Refresh News and Calendar Data
 
 This script is executed by Render.com's Cron Job feature to:
 1. Fetch latest news articles
-2. Analyze news with Claude AI
+2. Analyze news with Google Gemini Pro
 3. Update economic calendar events
 4. Store everything in PostgreSQL database
 
@@ -31,7 +31,7 @@ def refresh_news_data():
     """
     Fetch and analyze latest news articles from Polygon News API.
 
-    Collects news articles, analyzes them with Claude AI to generate
+    Collects news articles, analyzes them with Google Gemini Pro to generate
     ratings and sentiment, and stores results in PostgreSQL database.
     Automatically removes articles older than 30 days.
 
@@ -54,7 +54,7 @@ def refresh_news_data():
 
         # CRITICAL: Validate required API keys
         polygon_key = os.getenv("POLYGON_API_KEY")
-        anthropic_key = os.getenv("ANTHROPIC_API_KEY")
+        gemini_key = os.getenv("GEMINI_API_KEY")
 
         if not polygon_key or polygon_key.strip() == "":
             logger.critical(
@@ -63,11 +63,11 @@ def refresh_news_data():
             logger.critical("Get API key from: https://polygon.io/dashboard/api-keys")
             return False
 
-        if not anthropic_key or anthropic_key.strip() == "":
+        if not gemini_key or gemini_key.strip() == "":
             logger.critical(
-                "CRITICAL ERROR: ANTHROPIC_API_KEY is missing or empty. Aborting news refresh."
+                "CRITICAL ERROR: GEMINI_API_KEY is missing or empty. Aborting news refresh."
             )
-            logger.critical("Get an API key from: https://console.anthropic.com/")
+            logger.critical("Get an API key from: https://makersuite.google.com/app/apikey")
             return False
 
         # Use app context for database operations
@@ -92,7 +92,7 @@ def refresh_news_data():
             except Exception as e:
                 logger.error(f"Failed to initialize NewsAnalyzer: {e}", exc_info=True)
                 logger.warning(
-                    "AI analysis unavailable - check ANTHROPIC_API_KEY. Continuing with news collection only."
+                    "AI analysis unavailable - check GEMINI_API_KEY. Continuing with news collection only."
                 )
                 analyzer = None
                 analyzer_available = False
@@ -115,7 +115,7 @@ def refresh_news_data():
                         skipped_count += 1
                         continue
 
-                    # Analyze with Claude AI (reuse analyzer instance)
+                    # Analyze with Gemini Pro (reuse analyzer instance)
                     if analyzer_available and analyzer:
                         try:
                             analysis = analyzer.analyze_single_news(article_data)

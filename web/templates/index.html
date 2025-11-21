@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,7 +8,11 @@
     <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
 
     <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- Basic CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='basic.css') }}">
 
     <style>
         * {
@@ -16,756 +21,985 @@
             box-sizing: border-box;
         }
 
-        /* CSS variables moved to basic.css */
-
         body {
-            font-family: 'Space Grotesk', -apple-system, sans-serif;
-            background: var(--bg-dark);
-            color: var(--text-primary);
-            min-height: 100vh;
-            position: relative;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #000000;
+            color: #ffffff;
             overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
+        /* === NAVIGATION === */
+        .header-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: #000000;
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        .container {
-            max-width: 1800px;
+        .nav-container {
+            max-width: 1400px;
             margin: 0 auto;
-            padding: 30px;
-            position: relative;
-            z-index: 1;
-        }
-
-        /* Navigation */
-        nav {
-            background: var(--bg-card);
             padding: 20px 40px;
-            border-radius: 16px;
-            margin-bottom: 40px;
-            border: 1px solid var(--border);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            backdrop-filter: blur(10px);
         }
 
         .nav-brand {
             display: flex;
             align-items: center;
             gap: 12px;
-            font-size: 1.8em;
-            font-weight: 700;
-            letter-spacing: -1px;
             text-decoration: none;
-            color: var(--text-primary);
+            color: #ffffff;
+            font-size: 1.2rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
         }
 
-        .logo {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            border-radius: 10px;
+        .nav-logo {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #00d9ff, #a855f7);
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: 700;
-            font-size: 1.1em;
-            box-shadow: 0 0 20px var(--glow);
-        }
-
-        .brand-text {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            font-weight: 800;
+            font-size: 1rem;
         }
 
         .nav-links {
             display: flex;
-            gap: 30px;
+            gap: 40px;
             align-items: center;
         }
 
         .nav-link {
-            color: var(--text-secondary);
+            color: rgba(255, 255, 255, 0.6);
             text-decoration: none;
+            font-size: 0.9rem;
             font-weight: 500;
-            transition: all 0.3s ease;
-            position: relative;
+            transition: color 0.2s;
+            letter-spacing: -0.01em;
         }
 
         .nav-link:hover {
-            color: var(--primary);
+            color: #ffffff;
         }
 
-        .nav-link.active {
-            color: var(--primary);
-        }
-
-        .nav-link.active::after {
-            content: '';
-            position: absolute;
-            bottom: -8px;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background: var(--primary);
-            box-shadow: 0 0 10px var(--glow);
-        }
-
-        .btn-secondary {
-            background: transparent;
-            color: var(--primary);
-            padding: 10px 25px;
-            border: 1px solid var(--primary);
-            border-radius: 10px;
+        .nav-cta {
+            background: #ffffff;
+            color: #000000;
+            padding: 10px 24px;
+            border-radius: 8px;
             text-decoration: none;
-            font-weight: 700;
-            transition: all 0.3s;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            letter-spacing: -0.01em;
         }
 
-        .btn-secondary:hover {
-            background: rgba(0, 217, 255, 0.1);
-            transform: translateY(-2px);
+        .nav-cta:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 24px rgba(255, 255, 255, 0.2);
+        }
+
+        /* === HERO SECTION === */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            padding: 120px 40px 80px;
+            background: radial-gradient(circle at 50% 0%, rgba(0, 217, 255, 0.1), transparent 50%);
+        }
+
+        .hero-content {
+            max-width: 900px;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 100px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-bottom: 32px;
+            letter-spacing: -0.01em;
+        }
+
+        .hero-badge::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background: #00ff88;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #00ff88;
+        }
+
+        .hero-title {
+            font-size: clamp(3rem, 8vw, 5.5rem);
+            font-weight: 800;
+            line-height: 1.1;
+            letter-spacing: -0.03em;
+            margin-bottom: 24px;
+            background: linear-gradient(to bottom, #ffffff, rgba(255, 255, 255, 0.7));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 48px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            font-weight: 400;
+            letter-spacing: -0.01em;
+        }
+
+        .hero-ctas {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            color: white;
-            padding: 10px 25px;
-            border: none;
+            background: #ffffff;
+            color: #000000;
+            padding: 16px 32px;
             border-radius: 10px;
             text-decoration: none;
-            font-weight: 700;
-            transition: all 0.3s;
-            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            letter-spacing: -0.01em;
         }
 
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 20px var(--glow);
+            box-shadow: 0 12px 32px rgba(255, 255, 255, 0.25);
         }
 
-        /* Header */
-        .header {
-            margin-bottom: 40px;
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: #ffffff;
+            padding: 16px 32px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.2s;
+            letter-spacing: -0.01em;
         }
 
-        h1 {
-            font-size: 3em;
-            margin-bottom: 10px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* === STATS === */
+        .stats {
+            padding: 100px 40px;
+            background: linear-gradient(to bottom, transparent, rgba(0, 217, 255, 0.02));
+        }
+
+        .stats-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 60px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 3.5rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #00d9ff, #a855f7);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            background-clip: text;
         }
 
-        .subtitle {
-            color: var(--text-secondary);
-            font-size: 1.1em;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            flex-wrap: wrap;
+        .stat-label {
+            font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.5);
+            font-weight: 500;
+            letter-spacing: -0.01em;
         }
 
-        /* Features Grid */
-        .stats-grid {
+        /* === FEATURES === */
+        .section {
+            padding: 120px 40px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            max-width: 700px;
+            margin: 0 auto 80px;
+            text-align: center;
+        }
+
+        .section-label {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #00d9ff;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .section-title {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            margin-bottom: 20px;
+            line-height: 1.1;
+        }
+
+        .section-description {
+            font-size: 1.15rem;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.6);
+            letter-spacing: -0.01em;
+        }
+
+        .features-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 25px;
-            margin-bottom: 40px;
-        }
-
-        .stat-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2px;
+            background: rgba(255, 255, 255, 0.03);
             border-radius: 16px;
-            padding: 30px;
-            transition: all 0.3s ease;
-            position: relative;
             overflow: hidden;
         }
 
-        .stat-card::before {
+        .feature-item {
+            background: #000000;
+            padding: 48px 40px;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .feature-item::before {
             content: '';
             position: absolute;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, transparent 0%, rgba(0, 217, 255, 0.03) 100%);
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #00d9ff, #a855f7);
             opacity: 0;
-            transition: opacity 0.3s ease;
+            transition: opacity 0.3s;
         }
 
-        .stat-card:hover {
-            border-color: var(--primary);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 30px rgba(0, 217, 255, 0.15);
+        .feature-item:hover {
+            background: rgba(0, 217, 255, 0.02);
         }
 
-        .stat-card:hover::before {
+        .feature-item:hover::before {
             opacity: 1;
         }
 
-        .stat-label {
-            color: var(--text-secondary);
-            font-size: 1em;
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            background: rgba(0, 217, 255, 0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 24px;
+            font-size: 1.5rem;
+        }
+
+        .feature-title {
+            font-size: 1.4rem;
+            font-weight: 700;
             margin-bottom: 12px;
-            font-weight: 500;
+            letter-spacing: -0.02em;
         }
 
-        .feature-icon-large {
-            font-size: 3em;
-            margin: 15px 0;
+        .feature-description {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 20px;
+            letter-spacing: -0.01em;
         }
 
-        /* Section */
-        .section {
-            margin-bottom: 40px;
+        .feature-link {
+            color: #00d9ff;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            letter-spacing: -0.01em;
         }
 
-        .section-header {
+        .feature-link:hover {
+            gap: 10px;
+        }
+
+        /* === PRICING === */
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .pricing-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 48px 40px;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .pricing-card.featured {
+            background: rgba(0, 217, 255, 0.05);
+            border-color: rgba(0, 217, 255, 0.3);
+        }
+
+        .pricing-card:hover {
+            border-color: rgba(255, 255, 255, 0.15);
+            transform: translateY(-4px);
+        }
+
+        .pricing-badge {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            background: linear-gradient(135deg, #00d9ff, #a855f7);
+            color: #000000;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .pricing-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: rgba(255, 255, 255, 0.8);
+            letter-spacing: -0.01em;
+        }
+
+        .pricing-price {
+            font-size: 4rem;
+            font-weight: 800;
+            margin-bottom: 4px;
+            letter-spacing: -0.03em;
+        }
+
+        .pricing-price span {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .pricing-period {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 32px;
+            letter-spacing: -0.01em;
+        }
+
+        .pricing-features {
+            list-style: none;
+            margin-bottom: 32px;
+        }
+
+        .pricing-features li {
+            padding: 12px 0;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            letter-spacing: -0.01em;
+        }
+
+        .pricing-features li::before {
+            content: '✓';
+            color: #00ff88;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .pricing-cta {
+            width: 100%;
+            padding: 14px 28px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.05);
+            color: #ffffff;
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-decoration: none;
+            display: block;
+            text-align: center;
+            transition: all 0.2s;
+            letter-spacing: -0.01em;
+        }
+
+        .featured .pricing-cta {
+            background: #ffffff;
+            color: #000000;
+            border: none;
+        }
+
+        .pricing-cta:hover {
+            transform: translateY(-2px);
+        }
+
+        /* === FAQ === */
+        .faq-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .faq-item {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 32px 0;
+        }
+
+        .faq-question {
+            cursor: pointer;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            font-weight: 600;
+            font-size: 1.15rem;
+            letter-spacing: -0.01em;
         }
 
-        h2 {
-            font-size: 2em;
-            color: var(--text-primary);
+        .faq-question:hover {
+            color: #00d9ff;
         }
 
-        h3 {
-            font-size: 1.5em;
-            color: var(--text-primary);
-            margin-bottom: 15px;
+        .faq-icon {
+            font-size: 1.5rem;
+            font-weight: 300;
+            transition: transform 0.3s;
+            color: rgba(255, 255, 255, 0.4);
         }
 
-        .gradient-text {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            font-weight: 700;
+        .faq-item.active .faq-icon {
+            transform: rotate(45deg);
         }
 
-        /* Footer */
-        footer {
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s;
+        }
+
+        .faq-answer-content {
+            padding-top: 16px;
+            color: rgba(255, 255, 255, 0.6);
+            line-height: 1.7;
+            letter-spacing: -0.01em;
+        }
+
+        /* === CTA === */
+        .cta-section {
+            padding: 120px 40px;
             text-align: center;
-            padding: 40px 20px;
-            border-top: 1px solid var(--border);
-            margin-top: 60px;
-            color: var(--text-secondary);
+            background: radial-gradient(circle at 50% 50%, rgba(0, 217, 255, 0.05), transparent);
         }
 
-        footer p {
-            margin: 10px 0;
+        .cta-content {
+            max-width: 600px;
+            margin: 0 auto;
         }
 
-        /* Responsive */
+        .cta-title {
+            font-size: clamp(2.5rem, 5vw, 3.5rem);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            margin-bottom: 20px;
+            line-height: 1.1;
+        }
+
+        .cta-description {
+            font-size: 1.15rem;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 40px;
+            line-height: 1.6;
+            letter-spacing: -0.01em;
+        }
+
+        /* === FOOTER === */
+        .footer {
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 80px 40px 40px;
+        }
+
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .footer-brand {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 24px;
+            letter-spacing: -0.02em;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 32px;
+            justify-content: center;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .footer-link {
+            color: rgba(255, 255, 255, 0.5);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: color 0.2s;
+            letter-spacing: -0.01em;
+        }
+
+        .footer-link:hover {
+            color: #ffffff;
+        }
+
+        .footer-disclaimer {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.3);
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .footer-copyright {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* === RESPONSIVE === */
         @media (max-width: 768px) {
-            .container {
-                padding: 15px;
-            }
-
-            nav {
-                padding: 15px 20px;
-                flex-direction: column;
-                gap: 15px;
+            .nav-container {
+                padding: 16px 24px;
             }
 
             .nav-links {
-                gap: 15px;
-                font-size: 0.9em;
+                gap: 20px;
             }
 
-            h1 {
-                font-size: 2em;
+            .nav-link {
+                font-size: 0.85rem;
+            }
+
+            .hero {
+                padding: 100px 24px 60px;
+            }
+
+            .section {
+                padding: 80px 24px;
+            }
+
+            .stats {
+                padding: 60px 24px;
             }
 
             .stats-grid {
+                gap: 40px;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+                gap: 1px;
+            }
+
+            .pricing-grid {
                 grid-template-columns: 1fr;
             }
         }
 
-        /* Update Popup Styles */
-        .update-popup {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 30px;
-            max-width: 420px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
-            z-index: 1000;
-            animation: slideIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            backdrop-filter: blur(10px);
-        }
-
-        @keyframes slideIn {
+        /* Animations */
+        @keyframes fadeInUp {
             from {
-                transform: translateY(100px) scale(0.8);
                 opacity: 0;
+                transform: translateY(20px);
             }
+
             to {
-                transform: translateY(0) scale(1);
                 opacity: 1;
+                transform: translateY(0);
             }
         }
 
-        .update-popup.hidden {
-            display: none;
+        .fade-in {
+            opacity: 0;
+            animation: fadeInUp 0.6s ease forwards;
         }
 
-        .popup-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid var(--border);
+        .fade-in-delay-1 {
+            animation-delay: 0.1s;
         }
 
-        .popup-title {
-            font-size: 1.4em;
-            font-weight: 700;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            display: flex;
-            align-items: center;
-            gap: 12px;
+        .fade-in-delay-2 {
+            animation-delay: 0.2s;
         }
 
-        .popup-emoji {
-            font-size: 1.3em;
-            filter: drop-shadow(0 0 10px rgba(0, 217, 255, 0.5));
-        }
-
-        .popup-close {
-            background: transparent;
-            border: 1px solid var(--border);
-            color: var(--text-secondary);
-            width: 32px;
-            height: 32px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1.3em;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s;
-        }
-
-        .popup-close:hover {
-            background: var(--primary);
-            color: var(--bg-dark);
-            border-color: var(--primary);
-            transform: rotate(90deg);
-        }
-
-        .popup-content {
-            color: var(--text-secondary);
-            font-size: 0.95em;
-            line-height: 1.6;
-            margin-bottom: 20px;
-        }
-
-        .popup-list {
-            margin: 20px 0;
-            padding: 0;
-            list-style: none;
-        }
-
-        .popup-list li {
-            margin: 12px 0;
-            padding: 12px 15px;
-            background: var(--bg-dark);
-            border-radius: 10px;
-            border-left: 3px solid var(--primary);
-            color: var(--text-primary);
-            transition: all 0.3s;
-        }
-
-        .popup-list li:hover {
-            border-left-width: 5px;
-            transform: translateX(5px);
-            background: rgba(0, 217, 255, 0.1);
-        }
-
-        .popup-list li strong {
-            color: var(--primary);
-            font-weight: 600;
-        }
-
-        .popup-buttons {
-            display: flex;
-            gap: 12px;
-            margin-top: 20px;
-        }
-
-        .popup-btn {
-            flex: 1;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 10px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 0.95em;
-        }
-
-        .popup-btn-primary {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
-            color: var(--bg-dark);
-            box-shadow: 0 4px 15px rgba(0, 217, 255, 0.3);
-        }
-
-        .popup-btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 217, 255, 0.4);
-        }
-
-        .popup-btn-secondary {
-            background: transparent;
-            border: 1px solid var(--border);
-            color: var(--text-secondary);
-        }
-
-        .popup-btn-secondary:hover {
-            background: var(--bg-dark);
-            border-color: var(--primary);
-            color: var(--primary);
-        }
-
-        @media (max-width: 768px) {
-            .update-popup {
-                bottom: 20px;
-                right: 20px;
-                left: 20px;
-                max-width: none;
-            }
+        .fade-in-delay-3 {
+            animation-delay: 0.3s;
         }
     </style>
-    <link rel="stylesheet" href="{{ url_for('static', filename='basic.css') }}?v=1762470000">
 </head>
+
 <body>
-    <!-- Theme Toggle Button -->
-    <button id="theme-toggle" aria-label="Toggle theme">☀️</button>
-
-    <!-- Update Popup -->
-    <div id="update-popup" class="update-popup hidden">
-        <div class="popup-header">
-            <div class="popup-title">
-                <span class="popup-emoji">🚀</span>
-                <span>Big Updates Coming!</span>
-            </div>
-            <button class="popup-close" onclick="closePopup()">&times;</button>
-        </div>
-        <div class="popup-content">
-            We're building exciting new features for you:
-        </div>
-        <ul class="popup-list">
-            <li>📅 <strong>Calendar</strong> - Enhanced economic events</li>
-            <li>👁️ <strong>Watchlist</strong> - Portfolio monitoring</li>
-            <li>📰 <strong>News</strong> - AI sentiment analysis</li>
-            <li>🤖 <strong>AI Score</strong> - Smart stock ratings</li>
-        </ul>
-        <div class="popup-buttons">
-            <button class="popup-btn popup-btn-secondary" onclick="hideForDay()">Hide for 24h</button>
-            <button class="popup-btn popup-btn-primary" onclick="closePopup()">Got it!</button>
-        </div>
-    </div>
-
-    <div class="container">
-        <!-- Navigation -->
-        <nav>
+    <!-- Navigation -->
+    <header class="header-nav">
+        <div class="nav-container">
             <a href="/" class="nav-brand">
-                <div class="logo">Q</div>
-                <span class="brand-text">Qunex Trade</span>
+                <div class="nav-logo">Q</div>
+                <span>Qunex Trade</span>
             </a>
-            <div class="nav-links">
-                <a href="/" class="nav-link active">Home</a>
-                <a href="/stocks" class="nav-link">Stocks</a>
+            <nav class="nav-links">
                 <a href="/market" class="nav-link">Market</a>
                 <a href="/screener" class="nav-link">Screener</a>
-                <a href="/watchlist" class="nav-link">Watchlist</a>
-                <a href="/calendar" class="nav-link">Calendar</a>
-                <a href="/news" class="nav-link">News</a>
                 <a href="/about" class="nav-link">About</a>
                 {% if user and user.is_authenticated %}
-                    <a href="/auth/account" class="nav-link">Account</a>
-                    <a href="/auth/logout" class="btn-secondary">Logout</a>
+                <a href="/dashboard" class="nav-link">Dashboard</a>
+                <a href="/auth/logout" class="nav-link">Logout</a>
                 {% else %}
-                    <a href="/auth/login" class="btn-secondary">Login</a>
+                <a href="/auth/login" class="nav-link">Login</a>
+                <a href="/auth/signup" class="nav-cta">Get Started</a>
                 {% endif %}
-            </div>
-        </nav>
+            </nav>
+        </div>
+    </header>
 
-        <!-- Header -->
-        <div class="header">
-            <h1>Qunex Trade</h1>
-            <div class="subtitle">
-                Professional Trading Intelligence Platform
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="hero-badge fade-in">
+                Real-time market intelligence
             </div>
-
-            <!-- Stock Search -->
-            <div style="max-width: 600px; margin: 40px auto 0;">
-                <form onsubmit="event.preventDefault(); searchStock();">
-                    <div style="position: relative;">
-                        <input type="text" id="stock-search" placeholder="Search stock symbol (e.g., AAPL, TSLA, NVDA)..."
-                               style="width: 100%; padding: 18px 60px 18px 25px; font-size: 1.1rem; border: 2px solid var(--border);
-                                      border-radius: 50px; background: var(--bg-card); color: var(--text-primary);
-                                      font-family: 'Space Grotesk', sans-serif; transition: all 0.3s;"
-                               onfocus="this.style.borderColor='var(--primary)'; this.style.boxShadow='0 0 20px rgba(0,217,255,0.3)';"
-                               onblur="this.style.borderColor='var(--border)'; this.style.boxShadow='none';">
-                        <button type="submit"
-                                style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
-                                       background: linear-gradient(135deg, var(--primary), var(--accent));
-                                       border: none; padding: 12px 24px; border-radius: 50px; color: var(--bg-dark);
-                                       font-weight: 600; cursor: pointer; transition: all 0.3s;"
-                                onmouseover="this.style.transform='translateY(-50%) scale(1.05)';"
-                                onmouseout="this.style.transform='translateY(-50%) scale(1)';">
-                            Search
-                        </button>
-                    </div>
-                </form>
-                <div style="text-align: center; margin-top: 15px;">
-                    <span style="color: var(--text-secondary); font-size: 0.9rem;">Popular: </span>
-                    <a href="/stock/AAPL" style="color: var(--primary); text-decoration: none; margin: 0 8px; font-weight: 600;">AAPL</a>
-                    <a href="/stock/TSLA" style="color: var(--primary); text-decoration: none; margin: 0 8px; font-weight: 600;">TSLA</a>
-                    <a href="/stock/NVDA" style="color: var(--primary); text-decoration: none; margin: 0 8px; font-weight: 600;">NVDA</a>
-                    <a href="/stock/MSFT" style="color: var(--primary); text-decoration: none; margin: 0 8px; font-weight: 600;">MSFT</a>
-                    <a href="/stock/GOOGL" style="color: var(--primary); text-decoration: none; margin: 0 8px; font-weight: 600;">GOOGL</a>
-                </div>
+            <h1 class="hero-title fade-in fade-in-delay-1">
+                Trade with confidence using AI-powered insights
+            </h1>
+            <p class="hero-subtitle fade-in fade-in-delay-2">
+                Professional-grade market data, advanced analytics, and intelligent recommendations to help you make
+                better trading decisions.
+            </p>
+            <div class="hero-ctas fade-in fade-in-delay-3">
+                <a href="/auth/signup" class="btn-primary">Start Free Trial</a>
+                <a href="/market" class="btn-secondary">Explore Platform</a>
             </div>
         </div>
+    </section>
 
-        <!-- Features Grid -->
+    <!-- Stats Section -->
+    <section class="stats">
         <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-label">Market Dashboard</div>
-                <div class="feature-icon-large">📊</div>
-                <p style="color: var(--text-secondary); margin-top: 10px;">
-                    Real-time indices, sector performance, and market movers
-                </p>
-                <a href="/market" class="btn-secondary" style="margin-top: 15px; display: inline-block;">
-                    View Dashboard →
-                </a>
+            <div class="stat-item">
+                <div class="stat-value">10K+</div>
+                <div class="stat-label">Active Traders</div>
             </div>
-            <div class="stat-card">
-                <div class="stat-label">Stock Screener</div>
-                <div class="feature-icon-large">🔍</div>
-                <p style="color: var(--text-secondary); margin-top: 10px;">
-                    Filter stocks by price, volume, and performance criteria
-                </p>
-                <a href="/screener" class="btn-secondary" style="margin-top: 15px; display: inline-block;">
-                    Screen Stocks →
-                </a>
+            <div class="stat-item">
+                <div class="stat-value">5K+</div>
+                <div class="stat-label">Stocks Tracked</div>
             </div>
-            <div class="stat-card">
-                <div class="stat-label">Economic Calendar</div>
-                <div class="feature-icon-large">📅</div>
-                <p style="color: var(--text-secondary); margin-top: 10px;">
-                    Track major economic events with live countdown timers
-                </p>
-                <a href="/calendar" class="btn-secondary" style="margin-top: 15px; display: inline-block;">
-                    View Calendar →
-                </a>
+            <div class="stat-item">
+                <div class="stat-value">1M+</div>
+                <div class="stat-label">AI Analyses</div>
             </div>
-            <div class="stat-card">
-                <div class="stat-label">AI News Analysis</div>
-                <div class="feature-icon-large">🤖</div>
-                <p style="color: var(--text-secondary); margin-top: 10px;">
-                    AI-powered market news with impact analysis and ratings
-                </p>
-                <a href="/news" class="btn-secondary" style="margin-top: 15px; display: inline-block;">
-                    Read News →
-                </a>
+            <div class="stat-item">
+                <div class="stat-value">24/7</div>
+                <div class="stat-label">Market Updates</div>
             </div>
         </div>
+    </section>
 
-
-        
-        <!-- Major Market Indices -->
-        {% if market_data and market_data|length > 0 %}
-        <div class="section">
-            <div class="section-header">
-                <h2><span class="gradient-text">Major Market Indices</span></h2>
-                <span style="color: var(--text-secondary);">Live Data • Powered by Polygon.io</span>
-            </div>
-            
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
-                {% for index in market_data %}
-                <a href="/stock/{{ index.symbol }}" style="text-decoration: none; color: inherit;">
-                <div class="stat-card" style="cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;"
-                     onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 10px 30px rgba(0, 217, 255, 0.3)';"
-                     onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
-                    <div style="margin-bottom: 15px;">
-                        <div style="font-size: 0.9em; color: var(--text-secondary); margin-bottom: 5px;">
-                            {{ index.symbol }}
-                        </div>
-                        <div style="font-size: 1.4em; font-weight: 700; color: var(--text-primary);">
-                            {{ index.name }}
-                        </div>
-                    </div>
-                    
-                    <div style="margin: 20px 0;">
-                        <div style="font-size: 2em; font-weight: 700; color: var(--text-primary);">
-                            ${{ "%.2f"|format(index.price) }}
-                        </div>
-                        <div style="font-size: 1.1em; font-weight: 700; margin-top: 8px;
-                                    {% if index.change > 0 %}color: #00ff88;{% else %}color: #ff006e;{% endif %}">
-                            {{ "%+.2f"|format(index.change_amount) }} ({{ "%+.2f"|format(index.change) }}%)
-                        </div>
-                    </div>
-                    
-                    <div style="padding-top: 15px; border-top: 1px solid var(--border);">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                            <span style="color: var(--text-secondary); font-size: 0.9em;">High</span>
-                            <span style="font-weight: 600; color: var(--text-primary); font-size: 0.9em;">
-                                ${{ "%.2f"|format(index.high) }}
-                            </span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between;">
-                            <span style="color: var(--text-secondary); font-size: 0.9em;">Low</span>
-                            <span style="font-weight: 600; color: var(--text-primary); font-size: 0.9em;">
-                                ${{ "%.2f"|format(index.low) }}
-                            </span>
-                        </div>
-                    </div>
-                </div>
-                </a>
-                {% endfor %}
-            </div>
-            
-            <div style="text-align: center; margin-top: 30px;">
-                <a href="/market" class="btn-primary">View Full Market Dashboard →</a>
-            </div>
-        </div>
-        {% endif %}
-
-        <!-- Get Started Section -->
-        <div class="section">
-            <div class="section-header">
-                <h2>{% if user and user.is_authenticated %}Explore Tools{% else %}Get Started{% endif %}</h2>
-            </div>
-
-            <div style="text-align: center; padding: 40px;">
-                {% if user and user.is_authenticated %}
-                <h3 style="font-size: 2em; margin-bottom: 20px; background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
-                    Welcome Back, {{ user.username }}!
-                </h3>
-                <p style="font-size: 1.2em; color: var(--text-secondary); margin-bottom: 30px;">
-                    Start exploring professional trading tools and real-time market data.
-                </p>
-                <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
-                    <a href="/market" class="btn-primary" style="font-size: 1.1em; padding: 15px 35px;">
-                        Market Dashboard
-                    </a>
-                    <a href="/screener" class="btn-secondary" style="font-size: 1.1em; padding: 15px 35px;">
-                        Stock Screener
-                    </a>
-                    <a href="/news" class="btn-secondary" style="font-size: 1.1em; padding: 15px 35px;">
-                        AI News
-                    </a>
-                </div>
-                {% else %}
-                <h3 style="font-size: 2em; margin-bottom: 20px; background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
-                    Ready to Level Up Your Trading?
-                </h3>
-                <p style="font-size: 1.2em; color: var(--text-secondary); margin-bottom: 30px;">
-                    Access all professional tools and real-time data. Start making better trading decisions today.
-                </p>
-                <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
-                    <a href="/auth/signup" class="btn-primary" style="font-size: 1.1em; padding: 15px 35px;">
-                        Sign Up Free
-                    </a>
-                    <a href="/market" class="btn-secondary" style="font-size: 1.1em; padding: 15px 35px;">
-                        Try Market Dashboard
-                    </a>
-                </div>
-                {% endif %}
-            </div>
-        </div>
-
-        <!-- Footer -->
-        <footer>
-            <p><span class="gradient-text">Qunex Trade</span> - Professional Trading Intelligence Platform</p>
-            <p>Real-Time Market Data • Stock Screener • Economic Calendar • AI News Analysis</p>
-            <p style="margin-top: 15px; font-size: 0.9em;">
-                <a href="/terms" style="color: var(--primary); text-decoration: none; margin: 0 10px;">Terms of Service</a> •
-                <a href="/privacy" style="color: var(--primary); text-decoration: none; margin: 0 10px;">Privacy Policy</a>
+    <!-- Features Section -->
+    <section class="section">
+        <div class="section-header">
+            <div class="section-label">FEATURES</div>
+            <h2 class="section-title">Everything you need to trade smarter</h2>
+            <p class="section-description">
+                Professional tools and real-time data to give you an edge in the markets
             </p>
-            <p style="margin-top: 10px; font-size: 0.85em; color: var(--text-secondary);">
-                ⚠️ Data provided for informational purposes only. Not financial advice. Trading involves risk of loss.
+        </div>
+        <div class="features-grid">
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00d9ff" stroke-width="2">
+                        <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                        <path d="M2 17l10 5 10-5" />
+                        <path d="M2 12l10 5 10-5" />
+                    </svg>
+                </div>
+                <h3 class="feature-title">AI-Powered Analysis</h3>
+                <p class="feature-description">
+                    Machine learning algorithms analyze thousands of data points to deliver actionable insights and
+                    trading signals.
+                </p>
+                <a href="/dashboard" class="feature-link">Learn more →</a>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00d9ff" stroke-width="2">
+                        <line x1="12" y1="1" x2="12" y2="23" />
+                        <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />
+                    </svg>
+                </div>
+                <h3 class="feature-title">Real-Time Market Data</h3>
+                <p class="feature-description">
+                    Live stock prices and market data powered by Polygon.io's professional-grade feeds.
+                </p>
+                <a href="/market" class="feature-link">View markets →</a>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00d9ff" stroke-width="2">
+                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+                    </svg>
+                </div>
+                <h3 class="feature-title">Advanced Charting</h3>
+                <p class="feature-description">
+                    Professional-grade charts with technical indicators and drawing tools for detailed market analysis.
+                </p>
+                <a href="/market" class="feature-link">Explore charts →</a>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00d9ff" stroke-width="2">
+                        <circle cx="11" cy="11" r="8" />
+                        <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                    </svg>
+                </div>
+                <h3 class="feature-title">Stock Screener</h3>
+                <p class="feature-description">
+                    Filter thousands of stocks by custom criteria to discover opportunities that match your strategy.
+                </p>
+                <a href="/screener" class="feature-link">Start screening →</a>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00d9ff" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+                        <polyline points="14 2 14 8 20 8" />
+                    </svg>
+                </div>
+                <h3 class="feature-title">News Sentiment Analysis</h3>
+                <p class="feature-description">
+                    AI-powered news analysis with sentiment scoring to gauge market impact of breaking developments.
+                </p>
+                <a href="/news" class="feature-link">Read news →</a>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00d9ff" stroke-width="2">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                        <line x1="16" y1="2" x2="16" y2="6" />
+                        <line x1="8" y1="2" x2="8" y2="6" />
+                        <line x1="3" y1="10" x2="21" y2="10" />
+                    </svg>
+                </div>
+                <h3 class="feature-title">Economic Calendar</h3>
+                <p class="feature-description">
+                    Track major economic events with live timers and impact assessments for better timing.
+                </p>
+                <a href="/calendar" class="feature-link">View calendar →</a>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00d9ff" stroke-width="2">
+                        <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
+                        <path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16" />
+                    </svg>
+                </div>
+                <h3 class="feature-title">Portfolio Tracking</h3>
+                <p class="feature-description">
+                    Monitor your investments with real-time P&L calculations and comprehensive performance analytics.
+                </p>
+                <a href="/portfolio" class="feature-link">Manage portfolio →</a>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00d9ff" stroke-width="2">
+                        <polygon
+                            points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                    </svg>
+                </div>
+                <h3 class="feature-title">Watchlist Management</h3>
+                <p class="feature-description">
+                    Create custom watchlists and receive instant alerts on your favorite stocks and market movements.
+                </p>
+                <a href="/watchlist" class="feature-link">Build watchlist →</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="section">
+        <div class="section-header">
+            <div class="section-label">FAQ</div>
+            <h2 class="section-title">Frequently asked questions</h2>
+        </div>
+        <div class="faq-container">
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <span>What makes Qunex Trade different from other platforms?</span>
+                    <span class="faq-icon">+</span>
+                </div>
+                <div class="faq-answer">
+                    <div class="faq-answer-content">
+                        Qunex Trade combines institutional-grade market data from Polygon.io with proprietary AI
+                        algorithms to deliver actionable insights. Our platform is designed for both novice and
+                        professional traders, providing the tools and data you need without overwhelming complexity.
+                    </div>
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <span>Is the market data really real-time?</span>
+                    <span class="faq-icon">+</span>
+                </div>
+                <div class="faq-answer">
+                    <div class="faq-answer-content">
+                        Yes. We use Polygon.io's professional-grade market data feeds to provide real-time stock prices,
+                        market indices, and trading data with minimal latency. The same data used by professional
+                        traders and institutions.
+                    </div>
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <span>Can I try the Pro features before committing?</span>
+                    <span class="faq-icon">+</span>
+                </div>
+                <div class="faq-answer">
+                    <div class="faq-answer-content">
+                        Absolutely. We offer a free tier with core features, and Pro plans include a 14-day free trial.
+                        No credit card required to start. Cancel anytime during the trial period.
+                    </div>
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <span>How does the AI analysis work?</span>
+                    <span class="faq-icon">+</span>
+                </div>
+                <div class="faq-answer">
+                    <div class="faq-answer-content">
+                        Our AI models analyze technical indicators, news sentiment, market trends, and historical
+                        patterns to generate stock ratings and trading signals. Each recommendation includes detailed
+                        reasoning and confidence levels.
+                    </div>
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <span>Can I cancel my subscription anytime?</span>
+                    <span class="faq-icon">+</span>
+                </div>
+                <div class="faq-answer">
+                    <div class="faq-answer-content">
+                        Yes. You can cancel your subscription at any time with no cancellation fees. Your access
+                        continues until the end of your current billing period, and you can reactivate anytime.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="cta-content">
+            <h2 class="cta-title">Ready to start trading smarter?</h2>
+            <p class="cta-description">
+                Join thousands of traders making better decisions with Qunex Trade
             </p>
-            <p style="margin-top: 10px; font-size: 0.85em;">Last updated: <span id="current-time"></span></p>
-        </footer>
-    </div>
+            <div class="hero-ctas">
+                <a href="/auth/signup" class="btn-primary">Start Free Trial</a>
+                <a href="/market" class="btn-secondary">Explore Platform</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-brand">Qunex Trade</div>
+            <div class="footer-links">
+                <a href="/market" class="footer-link">Market</a>
+                <a href="/screener" class="footer-link">Screener</a>
+                <a href="/about" class="footer-link">About</a>
+                <a href="/terms" class="footer-link">Terms</a>
+                <a href="/privacy" class="footer-link">Privacy</a>
+            </div>
+            <p class="footer-disclaimer">
+                Market data provided for informational purposes only. Not financial advice. Trading involves risk of
+                loss.
+            </p>
+            <p class="footer-copyright">
+                © 2025 Qunex Trade. All rights reserved.
+            </p>
+        </div>
+    </footer>
 
     <script>
-        function updateTime() {
-            const now = new Date();
-            document.getElementById('current-time').textContent = now.toLocaleString();
-        }
-        updateTime();
-        setInterval(updateTime, 1000);
+        function toggleFaq(element) {
+            const faqItem = element.parentElement;
+            const answer = faqItem.querySelector('.faq-answer');
+            const isActive = faqItem.classList.contains('active');
 
-        // Stock search function
-        function searchStock() {
-            const input = document.getElementById('stock-search');
-            const symbol = input.value.trim().toUpperCase();
+            document.querySelectorAll('.faq-item').forEach(item => {
+                item.classList.remove('active');
+                item.querySelector('.faq-answer').style.maxHeight = '0';
+            });
 
-            if (symbol) {
-                window.location.href = `/stock/${symbol}`;
+            if (!isActive) {
+                faqItem.classList.add('active');
+                answer.style.maxHeight = answer.scrollHeight + 'px';
             }
         }
-
-        // Allow enter key in search
-        document.getElementById('stock-search').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                searchStock();
-            }
-        });
-
-        // Update Popup Functions
-        function closePopup() {
-            document.getElementById('update-popup').classList.add('hidden');
-        }
-
-        function hideForDay() {
-            const now = new Date();
-            const hideUntil = now.getTime() + (24 * 60 * 60 * 1000); // 24 hours from now
-            localStorage.setItem('hideUpdatePopup', hideUntil.toString());
-            closePopup();
-        }
-
-        function checkPopup() {
-            const hideUntil = localStorage.getItem('hideUpdatePopup');
-            const now = new Date().getTime();
-
-            // Show popup if not hidden or if 24h has passed
-            if (!hideUntil || now > parseInt(hideUntil)) {
-                // Show popup after 2 seconds delay
-                setTimeout(() => {
-                    document.getElementById('update-popup').classList.remove('hidden');
-                }, 2000);
-            }
-        }
-
-        // Check if popup should be shown on page load
-        checkPopup();
     </script>
-    <!-- Theme Toggle Script -->
-    <script src="{{ url_for('static', filename='theme-toggle.js') }}" defer></script>
 </body>
+
 </html>

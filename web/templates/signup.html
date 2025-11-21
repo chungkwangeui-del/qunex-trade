@@ -1,442 +1,232 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign Up - Qunex Trade</title>
     <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='basic.css') }}">
+
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        :root {
-            --primary: #00d9ff;
-            --secondary: #7c3aed;
-            --bg-dark: #0a0e27;
-            --bg-card: #131829;
-            --text-primary: #ffffff;
-            --text-secondary: #8b92b0;
-            --border: rgba(0, 217, 255, 0.15);
-        }
-
         body {
-            font-family: 'Space Grotesk', sans-serif;
-            background: var(--bg-dark);
-            color: var(--text-primary);
-            min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            position: relative;
+            min-height: 100vh;
+            padding: 24px;
         }
 
-        }
-
-        .container {
-            position: relative;
-            z-index: 1;
+        .signup-container {
             width: 100%;
-            max-width: 450px;
-            padding: 20px;
+            max-width: 420px;
         }
 
-        .card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
+        .signup-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
             border-radius: 20px;
-            padding: 50px 40px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            padding: 48px 40px;
+            backdrop-filter: blur(20px);
         }
 
         .logo-container {
             text-align: center;
-            margin-bottom: 40px;
+            margin-bottom: 32px;
         }
 
         .logo {
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            border-radius: 15px;
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, #00d9ff, #a855f7);
+            border-radius: 16px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            font-weight: 700;
-            font-size: 1.8em;
-            box-shadow: 0 0 30px rgba(0, 217, 255, 0.4);
-            margin-bottom: 15px;
+            font-weight: 800;
+            font-size: 1.5rem;
+            color: white;
+            margin-bottom: 16px;
         }
 
-        h1 {
-            font-size: 2.5em;
-            font-weight: 700;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 10px;
+        .welcome-text {
+            font-size: 1.75rem;
+            font-weight: 800;
             text-align: center;
+            margin-bottom: 8px;
+            letter-spacing: -0.02em;
         }
 
-        .subtitle {
+        .welcome-subtext {
             text-align: center;
-            color: var(--text-secondary);
-            margin-bottom: 30px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 32px;
+            font-size: 0.95rem;
         }
 
-        .form-group {
+        .form-input {
             margin-bottom: 20px;
         }
 
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: var(--text-secondary);
-            font-weight: 500;
-            font-size: 0.95em;
-        }
-
-        input[type="email"],
-        input[type="text"],
-        input[type="password"] {
+        .form-input input {
             width: 100%;
-            padding: 15px;
-            background: var(--bg-dark);
-            border: 1px solid var(--border);
+            padding: 14px 16px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 10px;
-            color: var(--text-primary);
-            font-size: 1em;
-            font-family: 'Space Grotesk', sans-serif;
-            transition: all 0.3s;
+            color: #ffffff;
+            font-size: 0.95rem;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s;
         }
 
-        input:focus {
+        .form-input input:focus {
             outline: none;
-            border-color: var(--primary);
+            border-color: #00d9ff;
             box-shadow: 0 0 0 3px rgba(0, 217, 255, 0.1);
         }
 
-        .btn {
-            width: 100%;
-            padding: 15px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            border: none;
-            border-radius: 10px;
-            color: var(--text-primary);
-            font-size: 1.1em;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-family: 'Space Grotesk', sans-serif;
-            margin-top: 10px;
+        .form-input input::placeholder {
+            color: rgba(255, 255, 255, 0.3);
         }
 
-        .btn:hover {
+        .signup-button {
+            width: 100%;
+            padding: 14px;
+            background: #ffffff;
+            color: #000000;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 20px;
+        }
+
+        .signup-button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(0, 217, 255, 0.4);
+            box-shadow: 0 8px 24px rgba(255, 255, 255, 0.15);
+        }
+
+        .terms {
+            text-align: center;
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.4);
+            margin-bottom: 24px;
+            line-height: 1.6;
+        }
+
+        .terms a {
+            color: #00d9ff;
+            text-decoration: none;
+        }
+
+        .terms a:hover {
+            color: #a855f7;
         }
 
         .divider {
             text-align: center;
-            margin: 30px 0;
-            color: var(--text-secondary);
-            position: relative;
-        }
-
-        .divider::before,
-        .divider::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            width: 40%;
-            height: 1px;
-            background: var(--border);
-        }
-
-        .divider::before {
-            left: 0;
-        }
-
-        .divider::after {
-            right: 0;
+            margin: 24px 0;
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 0.875rem;
         }
 
         .login-link {
             text-align: center;
-            color: var(--text-secondary);
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.95rem;
         }
 
         .login-link a {
-            color: var(--primary);
+            color: #00d9ff;
             text-decoration: none;
             font-weight: 600;
         }
 
         .login-link a:hover {
-            text-decoration: underline;
+            color: #a855f7;
         }
 
-        .alert {
-            padding: 15px;
+        .error-message {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+            padding: 12px 16px;
             border-radius: 10px;
             margin-bottom: 20px;
-            font-size: 0.95em;
+            font-size: 0.875rem;
         }
 
-        .alert-error {
-            background: rgba(255, 0, 110, 0.1);
-            border: 1px solid rgba(255, 0, 110, 0.3);
-            color: #ff006e;
-        }
-
-        .alert-success {
-            background: rgba(0, 255, 136, 0.1);
-            border: 1px solid rgba(0, 255, 136, 0.3);
-            color: #00ff88;
-        }
-
-        .terms {
-            font-size: 0.85em;
-            color: var(--text-secondary);
-            text-align: center;
-            margin-top: 20px;
-            line-height: 1.6;
-        }
-
-        .terms a {
-            color: var(--primary);
-            text-decoration: none;
-        }
-
-        .terms a:hover {
-            text-decoration: underline;
-        }
-
-        .verification-section {
-            display: flex;
-            gap: 10px;
+        .success-message {
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: #22c55e;
+            padding: 12px 16px;
+            border-radius: 10px;
             margin-bottom: 20px;
-        }
-
-        .verification-input-wrapper {
-            flex: 1;
-        }
-
-        .btn-secondary {
-            width: auto;
-            padding: 15px 25px;
-            background: var(--bg-dark);
-            border: 1px solid var(--primary);
-            color: var(--primary);
-            margin-top: 0;
-        }
-
-        .btn-secondary:hover {
-            background: rgba(0, 217, 255, 0.1);
-        }
-
-        .btn-secondary:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .verified-badge {
-            display: inline-block;
-            padding: 5px 15px;
-            background: rgba(0, 255, 136, 0.1);
-            border: 1px solid rgba(0, 255, 136, 0.3);
-            color: #00ff88;
-            border-radius: 8px;
-            font-size: 0.85em;
-            margin-left: 10px;
-        }
-
-        #submitBtn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
+            font-size: 0.875rem;
         }
     </style>
-    <link rel="stylesheet" href="{{ url_for('static', filename='basic.css') }}?v=1762456000">
 </head>
+
 <body>
-    <!-- Theme Toggle Button -->
-    <button id="theme-toggle" aria-label="Toggle theme">☀️</button>
-
-
-    <div class="container">
-        <div class="card">
-            <a href="/" style="text-decoration: none;">
-                <div class="logo-container">
-                    <div class="logo">Q</div>
-                    <h1>Join Qunex</h1>
-                    <p class="subtitle">Start getting AI-powered trading signals</p>
-                </div>
-            </a>
+    <div class="signup-container">
+        <div class="signup-card">
+            <div class="logo-container">
+                <div class="logo">Q</div>
+                <h1 class="welcome-text">Create your account</h1>
+                <p class="welcome-subtext">Start trading with AI-powered insights</p>
+            </div>
 
             {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    {% for category, message in messages %}
-                        <div class="alert alert-{{ category }}">{{ message }}</div>
-                    {% endfor %}
-                {% endif %}
+            {% if messages %}
+            {% for category, message in messages %}
+            <div class="{{ 'error-message' if category == 'error' else 'success-message' }}">
+                {{ message }}
+            </div>
+            {% endfor %}
+            {% endif %}
             {% endwith %}
 
-            <form method="POST" action="/auth/signup" id="signupForm">
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                <div class="form-group">
-                    <label for="email">
-                        Email
-                        <span id="verifiedBadge" class="verified-badge" style="display: none;">✓ Verified</span>
-                    </label>
-                    <div class="verification-section">
-                        <input type="email" id="email" name="email" required style="flex: 1;">
-                        <button type="button" id="sendCodeBtn" class="btn btn-secondary">Send Code</button>
-                    </div>
+            <form method="POST" action="{{ url_for('auth.signup') }}">
+                <div class="form-input">
+                    <input type="text" name="username" placeholder="Username" required autofocus>
                 </div>
 
-                <div class="form-group" id="verificationCodeGroup" style="display: none;">
-                    <label for="verificationCode">Verification Code</label>
-                    <div class="verification-section">
-                        <input type="text" id="verificationCode" maxlength="6" placeholder="Enter 6-digit code" style="flex: 1;">
-                        <button type="button" id="verifyCodeBtn" class="btn btn-secondary">Verify</button>
-                    </div>
+                <div class="form-input">
+                    <input type="email" name="email" placeholder="Email address" required>
                 </div>
 
-                <div class="form-group">
-                    <label for="username">Username</label>
-                    <input type="text" id="username" name="username" required>
+                <div class="form-input">
+                    <input type="password" name="password" placeholder="Password" required>
                 </div>
 
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" name="password" required minlength="6">
+                <div class="form-input">
+                    <input type="password" name="confirm_password" placeholder="Confirm password" required>
                 </div>
 
-                <button type="submit" class="btn" id="submitBtn" disabled>Create Account</button>
+                <p class="terms">
+                    By signing up, you agree to our <a href="/terms">Terms of Service</a> and <a href="/privacy">Privacy
+                        Policy</a>
+                </p>
 
-                <div class="terms">
-                    By signing up, you agree to our <a href="/terms">Terms of Service</a> and <a href="/privacy">Privacy Policy</a>
-                </div>
+                <button type="submit" class="signup-button">Create account</button>
             </form>
 
             <div class="divider">or</div>
 
             <div class="login-link">
-                Already have an account? <a href="/auth/login">Log in</a>
+                Already have an account? <a href="{{ url_for('auth.login') }}">Sign in</a>
             </div>
         </div>
     </div>
-
-    <script>
-        let emailVerified = false;
-
-        // Send verification code
-        document.getElementById('sendCodeBtn').addEventListener('click', async function() {
-            const email = document.getElementById('email').value;
-            if (!email) {
-                alert('Please enter your email');
-                return;
-            }
-
-            const btn = this;
-            btn.disabled = true;
-            btn.textContent = 'Sending...';
-
-            try {
-                const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-                const response = await fetch('/auth/send-verification-code', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': csrfToken
-                    },
-                    body: JSON.stringify({ email: email })
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    document.getElementById('verificationCodeGroup').style.display = 'block';
-                    btn.textContent = 'Resend Code';
-
-                    // If dev_code is provided (dev mode), auto-fill it
-                    if (data.dev_code) {
-                        document.getElementById('verificationCode').value = data.dev_code;
-                        alert(data.message + '\n\nCode has been auto-filled.');
-                    } else {
-                        alert(data.message);
-                    }
-                } else {
-                    alert(data.message);
-                }
-            } catch (error) {
-                alert('Failed to send verification code. Please try again.');
-            } finally {
-                btn.disabled = false;
-            }
-        });
-
-        // Verify code
-        document.getElementById('verifyCodeBtn').addEventListener('click', async function() {
-            const code = document.getElementById('verificationCode').value;
-            if (!code || code.length !== 6) {
-                alert('Please enter the 6-digit code');
-                return;
-            }
-
-            const btn = this;
-            btn.disabled = true;
-            btn.textContent = 'Verifying...';
-
-            try {
-                const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-                const response = await fetch('/auth/verify-code', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': csrfToken
-                    },
-                    body: JSON.stringify({ code: code })
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    emailVerified = true;
-                    document.getElementById('verifiedBadge').style.display = 'inline-block';
-                    document.getElementById('email').readOnly = true;
-                    document.getElementById('sendCodeBtn').style.display = 'none';
-                    document.getElementById('verificationCodeGroup').style.display = 'none';
-                    document.getElementById('submitBtn').disabled = false;
-                    alert(data.message);
-                } else {
-                    alert(data.message);
-                }
-            } catch (error) {
-                alert('Failed to verify code. Please try again.');
-            } finally {
-                btn.disabled = false;
-                btn.textContent = 'Verify';
-            }
-        });
-
-        // Prevent form submission if email not verified
-        document.getElementById('signupForm').addEventListener('submit', function(e) {
-            if (!emailVerified) {
-                e.preventDefault();
-                alert('Please verify your email first');
-            }
-        });
-    </script>
-
-    <!-- UI Enhancement Scripts -->
-    <script src="{{ url_for('static', filename='toast.js') }}"></script>
-    <script src="{{ url_for('static', filename='ui-enhancements.js') }}"></script>
-    <!-- Theme Toggle Script -->
-    <script src="{{ url_for('static', filename='theme-toggle.js') }}" defer></script>
 </body>
+
 </html>

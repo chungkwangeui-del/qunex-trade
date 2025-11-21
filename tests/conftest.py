@@ -48,6 +48,10 @@ def app():
     # Initialize database
     db.init_app(flask_app)
 
+    # Initialize cache
+    from web.extensions import cache
+    cache.init_app(flask_app)
+
     # Initialize Flask-Login for authentication tests
     from flask_login import LoginManager
 

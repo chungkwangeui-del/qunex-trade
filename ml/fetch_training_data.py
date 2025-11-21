@@ -8,42 +8,33 @@ import sys
 import pandas as pd
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
+import logging
 
 # Add parent directory to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 load_dotenv()
 
+# Configure logging
+try:
+    from web.logging_config import configure_structured_logging, get_logger
+    configure_structured_logging()
+    logger = get_logger(__name__)
+except ImportError:
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
 
 def fetch_training_data():
     """Fetch historical stock data from Polygon API for training."""
     try:
-        from src.polygon_service import PolygonService
+        from web.polygon_service import PolygonService
 
         polygon = PolygonService()
 
         # Training tickers (diverse set)
         tickers = [
-            "AAPL",
-            "MSFT",
-            "GOOGL",
-            "AMZN",
-            "TSLA",
-            "NVDA",
-            "META",
-            "JPM",
-            "V",
-            "JNJ",
-            "WMT",
-            "PG",
-            "MA",
-            "UNH",
-            "HD",
-            "DIS",
-            "BAC",
-            "XOM",
-            "PFE",
-            "CSCO",
+            "AAPL", "MSFT", "GOOGL", "AMZN", "TSLA", "NVDA", "META", "JPM", "V", "JNJ",
+            "WMT", "PG", "MA", "UNH", "HD", "DIS", "BAC", "XOM", "PFE", "CSCO",
         ]
 
         all_data = []
@@ -52,7 +43,7 @@ def fetch_training_data():
         end_date = datetime.now()
         start_date = end_date - timedelta(days=365)
 
-        print(f"Fetching training data from {start_date.date()} to {end_date.date()}")
+        logger.info(f"Fetching training data from {start_date.date()} to {end_date.date()}")
 
         for ticker in tickers:
             try:
@@ -79,12 +70,12 @@ def fetch_training_data():
                             }
                         )
 
-                    print(f"  ✓ {ticker}: {len(bars)} bars")
+                    logger.info(f"  ✓ {ticker}: {len(bars)} bars")
                 else:
-                    print(f"  ✗ {ticker}: No data")
+                    logger.warning(f"  ✗ {ticker}: No data")
 
             except Exception as e:
-                print(f"  ✗ {ticker}: {e}")
+                logger.error(f"  ✗ {ticker}: {e}")
                 continue
 
         # Convert to DataFrame
@@ -127,16 +118,18 @@ def fetch_training_data():
         df = df.dropna()
 
         # Save to CSV
-        output_path = os.path.join(os.path.dirname(__file__), "data", "training_data.csv")
+        output_dir = os.path.join(os.path.dirname(__file__), "data")
+        os.makedirs(output_dir, exist_ok=True)
+        output_path = os.path.join(output_dir, "training_data.csv")
         df.to_csv(output_path, index=False)
 
-        print(f"\n✓ Training data saved: {len(df)} rows")
-        print(f"  Location: {output_path}")
+        logger.info(f"\n✓ Training data saved: {len(df)} rows")
+        logger.info(f"  Location: {output_path}")
 
         return True
 
     except Exception as e:
-        print(f"✗ Error fetching training data: {e}")
+        logger.error(f"✗ Error fetching training data: {e}")
         return False
 
 

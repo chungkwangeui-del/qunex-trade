@@ -29,12 +29,17 @@ import shap
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "web"))
 
 # Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    handlers=[logging.FileHandler("training.log"), logging.StreamHandler()],
-)
-logger = logging.getLogger(__name__)
+try:
+    from web.logging_config import configure_structured_logging, get_logger
+    configure_structured_logging()
+    logger = get_logger(__name__)
+except ImportError:
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        handlers=[logging.FileHandler("training.log"), logging.StreamHandler()],
+    )
+    logger = logging.getLogger(__name__)
 
 
 def load_params():

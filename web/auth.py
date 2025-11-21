@@ -84,7 +84,19 @@ def login() -> Union[str, Any]:
         Rendered login template or redirect response
     """
     if current_user.is_authenticated:
-        return redirect(url_for("index"))
+        return redirect(url_for("main.index"))
+
+    # DEBUG: Print DB info
+    import os
+    logger.info(f"DEBUG: DB URI: {current_app.config['SQLALCHEMY_DATABASE_URI']}")
+    logger.info(f"DEBUG: CWD: {os.getcwd()}")
+    logger.info(f"DEBUG: DB File Exists (root): {os.path.exists('qunextrade.db')}")
+    logger.info(f"DEBUG: DB File Exists (instance): {os.path.exists('instance/qunextrade.db')}")
+    try:
+        all_users = db.session.execute(db.select(User)).scalars().all()
+        logger.info(f"DEBUG: All users in DB: {[u.email for u in all_users]}")
+    except Exception as e:
+        logger.error(f"DEBUG: Error querying users: {e}")
 
     if request.method == "POST":
         recaptcha_token = request.form.get("recaptcha_token")
@@ -115,7 +127,7 @@ def login() -> Union[str, Any]:
         logger.info(f"Login successful for {email}")
         login_user(user, remember=remember)
         next_page = request.args.get("next")
-        return redirect(next_page) if next_page else redirect(url_for("index"))
+        return redirect(next_page) if next_page else redirect(url_for("main.index"))
 
     return render_template("login.html", google_oauth_enabled=GOOGLE_OAUTH_ENABLED)
 
@@ -129,7 +141,7 @@ def signup() -> Union[str, Any]:
         Rendered signup template or redirect response
     """
     if current_user.is_authenticated:
-        return redirect(url_for("index"))
+        return redirect(url_for("main.index"))
 
     if request.method == "POST":
         recaptcha_token = request.form.get("recaptcha_token")
@@ -183,7 +195,7 @@ def signup() -> Union[str, Any]:
 
         login_user(new_user)
         flash("Account created successfully!", "success")
-        return redirect(url_for("index"))
+        return redirect(url_for("main.index"))
 
     return render_template("signup.html")
 
@@ -193,7 +205,7 @@ def signup() -> Union[str, Any]:
 def logout():
     """Logout user"""
     logout_user()
-    return redirect(url_for("index"))
+    return redirect(url_for("main.index"))
 
 
 @auth.route("/account")
@@ -210,7 +222,7 @@ def admin_dashboard():
     # Check if user is developer tier (admin)
     if current_user.subscription_tier != "developer":
         flash("Unauthorized access - Admin only", "error")
-        return redirect(url_for("index"))
+        return redirect(url_for("main.index"))
 
     # Get all users
     all_users = db.session.execute(db.select(User).order_by(User.created_at.desc())).scalars().all()
@@ -367,7 +379,7 @@ def google_callback():
 
         # Log in the user
         login_user(user, remember=True)
-        return redirect(url_for("index"))
+        return redirect(url_for("main.index"))
 
     except Exception as e:
         flash(f"Google login failed: {str(e)}", "error")
@@ -432,7 +444,7 @@ def send_verification_code():
 
     # Send email
     try:
-        from app import mail
+        from web.extensions import mail
 
         msg = Message("Email Verification Code - Qunex Trade", recipients=[email])
         msg.body = f"""Welcome to Qunex Trade!
@@ -611,7 +623,7 @@ def verify_code():
 def forgot_password():
     """Forgot password page - send reset email"""
     if current_user.is_authenticated:
-        return redirect(url_for("index"))
+        return redirect(url_for("main.index"))
 
     if request.method == "POST":
         # Verify reCAPTCHA
@@ -638,7 +650,7 @@ def forgot_password():
 
             # Send reset email
             try:
-                from app import mail
+                from web.extensions import mail
 
                 reset_url = url_for("auth.reset_password", token=token, _external=True)
 
@@ -690,7 +702,7 @@ Qunex Trade Team
 def reset_password(token):
     """Reset password with token"""
     if current_user.is_authenticated:
-        return redirect(url_for("index"))
+        return redirect(url_for("main.index"))
 
     # Find user with this token
     user = db.session.execute(db.select(User).filter_by(reset_token=token)).scalar_one_or_none()

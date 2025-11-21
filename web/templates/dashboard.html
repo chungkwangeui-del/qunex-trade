@@ -1,400 +1,493 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Qunex Trade</title>
-    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/basic.css">
-    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
-    <style>
+{% extends "base_layout.html" %}
+
+{% block title %}Dashboard - Qunex Trade{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        gap: 24px;
+        margin-top: 30px;
+    }
+
+    .dashboard-card {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 16px;
+        padding: 32px;
+        transition: all 0.3s ease;
+    }
+
+    .dashboard-card:hover {
+        border-color: rgba(0, 217, 255, 0.3);
+        box-shadow: 0 8px 32px rgba(0, 217, 255, 0.1);
+        transform: translateY(-2px);
+    }
+
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .card-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #ffffff;
+        letter-spacing: -0.02em;
+    }
+
+    .card-badge {
+        background: rgba(0, 217, 255, 0.1);
+        color: #00d9ff;
+        padding: 4px 12px;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        font-weight: 700;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: rgba(255, 255, 255, 0.5);
+    }
+
+    .empty-state-icon {
+        font-size: 3rem;
+        margin-bottom: 16px;
+        opacity: 0.3;
+    }
+
+    .empty-state-text {
+        font-size: 1.1rem;
+        margin-bottom: 8px;
+        font-weight: 600;
+    }
+
+    .empty-state-subtext {
+        font-size: 0.9rem;
+        opacity: 0.7;
+    }
+
+    .watchlist-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px;
+        background: rgba(255, 255, 255, 0.02);
+        border-radius: 12px;
+        margin-bottom: 12px;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        border: 1px solid transparent;
+    }
+
+    .watchlist-item:hover {
+        background: rgba(0, 217, 255, 0.05);
+        border-color: rgba(0, 217, 255, 0.2);
+        transform: translateX(4px);
+    }
+
+    .ticker-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .ticker-symbol {
+        font-size: 1.1rem;
+        font-weight: 700;
+        font-family: 'JetBrains Mono', monospace;
+        color: #00d9ff;
+        letter-spacing: -0.01em;
+    }
+
+    .ai-score-badge {
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 0.85rem;
+    }
+
+    .score-strong-buy {
+        background: rgba(34, 197, 94, 0.15);
+        color: #22c55e;
+    }
+
+    .score-buy {
+        background: rgba(59, 130, 246, 0.15);
+        color: #3b82f6;
+    }
+
+    .score-hold {
+        background: rgba(234, 179, 8, 0.15);
+        color: #eab308;
+    }
+
+    .score-sell {
+        background: rgba(249, 115, 22, 0.15);
+        color: #f97316;
+    }
+
+    .score-strong-sell {
+        background: rgba(239, 68, 68, 0.15);
+        color: #ef4444;
+    }
+
+    .news-item {
+        padding: 16px;
+        background: rgba(255, 255, 255, 0.02);
+        border-radius: 12px;
+        margin-bottom: 12px;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        text-decoration: none;
+        color: inherit;
+        display: block;
+        border: 1px solid transparent;
+    }
+
+    .news-item:hover {
+        background: rgba(0, 217, 255, 0.05);
+        border-color: rgba(0, 217, 255, 0.2);
+        transform: translateY(-2px);
+    }
+
+    .news-title {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: #ffffff;
+        line-height: 1.5;
+        letter-spacing: -0.01em;
+    }
+
+    .news-meta {
+        display: flex;
+        gap: 12px;
+        font-size: 0.85rem;
+        color: rgba(255, 255, 255, 0.5);
+        align-items: center;
+    }
+
+    .news-source {
+        font-weight: 600;
+    }
+
+    .news-sentiment {
+        padding: 3px 8px;
+        border-radius: 6px;
+        font-weight: 700;
+        font-size: 0.75rem;
+    }
+
+    .sentiment-positive {
+        background: rgba(34, 197, 94, 0.15);
+        color: #22c55e;
+    }
+
+    .sentiment-neutral {
+        background: rgba(156, 163, 175, 0.15);
+        color: #9ca3af;
+    }
+
+    .sentiment-negative {
+        background: rgba(239, 68, 68, 0.15);
+        color: #ef4444;
+    }
+
+    .btn-primary {
+        background: #ffffff;
+        color: #000000;
+        border: none;
+        padding: 14px 28px;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 0.95rem;
+        letter-spacing: -0.01em;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(255, 255, 255, 0.2);
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+        margin-bottom: 32px;
+    }
+
+    .stat-item {
+        background: rgba(255, 255, 255, 0.02);
+        padding: 24px;
+        border-radius: 12px;
+        text-align: center;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .stat-value {
+        font-size: 2.5rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #00d9ff, #a855f7);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        letter-spacing: -0.03em;
+    }
+
+    .stat-label {
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.5);
+        margin-top: 8px;
+        font-weight: 500;
+    }
+
+    @media (max-width: 768px) {
         .dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-            gap: 24px;
-            margin-top: 30px;
-        }
-
-        .dashboard-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 24px;
-            transition: all 0.3s ease;
-        }
-
-        .dashboard-card:hover {
-            border-color: var(--primary);
-            box-shadow: 0 8px 32px rgba(168, 85, 247, 0.15);
-            transform: translateY(-2px);
-        }
-
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 12px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .card-title {
-            font-size: 1.3em;
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        .card-badge {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.85em;
-            font-weight: 600;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-            color: var(--text-secondary);
-        }
-
-        .empty-state-icon {
-            font-size: 3em;
-            margin-bottom: 16px;
-            opacity: 0.5;
-        }
-
-        .empty-state-text {
-            font-size: 1.1em;
-            margin-bottom: 8px;
-        }
-
-        .empty-state-subtext {
-            font-size: 0.9em;
-            opacity: 0.7;
-        }
-
-        .watchlist-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 16px;
-            background: var(--bg-dark);
-            border-radius: 12px;
-            margin-bottom: 12px;
-            transition: all 0.2s ease;
-            cursor: pointer;
-        }
-
-        .watchlist-item:hover {
-            background: rgba(168, 85, 247, 0.1);
-            transform: translateX(4px);
-        }
-
-        .ticker-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .ticker-symbol {
-            font-size: 1.2em;
-            font-weight: 700;
-            font-family: 'JetBrains Mono', monospace;
-            color: var(--primary);
-        }
-
-        .ai-score-badge {
-            padding: 6px 12px;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 0.9em;
-        }
-
-        .score-strong-buy { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
-        .score-buy { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
-        .score-hold { background: rgba(234, 179, 8, 0.2); color: #eab308; }
-        .score-sell { background: rgba(249, 115, 22, 0.2); color: #f97316; }
-        .score-strong-sell { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
-
-        .news-item {
-            padding: 16px;
-            background: var(--bg-dark);
-            border-radius: 12px;
-            margin-bottom: 12px;
-            transition: all 0.2s ease;
-            cursor: pointer;
-            text-decoration: none;
-            color: inherit;
-            display: block;
-        }
-
-        .news-item:hover {
-            background: rgba(168, 85, 247, 0.1);
-            transform: translateY(-2px);
-        }
-
-        .news-title {
-            font-size: 1.05em;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: var(--text-primary);
-            line-height: 1.4;
-        }
-
-        .news-meta {
-            display: flex;
-            gap: 12px;
-            font-size: 0.85em;
-            color: var(--text-secondary);
-        }
-
-        .news-source {
-            font-weight: 500;
-        }
-
-        .news-sentiment {
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-weight: 600;
-        }
-
-        .sentiment-positive { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
-        .sentiment-neutral { background: rgba(156, 163, 175, 0.2); color: #9ca3af; }
-        .sentiment-negative { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-block;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(168, 85, 247, 0.4);
+            grid-template-columns: 1fr;
         }
 
         .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 16px;
-            margin-bottom: 24px;
+            grid-template-columns: 1fr;
         }
+    }
+</style>
+{% endblock %}
 
-        .stat-item {
-            background: var(--bg-dark);
-            padding: 16px;
-            border-radius: 12px;
-            text-align: center;
-        }
+{% block content %}
+<!-- Welcome Section -->
+<div class="content-header">
+    <h1 class="content-title">
+        Welcome back, <span
+            style="background: linear-gradient(135deg, #00d9ff, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">{{
+            current_user.username }}</span>
+    </h1>
+    <p class="content-subtitle">Here's your personalized market overview</p>
+</div>
 
-        .stat-value {
-            font-size: 2em;
-            font-weight: 700;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .stat-label {
-            font-size: 0.9em;
-            color: var(--text-secondary);
-            margin-top: 4px;
-        }
-    </style>
-</head>
-<body>
-    <!-- Navigation (copied from existing templates) -->
-    <div class="container">
-        <nav>
-            <a href="/" class="nav-brand">
-                <div class="logo">Q</div>
-                <span class="brand-text">Qunex</span>
-            </a>
-            <div class="nav-links">
-                <a href="/">Home</a>
-                <a href="/stocks">Stocks</a>
-                <a href="/market">Market</a>
-                <a href="/news">News</a>
-                <a href="/calendar">Calendar</a>
-                <a href="/watchlist">Watchlist</a>
-                <a href="/dashboard" class="active">Dashboard</a>
-                <a href="/portfolio">Portfolio</a>
-                <a href="/backtest">Backtest</a>
-                <a href="/account">Account</a>
-            </div>
-        </nav>
-
-        <!-- Welcome Section -->
-        <div class="dashboard-card" style="margin-bottom: 24px;">
-            <h1 style="font-size: 2.5em; margin-bottom: 8px;">
-                Welcome back, <span style="background: linear-gradient(135deg, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">{{ current_user.username }}</span>
-            </h1>
-            <p style="color: var(--text-secondary); font-size: 1.1em;">Here's your personalized market overview</p>
-        </div>
-
-        <!-- Stats Overview -->
-        {% if watchlist_data %}
-        <div class="stats-grid">
-            <div class="stat-item">
-                <div class="stat-value">{{ watchlist_data|length }}</div>
-                <div class="stat-label">Stocks Tracked</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-value">{{ ai_scores|length }}</div>
-                <div class="stat-label">AI Ratings</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-value">{{ news_by_ticker|length }}</div>
-                <div class="stat-label">Related News</div>
-            </div>
-        </div>
-        {% endif %}
-
-        <!-- Dashboard Grid -->
-        <div class="dashboard-grid">
-            <!-- My Watchlist Card -->
-            <div class="dashboard-card">
-                <div class="card-header">
-                    <h2 class="card-title">📊 My Watchlist</h2>
-                    <span class="card-badge">{{ watchlist_data|length if watchlist_data else 0 }}</span>
-                </div>
-
-                {% if watchlist_data %}
-                    {% for item in watchlist_data %}
-                    <div class="watchlist-item" onclick="window.location.href='/stock/{{ item.ticker }}'">
-                        <div class="ticker-info">
-                            <span class="ticker-symbol">{{ item.ticker }}</span>
-                            {% if ai_scores.get(item.ticker) %}
-                            <span class="ai-score-badge score-{{ ai_scores[item.ticker].rating.lower().replace(' ', '-') }}">
-                                {{ ai_scores[item.ticker].score }}/100
-                            </span>
-                            {% endif %}
-                        </div>
-                        {% if ai_scores.get(item.ticker) %}
-                        <span style="font-weight: 600; color: var(--text-secondary);">
-                            {{ ai_scores[item.ticker].rating }}
-                        </span>
-                        {% endif %}
-                    </div>
-                    {% endfor %}
-
-                    <a href="/watchlist" class="btn-primary" style="width: 100%; margin-top: 12px; text-align: center;">
-                        View Full Watchlist →
-                    </a>
-                {% else %}
-                    <div class="empty-state">
-                        <div class="empty-state-icon">📈</div>
-                        <div class="empty-state-text">No stocks in watchlist</div>
-                        <div class="empty-state-subtext">Add stocks to track their performance</div>
-                        <a href="/stocks" class="btn-primary" style="margin-top: 16px;">
-                            Browse Stocks
-                        </a>
-                    </div>
-                {% endif %}
-            </div>
-
-            <!-- AI Scores Card -->
-            <div class="dashboard-card">
-                <div class="card-header">
-                    <h2 class="card-title">🤖 AI Scores</h2>
-                    <span class="card-badge">{{ ai_scores|length if ai_scores else 0 }}</span>
-                </div>
-
-                {% if ai_scores %}
-                    {% for ticker, score in ai_scores.items() %}
-                    <div class="watchlist-item" onclick="window.location.href='/stock/{{ ticker }}'">
-                        <div class="ticker-info">
-                            <span class="ticker-symbol">{{ ticker }}</span>
-                            <span class="ai-score-badge score-{{ score.rating.lower().replace(' ', '-') }}">
-                                {{ score.score }}/100
-                            </span>
-                        </div>
-                        <span style="font-weight: 600; color: var(--text-secondary);">
-                            {{ score.rating }}
-                        </span>
-                    </div>
-                    {% endfor %}
-                {% else %}
-                    <div class="empty-state">
-                        <div class="empty-state-icon">🎯</div>
-                        <div class="empty-state-text">No AI scores available</div>
-                        <div class="empty-state-subtext">Add stocks to your watchlist to see AI ratings</div>
-                    </div>
-                {% endif %}
-            </div>
-
-            <!-- Related News Card -->
-            <div class="dashboard-card" style="grid-column: span 2;">
-                <div class="card-header">
-                    <h2 class="card-title">📰 Related News</h2>
-                    <span class="card-badge">{{ news_by_ticker|length if news_by_ticker else 0 }}</span>
-                </div>
-
-                {% if news_by_ticker %}
-                    {% for ticker, articles in news_by_ticker.items() %}
-                        {% for article in articles %}
-                        <a href="{{ article.url }}" target="_blank" class="news-item">
-                            <div class="news-title">
-                                <strong style="color: var(--primary);">[{{ ticker }}]</strong>
-                                {{ article.title }}
-                            </div>
-                            <div class="news-meta">
-                                <span class="news-source">{{ article.source }}</span>
-                                <span>•</span>
-                                <span>{{ article.published_at.strftime('%b %d, %Y') if article.published_at else 'Recently' }}</span>
-                                {% if article.sentiment %}
-                                <span class="news-sentiment sentiment-{{ article.sentiment }}">
-                                    {{ article.sentiment|capitalize }}
-                                </span>
-                                {% endif %}
-                                {% if article.ai_rating %}
-                                <span class="news-sentiment sentiment-positive">
-                                    ⭐ {{ article.ai_rating }}/5
-                                </span>
-                                {% endif %}
-                            </div>
-                        </a>
-                        {% endfor %}
-                    {% endfor %}
-
-                    <a href="/news" class="btn-primary" style="width: 100%; margin-top: 12px; text-align: center;">
-                        View All News →
-                    </a>
-                {% else %}
-                    <div class="empty-state">
-                        <div class="empty-state-icon">📡</div>
-                        <div class="empty-state-text">No related news found</div>
-                        <div class="empty-state-subtext">News will appear here for your watchlist stocks</div>
-                        <a href="/news" class="btn-primary" style="margin-top: 16px;">
-                            Browse All News
-                        </a>
-                    </div>
-                {% endif %}
-            </div>
-        </div>
+<!-- Stats Overview -->
+{% if watchlist_data %}
+<div class="stats-grid">
+    <div class="stat-item">
+        <div class="stat-value">{{ watchlist_data|length }}</div>
+        <div class="stat-label">Stocks Tracked</div>
     </div>
+    <div class="stat-item">
+        <div class="stat-value">{{ ai_scores|length }}</div>
+        <div class="stat-label">AI Ratings</div>
+    </div>
+    <div class="stat-item">
+        <div class="stat-value">{{ news_by_ticker|length }}</div>
+        <div class="stat-label">Related News</div>
+    </div>
+</div>
+{% endif %}
 
-    <script src="/static/js/socket_client.js"></script>
-    <script>
-        // Subscribe to watchlist tickers for real-time updates
+<!-- Quick Access Grid -->
+<div class="grid grid-cols-4 gap-6" style="margin-bottom: 32px;">
+    <a href="/market" class="card hover:border-accent-cyan transition-all group">
+        <div class="flex items-center gap-4 mb-2">
+            <div
+                class="p-2 rounded-lg bg-accent-cyan/10 text-accent-cyan group-hover:bg-accent-cyan group-hover:text-black transition-colors">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+                    <polyline points="17 6 23 6 23 12"></polyline>
+                </svg>
+            </div>
+            <h3 class="font-bold text-lg">Market</h3>
+        </div>
+        <p class="text-sm text-secondary">Live indices & movers</p>
+    </a>
+
+    <a href="/portfolio" class="card hover:border-accent-purple transition-all group">
+        <div class="flex items-center gap-4 mb-2">
+            <div
+                class="p-2 rounded-lg bg-accent-purple/10 text-accent-purple group-hover:bg-accent-purple group-hover:text-white transition-colors">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                    <path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"></path>
+                </svg>
+            </div>
+            <h3 class="font-bold text-lg">Portfolio</h3>
+        </div>
+        <p class="text-sm text-secondary">Track your holdings</p>
+    </a>
+
+    <a href="/screener" class="card hover:border-accent-green transition-all group">
+        <div class="flex items-center gap-4 mb-2">
+            <div
+                class="p-2 rounded-lg bg-accent-green/10 text-accent-green group-hover:bg-accent-green group-hover:text-black transition-colors">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+            </div>
+            <h3 class="font-bold text-lg">Screener</h3>
+        </div>
+        <p class="text-sm text-secondary">Find opportunities</p>
+    </a>
+
+    <a href="/news" class="card hover:border-info transition-all group">
+        <div class="flex items-center gap-4 mb-2">
+            <div
+                class="p-2 rounded-lg bg-info/10 text-info group-hover:bg-info group-hover:text-white transition-colors">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                </svg>
+            </div>
+            <h3 class="font-bold text-lg">News</h3>
+        </div>
+        <p class="text-sm text-secondary">Latest market updates</p>
+    </a>
+</div>
+
+<!-- Dashboard Grid -->
+<div class="dashboard-grid">
+    <!-- My Watchlist Card -->
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h2 class="card-title">My Watchlist</h2>
+            <span class="card-badge">{{ watchlist_data|length if watchlist_data else 0 }}</span>
+        </div>
+
         {% if watchlist_data %}
         {% for item in watchlist_data %}
+        <div class="watchlist-item" onclick="window.location.href='/stock/{{ item.ticker }}'">
+            <div class="ticker-info">
+                <span class="ticker-symbol">{{ item.ticker }}</span>
+                {% if ai_scores.get(item.ticker) %}
+                <span class="ai-score-badge score-{{ ai_scores[item.ticker].rating.lower().replace(' ', '-') }}">
+                    {{ ai_scores[item.ticker].score }}/100
+                </span>
+                {% endif %}
+            </div>
+            {% if ai_scores.get(item.ticker) %}
+            <span style="font-weight: 600; color: rgba(255, 255, 255, 0.6); font-size: 0.9rem;">
+                {{ ai_scores[item.ticker].rating }}
+            </span>
+            {% endif %}
+        </div>
+        {% endfor %}
+
+        <a href="/watchlist" class="btn-primary" style="width: 100%; margin-top: 12px; text-align: center;">
+            View Full Watchlist →
+        </a>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-state-text">No stocks in watchlist</div>
+            <div class="empty-state-subtext">Add stocks to track their performance</div>
+            <a href="/stocks" class="btn-primary" style="margin-top: 16px;">
+                Browse Stocks
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- AI Scores Card -->
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h2 class="card-title">AI Scores</h2>
+            <span class="card-badge">{{ ai_scores|length if ai_scores else 0 }}</span>
+        </div>
+
+        {% if ai_scores %}
+        {% for ticker, score in ai_scores.items() %}
+        <div class="watchlist-item" onclick="window.location.href='/stock/{{ ticker }}'">
+            <div class="ticker-info">
+                <span class="ticker-symbol">{{ ticker }}</span>
+                <span class="ai-score-badge score-{{ score.rating.lower().replace(' ', '-') }}">
+                    {{ score.score }}/100
+                </span>
+            </div>
+            <span style="font-weight: 600; color: rgba(255, 255, 255, 0.6); font-size: 0.9rem;">
+                {{ score.rating }}
+            </span>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-state-text">No AI scores available</div>
+            <div class="empty-state-subtext">Add stocks to see AI ratings</div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Related News Card -->
+    <div class="dashboard-card" style="grid-column: span 2;">
+        <div class="card-header">
+            <h2 class="card-title">Related News</h2>
+            <span class="card-badge">{{ news_by_ticker|length if news_by_ticker else 0 }}</span>
+        </div>
+
+        {% if news_by_ticker %}
+        {% for ticker, articles in news_by_ticker.items() %}
+        {% for article in articles %}
+        <a href="{{ article.url }}" target="_blank" class="news-item">
+            <div class="news-title">
+                <strong style="color: #00d9ff;">[{{ ticker }}]</strong>
+                {{ article.title }}
+            </div>
+            <div class="news-meta">
+                <span class="news-source">{{ article.source }}</span>
+                <span>•</span>
+                <span>{{ article.published_at.strftime('%b %d, %Y') if article.published_at else 'Recently' }}</span>
+                {% if article.sentiment %}
+                <span class="news-sentiment sentiment-{{ article.sentiment }}">
+                    {{ article.sentiment|capitalize }}
+                </span>
+                {% endif %}
+                {% if article.ai_rating %}
+                <span class="news-sentiment sentiment-positive">
+                    ⭐ {{ article.ai_rating }}/5
+                </span>
+                {% endif %}
+            </div>
+        </a>
+        {% endfor %}
+        {% endfor %}
+
+        <a href="/news" class="btn-primary" style="width: 100%; margin-top: 12px; text-align: center;">
+            View All News →
+        </a>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-state-text">No related news found</div>
+            <div class="empty-state-subtext">News will appear here for your watchlist stocks</div>
+            <a href="/news" class="btn-primary" style="margin-top: 16px;">
+                Browse All News
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+<script src="/static/js/socket_client.js"></script>
+<script>
+    // Subscribe to watchlist tickers for real-time updates
+    {% if watchlist_data %}
+    {% for item in watchlist_data %}
+    if (typeof marketSocket !== 'undefined') {
         marketSocket.subscribe('{{ item.ticker }}', (data) => {
             console.log('Real-time update for {{ item.ticker }}:', data);
             // Update UI with real-time data
         });
-        {% endfor %}
-        {% endif %}
-    </script>
-</body>
-</html>
+    }
+    {% endfor %}
+    {% endif %}
+</script>
+{% endblock %}

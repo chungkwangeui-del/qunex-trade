@@ -35,7 +35,14 @@ except ImportError:
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "web"))
 from polygon_service import PolygonService
 
-logger = logging.getLogger(__name__)
+# Configure logging
+try:
+    from web.logging_config import configure_structured_logging, get_logger
+    configure_structured_logging()
+    logger = get_logger(__name__)
+except ImportError:
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
 
 
 class FeatureEngineer:

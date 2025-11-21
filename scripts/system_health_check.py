@@ -188,7 +188,7 @@ class SystemHealthChecker:
         api_keys = {
             "Polygon API": "POLYGON_API_KEY",
             "Alpha Vantage": "ALPHA_VANTAGE_API_KEY",
-            "Anthropic Claude": "ANTHROPIC_API_KEY",
+            "Google Gemini": "GEMINI_API_KEY",
             "Finnhub": "FINNHUB_API_KEY",
             "Database": "DATABASE_URL",
         }

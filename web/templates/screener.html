@@ -1,731 +1,467 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stock Screener - Qunex Trade</title>
-    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+{% extends "base_layout.html" %}
 
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+{% block title %}Stock Screener - Qunex Trade{% endblock %}
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='basic.css') }}?v=1762480000">
+{% block extra_styles %}
+<style>
+    .filter-panel {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 16px;
+        padding: 30px;
+        margin-bottom: 30px;
+    }
 
+    .filter-section {
+        margin-bottom: 25px;
+    }
 
+    .filter-section:last-child {
+        margin-bottom: 0;
+    }
 
+    .filter-label {
+        font-weight: 600;
+        color: #ffffff;
+        margin-bottom: 12px;
+        display: block;
+    }
 
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+    .filter-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+    }
+
+    .input-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .input-label {
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.6);
+    }
+
+    input[type="number"],
+    input[type="text"],
+    select {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        padding: 12px 16px;
+        color: #ffffff;
+        font-family: inherit;
+        font-size: 1rem;
+        transition: all 0.2s;
+    }
+
+    input:focus,
+    select:focus {
+        outline: none;
+        border-color: #00d9ff;
+        box-shadow: 0 0 0 3px rgba(0, 217, 255, 0.1);
+    }
+
+    .preset-buttons {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 15px;
+    }
+
+    .preset-btn {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 10px 20px;
+        border-radius: 10px;
+        color: rgba(255, 255, 255, 0.7);
+        cursor: pointer;
+        font-family: inherit;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+
+    .preset-btn:hover {
+        border-color: #00d9ff;
+        color: #00d9ff;
+    }
+
+    .preset-btn.active {
+        background: #00d9ff;
+        color: #000000;
+        border-color: #00d9ff;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 15px;
+        margin-top: 25px;
+    }
+
+    .btn {
+        padding: 14px 32px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        border: none;
+        font-family: inherit;
+    }
+
+    .btn-primary {
+        background: #ffffff;
+        color: #000000;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 25px rgba(255, 255, 255, 0.3);
+    }
+
+    .btn-secondary {
+        background: rgba(255, 255, 255, 0.05);
+        color: #ffffff;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .btn-secondary:hover {
+        background: rgba(0, 217, 255, 0.1);
+        border-color: #00d9ff;
+    }
+
+    .results-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .result-count {
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 1.1rem;
+    }
+
+    .result-count span {
+        color: #00d9ff;
+        font-weight: 700;
+    }
+
+    .results-table {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 16px;
+        overflow: hidden;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    thead {
+        background: rgba(255, 255, 255, 0.02);
+    }
+
+    th {
+        padding: 18px 20px;
+        text-align: left;
+        font-weight: 600;
+        color: #ffffff;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    tbody tr {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        transition: all 0.2s;
+    }
+
+    tbody tr:hover {
+        background: rgba(0, 217, 255, 0.05);
+    }
+
+    tbody tr:last-child {
+        border-bottom: none;
+    }
+
+    td {
+        padding: 16px 20px;
+        color: rgba(255, 255, 255, 0.7);
+    }
+
+    .ticker-cell {
+        font-family: 'JetBrains Mono', monospace;
+        color: #00d9ff;
+        font-weight: 700;
+        font-size: 1.1rem;
+    }
+
+    .price-cell {
+        font-weight: 600;
+        color: #ffffff;
+    }
+
+    .change-cell {
+        font-weight: 700;
+        font-size: 1.05rem;
+    }
+
+    .change-positive {
+        color: #22c55e;
+    }
+
+    .change-negative {
+        color: #ef4444;
+    }
+
+    .volume-cell {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.95rem;
+    }
+
+    .loading {
+        text-align: center;
+        padding: 60px 20px;
+        color: rgba(255, 255, 255, 0.5);
+    }
+
+    .spinner {
+        width: 50px;
+        height: 50px;
+        border: 3px solid rgba(255, 255, 255, 0.1);
+        border-top-color: #00d9ff;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 20px;
+    }
+
+    @keyframes spin {
+        to {
+            transform: rotate(360deg);
         }
-
-        /* CSS variables moved to dark-mode.css */
-
-        body {
-            font-family: 'Space Grotesk', -apple-system, sans-serif;
-            background: var(--bg-dark);
-            color: var(--text-primary);
-            min-height: 100vh;
-            position: relative;
-            overflow-x: hidden;
-        }
-
-        .container {
-            max-width: 1800px;
-            margin: 0 auto;
-            padding: 30px;
-            position: relative;
-            z-index: 1;
-        }
-
-        /* Navigation */
-        nav {
-            background: var(--bg-card);
-            padding: 20px 40px;
-            border-radius: 16px;
-            margin-bottom: 40px;
-            border: 1px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            backdrop-filter: blur(10px);
-        }
-
-        .nav-brand {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 1.8em;
-            font-weight: 700;
-            letter-spacing: -1px;
-            text-decoration: none;
-            color: var(--text-primary);
-        }
-
-        .logo {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 1.1em;
-            box-shadow: 0 0 20px var(--glow);
-        }
-
-        .brand-text {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 30px;
-            align-items: center;
-        }
-
-        .nav-link {
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            position: relative;
-        }
-
-        .nav-link:hover {
-            color: var(--primary);
-        }
-
-        .nav-link.active {
-            color: var(--primary);
-        }
-
-        .nav-link.active::after {
-            content: '';
-            position: absolute;
-            bottom: -8px;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background: var(--primary);
-            box-shadow: 0 0 10px var(--glow);
-        }
-
-        /* Header */
-        .header {
-            margin-bottom: 40px;
-        }
-
-        h1 {
-            font-size: 3em;
-            margin-bottom: 10px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .subtitle {
-            color: var(--text-secondary);
-            font-size: 1.1em;
-        }
-
-        /* Filter Panel */
-        .filter-panel {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 30px;
-            margin-bottom: 30px;
-        }
-
-        .filter-section {
-            margin-bottom: 25px;
-        }
-
-        .filter-section:last-child {
-            margin-bottom: 0;
-        }
-
-        .filter-label {
-            font-weight: 600;
-            color: var(--text-primary);
-            margin-bottom: 12px;
-            display: block;
-        }
-
-        .filter-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-        }
-
-        .input-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .input-label {
-            font-size: 0.9em;
-            color: var(--text-secondary);
-        }
-
-        input[type="number"], input[type="text"], select {
-            background: var(--bg-hover);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            padding: 12px 16px;
-            color: var(--text-primary);
-            font-family: inherit;
-            font-size: 1em;
-            transition: all 0.3s ease;
-        }
-
-        input:focus, select:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(0, 217, 255, 0.1);
-        }
-
-        .preset-buttons {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-top: 15px;
-        }
-
-        .preset-btn {
-            background: var(--bg-hover);
-            border: 1px solid var(--border);
-            padding: 10px 20px;
-            border-radius: 10px;
-            color: var(--text-secondary);
-            cursor: pointer;
-            font-family: inherit;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-
-        .preset-btn:hover {
-            border-color: var(--primary);
-            color: var(--primary);
-        }
-
-        .preset-btn.active {
-            background: var(--primary);
-            color: var(--bg-dark);
-            border-color: var(--primary);
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 15px;
-            margin-top: 25px;
-        }
-
-        .btn {
-            padding: 14px 32px;
-            border-radius: 12px;
-            font-weight: 600;
-            font-size: 1em;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border: none;
-            font-family: inherit;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            color: white;
-            box-shadow: 0 4px 15px rgba(0, 217, 255, 0.3);
-        }
-
-        .btn-primary:hover {
-            box-shadow: 0 6px 25px rgba(0, 217, 255, 0.5);
-            transform: translateY(-2px);
-        }
-
-        .btn-secondary {
-            background: transparent;
-            color: var(--primary);
-            padding: 10px 25px;
-            border: 1px solid var(--primary);
-            border-radius: 10px;
-            text-decoration: none;
-            font-weight: 700;
-            transition: all 0.3s;
-        }
-
-        .btn-secondary:hover {
-            background: rgba(0, 217, 255, 0.1);
-            transform: translateY(-2px);
-        }
-
-        /* Results Section */
-        .results-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .result-count {
-            color: var(--text-secondary);
-            font-size: 1.1em;
-        }
-
-        .result-count span {
-            color: var(--primary);
-            font-weight: 700;
-        }
-
-        .results-table {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            overflow: hidden;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        thead {
-            background: var(--bg-hover);
-        }
-
-        th {
-            padding: 18px 20px;
-            text-align: left;
-            font-weight: 600;
-            color: var(--text-primary);
-            border-bottom: 1px solid var(--border);
-        }
-
-        tbody tr {
-            border-bottom: 1px solid var(--border);
-            transition: all 0.3s ease;
-        }
-
-        tbody tr:hover {
-            background: var(--bg-hover);
-        }
-
-        tbody tr:last-child {
-            border-bottom: none;
-        }
-
-        td {
-            padding: 16px 20px;
-            color: var(--text-secondary);
-        }
-
-        .ticker-cell {
-            font-family: 'JetBrains Mono', monospace;
-            color: var(--primary);
-            font-weight: 700;
-            font-size: 1.1em;
-        }
-
-        .price-cell {
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        .change-cell {
-            font-weight: 700;
-            font-size: 1.05em;
-        }
-
-        .volume-cell {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.95em;
-        }
-
-        /* Loading & Error */
-        .loading {
-            text-align: center;
-            padding: 60px 20px;
-            color: var(--text-secondary);
-        }
-
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 3px solid var(--border);
-            border-top-color: var(--primary);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .error {
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            border-radius: 12px;
-            padding: 20px;
-            margin: 20px 0;
-            color: var(--danger);
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 80px 20px;
-            color: var(--text-secondary);
-        }
-
-        .empty-state h3 {
-            font-size: 1.5em;
-            margin-bottom: 10px;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .container {
-                padding: 15px;
-            }
-
-            nav {
-                padding: 15px 20px;
-                flex-direction: column;
-                gap: 15px;
-            }
-
-            .nav-links {
-                gap: 15px;
-                font-size: 0.9em;
-            }
-
-            h1 {
-                font-size: 2em;
-            }
-
-            .filter-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .results-table {
-                overflow-x: auto;
-            }
-
-            table {
-                min-width: 600px;
-            }
-        }
-    </style>
-</head>
-<body>
-    <!-- Theme Toggle Button -->
-    <button id="theme-toggle" aria-label="Toggle theme">☀️</button>
-
-
-    <div class="container">
-        <!-- Navigation -->
-        <nav>
-            <a href="/" class="nav-brand">
-                <div class="logo">Q</div>
-                <span class="brand-text">Qunex Trade</span>
-            </a>
-            <div class="nav-links">
-                <a href="/" class="nav-link">Home</a>
-                <a href="/stocks" class="nav-link">Stocks</a>
-                <a href="/market" class="nav-link">Market</a>
-                <a href="/screener" class="nav-link active">Screener</a>
-                <a href="/watchlist" class="nav-link">Watchlist</a>
-                <a href="/calendar" class="nav-link">Calendar</a>
-                <a href="/news" class="nav-link">News</a>
-                <a href="/about" class="nav-link">About</a>
-                {% if user and user.is_authenticated %}
-                    <a href="/auth/account" class="nav-link">Account</a>
-                    <a href="/auth/logout" class="btn-secondary">Logout</a>
-                {% else %}
-                    <a href="/auth/login" class="btn-secondary">Login</a>
-                {% endif %}
-            </div>
-        </nav>
-
-        <!-- Header -->
-        <div class="header">
-            <h1>Stock Screener</h1>
-            <div class="subtitle">
-                Find stocks matching your criteria with real-time data
-            </div>
+    }
+
+    .error {
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        border-radius: 12px;
+        padding: 20px;
+        margin: 20px 0;
+        color: #ef4444;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 80px 20px;
+        color: rgba(255, 255, 255, 0.5);
+    }
+
+    .empty-state h3 {
+        font-size: 1.5rem;
+        margin-bottom: 10px;
+    }
+</style>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="content-header">
+    <h1 class="content-title">Stock Screener</h1>
+    <p class="content-subtitle">Find stocks matching your criteria with real-time data</p>
+</div>
+
+<!-- Filter Panel -->
+<div class="filter-panel">
+    <div class="filter-section">
+        <label class="filter-label">Quick Presets</label>
+        <div class="preset-buttons">
+            <button class="preset-btn" onclick="applyPreset('volume_surge')">Volume Surge (2x+ Avg)</button>
+            <button class="preset-btn" onclick="applyPreset('movers_5')">Movers (+5% or more)</button>
+            <button class="preset-btn" onclick="applyPreset('movers_10')">Big Movers (+10% or more)</button>
+            <button class="preset-btn" onclick="applyPreset('penny')">Penny Stocks (Under $5)</button>
+            <button class="preset-btn" onclick="applyPreset('custom')">Custom Filter</button>
         </div>
+    </div>
 
-        <!-- Filter Panel -->
-        <div class="filter-panel">
-            <div class="filter-section">
-                <label class="filter-label">Quick Presets</label>
-                <div class="preset-buttons">
-                    <button class="preset-btn" onclick="applyPreset('volume_surge')">Volume Surge (2x+ Avg)</button>
-                    <button class="preset-btn" onclick="applyPreset('movers_5')">Movers (+5% or more)</button>
-                    <button class="preset-btn" onclick="applyPreset('movers_10')">Big Movers (+10% or more)</button>
-                    <button class="preset-btn" onclick="applyPreset('penny')">Penny Stocks (Under $5)</button>
-                    <button class="preset-btn" onclick="applyPreset('custom')">Custom Filter</button>
-                </div>
+    <div class="filter-section">
+        <label class="filter-label">Price Range</label>
+        <div class="filter-grid">
+            <div class="input-group">
+                <label class="input-label">Minimum Price ($)</label>
+                <input type="number" id="min-price" placeholder="e.g., 0.01" step="0.01" min="0">
             </div>
-
-            <div class="filter-section">
-                <label class="filter-label">Price Range</label>
-                <div class="filter-grid">
-                    <div class="input-group">
-                        <label class="input-label">Minimum Price ($)</label>
-                        <input type="number" id="min-price" placeholder="e.g., 0.01" step="0.01" min="0">
-                    </div>
-                    <div class="input-group">
-                        <label class="input-label">Maximum Price ($)</label>
-                        <input type="number" id="max-price" placeholder="e.g., 100" step="0.01" min="0">
-                    </div>
-                </div>
-            </div>
-
-            <div class="filter-section">
-                <label class="filter-label">Volume & Change</label>
-                <div class="filter-grid">
-                    <div class="input-group">
-                        <label class="input-label">Minimum Volume</label>
-                        <input type="number" id="min-volume" placeholder="e.g., 1000000" step="100000" min="0">
-                    </div>
-                    <div class="input-group">
-                        <label class="input-label">Min % Change</label>
-                        <input type="number" id="min-change" placeholder="e.g., 5" step="0.1">
-                    </div>
-                    <div class="input-group">
-                        <label class="input-label">Max % Change</label>
-                        <input type="number" id="max-change" placeholder="e.g., 50" step="0.1">
-                    </div>
-                </div>
-            </div>
-
-            <div class="action-buttons">
-                <button class="btn btn-primary" onclick="runScreener()">Run Screener</button>
-                <button class="btn btn-secondary" onclick="clearFilters()">Clear All</button>
-                <button class="btn btn-secondary" onclick="exportToCSV()" id="export-btn" style="display: none;">
-                    ? Export to CSV
-                </button>
-            </div>
-        </div>
-
-        <!-- Results Section -->
-        <div class="results-header" id="results-header" style="display: none;">
-            <h2>Results</h2>
-            <div class="result-count">Found <span id="result-count">0</span> stocks</div>
-        </div>
-
-        <div id="results-container">
-            <div class="empty-state">
-                <h3>No results yet</h3>
-                <p>Set your criteria above and click "Run Screener" to find matching stocks</p>
+            <div class="input-group">
+                <label class="input-label">Maximum Price ($)</label>
+                <input type="number" id="max-price" placeholder="e.g., 100" step="0.01" min="0">
             </div>
         </div>
     </div>
 
-    <script>
-        let currentPreset = 'custom';
+    <div class="filter-section">
+        <label class="filter-label">Volume & Change</label>
+        <div class="filter-grid">
+            <div class="input-group">
+                <label class="input-label">Minimum Volume</label>
+                <input type="number" id="min-volume" placeholder="e.g., 1000000" step="100000" min="0">
+            </div>
+            <div class="input-group">
+                <label class="input-label">Min % Change</label>
+                <input type="number" id="min-change" placeholder="e.g., 5" step="0.1">
+            </div>
+            <div class="input-group">
+                <label class="input-label">Max % Change</label>
+                <input type="number" id="max-change" placeholder="e.g., 50" step="0.1">
+            </div>
+        </div>
+    </div>
 
-        // Preset configurations
-        const presets = {
-            volume_surge: {
-                min_volume: 2000000,
-                min_change_percent: 0
-            },
-            movers_5: {
-                min_change_percent: 5,
-                min_volume: 500000
-            },
-            movers_10: {
-                min_change_percent: 10,
-                min_volume: 500000
-            },
-            penny: {
-                max_price: 5,
-                min_volume: 100000
-            },
-            custom: {}
-        };
+    <div class="action-buttons">
+        <button class="btn btn-primary" onclick="runScreener()">Run Screener</button>
+        <button class="btn btn-secondary" onclick="clearFilters()">Clear All</button>
+        <button class="btn btn-secondary" onclick="exportToCSV()" id="export-btn" style="display: none;">
+            Export to CSV
+        </button>
+    </div>
+</div>
 
-        // Apply preset
-        function applyPreset(presetName) {
-            currentPreset = presetName;
+<!-- Results Section -->
+<div class="results-header" id="results-header" style="display: none;">
+    <h2 style="font-size: 1.8rem; font-weight: 700;">Results</h2>
+    <div class="result-count">Found <span id="result-count">0</span> stocks</div>
+</div>
 
-            // Update button states
-            document.querySelectorAll('.preset-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            event.target.classList.add('active');
+<div id="results-container">
+    <div class="empty-state">
+        <h3>No results yet</h3>
+        <p>Set your criteria above and click "Run Screener" to find matching stocks</p>
+    </div>
+</div>
+{% endblock %}
 
-            // Clear all inputs
-            clearFilters();
+{% block extra_scripts %}
+<script>
+    let currentPreset = 'custom';
 
-            // Apply preset values
-            const preset = presets[presetName];
-            if (preset.min_price !== undefined) document.getElementById('min-price').value = preset.min_price;
-            if (preset.max_price !== undefined) document.getElementById('max-price').value = preset.max_price;
-            if (preset.min_volume !== undefined) document.getElementById('min-volume').value = preset.min_volume;
-            if (preset.min_change_percent !== undefined) document.getElementById('min-change').value = preset.min_change_percent;
-            if (preset.max_change_percent !== undefined) document.getElementById('max-change').value = preset.max_change_percent;
-        }
+    const presets = {
+        volume_surge: { min_volume: 2000000, min_change_percent: 0 },
+        movers_5: { min_change_percent: 5, min_volume: 500000 },
+        movers_10: { min_change_percent: 10, min_volume: 500000 },
+        penny: { max_price: 5, min_volume: 100000 },
+        custom: {}
+    };
 
-        // Clear all filters
-        function clearFilters() {
-            document.getElementById('min-price').value = '';
-            document.getElementById('max-price').value = '';
-            document.getElementById('min-volume').value = '';
-            document.getElementById('min-change').value = '';
-            document.getElementById('max-change').value = '';
-        }
+    function applyPreset(presetName) {
+        currentPreset = presetName;
+        document.querySelectorAll('.preset-btn').forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+        clearFilters();
 
-        // Run screener
-        async function runScreener() {
-            const container = document.getElementById('results-container');
-            const header = document.getElementById('results-header');
+        const preset = presets[presetName];
+        if (preset.min_price !== undefined) document.getElementById('min-price').value = preset.min_price;
+        if (preset.max_price !== undefined) document.getElementById('max-price').value = preset.max_price;
+        if (preset.min_volume !== undefined) document.getElementById('min-volume').value = preset.min_volume;
+        if (preset.min_change_percent !== undefined) document.getElementById('min-change').value = preset.min_change_percent;
+        if (preset.max_change_percent !== undefined) document.getElementById('max-change').value = preset.max_change_percent;
+    }
 
-            // Show loading
-            container.innerHTML = `
-                <div class="loading">
-                    <div class="spinner"></div>
-                    <p>Screening stocks...</p>
-                </div>
-            `;
-            header.style.display = 'flex';
+    function clearFilters() {
+        document.getElementById('min-price').value = '';
+        document.getElementById('max-price').value = '';
+        document.getElementById('min-volume').value = '';
+        document.getElementById('min-change').value = '';
+        document.getElementById('max-change').value = '';
+    }
 
-            // Build query parameters
-            const params = new URLSearchParams();
+    async function runScreener() {
+        const container = document.getElementById('results-container');
+        const header = document.getElementById('results-header');
 
-            const minPrice = document.getElementById('min-price').value;
-            const maxPrice = document.getElementById('max-price').value;
-            const minVolume = document.getElementById('min-volume').value;
-            const minChange = document.getElementById('min-change').value;
-            const maxChange = document.getElementById('max-change').value;
+        container.innerHTML = '<div class="loading"><div class="spinner"></div><p>Screening stocks...</p></div>';
+        header.style.display = 'flex';
 
-            if (minPrice) params.append('min_price', minPrice);
-            if (maxPrice) params.append('max_price', maxPrice);
-            if (minVolume) params.append('min_volume', minVolume);
-            if (minChange) params.append('min_change_percent', minChange);
-            if (maxChange) params.append('max_change_percent', maxChange);
+        const params = new URLSearchParams();
+        const minPrice = document.getElementById('min-price').value;
+        const maxPrice = document.getElementById('max-price').value;
+        const minVolume = document.getElementById('min-volume').value;
+        const minChange = document.getElementById('min-change').value;
+        const maxChange = document.getElementById('max-change').value;
 
-            try {
-                const response = await fetch(`/api/market/screener?${params.toString()}`);
-                const data = await response.json();
+        if (minPrice) params.append('min_price', minPrice);
+        if (maxPrice) params.append('max_price', maxPrice);
+        if (minVolume) params.append('min_volume', minVolume);
+        if (minChange) params.append('min_change_percent', minChange);
+        if (maxChange) params.append('max_change_percent', maxChange);
 
-                if (!data.results || data.results.length === 0) {
-                    container.innerHTML = `
-                        <div class="empty-state">
-                            <h3>No stocks found</h3>
-                            <p>Try adjusting your criteria to find more matches</p>
-                        </div>
-                    `;
-                    document.getElementById('result-count').textContent = '0';
-                    return;
-                }
+        try {
+            const response = await fetch(`/api/market/screener?${params.toString()}`);
+            const data = await response.json();
 
-                // Display results
-                document.getElementById('result-count').textContent = data.results.length;
+            if (!data.results || data.results.length === 0) {
+                container.innerHTML = '<div class="empty-state"><h3>No stocks found</h3><p>Try adjusting your criteria to find more matches</p></div>';
+                document.getElementById('result-count').textContent = '0';
+                return;
+            }
 
-                let tableHTML = `
-                    <div class="results-table">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Ticker</th>
-                                    <th>Price</th>
-                                    <th>Change</th>
-                                    <th>Change %</th>
-                                    <th>Volume</th>
-                                    <th>Day High</th>
-                                    <th>Day Low</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                `;
+            document.getElementById('result-count').textContent = data.results.length;
 
-                data.results.forEach(stock => {
-                    const changePct = stock.change_percent || 0;
-                    const isPositive = changePct >= 0;
-                    const changeClass = isPositive ? 'change-positive' : 'change-negative';
+            let tableHTML = '<div class="results-table"><table><thead><tr><th>Ticker</th><th>Price</th><th>Change</th><th>Change %</th><th>Volume</th><th>Day High</th><th>Day Low</th></tr></thead><tbody>';
 
-                    tableHTML += `
-                        <tr>
-                            <td class="ticker-cell">${stock.ticker}</td>
-                            <td class="price-cell">$${(stock.price || 0).toFixed(2)}</td>
-                            <td class="${changeClass}">
-                                ${isPositive ? '+' : ''}$${(stock.change || 0).toFixed(2)}
-                            </td>
-                            <td class="change-cell ${changeClass}">
-                                ${isPositive ? '+' : ''}${changePct.toFixed(2)}%
-                            </td>
-                            <td class="volume-cell">${(stock.volume || 0).toLocaleString()}</td>
-                            <td>$${(stock.day_high || 0).toFixed(2)}</td>
-                            <td>$${(stock.day_low || 0).toFixed(2)}</td>
-                        </tr>
-                    `;
-                });
+            data.results.forEach(stock => {
+                const changePct = stock.change_percent || 0;
+                const isPositive = changePct >= 0;
+                const changeClass = isPositive ? 'change-positive' : 'change-negative';
 
                 tableHTML += `
-                            </tbody>
-                        </table>
-                    </div>
+                    <tr>
+                        <td class="ticker-cell">${stock.ticker}</td>
+                        <td class="price-cell">$${(stock.price || 0).toFixed(2)}</td>
+                        <td class="${changeClass}">
+                            ${isPositive ? '+' : ''}$${(stock.change || 0).toFixed(2)}
+                        </td>
+                        <td class="change-cell ${changeClass}">
+                            ${isPositive ? '+' : ''}${changePct.toFixed(2)}%
+                        </td>
+                        <td class="volume-cell">${(stock.volume || 0).toLocaleString()}</td>
+                        <td>$${(stock.day_high || 0).toFixed(2)}</td>
+                        <td>$${(stock.day_low || 0).toFixed(2)}</td>
+                    </tr>
                 `;
-
-                container.innerHTML = tableHTML;
-
-                // Show export button
-                document.getElementById('export-btn').style.display = 'inline-block';
-
-            } catch (error) {
-                console.error('Error running screener:', error);
-                container.innerHTML = `
-                    <div class="error">
-                        <strong>Error:</strong> Unable to run screener. Please try again.
-                    </div>
-                `;
-                document.getElementById('export-btn').style.display = 'none';
-            }
-        }
-
-        // Export results to CSV
-        function exportToCSV() {
-            // Build query parameters (same as runScreener)
-            const params = new URLSearchParams();
-
-            const minPrice = document.getElementById('min-price').value;
-            const maxPrice = document.getElementById('max-price').value;
-            const minVolume = document.getElementById('min-volume').value;
-            const minChange = document.getElementById('min-change').value;
-            const maxChange = document.getElementById('max-change').value;
-
-            if (minPrice) params.append('min_price', minPrice);
-            if (maxPrice) params.append('max_price', maxPrice);
-            if (minVolume) params.append('min_volume', minVolume);
-            if (minChange) params.append('min_change_percent', minChange);
-            if (maxChange) params.append('max_change_percent', maxChange);
-
-            // Open CSV download URL
-            window.location.href = `/api/market/screener/export?${params.toString()}`;
-        }
-
-        // Allow Enter key to run screener
-        document.querySelectorAll('input').forEach(input => {
-            input.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    runScreener();
-                }
             });
+
+            tableHTML += '</tbody></table></div>';
+            container.innerHTML = tableHTML;
+            document.getElementById('export-btn').style.display = 'inline-block';
+
+        } catch (error) {
+            console.error('Error running screener:', error);
+            container.innerHTML = '<div class="error"><strong>Error:</strong> Unable to run screener. Please try again.</div>';
+            document.getElementById('export-btn').style.display = 'none';
+        }
+    }
+
+    function exportToCSV() {
+        const params = new URLSearchParams();
+        const minPrice = document.getElementById('min-price').value;
+        const maxPrice = document.getElementById('max-price').value;
+        const minVolume = document.getElementById('min-volume').value;
+        const minChange = document.getElementById('min-change').value;
+        const maxChange = document.getElementById('max-change').value;
+
+        if (minPrice) params.append('min_price', minPrice);
+        if (maxPrice) params.append('max_price', maxPrice);
+        if (minVolume) params.append('min_volume', minVolume);
+        if (minChange) params.append('min_change_percent', minChange);
+        if (maxChange) params.append('max_change_percent', maxChange);
+
+        window.location.href = `/api/market/screener/export?${params.toString()}`;
+    }
+
+    document.querySelectorAll('input').forEach(input => {
+        input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') runScreener();
         });
-    </script>
-    <!-- Theme Toggle Script -->
-    <script src="{{ url_for('static', filename='theme-toggle.js') }}" defer></script>
-</body>
-</html>
+    });
+</script>
+{% endblock %}

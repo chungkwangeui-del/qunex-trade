@@ -1,6 +1,6 @@
 """
 AI-Powered News Analyzer
-Uses Claude AI to analyze news importance and market impact
+Uses Google Gemini Pro to analyze news importance and market impact
 Only keeps credible and important news (4-5 stars)
 """
 
@@ -9,24 +9,32 @@ import json
 import logging
 from datetime import datetime
 from typing import List, Dict
+import google.generativeai as genai
 
 # Configure logging
 logger = logging.getLogger(__name__)
-from anthropic import Anthropic
 
 
 class NewsAnalyzer:
-    """Analyze news using Claude AI for importance and credibility"""
+    """Analyze news using Google Gemini Pro for importance and credibility"""
 
-    def __init__(self):
-        api_key = os.getenv("ANTHROPIC_API_KEY")
+    def __init__(self, model_name: str = "gemini-1.5-pro"):
+        """
+        Initialize Gemini-based news analyzer
+        
+        Args:
+            model_name: Gemini model to use (default: gemini-1.5-pro)
+        """
+        api_key = os.getenv("GEMINI_API_KEY")
         if not api_key:
-            raise ValueError("ANTHROPIC_API_KEY not found in environment")
+            raise ValueError("GEMINI_API_KEY not found in environment variables")
 
-        self.client = Anthropic(api_key=api_key)
-        self.model = "claude-3-haiku-20240307"  # Fast and cost-effective model
+        # Configure Gemini API
+        genai.configure(api_key=api_key)
+        self.model_name = model_name
+        self.model = genai.GenerativeModel(model_name)
 
-        # System prompt for caching (reused across all requests)
+        # System instruction for news analysis
         self.system_prompt = """You are a financial news analyst. Analyze news and provide a structured assessment.
 
 Provide your analysis in the following JSON format:
@@ -68,12 +76,13 @@ ONLY give 4-5 stars to FACTUAL EVENTS that ALREADY HAPPENED:
 
 Respond ONLY with valid JSON, no additional text."""
 
+        logger.info(f"NewsAnalyzer initialized with Gemini model: {model_name}")
+
     def analyze_single_news(self, news_item: Dict) -> Dict:
         """
         Analyze a single news item for importance and market impact
 
-        Uses Anthropic Prompt Caching for 50-90% cost reduction by caching
-        the system prompt across multiple requests.
+        Uses Google Gemini Pro for fast and accurate news analysis.
 
         Returns:
             Dict with analysis results or None if not important enough
@@ -93,22 +102,28 @@ Respond ONLY with valid JSON, no additional text."""
 SOURCE: {source}"""
 
         try:
-            response = self.client.messages.create(
-                model=self.model,
-                max_tokens=1024,
-                temperature=0.3,  # Lower temperature for more consistent analysis
-                system=[
-                    {
-                        "type": "text",
-                        "text": self.system_prompt,
-                        "cache_control": {"type": "ephemeral"},  # Cache this prompt
-                    }
-                ],
-                messages=[{"role": "user", "content": user_prompt}],
+            # Create model with system instruction
+            model_with_system = genai.GenerativeModel(
+                model_name=self.model_name,
+                system_instruction=self.system_prompt
+            )
+
+            response = model_with_system.generate_content(
+                user_prompt,
+                generation_config={
+                    "temperature": 0.3,  # Lower temperature for more consistent analysis
+                    "max_output_tokens": 1024,
+                },
             )
 
             # Extract JSON from response
-            response_text = response.content[0].text.strip()
+            response_text = response.text.strip()
+
+            # Sometimes JSON is wrapped in markdown code blocks
+            if "```json" in response_text:
+                response_text = response_text.split("```json")[1].split("```")[0].strip()
+            elif "```" in response_text:
+                response_text = response_text.split("```")[1].split("```")[0].strip()
 
             # Try to parse JSON
             analysis = json.loads(response_text)
@@ -136,6 +151,7 @@ SOURCE: {source}"""
             analysis["published_at"] = news_item.get("published_at", "")
             analysis["image_url"] = news_item.get("image_url", "")
             analysis["analyzed_at"] = datetime.now().isoformat()
+            analysis["analyzer"] = "gemini"
 
             logger.info(f"Analyzed {importance}/5 stars - {title[:60]}...")
 
@@ -143,7 +159,7 @@ SOURCE: {source}"""
 
         except json.JSONDecodeError as e:
             logger.error(f"Failed to parse JSON response in analyze_news: {e}", exc_info=True)
-            logger.error(f"Response: {response_text[:200]}")
+            logger.error(f"Response: {response_text[:200] if 'response_text' in locals() else 'No response'}")
             return None
         except Exception as e:
             logger.error(f"Analysis failed in analyze_news: {e}", exc_info=True)
@@ -235,6 +251,9 @@ SOURCE: {source}"""
 def analyze_with_claude(news_item: Dict) -> Dict:
     """
     Standalone function to analyze a single news item (used by cron job)
+    
+    Note: This function name is kept for backward compatibility.
+    It now uses Gemini Pro instead of Claude.
 
     Args:
         news_item: Dictionary with news data
@@ -283,5 +302,5 @@ if __name__ == "__main__":
     print("ANALYSIS RESULT:")
     print("=" * 60)
     print(json.dumps(result, indent=2))
-    print("\nPrompt Caching: ENABLED ✅")
-    print("Cost Reduction: 50-90% on repeated analysis ✅")
+    print("\nUsing Gemini Pro ✅")
+    print("Model: gemini-1.5-pro ✅")
