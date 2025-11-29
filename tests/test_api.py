@@ -172,7 +172,7 @@ class TestEconomicCalendarAPI:
 class TestStockAPI:
     """Test suite for stock-related API endpoints"""
 
-    @patch("web.app.PolygonService")
+    @patch("web.polygon_service.PolygonService")
     def test_get_stock_chart_data(self, mock_polygon, client):
         """Test fetching stock chart data"""
         # Mock Polygon API response
@@ -197,7 +197,7 @@ class TestStockAPI:
         data = response.get_json()
         assert "candles" in data or "error" in data
 
-    @patch("web.app.NewsArticle")
+    @patch("web.database.NewsArticle")
     def test_get_stock_news(self, mock_news, client):
         """Test fetching news for specific stock"""
         # Create mock news articles

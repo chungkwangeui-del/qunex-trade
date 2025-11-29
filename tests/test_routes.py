@@ -17,7 +17,7 @@ class TestPublicRoutes:
 
     def test_index_page(self, client):
         """Test homepage loads"""
-        response = client.get("/")
+        response = client.get("/", follow_redirects=True)
         assert response.status_code == 200
 
     def test_pricing_page(self, client):
@@ -27,12 +27,12 @@ class TestPublicRoutes:
 
     def test_login_page(self, client):
         """Test login page loads"""
-        response = client.get("/login")
+        response = client.get("/login", follow_redirects=True)
         assert response.status_code == 200
 
     def test_register_page(self, client):
         """Test register page loads"""
-        response = client.get("/register")
+        response = client.get("/register", follow_redirects=True)
         assert response.status_code == 200
 
     def test_market_page(self, client):

@@ -101,8 +101,15 @@ class PolygonService:
                 )
 
             return data
+        except requests.exceptions.HTTPError as e:
+            # Handle 403 quietly (common for OTC stocks on free tier)
+            if e.response is not None and e.response.status_code == 403:
+                logger.debug(f"Polygon API 403 for {endpoint} (OTC/unsupported ticker)")
+            else:
+                logger.warning(f"Polygon API HTTP error for {endpoint}: {e}")
+            return None
         except requests.exceptions.RequestException as e:
-            logger.error(f"Polygon API request failed for {endpoint}: {e}", exc_info=True)
+            logger.error(f"Polygon API request failed for {endpoint}: {e}")
             return None
 
     def get_stock_quote(self, ticker: str) -> Optional[Dict]:

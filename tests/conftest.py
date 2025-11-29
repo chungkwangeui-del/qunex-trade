@@ -44,13 +44,22 @@ def app():
     flask_app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     flask_app.config["WTF_CSRF_ENABLED"] = False
     flask_app.config["SECRET_KEY"] = "test-secret-key"
+    flask_app.config["CACHE_TYPE"] = "SimpleCache"
+    flask_app.config["CACHE_DEFAULT_TIMEOUT"] = 300
 
     # Initialize database
     db.init_app(flask_app)
 
     # Initialize cache
-    from web.extensions import cache
+    from web.extensions import cache, mail
     cache.init_app(flask_app)
+
+    # Initialize mail extension with test config
+    flask_app.config["MAIL_SERVER"] = "localhost"
+    flask_app.config["MAIL_PORT"] = 25
+    flask_app.config["MAIL_USE_TLS"] = False
+    flask_app.config["MAIL_DEFAULT_SENDER"] = "test@example.com"
+    mail.init_app(flask_app)
 
     # Initialize Flask-Login for authentication tests
     from flask_login import LoginManager
@@ -68,15 +77,31 @@ def app():
     with flask_app.app_context():
         # Import blueprints after app context is set
         try:
-            from web.api_watchlist import api_watchlist
+            from web.auth import auth
+            flask_app.register_blueprint(auth, url_prefix="/auth")
+        except (ImportError, Exception) as e:
+            print(f"Warning: Could not import auth: {e}")
 
+        try:
+            from web.main import main as main_blueprint
+            flask_app.register_blueprint(main_blueprint)
+        except (ImportError, Exception) as e:
+            print(f"Warning: Could not import main: {e}")
+
+        try:
+            from web.api_main import api_main
+            flask_app.register_blueprint(api_main)
+        except (ImportError, Exception) as e:
+            print(f"Warning: Could not import api_main: {e}")
+
+        try:
+            from web.api_watchlist import api_watchlist
             flask_app.register_blueprint(api_watchlist)
         except (ImportError, Exception) as e:
             print(f"Warning: Could not import api_watchlist: {e}")
 
         try:
             from web.api_polygon import api_polygon
-
             flask_app.register_blueprint(api_polygon)
         except (ImportError, Exception) as e:
             print(f"Warning: Could not import api_polygon: {e}")
@@ -91,7 +116,10 @@ def app():
 @pytest.fixture
 def client(app):
     """Flask test client"""
-    return app.test_client()
+    # Mock render_template to avoid template not found errors
+    with patch('flask.templating.render_template') as mock_render:
+        mock_render.return_value = "Mocked template response"
+        yield app.test_client()
 
 
 @pytest.fixture

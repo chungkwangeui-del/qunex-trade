@@ -3,13 +3,16 @@ Tests for Service Layer
 
 Tests all service modules:
 - Polygon API service
-- News collector service
 - Email service
 """
 
 import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import Mock, MagicMock, patch
 from datetime import datetime
+from web.polygon_service import PolygonService
+from src.news_collector import NewsCollector
+from web.extensions import mail, cache
+from web.database import db, User
 
 
 class TestPolygonService:
@@ -24,7 +27,7 @@ class TestPolygonService:
 
     def test_get_stock_quote_with_mock(self, app, mock_polygon_api):
         """Test getting stock quote with mocked API"""
-        with patch("src.polygon_service.PolygonService") as mock_service:
+        with patch("web.polygon_service.PolygonService") as mock_service:
             mock_service.return_value = mock_polygon_api
 
             service = mock_service()
@@ -36,7 +39,7 @@ class TestPolygonService:
 
     def test_get_market_movers_with_mock(self, app, mock_polygon_api):
         """Test getting market movers with mocked API"""
-        with patch("src.polygon_service.PolygonService") as mock_service:
+        with patch("web.polygon_service.PolygonService") as mock_service:
             mock_service.return_value = mock_polygon_api
 
             service = mock_service()
@@ -48,7 +51,7 @@ class TestPolygonService:
 
     def test_polygon_service_handles_api_errors(self, app):
         """Test Polygon service handles API errors gracefully"""
-        with patch("src.polygon_service.PolygonService") as mock_service:
+        with patch("web.polygon_service.PolygonService") as mock_service:
             mock_instance = MagicMock()
             mock_instance.get_quote.side_effect = Exception("API Error")
             mock_service.return_value = mock_instance
@@ -81,7 +84,7 @@ class TestNewsCollector:
         monkeypatch.setenv("NEWSAPI_KEY", "test_key")
         monkeypatch.setenv("ANTHROPIC_API_KEY", "test_key")
 
-        with patch("src.news_collector.NewsApiClient", return_value=mock_newsapi):
+        with patch("newsapi.NewsApiClient", return_value=mock_newsapi):
             with patch("anthropic.Anthropic", return_value=mock_anthropic_api):
                 from src.news_collector import NewsCollector
 
@@ -101,7 +104,7 @@ class TestNewsCollector:
             "articles": [],
         }
 
-        with patch("src.news_collector.NewsApiClient", return_value=mock_newsapi):
+        with patch("newsapi.NewsApiClient", return_value=mock_newsapi):
             from src.news_collector import NewsCollector
 
             collector = NewsCollector()
@@ -144,39 +147,42 @@ class TestCacheService:
 
     def test_cache_stores_and_retrieves(self, app):
         """Test cache can store and retrieve data"""
-        from web.app import cache
+        from web.extensions import cache
 
-        # Set cache value
-        cache.set("test_key", "test_value", timeout=60)
+        with app.app_context():
+            # Set cache value
+            cache.set("test_key", "test_value", timeout=60)
 
-        # Retrieve cache value
-        value = cache.get("test_key")
-        assert value == "test_value"
+            # Retrieve cache value
+            value = cache.get("test_key")
+            assert value == "test_value"
 
     def test_cache_expires(self, app):
         """Test cache expires after timeout"""
-        from web.app import cache
+        from web.extensions import cache
         import time
 
-        # Set cache with short timeout
-        cache.set("expire_key", "expire_value", timeout=1)
+        with app.app_context():
+            # Set cache with short timeout
+            cache.set("expire_key", "expire_value", timeout=1)
 
-        # Wait for expiration
-        time.sleep(2)
+            # Wait for expiration
+            time.sleep(2)
 
-        # Should be None after expiration
-        value = cache.get("expire_key")
-        assert value is None
+            # Should be None after expiration
+            value = cache.get("expire_key")
+            assert value is None
 
     def test_cache_delete(self, app):
         """Test cache can be deleted"""
-        from web.app import cache
+        from web.extensions import cache
 
-        cache.set("delete_key", "delete_value")
-        cache.delete("delete_key")
+        with app.app_context():
+            cache.set("delete_key", "delete_value")
+            cache.delete("delete_key")
 
-        value = cache.get("delete_key")
-        assert value is None
+            value = cache.get("delete_key")
+            assert value is None
 
 
 class TestDatabaseQueries:
