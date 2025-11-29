@@ -12,6 +12,7 @@ authlib==1.4.0
 requests==2.32.3
 python-dotenv==1.0.1
 psycopg[binary]==3.2.4
+psycopg2-binary==2.9.10
 anthropic>=0.71.0
 google-generativeai>=0.8.0
 alpha-vantage==2.3.1
