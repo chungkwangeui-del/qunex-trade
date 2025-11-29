@@ -1544,28 +1544,42 @@ class ScalpAnalyzer:
                 }
 
         # Check for fakeout/trap - Strong signal with clear stop
+        # BUT only if not conflicting with overall direction
         trap = fakeout_analysis.get("trap")
         fakeout = fakeout_analysis.get("fakeout")
+
+        # Check for conflicting signals (both sides have 2+ confluences)
+        has_conflict = bullish_count >= 2 and bearish_count >= 2
 
         if trap:
             if trap["type"] == "bullish":
                 reasoning.insert(0, f"🎯 Double Bottom Trap - Entry LONG, Stop ${trap['stop_loss']:.2f}")
-                return {
-                    "signal": "LONG",
-                    "confidence": min(85, bullish_score + 20),
-                    "bullish_score": bullish_score,
-                    "bearish_score": bearish_score,
-                    "reasoning": reasoning,
-                }
+                # Only follow trap if no strong bearish conflict
+                if not has_conflict or bullish_score >= bearish_score:
+                    return {
+                        "signal": "LONG",
+                        "confidence": min(85, bullish_score + 20),
+                        "bullish_score": bullish_score,
+                        "bearish_score": bearish_score,
+                        "reasoning": reasoning,
+                    }
+                else:
+                    # Conflict detected - trap says LONG but bearish is stronger
+                    reasoning.insert(0, "⚠️ 상충 신호! Trap=LONG but Bearish stronger - WAIT")
             else:
                 reasoning.insert(0, f"🎯 Double Top Trap - Entry SHORT, Stop ${trap['stop_loss']:.2f}")
-                return {
-                    "signal": "SHORT",
-                    "confidence": min(85, bearish_score + 20),
-                    "bullish_score": bullish_score,
-                    "bearish_score": bearish_score,
-                    "reasoning": reasoning,
-                }
+                # Only follow trap if no strong bullish conflict
+                if not has_conflict or bearish_score >= bullish_score:
+                    return {
+                        "signal": "SHORT",
+                        "confidence": min(85, bearish_score + 20),
+                        "bullish_score": bullish_score,
+                        "bearish_score": bearish_score,
+                        "reasoning": reasoning,
+                    }
+                else:
+                    # Conflict detected - trap says SHORT but bullish is stronger
+                    reasoning.insert(0, "⚠️ 상충 신호! Trap=SHORT but Bullish stronger - WAIT")
 
         # Standard confluence-based signal
         # Rule: Minimum 2 confluences required (최소 2개 근거 필요!)
@@ -1746,21 +1760,22 @@ class ScalpAnalyzer:
 
         if signal == "LONG" and primary_pattern:
             # Entry: Pattern confirmation price or current price
-            entry = primary_pattern.get("confirmation", current_price)
+            entry = primary_pattern.get("confirmation") or current_price
 
             # Stop Loss: Pattern invalidation point (below the rejection wick)
-            invalidation = primary_pattern.get("invalidation", current_price * 0.995)
-            stop_loss = invalidation * 0.998  # Slight buffer below invalidation
+            invalidation = primary_pattern.get("invalidation") or (current_price * 0.995 if current_price else 0)
+            stop_loss = invalidation * 0.998 if invalidation else 0  # Slight buffer below invalidation
 
             # Risk calculation
-            risk = entry - stop_loss
+            risk = (entry - stop_loss) if entry and stop_loss else 0
 
             # Target: 2:1 Risk/Reward minimum
-            take_profit = entry + (risk * 2)
+            take_profit = entry + (risk * 2) if entry and risk else 0
 
             # If we have resistance, use it as target if closer
-            if resistance and resistance["price"] < take_profit:
-                take_profit = resistance["price"]
+            resistance_price = resistance.get("price") if resistance else None
+            if resistance_price and resistance_price < take_profit:
+                take_profit = resistance_price
                 rr_ratio = (take_profit - entry) / risk if risk > 0 else 2
             else:
                 rr_ratio = 2.0
@@ -1777,15 +1792,16 @@ class ScalpAnalyzer:
             }
 
         elif signal == "SHORT" and primary_pattern:
-            entry = primary_pattern.get("confirmation", current_price)
-            invalidation = primary_pattern.get("invalidation", current_price * 1.005)
-            stop_loss = invalidation * 1.002
+            entry = primary_pattern.get("confirmation") or current_price
+            invalidation = primary_pattern.get("invalidation") or (current_price * 1.005 if current_price else 0)
+            stop_loss = invalidation * 1.002 if invalidation else 0
 
-            risk = stop_loss - entry
-            take_profit = entry - (risk * 2)
+            risk = (stop_loss - entry) if stop_loss and entry else 0
+            take_profit = entry - (risk * 2) if entry and risk else 0
 
-            if support and support["price"] > take_profit:
-                take_profit = support["price"]
+            support_price = support.get("price") if support else None
+            if support_price and support_price > take_profit:
+                take_profit = support_price
                 rr_ratio = (entry - take_profit) / risk if risk > 0 else 2
             else:
                 rr_ratio = 2.0
@@ -1893,28 +1909,33 @@ Be direct. Use <strong> tags for key points. Focus ONLY on candlesticks and volu
 
         if signal == "LONG" and primary:
             vol_text = "with volume confirmation" if volume_confirmed else "waiting for volume spike"
+            invalidation = primary.get('invalidation') or (current_price * 0.995 if current_price else 0)
             return f"""<strong>{primary['name']} detected</strong> - bullish reversal pattern {vol_text}.
             {primary.get('entry_logic', 'Enter on confirmation')}.
-            <strong>Stop below ${primary.get('invalidation', current_price * 0.995):.2f}</strong> (pattern invalidation).
+            <strong>Stop below ${invalidation:.2f}</strong> (pattern invalidation).
             Target 2:1 reward at VWAP ${vwap:.2f} or next resistance."""
 
         elif signal == "SHORT" and primary:
             vol_text = "with volume confirmation" if volume_confirmed else "waiting for volume spike"
+            invalidation = primary.get('invalidation') or (current_price * 1.005 if current_price else 0)
             return f"""<strong>{primary['name']} detected</strong> - bearish reversal pattern {vol_text}.
             {primary.get('entry_logic', 'Enter on confirmation')}.
-            <strong>Stop above ${primary.get('invalidation', current_price * 1.005):.2f}</strong> (pattern invalidation).
+            <strong>Stop above ${invalidation:.2f}</strong> (pattern invalidation).
             Target 2:1 reward at support or VWAP ${vwap:.2f}."""
 
         else:
             support = sr_levels.get("nearest_support")
             resistance = sr_levels.get("nearest_resistance")
-            support_text = f"${support['price']:.2f}" if support else "N/A"
-            resistance_text = f"${resistance['price']:.2f}" if resistance else "N/A"
+            support_price = support.get('price') if support else None
+            resistance_price = resistance.get('price') if resistance else None
+            support_text = f"${support_price:.2f}" if support_price else "N/A"
+            resistance_text = f"${resistance_price:.2f}" if resistance_price else "N/A"
+            vol_ratio = volume_analysis.get('volume_ratio') or 0
 
             return f"""<strong>No actionable pattern</strong> - wait for clear candlestick setup with volume spike.
             Current price ${current_price:.2f}, VWAP ${vwap:.2f}.
             Watch for patterns at <strong>support {support_text}</strong> or <strong>resistance {resistance_text}</strong>.
-            Volume currently {volume_analysis['volume_ratio']:.1f}x average."""
+            Volume currently {vol_ratio:.1f}x average."""
 
 
 # Initialize analyzer
