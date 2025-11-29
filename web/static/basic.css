@@ -729,30 +729,32 @@ textarea:focus-visible {
 }
 
 .sidebar-logo-icon {
-    width: 40px;
-    height: 40px;
-    background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
-    border-radius: var(--radius-lg);
+    width: 36px;
+    height: 36px;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(0, 217, 255, 0.3);
+    border-radius: var(--radius-md);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #000;
-    font-weight: 900;
-    font-size: 20px;
-    box-shadow: 0 4px 20px rgba(0, 217, 255, 0.3), 0 0 40px rgba(168, 85, 247, 0.15);
     transition: all var(--transition-fast);
 }
 
 .sidebar-logo:hover .sidebar-logo-icon {
-    box-shadow: 0 6px 25px rgba(0, 217, 255, 0.4), 0 0 50px rgba(168, 85, 247, 0.25);
-    transform: translateY(-1px);
+    border-color: var(--accent-cyan);
+    box-shadow: 0 0 20px rgba(0, 217, 255, 0.3);
 }
 
 .sidebar-logo-text {
     font-size: 1.25rem;
-    font-weight: 800;
+    font-weight: 700;
     letter-spacing: -0.02em;
-    background: linear-gradient(135deg, #fff 0%, rgba(255, 255, 255, 0.85) 100%);
+    color: var(--text-primary);
+}
+
+.sidebar-logo-text .logo-accent,
+.logo-accent {
+    background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;

@@ -68,32 +68,33 @@
         }
 
         .logo-icon {
-            width: 52px;
-            height: 52px;
-            background: linear-gradient(135deg, #a855f7, #00d9ff);
-            border-radius: 14px;
+            width: 44px;
+            height: 44px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(0, 217, 255, 0.3);
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 26px;
-            font-weight: 900;
-            color: #000;
-            box-shadow: 0 4px 25px rgba(168, 85, 247, 0.35), 0 0 50px rgba(0, 217, 255, 0.2);
             transition: all 0.2s ease;
         }
 
         .auth-logo:hover .logo-icon {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 30px rgba(168, 85, 247, 0.45), 0 0 60px rgba(0, 217, 255, 0.3);
+            border-color: #00d9ff;
+            box-shadow: 0 0 25px rgba(0, 217, 255, 0.4);
         }
 
         .logo-text {
             font-size: 26px;
-            font-weight: 800;
-            background: linear-gradient(135deg, #fff 0%, rgba(255, 255, 255, 0.9) 100%);
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: -0.02em;
+        }
+
+        .logo-text .logo-accent {
+            background: linear-gradient(90deg, #00d9ff, #a855f7);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            letter-spacing: -0.02em;
         }
 
         .auth-title {
@@ -331,10 +332,20 @@
 <body>
     <div class="auth-container">
         <div class="auth-card">
-            <div class="auth-logo">
-                <div class="logo-icon">Q</div>
-                <span class="logo-text">Qunex Trade</span>
-            </div>
+            <a href="/" class="auth-logo">
+                <div class="logo-icon">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                        <path d="M13 3L4 14h7l-2 7 9-11h-7l2-7z" fill="url(#signup-logo-grad)" stroke="url(#signup-logo-grad)" stroke-width="1.5"/>
+                        <defs>
+                            <linearGradient id="signup-logo-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#00d9ff"/>
+                                <stop offset="100%" stop-color="#a855f7"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+                <span class="logo-text">Qunex<span class="logo-accent">Trade</span></span>
+            </a>
 
             <h1 class="auth-title">Create Account</h1>
             <p class="auth-subtitle">Start your trading journey today</p>
