@@ -12,6 +12,10 @@ Key Findings Applied:
 - Volume decreases during consolidation, spikes before breakout
 - Risk/Reward minimum 1:2 or 1:3
 - Stop loss at pattern invalidation point
+
+Supported Markets:
+- US Stocks via Polygon.io API
+- Crypto via Binance API (BTCUSDT, ETHUSDT, etc.)
 """
 
 from flask import Blueprint, jsonify, request
@@ -21,6 +25,7 @@ import logging
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Tuple
 import requests
+import re
 
 logger = logging.getLogger(__name__)
 
@@ -602,7 +607,20 @@ class ScalpAnalyzer:
     - VWAP as S/R Level: 10% (institutional reference)
 
     NO EMA/RSI/MACD in signal calculation (lagging indicators)
+
+    Supported Markets:
+    - US Stocks via Polygon.io
+    - Crypto via Binance (no API key required for public data)
     """
+
+    # Common crypto trading pairs
+    CRYPTO_PATTERNS = [
+        r"^[A-Z]+USDT$",  # BTCUSDT, ETHUSDT, etc.
+        r"^[A-Z]+BUSD$",  # BTCBUSD, ETHBUSD, etc.
+        r"^[A-Z]+BTC$",   # ETHBTC, ADABTC, etc.
+        r"^[A-Z]+ETH$",   # ADAETH, etc.
+        r"^[A-Z]+BNB$",   # ADABNB, etc.
+    ]
 
     def __init__(self):
         self.polygon_key = os.getenv("POLYGON_API_KEY")
@@ -611,8 +629,84 @@ class ScalpAnalyzer:
         self.volume_analyzer = VolumeAnalyzer()
         self.sr_analyzer = SupportResistance()
 
-    def fetch_bars(self, ticker: str, interval: str = "5", limit: int = 100) -> List[Dict]:
-        """Fetch candlestick data from Polygon"""
+    def is_crypto(self, ticker: str) -> bool:
+        """
+        Detect if ticker is a crypto pair (BTCUSDT, ETHUSDT, etc.)
+
+        Returns True for crypto pairs, False for stocks
+        """
+        ticker = ticker.upper().strip()
+        for pattern in self.CRYPTO_PATTERNS:
+            if re.match(pattern, ticker):
+                return True
+        return False
+
+    def fetch_bars_binance(self, symbol: str, interval: str = "5", limit: int = 100) -> List[Dict]:
+        """
+        Fetch candlestick data from Binance API
+
+        Uses Binance.US for US users, falls back to Binance.com
+        Binance interval format: 1m, 5m, 15m, 1h, 4h, 1d
+        No API key required for public market data
+        """
+        # Map our interval format to Binance format
+        interval_map = {"1": "1m", "5": "5m", "15": "15m", "60": "1h", "240": "4h"}
+        binance_interval = interval_map.get(interval, "5m")
+
+        # Try Binance.US first (for US users), then fall back to Binance.com
+        endpoints = [
+            "https://api.binance.us/api/v3/klines",
+            "https://api.binance.com/api/v3/klines",
+        ]
+
+        for url in endpoints:
+            try:
+                params = {
+                    "symbol": symbol.upper(),
+                    "interval": binance_interval,
+                    "limit": limit,
+                }
+
+                response = requests.get(url, params=params, timeout=10)
+
+                # Skip to next endpoint if geo-restricted (451)
+                if response.status_code == 451:
+                    logger.warning(f"Binance endpoint geo-restricted: {url}")
+                    continue
+
+                response.raise_for_status()
+                data = response.json()
+
+                # Validate response is a list (klines data)
+                if not isinstance(data, list):
+                    logger.warning(f"Unexpected Binance response format: {data}")
+                    continue
+
+                # Convert Binance format to our standard format
+                # Binance returns: [open_time, open, high, low, close, volume, ...]
+                bars = []
+                for kline in data:
+                    bars.append({
+                        "t": kline[0],  # Open time (timestamp)
+                        "o": float(kline[1]),  # Open
+                        "h": float(kline[2]),  # High
+                        "l": float(kline[3]),  # Low
+                        "c": float(kline[4]),  # Close
+                        "v": float(kline[5]),  # Volume
+                    })
+
+                logger.info(f"Successfully fetched {len(bars)} bars from {url}")
+                return bars
+
+            except Exception as e:
+                logger.warning(f"Failed to fetch from {url}: {e}")
+                continue
+
+        logger.error(f"All Binance endpoints failed for {symbol}")
+        return []
+
+    def fetch_bars_polygon(self, ticker: str, interval: str = "5", limit: int = 100) -> List[Dict]:
+        """Fetch candlestick data from Polygon (for US stocks)"""
         try:
             timespan_map = {"1": "minute", "5": "minute", "15": "minute"}
             multiplier_map = {"1": 1, "5": 5, "15": 15}
@@ -635,8 +729,24 @@ class ScalpAnalyzer:
             return []
 
         except Exception as e:
-            logger.error(f"Failed to fetch bars for {ticker}: {e}")
+            logger.error(f"Failed to fetch Polygon bars for {ticker}: {e}")
             return []
+
+    def fetch_bars(self, ticker: str, interval: str = "5", limit: int = 100) -> List[Dict]:
+        """
+        Fetch candlestick data - automatically routes to correct API
+
+        - Crypto pairs (BTCUSDT, etc.) -> Binance API
+        - US Stocks -> Polygon API
+        """
+        ticker = ticker.upper().strip()
+
+        if self.is_crypto(ticker):
+            logger.info(f"Fetching {ticker} from Binance (crypto detected)")
+            return self.fetch_bars_binance(ticker, interval, limit)
+        else:
+            logger.info(f"Fetching {ticker} from Polygon (stock)")
+            return self.fetch_bars_polygon(ticker, interval, limit)
 
     def calculate_vwap(self, bars: List[Dict]) -> float:
         """Calculate VWAP (used as institutional S/R level, not indicator)"""
@@ -666,12 +776,17 @@ class ScalpAnalyzer:
         - Volume confirmation
         - Support/Resistance levels
         - Clear reasoning for every recommendation
+
+        Supports both stocks (via Polygon) and crypto (via Binance)
         """
         try:
+            ticker = ticker.upper().strip()
+            is_crypto = self.is_crypto(ticker)
             bars = self.fetch_bars(ticker, interval)
 
             if not bars or len(bars) < 30:
-                return {"error": f"Insufficient data for {ticker}. Ensure market is open."}
+                market_type = "crypto" if is_crypto else "stock"
+                return {"error": f"Insufficient data for {ticker}. Ensure {market_type} market is open."}
 
             closes = [bar.get("c", 0) for bar in bars]
             current_price = closes[-1]
@@ -703,6 +818,7 @@ class ScalpAnalyzer:
 
             return {
                 "ticker": ticker,
+                "asset_type": "crypto" if is_crypto else "stock",
                 "price": current_price,
                 "change_percent": round(change_percent, 2),
                 "signal": signal_result["signal"],

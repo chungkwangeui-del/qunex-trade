@@ -517,12 +517,16 @@
         <div class="weight-item"><span class="weight-dot volume"></span> Volume Confirmation: 15%</div>
         <div class="weight-item"><span class="weight-dot vwap"></span> VWAP Level: 10%</div>
     </div>
+    <div style="margin-top: 8px; font-size: var(--text-xs); color: var(--text-tertiary);">
+        Supports: <strong style="color: var(--success);">US Stocks</strong> (AAPL, TSLA, etc.) &amp;
+        <strong style="color: #f7931a;">Crypto</strong> (BTCUSDT, ETHUSDT, etc.)
+    </div>
 </div>
 
 <!-- Search Section -->
 <div class="search-section">
     <form class="search-form" id="searchForm" onsubmit="return analyzeStock(event)">
-        <input type="text" class="search-input" id="tickerInput" placeholder="Enter ticker (e.g., AAPL)" maxlength="10" required>
+        <input type="text" class="search-input" id="tickerInput" placeholder="AAPL or BTCUSDT" maxlength="12" required>
         <button type="submit" class="search-btn" id="analyzeBtn">Analyze</button>
         <div class="timeframe-tabs">
             <button type="button" class="timeframe-tab" data-interval="1" onclick="setTimeframe('1')">1m</button>
@@ -547,7 +551,7 @@
             <div class="empty-state">
                 <div class="empty-icon">📊</div>
                 <div class="empty-title">Enter a Ticker Symbol</div>
-                <div class="empty-desc">Search for any US stock to get candlestick pattern analysis with volume confirmation</div>
+                <div class="empty-desc">Search for US stocks (AAPL, TSLA) or crypto pairs (BTCUSDT, ETHUSDT) for candlestick pattern analysis</div>
             </div>
         </div>
     </div>
@@ -678,7 +682,30 @@
 <script>
     let currentTicker = '';
     let currentInterval = '5';
+    let currentAssetType = 'stock';
     let tvWidget = null;
+
+    // Detect if ticker is crypto
+    function isCryptoTicker(ticker) {
+        const cryptoPatterns = [
+            /^[A-Z]+USDT$/,  // BTCUSDT, ETHUSDT
+            /^[A-Z]+BUSD$/,  // BTCBUSD
+            /^[A-Z]+BTC$/,   // ETHBTC
+            /^[A-Z]+ETH$/,   // ADAETH
+            /^[A-Z]+BNB$/,   // ADABNB
+        ];
+        return cryptoPatterns.some(pattern => pattern.test(ticker.toUpperCase()));
+    }
+
+    // Get TradingView symbol (with exchange prefix)
+    function getTVSymbol(ticker) {
+        ticker = ticker.toUpperCase();
+        if (isCryptoTicker(ticker)) {
+            // Use BINANCE for TradingView (works globally)
+            return `BINANCE:${ticker}`;
+        }
+        return ticker;  // Stocks use default exchange
+    }
 
     function setTimeframe(interval) {
         currentInterval = interval;
@@ -697,9 +724,16 @@
         if (!ticker) return false;
 
         currentTicker = ticker;
+        currentAssetType = isCryptoTicker(ticker) ? 'crypto' : 'stock';
         document.getElementById('chartHeader').style.display = 'flex';
         document.getElementById('analysisPanel').style.display = 'flex';
-        document.getElementById('displayTicker').textContent = ticker;
+
+        // Show ticker with asset type badge
+        const tickerDisplay = document.getElementById('displayTicker');
+        const assetBadge = currentAssetType === 'crypto'
+            ? '<span style="font-size: 0.6em; padding: 2px 6px; background: #f7931a; color: #000; border-radius: 4px; margin-left: 8px;">CRYPTO</span>'
+            : '<span style="font-size: 0.6em; padding: 2px 6px; background: var(--success); color: #000; border-radius: 4px; margin-left: 8px;">STOCK</span>';
+        tickerDisplay.innerHTML = ticker + assetBadge;
 
         initChart(ticker);
         fetchAnalysis(ticker);
@@ -711,11 +745,14 @@
         const container = document.getElementById('chartContainer');
         container.innerHTML = '<div id="tradingview_scalp" style="height:500px;"></div>';
 
+        const tvSymbol = getTVSymbol(ticker);
+        const timezone = isCryptoTicker(ticker) ? "Etc/UTC" : "America/New_York";
+
         tvWidget = new TradingView.widget({
             "autosize": true,
-            "symbol": ticker,
+            "symbol": tvSymbol,
             "interval": currentInterval,
-            "timezone": "America/New_York",
+            "timezone": timezone,
             "theme": "dark",
             "style": "1",
             "locale": "en",
@@ -764,10 +801,13 @@
             document.getElementById('signalIcon').textContent = '❌';
             document.getElementById('signalText').textContent = 'Error';
             document.getElementById('signalConfidence').textContent = error.message || 'Failed to analyze';
+            const assetHint = isCryptoTicker(ticker)
+                ? 'Crypto pairs use Binance data (e.g., BTCUSDT, ETHUSDT)'
+                : 'Stocks use Polygon data. Ensure market is open.';
             document.getElementById('aiAnalysis').innerHTML = `
                 <div style="color: var(--danger); text-align: center; padding: 20px;">
                     Failed to analyze ${ticker}. Please try again.<br>
-                    <small style="color: var(--text-tertiary);">Note: Only US stocks are supported (no crypto)</small>
+                    <small style="color: var(--text-tertiary);">${assetHint}</small>
                 </div>
             `;
         }
@@ -775,8 +815,13 @@
 
     function updateDisplay(data) {
         // Update price info
+        const isCrypto = data.asset_type === 'crypto';
         if (data.price) {
-            document.getElementById('displayPrice').textContent = `$${data.price.toFixed(2)}`;
+            // Crypto shows more decimals for precision
+            const priceDecimals = isCrypto ? (data.price < 1 ? 6 : 2) : 2;
+            const priceSymbol = isCrypto ? '' : '$';
+            const priceSuffix = isCrypto ? ' USDT' : '';
+            document.getElementById('displayPrice').textContent = `${priceSymbol}${data.price.toFixed(priceDecimals)}${priceSuffix}`;
             const changeClass = data.change_percent >= 0 ? 'positive' : 'negative';
             const changeSign = data.change_percent >= 0 ? '+' : '';
             document.getElementById('displayChange').className = `ticker-change ${changeClass}`;
