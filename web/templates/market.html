@@ -33,6 +33,21 @@
         font-weight: var(--font-semibold);
         text-transform: uppercase;
         letter-spacing: 0.05em;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .etf-tag {
+        font-size: 10px;
+        font-family: 'JetBrains Mono', monospace;
+        padding: 2px 6px;
+        background: rgba(0, 217, 255, 0.1);
+        color: var(--accent-cyan);
+        border-radius: var(--radius-sm);
+        border: 1px solid rgba(0, 217, 255, 0.2);
+        font-weight: var(--font-medium);
+        text-transform: none;
     }
 
     .index-value {
@@ -360,22 +375,22 @@
 <!-- Market Indices -->
 <div class="indices-row">
     <div class="index-card" id="index-spy">
-        <div class="index-name">S&P 500</div>
+        <div class="index-name">S&P 500 <span class="etf-tag">SPY</span></div>
         <div class="index-value">--</div>
         <div class="index-change">Loading...</div>
     </div>
     <div class="index-card" id="index-qqq">
-        <div class="index-name">NASDAQ</div>
+        <div class="index-name">NASDAQ <span class="etf-tag">QQQ</span></div>
         <div class="index-value">--</div>
         <div class="index-change">Loading...</div>
     </div>
     <div class="index-card" id="index-dia">
-        <div class="index-name">DOW JONES</div>
+        <div class="index-name">DOW JONES <span class="etf-tag">DIA</span></div>
         <div class="index-value">--</div>
         <div class="index-change">Loading...</div>
     </div>
     <div class="index-card" id="index-iwm">
-        <div class="index-name">RUSSELL 2000</div>
+        <div class="index-name">RUSSELL 2000 <span class="etf-tag">IWM</span></div>
         <div class="index-value">--</div>
         <div class="index-change">Loading...</div>
     </div>
@@ -503,10 +518,16 @@
                 data = await response.json();
                 allStocksData = data.results || [];
             } else {
-                // All stocks - get movers for now
+                // All stocks - get movers for now, sorted by market cap (descending)
                 const response = await fetch('/api/market/movers');
                 data = await response.json();
                 allStocksData = [...(data.gainers || []), ...(data.losers || [])];
+                // Sort by market cap (or price as fallback) - largest first
+                allStocksData.sort((a, b) => {
+                    const capA = a.market_cap || (a.price || 0) * (a.volume || 1);
+                    const capB = b.market_cap || (b.price || 0) * (b.volume || 1);
+                    return capB - capA;
+                });
             }
 
             renderStocks(allStocksData);

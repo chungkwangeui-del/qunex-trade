@@ -29,6 +29,20 @@
         font-size: var(--text-sm);
         color: var(--text-tertiary);
         margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .etf-tag {
+        font-size: 10px;
+        font-family: 'JetBrains Mono', monospace;
+        padding: 2px 6px;
+        background: rgba(0, 217, 255, 0.1);
+        color: var(--accent-cyan);
+        border-radius: var(--radius-sm);
+        border: 1px solid rgba(0, 217, 255, 0.2);
+        font-weight: var(--font-medium);
     }
 
     .index-value {
@@ -393,22 +407,22 @@
 <!-- Market Overview -->
 <div class="market-overview" id="marketOverview">
     <div class="index-card">
-        <div class="index-name">S&P 500</div>
+        <div class="index-name">S&P 500 <span class="etf-tag">SPY</span></div>
         <div class="index-value" id="spx-value">--</div>
         <div class="index-change" id="spx-change">--</div>
     </div>
     <div class="index-card">
-        <div class="index-name">NASDAQ</div>
+        <div class="index-name">NASDAQ <span class="etf-tag">QQQ</span></div>
         <div class="index-value" id="ndx-value">--</div>
         <div class="index-change" id="ndx-change">--</div>
     </div>
     <div class="index-card">
-        <div class="index-name">DOW JONES</div>
+        <div class="index-name">DOW JONES <span class="etf-tag">DIA</span></div>
         <div class="index-value" id="dji-value">--</div>
         <div class="index-change" id="dji-change">--</div>
     </div>
     <div class="index-card">
-        <div class="index-name">RUSSELL 2000</div>
+        <div class="index-name">RUSSELL 2000 <span class="etf-tag">IWM</span></div>
         <div class="index-value" id="rut-value">--</div>
         <div class="index-change" id="rut-change">--</div>
     </div>
@@ -625,13 +639,13 @@
     async function loadNews() {
         const container = document.getElementById('newsContent');
         try {
-            const response = await fetch('/api/news?limit=2');
+            const response = await fetch('/api/news?limit=5');
             if (response.ok) {
                 const data = await response.json();
                 // API returns {articles: [...]} not {news: [...]}
                 const articles = data.articles || data.news || [];
                 if (articles.length > 0) {
-                    renderNews(articles);
+                    renderNews(articles.slice(0, 5));
                 } else {
                     container.innerHTML = '<div class="empty-state">No news available</div>';
                 }
