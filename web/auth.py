@@ -15,6 +15,7 @@ from flask import (
 )
 from flask_login import login_user, logout_user, login_required, current_user
 from flask_mail import Message
+from flask_wtf.csrf import generate_csrf
 from datetime import datetime, timedelta, timezone
 from authlib.integrations.flask_client import OAuth
 from typing import Dict, Any, Optional, Tuple, Union
@@ -108,28 +109,28 @@ def login() -> Union[str, Any]:
         password = request.form.get("password")
         remember = True if request.form.get("remember") else False
 
-        logger.info(f"Login attempt for email: {email}")
-
+        print(f"DEBUG: Login attempt for {email}")
+        
         user = db.session.execute(db.select(User).filter_by(email=email)).scalar_one_or_none()
+        
+        if user:
+            print(f"DEBUG: User found: {user.username}, ID: {user.id}")
+            print(f"DEBUG: Hash in DB: {user.password_hash}")
+            is_valid = user.check_password(password)
+            print(f"DEBUG: Password valid? {is_valid}")
+        else:
+            print("DEBUG: User NOT found")
 
-        if not user:
-            logger.warning(f"User not found: {email}")
+        if not user or not user.check_password(password):
             flash("Invalid email or password", "error")
             return redirect(url_for("auth.login"))
 
-        logger.debug(f"User found: {user.username}, checking password")
-
-        if not user.check_password(password):
-            logger.warning(f"Password check failed for {email}")
-            flash("Invalid email or password", "error")
-            return redirect(url_for("auth.login"))
-
-        logger.info(f"Login successful for {email}")
+        print(f"DEBUG: User logged in: {user.username}")
         login_user(user, remember=remember)
         next_page = request.args.get("next")
         return redirect(next_page) if next_page else redirect(url_for("main.index"))
 
-    return render_template("login.html", google_oauth_enabled=GOOGLE_OAUTH_ENABLED)
+    return render_template("login.html", google_oauth_enabled=GOOGLE_OAUTH_ENABLED, csrf_token=generate_csrf())
 
 
 @auth.route("/signup", methods=["GET", "POST"])
@@ -155,9 +156,10 @@ def signup() -> Union[str, Any]:
 
         logger.info(f"Signup attempt - Email: {email}, Username: {username}")
 
-        if not session.get("email_verified") or session.get("verified_email") != email:
-            flash("Please verify your email first", "error")
-            return redirect(url_for("auth.signup"))
+        # Email verification disabled by user request
+        # if not session.get("email_verified") or session.get("verified_email") != email:
+        #     flash("Please verify your email first", "error")
+        #     return redirect(url_for("auth.signup"))
 
         user = db.session.execute(db.select(User).filter_by(email=email)).scalar_one_or_none()
         if user:
@@ -197,7 +199,7 @@ def signup() -> Union[str, Any]:
         flash("Account created successfully!", "success")
         return redirect(url_for("main.index"))
 
-    return render_template("signup.html")
+    return render_template("signup.html", csrf_token=generate_csrf())
 
 
 @auth.route("/logout")
@@ -208,11 +210,7 @@ def logout():
     return redirect(url_for("main.index"))
 
 
-@auth.route("/account")
-@login_required
-def account():
-    """User account page"""
-    return render_template("account.html", user=current_user)
+
 
 
 @auth.route("/admin/dashboard")
@@ -298,6 +296,104 @@ def admin_upgrade_user(email, tier):
             "status": "active",
         }
     )
+
+
+@auth.route("/admin/announcement", methods=["GET"])
+@login_required
+def get_announcements():
+    """Get all announcements (admin only)"""
+    if current_user.subscription_tier != "developer":
+        return jsonify({"error": "Unauthorized"}), 403
+
+    from web.database import Announcement
+    announcements = Announcement.query.order_by(Announcement.created_at.desc()).all()
+    return jsonify({"announcements": [a.to_dict() for a in announcements]})
+
+
+@auth.route("/admin/announcement", methods=["POST"])
+@login_required
+def create_announcement():
+    """Create a new announcement (admin only)"""
+    if current_user.subscription_tier != "developer":
+        return jsonify({"error": "Unauthorized"}), 403
+
+    from web.database import Announcement
+
+    data = request.get_json() or {}
+    message = data.get("message", "").strip()
+
+    if not message:
+        return jsonify({"error": "Message is required"}), 400
+
+    # Deactivate all existing announcements first
+    Announcement.query.update({Announcement.is_active: False})
+
+    # Create new announcement
+    announcement = Announcement(
+        message=message,
+        link_text=data.get("link_text"),
+        link_url=data.get("link_url"),
+        banner_type=data.get("banner_type", "info"),
+        is_active=True,
+        created_by=current_user.id
+    )
+    db.session.add(announcement)
+    db.session.commit()
+
+    return jsonify({"success": True, "announcement": announcement.to_dict()})
+
+
+@auth.route("/admin/announcement/<int:id>", methods=["DELETE"])
+@login_required
+def delete_announcement(id):
+    """Delete an announcement (admin only)"""
+    if current_user.subscription_tier != "developer":
+        return jsonify({"error": "Unauthorized"}), 403
+
+    from web.database import Announcement
+
+    announcement = Announcement.query.get(id)
+    if not announcement:
+        return jsonify({"error": "Announcement not found"}), 404
+
+    db.session.delete(announcement)
+    db.session.commit()
+
+    return jsonify({"success": True})
+
+
+@auth.route("/admin/announcement/<int:id>/toggle", methods=["POST"])
+@login_required
+def toggle_announcement(id):
+    """Toggle announcement active status (admin only)"""
+    if current_user.subscription_tier != "developer":
+        return jsonify({"error": "Unauthorized"}), 403
+
+    from web.database import Announcement
+
+    announcement = Announcement.query.get(id)
+    if not announcement:
+        return jsonify({"error": "Announcement not found"}), 404
+
+    # If activating, deactivate all others first
+    if not announcement.is_active:
+        Announcement.query.update({Announcement.is_active: False})
+
+    announcement.is_active = not announcement.is_active
+    db.session.commit()
+
+    return jsonify({"success": True, "is_active": announcement.is_active})
+
+
+@auth.route("/api/announcement/active")
+def get_active_announcement():
+    """Get the currently active announcement (public endpoint)"""
+    from web.database import Announcement
+
+    announcement = Announcement.query.filter_by(is_active=True).first()
+    if announcement:
+        return jsonify(announcement.to_dict())
+    return jsonify(None)
 
 
 @auth.route("/google/login")
@@ -539,8 +635,7 @@ Qunex Trade Team
                         <td align="center">
                             <p style="margin: 0; color: #718096; font-size: 12px;">
                                 <a href="https://qunextrade.com" style="color: #00d9ff; text-decoration: none; margin: 0 8px;">Website</a> •
-                                <a href="https://qunextrade.com/about" style="color: #00d9ff; text-decoration: none; margin: 0 8px;">About</a> •
-                                <a href="https://qunextrade.com/payments/pricing" style="color: #00d9ff; text-decoration: none; margin: 0 8px;">Pricing</a>
+                                <a href="https://qunextrade.com/about" style="color: #00d9ff; text-decoration: none; margin: 0 8px;">About</a>
                             </p>
                         </td>
                     </tr>
@@ -695,7 +790,7 @@ Qunex Trade Team
 
         return redirect(url_for("auth.login"))
 
-    return render_template("forgot_password.html")
+    return render_template("forgot_password.html", csrf_token=generate_csrf())
 
 
 @auth.route("/reset-password/<token>", methods=["GET", "POST"])
@@ -723,11 +818,11 @@ def reset_password(token):
         # Validate password
         if len(new_password) < 6:
             flash("Password must be at least 6 characters", "error")
-            return render_template("reset_password.html", token=token)
+            return render_template("reset_password.html", token=token, csrf_token=generate_csrf())
 
         if new_password != confirm_password:
             flash("Passwords do not match", "error")
-            return render_template("reset_password.html", token=token)
+            return render_template("reset_password.html", token=token, csrf_token=generate_csrf())
 
         # Update password and clear reset token
         user.set_password(new_password)
@@ -738,4 +833,4 @@ def reset_password(token):
         flash("Password reset successfully! You can now log in.", "success")
         return redirect(url_for("auth.login"))
 
-    return render_template("reset_password.html", token=token)
+    return render_template("reset_password.html", token=token, csrf_token=generate_csrf())
