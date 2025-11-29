@@ -298,11 +298,11 @@ class CandlestickPatterns:
                 "confirmation": candle["low"],
             }
 
-        # Standard Doji
+        # Standard Doji - indicates indecision, potential reversal
         return {
             "name": "Doji",
             "type": "neutral",
-            "strength": 40,
+            "strength": 50,
             "entry_logic": "Wait for direction confirmation",
             "stop_logic": "Based on breakout direction",
             "target_logic": "Based on breakout candle",
@@ -893,6 +893,8 @@ class ScalpAnalyzer:
         # === VOLUME CONFIRMATION: 15% ===
         volume_strength = volume_analysis.get("confirmation_strength", 0)
         spike_detected = volume_analysis.get("spike_detected", False)
+        volume_trend = volume_analysis.get("volume_trend", "neutral")
+        volume_ratio = volume_analysis.get("volume_ratio", 1.0)
 
         if spike_detected:
             volume_score = min(15, int(volume_strength * 0.15))
@@ -902,6 +904,15 @@ class ScalpAnalyzer:
             elif bearish_score > bullish_score:
                 bearish_score += volume_score
                 reasoning.append(f"Volume spike confirms bearish move (+{volume_score})")
+        elif volume_trend == "increasing" or volume_ratio >= 1.2:
+            # Give partial credit for increasing volume or above average
+            partial_score = 8 if volume_ratio >= 1.2 else 5
+            if bullish_score > bearish_score:
+                bullish_score += partial_score
+                reasoning.append(f"Volume {volume_ratio:.1f}x average (+{partial_score})")
+            elif bearish_score > bullish_score:
+                bearish_score += partial_score
+                reasoning.append(f"Volume {volume_ratio:.1f}x average (+{partial_score})")
         else:
             reasoning.append("No volume confirmation (wait for spike)")
 
@@ -939,18 +950,23 @@ class ScalpAnalyzer:
                 reasoning.append(f"Bearish pattern at resistance ${resistance['price']:.2f} (+10)")
 
         # === DETERMINE SIGNAL ===
-        # Require minimum 60 points AND a clear candlestick pattern
-        has_pattern = primary_pattern is not None and primary_pattern.get("strength", 0) >= 60
+        # Require minimum 45 points AND a candlestick pattern (lowered from 60)
+        has_pattern = primary_pattern is not None and primary_pattern.get("strength", 0) >= 40
 
-        if bullish_score >= 60 and has_pattern and candle_bias == "bullish":
+        if bullish_score >= 45 and has_pattern and candle_bias == "bullish":
             signal = "LONG"
             confidence = min(95, bullish_score)
-        elif bearish_score >= 60 and has_pattern and candle_bias == "bearish":
+        elif bearish_score >= 45 and has_pattern and candle_bias == "bearish":
             signal = "SHORT"
             confidence = min(95, bearish_score)
-        else:
+        elif bullish_score >= 35 or bearish_score >= 35:
+            # Show potential setup even if not strong enough
             signal = "WAIT"
             confidence = max(bullish_score, bearish_score)
+            reasoning.append("Potential setup forming - wait for confirmation")
+        else:
+            signal = "WAIT"
+            confidence = max(10, max(bullish_score, bearish_score))
             if not has_pattern:
                 reasoning.append("No strong pattern - wait for setup")
 
