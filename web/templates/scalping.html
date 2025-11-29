@@ -355,7 +355,7 @@
 <div class="content-header">
     <div>
         <h1 class="content-title">Scalp Trading Analysis</h1>
-        <p class="content-subtitle">AI-powered short-term trading signals using EMA 9/21 + VWAP + RSI strategy</p>
+        <p class="content-subtitle">AI-powered signals with candlestick pattern recognition (Hammer, Engulfing, Pin Bar, Doji, etc.)</p>
     </div>
 </div>
 
@@ -401,9 +401,28 @@
             <div class="signal-confidence" id="signalConfidence">--</div>
         </div>
 
+        <!-- Candlestick Patterns -->
+        <div class="indicators-card">
+            <div class="card-title">Candlestick Patterns</div>
+            <div id="candlePatterns">
+                <div class="indicator-row">
+                    <span class="indicator-name">Patterns</span>
+                    <span class="indicator-value" id="patternsDetected">--</span>
+                </div>
+            </div>
+            <div class="indicator-row">
+                <span class="indicator-name">Current Candle</span>
+                <span class="indicator-value" id="currentCandle">--</span>
+            </div>
+            <div class="indicator-row">
+                <span class="indicator-name">Pattern Bias</span>
+                <span class="indicator-value" id="patternBias">--</span>
+            </div>
+        </div>
+
         <!-- Technical Indicators -->
         <div class="indicators-card">
-            <div class="card-title">Technical Indicators</div>
+            <div class="card-title">Supporting Indicators</div>
             <div class="indicator-row">
                 <span class="indicator-name">EMA 9</span>
                 <span class="indicator-value" id="ema9">--</span>
@@ -411,10 +430,6 @@
             <div class="indicator-row">
                 <span class="indicator-name">EMA 21</span>
                 <span class="indicator-value" id="ema21">--</span>
-            </div>
-            <div class="indicator-row">
-                <span class="indicator-name">EMA Cross</span>
-                <span class="indicator-value" id="emaCross">--</span>
             </div>
             <div class="indicator-row">
                 <span class="indicator-name">VWAP</span>
@@ -427,10 +442,6 @@
             <div class="indicator-row">
                 <span class="indicator-name">RSI (14)</span>
                 <span class="indicator-value" id="rsi">--</span>
-            </div>
-            <div class="indicator-row">
-                <span class="indicator-name">MACD Signal</span>
-                <span class="indicator-value" id="macd">--</span>
             </div>
             <div class="indicator-row">
                 <span class="indicator-name">Volume</span>
@@ -609,21 +620,34 @@
 
         document.getElementById('signalConfidence').textContent = `Confidence: ${data.confidence || '--'}%`;
 
+        // Update candlestick patterns
+        const candle = data.candlestick || {};
+        const patterns = candle.patterns || [];
+
+        if (patterns.length > 0) {
+            const patternHtml = patterns.slice(0, 3).map(p => {
+                const colorClass = p.type === 'bullish' ? 'bullish' : (p.type === 'bearish' ? 'bearish' : '');
+                return `<span class="indicator-value ${colorClass}" style="display:block;margin:2px 0;">${p.name}</span>`;
+            }).join('');
+            document.getElementById('patternsDetected').innerHTML = patternHtml;
+        } else {
+            document.getElementById('patternsDetected').textContent = 'None';
+        }
+
+        const currentCandle = document.getElementById('currentCandle');
+        const candleType = candle.current_candle?.type || 'neutral';
+        currentCandle.textContent = candleType.charAt(0).toUpperCase() + candleType.slice(1);
+        currentCandle.className = `indicator-value ${candleType === 'bullish' ? 'bullish' : (candleType === 'bearish' ? 'bearish' : '')}`;
+
+        const patternBias = document.getElementById('patternBias');
+        const bias = candle.bias || 'neutral';
+        patternBias.textContent = bias.charAt(0).toUpperCase() + bias.slice(1);
+        patternBias.className = `indicator-value ${bias === 'bullish' ? 'bullish' : (bias === 'bearish' ? 'bearish' : '')}`;
+
         // Update indicators
         const indicators = data.indicators || {};
         document.getElementById('ema9').textContent = indicators.ema9 ? `$${indicators.ema9.toFixed(2)}` : '--';
         document.getElementById('ema21').textContent = indicators.ema21 ? `$${indicators.ema21.toFixed(2)}` : '--';
-
-        if (indicators.ema9 && indicators.ema21) {
-            const emaCross = document.getElementById('emaCross');
-            if (indicators.ema9 > indicators.ema21) {
-                emaCross.textContent = 'Bullish';
-                emaCross.className = 'indicator-value bullish';
-            } else {
-                emaCross.textContent = 'Bearish';
-                emaCross.className = 'indicator-value bearish';
-            }
-        }
 
         document.getElementById('vwap').textContent = indicators.vwap ? `$${indicators.vwap.toFixed(2)}` : '--';
 
