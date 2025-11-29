@@ -4,6 +4,7 @@ Professional trading tools with real-time market data
 """
 
 from flask import Flask, Response
+from werkzeug.middleware.proxy_fix import ProxyFix
 import os
 import sys
 import logging
@@ -27,6 +28,10 @@ def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
 
+    # Trust proxy headers (required for Render and other reverse proxies)
+    # This fixes HTTPS detection and secure cookie issues
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
+
     # Initialize extensions
     db.init_app(app)
     mail.init_app(app)
@@ -45,20 +50,28 @@ def create_app(config_class=Config):
     csrf.exempt("web.auth.send_verification_code")
     csrf.exempt("web.auth.verify_code")
 
+    # Exempt announcement management endpoints from CSRF protection
+    csrf.exempt("web.auth.get_announcements")
+    csrf.exempt("web.auth.create_announcement")
+    csrf.exempt("web.auth.delete_announcement")
+    csrf.exempt("web.auth.toggle_announcement")
+    csrf.exempt("web.auth.get_active_announcement")
+
+    # Register Blueprints
     # Register Blueprints
     from web.auth import auth, oauth
-    from web.payments import payments
     from web.api_polygon import api_polygon
     from web.api_watchlist import api_watchlist
+    from web.api_portfolio import api_portfolio
     from web.main import main as main_blueprint
     from web.api_main import api_main
 
     oauth.init_app(app)
 
     app.register_blueprint(auth, url_prefix="/auth")
-    app.register_blueprint(payments, url_prefix="/payments")
     app.register_blueprint(api_polygon)
     app.register_blueprint(api_watchlist)
+    app.register_blueprint(api_portfolio)
     app.register_blueprint(main_blueprint)
     app.register_blueprint(api_main)
 
