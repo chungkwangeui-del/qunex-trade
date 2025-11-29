@@ -1,6 +1,6 @@
 {% extends "base_layout.html" %}
 
-{% block title %}Scalp Trading - AI Analysis - Qunex Trade{% endblock %}
+{% block title %}Scalp Trading - Candlestick + Volume Analysis - Qunex Trade{% endblock %}
 
 {% block extra_styles %}
 <style>
@@ -84,7 +84,7 @@
     /* Main Grid */
     .scalp-grid {
         display: grid;
-        grid-template-columns: 1fr 400px;
+        grid-template-columns: 1fr 420px;
         gap: 24px;
     }
 
@@ -174,7 +174,8 @@
     }
 
     .signal-card.neutral {
-        border-color: var(--text-tertiary);
+        border-color: #eab308;
+        background: rgba(234, 179, 8, 0.05);
     }
 
     .signal-icon {
@@ -190,14 +191,34 @@
 
     .signal-text.bullish { color: var(--success); }
     .signal-text.bearish { color: var(--danger); }
-    .signal-text.neutral { color: var(--text-tertiary); }
+    .signal-text.neutral { color: #eab308; }
 
     .signal-confidence {
         font-size: var(--text-sm);
         color: var(--text-secondary);
     }
 
-    /* Indicators Card */
+    /* Reasoning List */
+    .reasoning-list {
+        margin-top: 12px;
+        text-align: left;
+        font-size: var(--text-xs);
+        color: var(--text-tertiary);
+    }
+
+    .reasoning-item {
+        padding: 4px 0;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .reasoning-item::before {
+        content: "•";
+        color: var(--accent-cyan);
+    }
+
+    /* Cards */
     .indicators-card {
         background: var(--bg-card);
         border: 1px solid var(--border-subtle);
@@ -211,6 +232,18 @@
         margin-bottom: 16px;
         padding-bottom: 12px;
         border-bottom: 1px solid var(--border-subtle);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .card-badge {
+        font-size: var(--text-xs);
+        padding: 2px 8px;
+        border-radius: var(--radius-sm);
+        background: rgba(0, 217, 255, 0.2);
+        color: var(--accent-cyan);
+        font-weight: var(--font-medium);
     }
 
     .indicator-row {
@@ -238,6 +271,54 @@
     .indicator-value.bullish { color: var(--success); }
     .indicator-value.bearish { color: var(--danger); }
 
+    /* Pattern Badge */
+    .pattern-badge {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: var(--radius-sm);
+        font-size: var(--text-xs);
+        font-weight: var(--font-medium);
+        margin: 2px;
+    }
+
+    .pattern-badge.bullish {
+        background: rgba(34, 197, 94, 0.1);
+        color: var(--success);
+        border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+
+    .pattern-badge.bearish {
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--danger);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .pattern-badge.neutral {
+        background: rgba(234, 179, 8, 0.1);
+        color: #eab308;
+        border: 1px solid rgba(234, 179, 8, 0.3);
+    }
+
+    /* Volume Bar */
+    .volume-bar-container {
+        margin-top: 8px;
+        background: var(--bg-hover);
+        border-radius: var(--radius-sm);
+        height: 8px;
+        overflow: hidden;
+    }
+
+    .volume-bar {
+        height: 100%;
+        border-radius: var(--radius-sm);
+        transition: width 0.3s ease;
+    }
+
+    .volume-bar.low { background: var(--text-tertiary); }
+    .volume-bar.normal { background: var(--accent-cyan); }
+    .volume-bar.high { background: var(--success); }
+    .volume-bar.spike { background: linear-gradient(135deg, var(--success), #22c55e); }
+
     /* AI Analysis Card */
     .ai-analysis-card {
         background: var(--bg-card);
@@ -257,11 +338,36 @@
         color: var(--text-primary);
     }
 
-    .entry-exit-box {
+    /* Trade Setup Box */
+    .trade-setup-box {
         background: var(--bg-hover);
         border-radius: var(--radius-lg);
         padding: 16px;
         margin-top: 16px;
+    }
+
+    .trade-setup-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .trade-setup-title {
+        font-weight: var(--font-semibold);
+        font-size: var(--text-sm);
+    }
+
+    .trade-setup-rr {
+        font-family: 'JetBrains Mono', monospace;
+        padding: 4px 10px;
+        background: rgba(234, 179, 8, 0.1);
+        color: #eab308;
+        border-radius: var(--radius-sm);
+        font-size: var(--text-xs);
+        font-weight: var(--font-bold);
     }
 
     .entry-exit-row {
@@ -283,6 +389,13 @@
     .entry-exit-value.green { color: var(--success); }
     .entry-exit-value.red { color: var(--danger); }
     .entry-exit-value.yellow { color: #eab308; }
+
+    .reasoning-text {
+        font-size: var(--text-xs);
+        color: var(--text-tertiary);
+        margin-top: 4px;
+        font-style: italic;
+    }
 
     /* Loading State */
     .loading-overlay {
@@ -348,6 +461,43 @@
     .risk-warning strong {
         color: var(--danger);
     }
+
+    /* Strategy Info */
+    .strategy-info {
+        background: rgba(0, 217, 255, 0.05);
+        border: 1px solid rgba(0, 217, 255, 0.2);
+        border-radius: var(--radius-lg);
+        padding: 12px 16px;
+        font-size: var(--text-xs);
+        color: var(--text-secondary);
+        margin-bottom: 24px;
+    }
+
+    .strategy-info strong {
+        color: var(--accent-cyan);
+    }
+
+    .strategy-weights {
+        display: flex;
+        gap: 16px;
+        margin-top: 8px;
+    }
+
+    .weight-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .weight-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+    }
+
+    .weight-dot.candle { background: var(--accent-cyan); }
+    .weight-dot.volume { background: var(--accent-purple); }
+    .weight-dot.vwap { background: #eab308; }
 </style>
 {% endblock %}
 
@@ -355,7 +505,17 @@
 <div class="content-header">
     <div>
         <h1 class="content-title">Scalp Trading Analysis</h1>
-        <p class="content-subtitle">AI-powered signals with candlestick pattern recognition (Hammer, Engulfing, Pin Bar, Doji, etc.)</p>
+        <p class="content-subtitle">Candlestick + Volume based signals with clear entry/stop/target reasoning</p>
+    </div>
+</div>
+
+<!-- Strategy Info -->
+<div class="strategy-info">
+    <strong>Strategy:</strong> Pure price action scalping focused on candlestick patterns with volume confirmation.
+    <div class="strategy-weights">
+        <div class="weight-item"><span class="weight-dot candle"></span> Candlestick Patterns: 75%</div>
+        <div class="weight-item"><span class="weight-dot volume"></span> Volume Confirmation: 15%</div>
+        <div class="weight-item"><span class="weight-dot vwap"></span> VWAP Level: 10%</div>
     </div>
 </div>
 
@@ -385,9 +545,9 @@
         </div>
         <div id="chartContainer">
             <div class="empty-state">
-                <div class="empty-icon">📈</div>
+                <div class="empty-icon">📊</div>
                 <div class="empty-title">Enter a Ticker Symbol</div>
-                <div class="empty-desc">Search for any stock to get AI-powered scalping analysis with entry/exit signals</div>
+                <div class="empty-desc">Search for any US stock to get candlestick pattern analysis with volume confirmation</div>
             </div>
         </div>
     </div>
@@ -399,85 +559,114 @@
             <div class="signal-icon" id="signalIcon">⏳</div>
             <div class="signal-text" id="signalText">Analyzing...</div>
             <div class="signal-confidence" id="signalConfidence">--</div>
+            <div class="reasoning-list" id="reasoningList"></div>
         </div>
 
         <!-- Candlestick Patterns -->
         <div class="indicators-card">
-            <div class="card-title">Candlestick Patterns</div>
+            <div class="card-title">
+                Candlestick Patterns
+                <span class="card-badge">75%</span>
+            </div>
             <div id="candlePatterns">
                 <div class="indicator-row">
-                    <span class="indicator-name">Patterns</span>
-                    <span class="indicator-value" id="patternsDetected">--</span>
+                    <span class="indicator-name">Primary Pattern</span>
+                    <span class="indicator-value" id="primaryPattern">--</span>
                 </div>
             </div>
             <div class="indicator-row">
-                <span class="indicator-name">Current Candle</span>
-                <span class="indicator-value" id="currentCandle">--</span>
+                <span class="indicator-name">Pattern Strength</span>
+                <span class="indicator-value" id="patternStrength">--</span>
             </div>
             <div class="indicator-row">
                 <span class="indicator-name">Pattern Bias</span>
                 <span class="indicator-value" id="patternBias">--</span>
             </div>
+            <div id="allPatterns" style="margin-top: 12px;"></div>
         </div>
 
-        <!-- Technical Indicators -->
+        <!-- Volume Analysis -->
         <div class="indicators-card">
-            <div class="card-title">Supporting Indicators</div>
-            <div class="indicator-row">
-                <span class="indicator-name">EMA 9</span>
-                <span class="indicator-value" id="ema9">--</span>
+            <div class="card-title">
+                Volume Analysis
+                <span class="card-badge">15%</span>
             </div>
             <div class="indicator-row">
-                <span class="indicator-name">EMA 21</span>
-                <span class="indicator-value" id="ema21">--</span>
+                <span class="indicator-name">Volume Ratio</span>
+                <span class="indicator-value" id="volumeRatio">--</span>
+            </div>
+            <div class="indicator-row">
+                <span class="indicator-name">Spike Detected</span>
+                <span class="indicator-value" id="volumeSpike">--</span>
+            </div>
+            <div class="indicator-row">
+                <span class="indicator-name">Volume Trend</span>
+                <span class="indicator-value" id="volumeTrend">--</span>
+            </div>
+            <div class="volume-bar-container">
+                <div class="volume-bar" id="volumeBar" style="width: 50%;"></div>
+            </div>
+        </div>
+
+        <!-- Key Levels -->
+        <div class="indicators-card">
+            <div class="card-title">
+                Key Levels
+                <span class="card-badge">10%</span>
             </div>
             <div class="indicator-row">
                 <span class="indicator-name">VWAP</span>
-                <span class="indicator-value" id="vwap">--</span>
+                <span class="indicator-value" id="vwapLevel">--</span>
             </div>
             <div class="indicator-row">
                 <span class="indicator-name">Price vs VWAP</span>
                 <span class="indicator-value" id="priceVsVwap">--</span>
             </div>
             <div class="indicator-row">
-                <span class="indicator-name">RSI (14)</span>
-                <span class="indicator-value" id="rsi">--</span>
+                <span class="indicator-name">Nearest Support</span>
+                <span class="indicator-value bullish" id="supportLevel">--</span>
             </div>
             <div class="indicator-row">
-                <span class="indicator-name">Volume</span>
-                <span class="indicator-value" id="volume">--</span>
+                <span class="indicator-name">Nearest Resistance</span>
+                <span class="indicator-value bearish" id="resistanceLevel">--</span>
             </div>
         </div>
 
         <!-- AI Analysis -->
         <div class="ai-analysis-card">
-            <div class="card-title">AI Analysis</div>
+            <div class="card-title">Analysis</div>
             <div class="ai-analysis-content" id="aiAnalysis">
                 <div class="loading-overlay">
                     <div class="spinner"></div>
                     <span>Waiting for analysis...</span>
                 </div>
             </div>
-            <div class="entry-exit-box" id="entryExitBox" style="display: none;">
+
+            <!-- Trade Setup -->
+            <div class="trade-setup-box" id="tradeSetupBox" style="display: none;">
+                <div class="trade-setup-header">
+                    <span class="trade-setup-title">Trade Setup</span>
+                    <span class="trade-setup-rr" id="riskReward">R:R --</span>
+                </div>
                 <div class="entry-exit-row">
                     <span class="entry-exit-label">Entry Price</span>
                     <span class="entry-exit-value green" id="entryPrice">--</span>
                 </div>
+                <div class="reasoning-text" id="entryReasoning"></div>
                 <div class="entry-exit-row">
                     <span class="entry-exit-label">Stop Loss</span>
                     <span class="entry-exit-value red" id="stopLoss">--</span>
                 </div>
+                <div class="reasoning-text" id="stopReasoning"></div>
                 <div class="entry-exit-row">
                     <span class="entry-exit-label">Take Profit</span>
                     <span class="entry-exit-value green" id="takeProfit">--</span>
                 </div>
-                <div class="entry-exit-row">
-                    <span class="entry-exit-label">Risk/Reward</span>
-                    <span class="entry-exit-value yellow" id="riskReward">--</span>
-                </div>
+                <div class="reasoning-text" id="targetReasoning"></div>
             </div>
+
             <div class="risk-warning">
-                <strong>Risk Warning:</strong> Scalp trading is high-risk. Never risk more than 1-2% of your account per trade. Past performance does not guarantee future results.
+                <strong>Risk Warning:</strong> Scalp trading is high-risk. Never risk more than 1-2% of your account per trade. Minimum R:R of 1:2 recommended. Past performance does not guarantee future results.
             </div>
         </div>
     </div>
@@ -536,11 +725,8 @@
             "allow_symbol_change": true,
             "container_id": "tradingview_scalp",
             "studies": [
-                {"id": "MAExp@tv-basicstudies", "inputs": {"length": 9}},
-                {"id": "MAExp@tv-basicstudies", "inputs": {"length": 21}},
                 {"id": "VWAP@tv-basicstudies"},
-                {"id": "RSI@tv-basicstudies", "inputs": {"length": 14}},
-                {"id": "MACD@tv-basicstudies"}
+                {"id": "Volume@tv-basicstudies"}
             ],
             "backgroundColor": "#000000",
             "gridColor": "#1a1a1a"
@@ -553,13 +739,14 @@
         document.getElementById('signalText').textContent = 'Analyzing...';
         document.getElementById('signalText').className = 'signal-text';
         document.getElementById('signalCard').className = 'signal-card';
-        document.getElementById('signalConfidence').textContent = 'Processing technical indicators...';
-        document.getElementById('entryExitBox').style.display = 'none';
+        document.getElementById('signalConfidence').textContent = 'Detecting candlestick patterns...';
+        document.getElementById('tradeSetupBox').style.display = 'none';
+        document.getElementById('reasoningList').innerHTML = '';
 
         document.getElementById('aiAnalysis').innerHTML = `
             <div class="loading-overlay">
                 <div class="spinner"></div>
-                <span>Running AI analysis...</span>
+                <span>Analyzing candlestick patterns...</span>
             </div>
         `;
 
@@ -579,7 +766,8 @@
             document.getElementById('signalConfidence').textContent = error.message || 'Failed to analyze';
             document.getElementById('aiAnalysis').innerHTML = `
                 <div style="color: var(--danger); text-align: center; padding: 20px;">
-                    Failed to analyze ${ticker}. Please try again.
+                    Failed to analyze ${ticker}. Please try again.<br>
+                    <small style="color: var(--text-tertiary);">Note: Only US stocks are supported (no crypto)</small>
                 </div>
             `;
         }
@@ -596,7 +784,7 @@
         }
 
         // Update signal card
-        const signal = data.signal || 'NEUTRAL';
+        const signal = data.signal || 'WAIT';
         const signalCard = document.getElementById('signalCard');
         const signalIcon = document.getElementById('signalIcon');
         const signalText = document.getElementById('signalText');
@@ -614,46 +802,91 @@
         } else {
             signalCard.className = 'signal-card neutral';
             signalIcon.textContent = '⏸️';
-            signalText.textContent = 'NO SIGNAL';
+            signalText.textContent = 'WAIT';
             signalText.className = 'signal-text neutral';
         }
 
         document.getElementById('signalConfidence').textContent = `Confidence: ${data.confidence || '--'}%`;
 
-        // Update candlestick patterns
-        const candle = data.candlestick || {};
-        const patterns = candle.patterns || [];
-
-        if (patterns.length > 0) {
-            const patternHtml = patterns.slice(0, 3).map(p => {
-                const colorClass = p.type === 'bullish' ? 'bullish' : (p.type === 'bearish' ? 'bearish' : '');
-                return `<span class="indicator-value ${colorClass}" style="display:block;margin:2px 0;">${p.name}</span>`;
-            }).join('');
-            document.getElementById('patternsDetected').innerHTML = patternHtml;
+        // Update reasoning list
+        const reasoningList = document.getElementById('reasoningList');
+        if (data.signal_reasoning && data.signal_reasoning.length > 0) {
+            reasoningList.innerHTML = data.signal_reasoning.map(r =>
+                `<div class="reasoning-item">${r}</div>`
+            ).join('');
         } else {
-            document.getElementById('patternsDetected').textContent = 'None';
+            reasoningList.innerHTML = '';
         }
 
-        const currentCandle = document.getElementById('currentCandle');
-        const candleType = candle.current_candle?.type || 'neutral';
-        currentCandle.textContent = candleType.charAt(0).toUpperCase() + candleType.slice(1);
-        currentCandle.className = `indicator-value ${candleType === 'bullish' ? 'bullish' : (candleType === 'bearish' ? 'bearish' : '')}`;
+        // Update candlestick patterns
+        const candle = data.candlestick || {};
+        const primary = candle.primary_pattern;
+
+        if (primary) {
+            const typeClass = primary.type === 'bullish' ? 'bullish' : (primary.type === 'bearish' ? 'bearish' : '');
+            document.getElementById('primaryPattern').innerHTML =
+                `<span class="${typeClass}">${primary.name}</span>`;
+            document.getElementById('patternStrength').textContent = `${primary.strength}/100`;
+        } else {
+            document.getElementById('primaryPattern').textContent = 'None detected';
+            document.getElementById('patternStrength').textContent = '--';
+        }
 
         const patternBias = document.getElementById('patternBias');
         const bias = candle.bias || 'neutral';
         patternBias.textContent = bias.charAt(0).toUpperCase() + bias.slice(1);
         patternBias.className = `indicator-value ${bias === 'bullish' ? 'bullish' : (bias === 'bearish' ? 'bearish' : '')}`;
 
-        // Update indicators
-        const indicators = data.indicators || {};
-        document.getElementById('ema9').textContent = indicators.ema9 ? `$${indicators.ema9.toFixed(2)}` : '--';
-        document.getElementById('ema21').textContent = indicators.ema21 ? `$${indicators.ema21.toFixed(2)}` : '--';
+        // Show all detected patterns
+        const allPatternsEl = document.getElementById('allPatterns');
+        const patterns = candle.patterns || [];
+        if (patterns.length > 0) {
+            allPatternsEl.innerHTML = patterns.map(p =>
+                `<span class="pattern-badge ${p.type}">${p.name}</span>`
+            ).join('');
+        } else {
+            allPatternsEl.innerHTML = '<span style="color: var(--text-tertiary); font-size: var(--text-xs);">No patterns detected in current candles</span>';
+        }
 
-        document.getElementById('vwap').textContent = indicators.vwap ? `$${indicators.vwap.toFixed(2)}` : '--';
+        // Update volume analysis
+        const volume = data.volume || {};
+        const volumeRatio = volume.ratio || 1;
+        document.getElementById('volumeRatio').textContent = `${volumeRatio.toFixed(1)}x avg`;
 
-        if (data.price && indicators.vwap) {
+        const volumeSpike = document.getElementById('volumeSpike');
+        if (volume.spike_detected) {
+            volumeSpike.textContent = 'Yes ✓';
+            volumeSpike.className = 'indicator-value bullish';
+        } else {
+            volumeSpike.textContent = 'No';
+            volumeSpike.className = 'indicator-value';
+        }
+
+        const volumeTrend = document.getElementById('volumeTrend');
+        volumeTrend.textContent = (volume.trend || 'neutral').charAt(0).toUpperCase() + (volume.trend || 'neutral').slice(1);
+        volumeTrend.className = `indicator-value ${volume.trend === 'increasing' ? 'bullish' : ''}`;
+
+        // Update volume bar
+        const volumeBar = document.getElementById('volumeBar');
+        const barWidth = Math.min(100, volumeRatio * 50);
+        volumeBar.style.width = `${barWidth}%`;
+        if (volumeRatio >= 2) {
+            volumeBar.className = 'volume-bar spike';
+        } else if (volumeRatio >= 1.5) {
+            volumeBar.className = 'volume-bar high';
+        } else if (volumeRatio >= 0.8) {
+            volumeBar.className = 'volume-bar normal';
+        } else {
+            volumeBar.className = 'volume-bar low';
+        }
+
+        // Update key levels
+        const levels = data.levels || {};
+        document.getElementById('vwapLevel').textContent = levels.vwap ? `$${levels.vwap.toFixed(2)}` : '--';
+
+        if (data.price && levels.vwap) {
             const priceVsVwap = document.getElementById('priceVsVwap');
-            if (data.price > indicators.vwap) {
+            if (data.price > levels.vwap) {
                 priceVsVwap.textContent = 'Above (Bullish)';
                 priceVsVwap.className = 'indicator-value bullish';
             } else {
@@ -662,39 +895,36 @@
             }
         }
 
-        const rsiEl = document.getElementById('rsi');
-        if (indicators.rsi) {
-            rsiEl.textContent = indicators.rsi.toFixed(1);
-            rsiEl.className = indicators.rsi > 50 ? 'indicator-value bullish' : 'indicator-value bearish';
-        }
-
-        const macdEl = document.getElementById('macd');
-        if (indicators.macd_signal) {
-            macdEl.textContent = indicators.macd_signal;
-            macdEl.className = indicators.macd_signal === 'Bullish' ? 'indicator-value bullish' : 'indicator-value bearish';
-        }
-
-        document.getElementById('volume').textContent = indicators.volume ? formatVolume(indicators.volume) : '--';
+        document.getElementById('supportLevel').textContent = levels.nearest_support ? `$${levels.nearest_support.toFixed(2)}` : 'N/A';
+        document.getElementById('resistanceLevel').textContent = levels.nearest_resistance ? `$${levels.nearest_resistance.toFixed(2)}` : 'N/A';
 
         // Update AI Analysis
         if (data.analysis) {
             document.getElementById('aiAnalysis').innerHTML = data.analysis;
         }
 
-        // Update entry/exit if available
-        if (data.entry_price) {
-            document.getElementById('entryExitBox').style.display = 'block';
-            document.getElementById('entryPrice').textContent = `$${data.entry_price.toFixed(2)}`;
-            document.getElementById('stopLoss').textContent = `$${data.stop_loss.toFixed(2)}`;
-            document.getElementById('takeProfit').textContent = `$${data.take_profit.toFixed(2)}`;
-            document.getElementById('riskReward').textContent = data.risk_reward || '1:2';
-        }
-    }
+        // Update trade setup
+        const setup = data.trade_setup || {};
+        if (setup.entry_price) {
+            document.getElementById('tradeSetupBox').style.display = 'block';
+            document.getElementById('entryPrice').textContent = `$${setup.entry_price.toFixed(2)}`;
+            document.getElementById('stopLoss').textContent = `$${setup.stop_loss.toFixed(2)}`;
+            document.getElementById('takeProfit').textContent = `$${setup.take_profit.toFixed(2)}`;
+            document.getElementById('riskReward').textContent = setup.risk_reward || 'R:R 1:2';
 
-    function formatVolume(vol) {
-        if (vol >= 1000000) return (vol / 1000000).toFixed(1) + 'M';
-        if (vol >= 1000) return (vol / 1000).toFixed(1) + 'K';
-        return vol.toString();
+            document.getElementById('entryReasoning').textContent = setup.entry_reasoning || '';
+            document.getElementById('stopReasoning').textContent = setup.stop_reasoning || '';
+            document.getElementById('targetReasoning').textContent = setup.target_reasoning || '';
+        } else {
+            document.getElementById('tradeSetupBox').style.display = 'block';
+            document.getElementById('entryPrice').textContent = '--';
+            document.getElementById('stopLoss').textContent = '--';
+            document.getElementById('takeProfit').textContent = '--';
+            document.getElementById('riskReward').textContent = 'N/A';
+            document.getElementById('entryReasoning').textContent = setup.entry_reasoning || 'Wait for clear candlestick pattern';
+            document.getElementById('stopReasoning').textContent = '';
+            document.getElementById('targetReasoning').textContent = '';
+        }
     }
 
     // Auto-focus on input

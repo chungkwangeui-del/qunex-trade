@@ -1,6 +1,17 @@
 """
 Scalp Trading Analysis API
-AI-powered short-term trading signals with candlestick pattern recognition
+Professional candlestick + volume based scalping signals
+
+Strategy Based on Research:
+- Candlestick Patterns: 75% weight (primary driver)
+- Volume Confirmation: 15% weight (validation)
+- VWAP as S/R Level: 10% weight (institutional reference)
+
+Key Findings Applied:
+- Pin Bar at support = 65.2% win rate (IJSRED study)
+- Volume decreases during consolidation, spikes before breakout
+- Risk/Reward minimum 1:2 or 1:3
+- Stop loss at pattern invalidation point
 """
 
 from flask import Blueprint, jsonify, request
@@ -8,7 +19,7 @@ from flask_login import login_required
 import os
 import logging
 from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Any, Tuple
+from typing import Dict, List, Optional, Tuple
 import requests
 
 logger = logging.getLogger(__name__)
@@ -17,12 +28,13 @@ api_scalp = Blueprint("api_scalp", __name__)
 
 
 class CandlestickPatterns:
-    """Candlestick pattern detection for scalp trading"""
+    """Professional candlestick pattern detection for scalp trading"""
 
     @staticmethod
     def get_candle_info(bar: Dict) -> Dict:
-        """Extract candle components"""
+        """Extract candle components with detailed metrics"""
         o, h, l, c = bar.get("o", 0), bar.get("h", 0), bar.get("l", 0), bar.get("c", 0)
+        v = bar.get("v", 0)
         body = abs(c - o)
         upper_wick = h - max(o, c)
         lower_wick = min(o, c) - l
@@ -32,92 +44,297 @@ class CandlestickPatterns:
 
         return {
             "open": o, "high": h, "low": l, "close": c,
+            "volume": v,
             "body": body,
             "upper_wick": upper_wick,
             "lower_wick": lower_wick,
             "range": total_range,
             "body_percent": (body / total_range * 100) if total_range else 0,
+            "upper_wick_percent": (upper_wick / total_range * 100) if total_range else 0,
+            "lower_wick_percent": (lower_wick / total_range * 100) if total_range else 0,
             "is_bullish": is_bullish,
             "is_bearish": is_bearish,
-            "is_doji": body < (total_range * 0.1),  # Body < 10% of range
+            "is_doji": body < (total_range * 0.1),
         }
 
     @staticmethod
-    def detect_hammer(candle: Dict) -> bool:
-        """Hammer: small body at top, long lower wick (bullish reversal)"""
+    def detect_hammer(candle: Dict) -> Optional[Dict]:
+        """
+        Hammer: Bullish reversal at support
+        - Small body at top (< 35% of range)
+        - Long lower wick (> 2x body, > 60% of range)
+        - Minimal upper wick (< 10% of range)
+        Win Rate: ~65% when at support level
+        """
         if candle["body_percent"] > 35:
-            return False
+            return None
         if candle["lower_wick"] < candle["body"] * 2:
-            return False
-        if candle["upper_wick"] > candle["body"] * 0.5:
-            return False
-        return True
+            return None
+        if candle["lower_wick_percent"] < 60:
+            return None
+        if candle["upper_wick_percent"] > 10:
+            return None
+
+        return {
+            "name": "Hammer",
+            "type": "bullish",
+            "strength": 75,
+            "entry_logic": "Enter on close above hammer high",
+            "stop_logic": "Stop below hammer low (wick rejection point)",
+            "target_logic": "Target 2x risk distance from entry",
+            "invalidation": candle["low"],  # Stop goes here
+            "confirmation": candle["high"],  # Entry triggers here
+        }
 
     @staticmethod
-    def detect_shooting_star(candle: Dict) -> bool:
-        """Shooting Star: small body at bottom, long upper wick (bearish reversal)"""
+    def detect_inverted_hammer(candle: Dict) -> Optional[Dict]:
+        """
+        Inverted Hammer: Potential bullish reversal
+        - Small body at bottom
+        - Long upper wick showing buyers testing higher
+        - Minimal lower wick
+        """
         if candle["body_percent"] > 35:
-            return False
+            return None
         if candle["upper_wick"] < candle["body"] * 2:
-            return False
-        if candle["lower_wick"] > candle["body"] * 0.5:
-            return False
-        return True
+            return None
+        if candle["upper_wick_percent"] < 60:
+            return None
+        if candle["lower_wick_percent"] > 10:
+            return None
+
+        return {
+            "name": "Inverted Hammer",
+            "type": "bullish",
+            "strength": 65,
+            "entry_logic": "Enter on break above upper wick",
+            "stop_logic": "Stop below candle low",
+            "target_logic": "Target 2x risk distance",
+            "invalidation": candle["low"],
+            "confirmation": candle["high"],
+        }
 
     @staticmethod
-    def detect_engulfing(prev: Dict, curr: Dict) -> Optional[str]:
-        """Engulfing pattern: current candle completely engulfs previous"""
+    def detect_shooting_star(candle: Dict) -> Optional[Dict]:
+        """
+        Shooting Star: Bearish reversal at resistance
+        - Small body at bottom (< 35% of range)
+        - Long upper wick (> 2x body, > 60% of range)
+        - Minimal lower wick
+        """
+        if candle["body_percent"] > 35:
+            return None
+        if candle["upper_wick"] < candle["body"] * 2:
+            return None
+        if candle["upper_wick_percent"] < 60:
+            return None
+        if candle["lower_wick_percent"] > 10:
+            return None
+
+        return {
+            "name": "Shooting Star",
+            "type": "bearish",
+            "strength": 75,
+            "entry_logic": "Enter on break below shooting star low",
+            "stop_logic": "Stop above shooting star high (rejection point)",
+            "target_logic": "Target 2x risk distance",
+            "invalidation": candle["high"],
+            "confirmation": candle["low"],
+        }
+
+    @staticmethod
+    def detect_engulfing(prev: Dict, curr: Dict) -> Optional[Dict]:
+        """
+        Engulfing: Strong reversal pattern
+        - Current candle completely engulfs previous body
+        - Shows strong momentum shift
+        Win Rate: ~70% with volume confirmation
+        """
+        # Bullish Engulfing
         if prev["is_bearish"] and curr["is_bullish"]:
             if curr["open"] <= prev["close"] and curr["close"] >= prev["open"]:
                 if curr["body"] > prev["body"] * 1.2:
-                    return "bullish_engulfing"
+                    return {
+                        "name": "Bullish Engulfing",
+                        "type": "bullish",
+                        "strength": 85,
+                        "entry_logic": "Enter immediately or on minor pullback",
+                        "stop_logic": "Stop below engulfing candle low",
+                        "target_logic": "Target 2-3x risk distance",
+                        "invalidation": curr["low"],
+                        "confirmation": curr["close"],
+                    }
+
+        # Bearish Engulfing
         if prev["is_bullish"] and curr["is_bearish"]:
             if curr["open"] >= prev["close"] and curr["close"] <= prev["open"]:
                 if curr["body"] > prev["body"] * 1.2:
-                    return "bearish_engulfing"
+                    return {
+                        "name": "Bearish Engulfing",
+                        "type": "bearish",
+                        "strength": 85,
+                        "entry_logic": "Enter immediately or on minor bounce",
+                        "stop_logic": "Stop above engulfing candle high",
+                        "target_logic": "Target 2-3x risk distance",
+                        "invalidation": curr["high"],
+                        "confirmation": curr["close"],
+                    }
         return None
 
     @staticmethod
-    def detect_doji(candle: Dict) -> bool:
-        """Doji: open ≈ close (indecision)"""
-        return candle["is_doji"]
-
-    @staticmethod
-    def detect_marubozu(candle: Dict) -> Optional[str]:
-        """Marubozu: strong momentum candle with no/tiny wicks"""
-        if candle["body_percent"] < 80:
-            return None
-        if candle["upper_wick"] > candle["body"] * 0.05:
-            return None
-        if candle["lower_wick"] > candle["body"] * 0.05:
-            return None
-        return "bullish_marubozu" if candle["is_bullish"] else "bearish_marubozu"
-
-    @staticmethod
-    def detect_pin_bar(candle: Dict) -> Optional[str]:
-        """Pin Bar: long wick rejection (strong reversal signal)"""
+    def detect_pin_bar(candle: Dict) -> Optional[Dict]:
+        """
+        Pin Bar: Strong rejection pattern (highest probability)
+        - Body < 30% of range
+        - One wick > 60% of range (rejection wick)
+        - Other wick minimal
+        Win Rate: 65.2% at support/resistance (IJSRED study)
+        """
         if candle["body_percent"] > 30:
             return None
-        # Bullish pin bar (long lower wick)
-        if candle["lower_wick"] > candle["range"] * 0.6:
-            return "bullish_pin_bar"
-        # Bearish pin bar (long upper wick)
-        if candle["upper_wick"] > candle["range"] * 0.6:
-            return "bearish_pin_bar"
+
+        # Bullish Pin Bar (long lower wick = rejection of lower prices)
+        if candle["lower_wick_percent"] > 60 and candle["upper_wick_percent"] < 20:
+            return {
+                "name": "Bullish Pin Bar",
+                "type": "bullish",
+                "strength": 80,
+                "entry_logic": "Enter on break above pin bar high",
+                "stop_logic": "Stop below pin bar low (the rejection point)",
+                "target_logic": "Target 2x the wick length",
+                "invalidation": candle["low"],
+                "confirmation": candle["high"],
+                "rejection_size": candle["lower_wick"],
+            }
+
+        # Bearish Pin Bar (long upper wick = rejection of higher prices)
+        if candle["upper_wick_percent"] > 60 and candle["lower_wick_percent"] < 20:
+            return {
+                "name": "Bearish Pin Bar",
+                "type": "bearish",
+                "strength": 80,
+                "entry_logic": "Enter on break below pin bar low",
+                "stop_logic": "Stop above pin bar high (the rejection point)",
+                "target_logic": "Target 2x the wick length",
+                "invalidation": candle["high"],
+                "confirmation": candle["low"],
+                "rejection_size": candle["upper_wick"],
+            }
         return None
 
     @staticmethod
-    def detect_inside_bar(prev: Dict, curr: Dict) -> bool:
-        """Inside Bar: current candle within previous range (consolidation)"""
-        return curr["high"] < prev["high"] and curr["low"] > prev["low"]
+    def detect_marubozu(candle: Dict) -> Optional[Dict]:
+        """
+        Marubozu: Strong momentum candle
+        - Body > 85% of range
+        - No/tiny wicks showing full control
+        """
+        if candle["body_percent"] < 85:
+            return None
+        if candle["upper_wick_percent"] > 7.5 or candle["lower_wick_percent"] > 7.5:
+            return None
+
+        if candle["is_bullish"]:
+            return {
+                "name": "Bullish Marubozu",
+                "type": "bullish",
+                "strength": 70,
+                "entry_logic": "Enter on pullback to 50% of candle",
+                "stop_logic": "Stop below marubozu low",
+                "target_logic": "Target 1.5-2x candle range",
+                "invalidation": candle["low"],
+                "confirmation": candle["close"],
+            }
+        else:
+            return {
+                "name": "Bearish Marubozu",
+                "type": "bearish",
+                "strength": 70,
+                "entry_logic": "Enter on bounce to 50% of candle",
+                "stop_logic": "Stop above marubozu high",
+                "target_logic": "Target 1.5-2x candle range",
+                "invalidation": candle["high"],
+                "confirmation": candle["close"],
+            }
+
+    @staticmethod
+    def detect_doji(candle: Dict) -> Optional[Dict]:
+        """
+        Doji: Indecision - wait for confirmation
+        - Body < 10% of range
+        - Indicates potential reversal if at key level
+        """
+        if not candle["is_doji"]:
+            return None
+
+        # Dragonfly Doji (long lower wick - bullish)
+        if candle["lower_wick_percent"] > 60:
+            return {
+                "name": "Dragonfly Doji",
+                "type": "bullish",
+                "strength": 60,
+                "entry_logic": "Wait for next candle confirmation",
+                "stop_logic": "Stop below doji low",
+                "target_logic": "Target based on next candle structure",
+                "invalidation": candle["low"],
+                "confirmation": candle["high"],
+            }
+
+        # Gravestone Doji (long upper wick - bearish)
+        if candle["upper_wick_percent"] > 60:
+            return {
+                "name": "Gravestone Doji",
+                "type": "bearish",
+                "strength": 60,
+                "entry_logic": "Wait for next candle confirmation",
+                "stop_logic": "Stop above doji high",
+                "target_logic": "Target based on next candle structure",
+                "invalidation": candle["high"],
+                "confirmation": candle["low"],
+            }
+
+        # Standard Doji
+        return {
+            "name": "Doji",
+            "type": "neutral",
+            "strength": 40,
+            "entry_logic": "Wait for direction confirmation",
+            "stop_logic": "Based on breakout direction",
+            "target_logic": "Based on breakout candle",
+            "invalidation": None,
+            "confirmation": None,
+        }
+
+    @staticmethod
+    def detect_inside_bar(prev: Dict, curr: Dict) -> Optional[Dict]:
+        """
+        Inside Bar: Consolidation before breakout
+        - Current candle completely within previous range
+        - Trade the breakout direction
+        """
+        if curr["high"] >= prev["high"] or curr["low"] <= prev["low"]:
+            return None
+
+        return {
+            "name": "Inside Bar",
+            "type": "neutral",
+            "strength": 55,
+            "entry_logic": "Enter on breakout of mother bar (previous candle)",
+            "stop_logic": "Stop on opposite side of mother bar",
+            "target_logic": "Target mother bar range projected from breakout",
+            "invalidation": prev["low"] if curr["close"] > (prev["high"] + prev["low"]) / 2 else prev["high"],
+            "confirmation": prev["high"] if curr["close"] > (prev["high"] + prev["low"]) / 2 else prev["low"],
+            "mother_bar_high": prev["high"],
+            "mother_bar_low": prev["low"],
+        }
 
     @classmethod
     def analyze_patterns(cls, bars: List[Dict]) -> Dict:
-        """Analyze last few candles for patterns"""
+        """Analyze recent candles for actionable patterns"""
         if len(bars) < 3:
-            return {"patterns": [], "bias": "neutral", "strength": 0}
+            return {"patterns": [], "bias": "neutral", "strength": 0, "primary_pattern": None}
 
-        patterns = []
+        detected_patterns = []
         bullish_score = 0
         bearish_score = 0
 
@@ -126,59 +343,71 @@ class CandlestickPatterns:
         prev = cls.get_candle_info(bars[-2])
         prev2 = cls.get_candle_info(bars[-3])
 
-        # Check current candle patterns
-        if cls.detect_hammer(curr):
-            patterns.append({"name": "Hammer", "type": "bullish", "strength": 70})
-            bullish_score += 70
+        # Check single candle patterns on current candle
+        single_patterns = [
+            cls.detect_hammer(curr),
+            cls.detect_inverted_hammer(curr),
+            cls.detect_shooting_star(curr),
+            cls.detect_pin_bar(curr),
+            cls.detect_marubozu(curr),
+            cls.detect_doji(curr),
+        ]
 
-        if cls.detect_shooting_star(curr):
-            patterns.append({"name": "Shooting Star", "type": "bearish", "strength": 70})
-            bearish_score += 70
-
-        if curr["is_doji"]:
-            patterns.append({"name": "Doji", "type": "neutral", "strength": 40})
-
-        marubozu = cls.detect_marubozu(curr)
-        if marubozu:
-            if "bullish" in marubozu:
-                patterns.append({"name": "Bullish Marubozu", "type": "bullish", "strength": 80})
-                bullish_score += 80
-            else:
-                patterns.append({"name": "Bearish Marubozu", "type": "bearish", "strength": 80})
-                bearish_score += 80
-
-        pin_bar = cls.detect_pin_bar(curr)
-        if pin_bar:
-            if "bullish" in pin_bar:
-                patterns.append({"name": "Bullish Pin Bar", "type": "bullish", "strength": 75})
-                bullish_score += 75
-            else:
-                patterns.append({"name": "Bearish Pin Bar", "type": "bearish", "strength": 75})
-                bearish_score += 75
+        for pattern in single_patterns:
+            if pattern:
+                detected_patterns.append(pattern)
+                if pattern["type"] == "bullish":
+                    bullish_score += pattern["strength"]
+                elif pattern["type"] == "bearish":
+                    bearish_score += pattern["strength"]
 
         # Check two-candle patterns
         engulfing = cls.detect_engulfing(prev, curr)
         if engulfing:
-            if "bullish" in engulfing:
-                patterns.append({"name": "Bullish Engulfing", "type": "bullish", "strength": 85})
-                bullish_score += 85
+            detected_patterns.append(engulfing)
+            if engulfing["type"] == "bullish":
+                bullish_score += engulfing["strength"]
             else:
-                patterns.append({"name": "Bearish Engulfing", "type": "bearish", "strength": 85})
-                bearish_score += 85
+                bearish_score += engulfing["strength"]
 
-        if cls.detect_inside_bar(prev, curr):
-            patterns.append({"name": "Inside Bar", "type": "neutral", "strength": 30})
+        inside_bar = cls.detect_inside_bar(prev, curr)
+        if inside_bar:
+            detected_patterns.append(inside_bar)
 
         # Three-candle pattern: Morning/Evening Star
         if prev["is_doji"] and prev2["is_bearish"] and curr["is_bullish"]:
             if curr["close"] > (prev2["open"] + prev2["close"]) / 2:
-                patterns.append({"name": "Morning Star", "type": "bullish", "strength": 90})
+                pattern = {
+                    "name": "Morning Star",
+                    "type": "bullish",
+                    "strength": 90,
+                    "entry_logic": "Enter on current candle or pullback",
+                    "stop_logic": "Stop below the doji low",
+                    "target_logic": "Target previous swing high",
+                    "invalidation": prev["low"],
+                    "confirmation": curr["close"],
+                }
+                detected_patterns.append(pattern)
                 bullish_score += 90
 
         if prev["is_doji"] and prev2["is_bullish"] and curr["is_bearish"]:
             if curr["close"] < (prev2["open"] + prev2["close"]) / 2:
-                patterns.append({"name": "Evening Star", "type": "bearish", "strength": 90})
+                pattern = {
+                    "name": "Evening Star",
+                    "type": "bearish",
+                    "strength": 90,
+                    "entry_logic": "Enter on current candle or bounce",
+                    "stop_logic": "Stop above the doji high",
+                    "target_logic": "Target previous swing low",
+                    "invalidation": prev["high"],
+                    "confirmation": curr["close"],
+                }
+                detected_patterns.append(pattern)
                 bearish_score += 90
+
+        # Sort by strength and get primary pattern
+        detected_patterns.sort(key=lambda x: x["strength"], reverse=True)
+        primary_pattern = detected_patterns[0] if detected_patterns else None
 
         # Determine overall bias
         if bullish_score > bearish_score + 20:
@@ -192,7 +421,8 @@ class CandlestickPatterns:
             strength = max(bullish_score, bearish_score)
 
         return {
-            "patterns": patterns,
+            "patterns": detected_patterns,
+            "primary_pattern": primary_pattern,
             "bias": bias,
             "strength": strength,
             "bullish_score": bullish_score,
@@ -200,29 +430,196 @@ class CandlestickPatterns:
             "current_candle": {
                 "type": "bullish" if curr["is_bullish"] else ("bearish" if curr["is_bearish"] else "doji"),
                 "body_percent": round(curr["body_percent"], 1),
+                "volume": curr["volume"],
             }
         }
 
 
+class VolumeAnalyzer:
+    """Volume analysis for trade confirmation"""
+
+    @staticmethod
+    def analyze_volume(bars: List[Dict]) -> Dict:
+        """Analyze volume patterns for confirmation signals"""
+        if len(bars) < 20:
+            return {
+                "current_volume": 0,
+                "avg_volume": 0,
+                "volume_ratio": 1.0,
+                "spike_detected": False,
+                "volume_trend": "neutral",
+                "confirmation_strength": 0,
+            }
+
+        volumes = [bar.get("v", 0) for bar in bars]
+        current_volume = volumes[-1]
+        avg_volume = sum(volumes[-20:]) / 20
+        recent_avg = sum(volumes[-5:]) / 5
+        older_avg = sum(volumes[-20:-5]) / 15 if len(volumes) >= 20 else avg_volume
+
+        volume_ratio = current_volume / avg_volume if avg_volume > 0 else 1.0
+
+        # Detect volume spike (key for scalping confirmation)
+        spike_detected = volume_ratio >= 1.5
+        strong_spike = volume_ratio >= 2.0
+
+        # Volume trend (increasing volume = stronger move)
+        if recent_avg > older_avg * 1.2:
+            volume_trend = "increasing"
+        elif recent_avg < older_avg * 0.8:
+            volume_trend = "decreasing"
+        else:
+            volume_trend = "neutral"
+
+        # Calculate confirmation strength (0-100)
+        confirmation_strength = 0
+        if spike_detected:
+            confirmation_strength = min(100, int(volume_ratio * 30))
+        if strong_spike:
+            confirmation_strength = min(100, confirmation_strength + 20)
+        if volume_trend == "increasing":
+            confirmation_strength = min(100, confirmation_strength + 15)
+
+        return {
+            "current_volume": current_volume,
+            "avg_volume": avg_volume,
+            "volume_ratio": round(volume_ratio, 2),
+            "spike_detected": spike_detected,
+            "strong_spike": strong_spike,
+            "volume_trend": volume_trend,
+            "confirmation_strength": confirmation_strength,
+        }
+
+
+class SupportResistance:
+    """Support and Resistance level detection based on price action"""
+
+    @staticmethod
+    def find_swing_points(bars: List[Dict], lookback: int = 5) -> Dict:
+        """Find swing highs and lows for S/R levels"""
+        if len(bars) < lookback * 2 + 1:
+            return {"swing_highs": [], "swing_lows": [], "nearest_support": None, "nearest_resistance": None}
+
+        swing_highs = []
+        swing_lows = []
+
+        for i in range(lookback, len(bars) - lookback):
+            high = bars[i].get("h", 0)
+            low = bars[i].get("l", 0)
+
+            # Check if this is a swing high
+            is_swing_high = all(
+                high > bars[i - j].get("h", 0) and high > bars[i + j].get("h", 0)
+                for j in range(1, lookback + 1)
+            )
+            if is_swing_high:
+                swing_highs.append({
+                    "price": high,
+                    "index": i,
+                    "touches": 1,
+                })
+
+            # Check if this is a swing low
+            is_swing_low = all(
+                low < bars[i - j].get("l", float("inf")) and low < bars[i + j].get("l", float("inf"))
+                for j in range(1, lookback + 1)
+            )
+            if is_swing_low:
+                swing_lows.append({
+                    "price": low,
+                    "index": i,
+                    "touches": 1,
+                })
+
+        # Cluster nearby levels (within 0.5%)
+        swing_highs = SupportResistance._cluster_levels(swing_highs)
+        swing_lows = SupportResistance._cluster_levels(swing_lows)
+
+        # Find nearest levels to current price
+        current_price = bars[-1].get("c", 0)
+
+        nearest_resistance = None
+        for sh in sorted(swing_highs, key=lambda x: x["price"]):
+            if sh["price"] > current_price:
+                nearest_resistance = sh
+                break
+
+        nearest_support = None
+        for sl in sorted(swing_lows, key=lambda x: x["price"], reverse=True):
+            if sl["price"] < current_price:
+                nearest_support = sl
+                break
+
+        return {
+            "swing_highs": swing_highs[-5:],  # Last 5 resistance levels
+            "swing_lows": swing_lows[-5:],    # Last 5 support levels
+            "nearest_support": nearest_support,
+            "nearest_resistance": nearest_resistance,
+        }
+
+    @staticmethod
+    def _cluster_levels(levels: List[Dict], threshold: float = 0.005) -> List[Dict]:
+        """Cluster nearby price levels"""
+        if not levels:
+            return []
+
+        clustered = []
+        levels = sorted(levels, key=lambda x: x["price"])
+
+        current_cluster = [levels[0]]
+        for level in levels[1:]:
+            if (level["price"] - current_cluster[-1]["price"]) / current_cluster[-1]["price"] < threshold:
+                current_cluster.append(level)
+            else:
+                # Average the cluster
+                avg_price = sum(l["price"] for l in current_cluster) / len(current_cluster)
+                clustered.append({
+                    "price": avg_price,
+                    "touches": len(current_cluster),
+                    "strength": min(100, len(current_cluster) * 25),
+                })
+                current_cluster = [level]
+
+        # Don't forget the last cluster
+        if current_cluster:
+            avg_price = sum(l["price"] for l in current_cluster) / len(current_cluster)
+            clustered.append({
+                "price": avg_price,
+                "touches": len(current_cluster),
+                "strength": min(100, len(current_cluster) * 25),
+            })
+
+        return clustered
+
+
 class ScalpAnalyzer:
-    """Technical analysis for scalp trading"""
+    """
+    Professional Scalp Trading Analyzer
+
+    Signal Weighting:
+    - Candlestick Patterns: 75% (primary driver)
+    - Volume Confirmation: 15% (validation)
+    - VWAP as S/R Level: 10% (institutional reference)
+
+    NO EMA/RSI/MACD in signal calculation (lagging indicators)
+    """
 
     def __init__(self):
         self.polygon_key = os.getenv("POLYGON_API_KEY")
         self.gemini_key = os.getenv("GEMINI_API_KEY")
         self.candle_patterns = CandlestickPatterns()
+        self.volume_analyzer = VolumeAnalyzer()
+        self.sr_analyzer = SupportResistance()
 
     def fetch_bars(self, ticker: str, interval: str = "5", limit: int = 100) -> List[Dict]:
         """Fetch candlestick data from Polygon"""
         try:
-            # Map interval to Polygon timespan
             timespan_map = {"1": "minute", "5": "minute", "15": "minute"}
             multiplier_map = {"1": 1, "5": 5, "15": 15}
 
             timespan = timespan_map.get(interval, "minute")
             multiplier = multiplier_map.get(interval, 5)
 
-            # Get data for last 2 days to ensure enough bars
             end_date = datetime.now()
             start_date = end_date - timedelta(days=2)
 
@@ -234,7 +631,6 @@ class ScalpAnalyzer:
             data = response.json()
 
             if data.get("resultsCount", 0) > 0:
-                # Reverse to get oldest first for calculations
                 return list(reversed(data.get("results", [])))
             return []
 
@@ -242,48 +638,8 @@ class ScalpAnalyzer:
             logger.error(f"Failed to fetch bars for {ticker}: {e}")
             return []
 
-    def calculate_ema(self, prices: List[float], period: int) -> float:
-        """Calculate Exponential Moving Average"""
-        if len(prices) < period:
-            return 0
-
-        multiplier = 2 / (period + 1)
-        ema = sum(prices[:period]) / period  # Start with SMA
-
-        for price in prices[period:]:
-            ema = (price * multiplier) + (ema * (1 - multiplier))
-
-        return ema
-
-    def calculate_rsi(self, prices: List[float], period: int = 14) -> float:
-        """Calculate Relative Strength Index"""
-        if len(prices) < period + 1:
-            return 50
-
-        gains = []
-        losses = []
-
-        for i in range(1, len(prices)):
-            change = prices[i] - prices[i - 1]
-            if change > 0:
-                gains.append(change)
-                losses.append(0)
-            else:
-                gains.append(0)
-                losses.append(abs(change))
-
-        avg_gain = sum(gains[-period:]) / period
-        avg_loss = sum(losses[-period:]) / period
-
-        if avg_loss == 0:
-            return 100
-
-        rs = avg_gain / avg_loss
-        rsi = 100 - (100 / (1 + rs))
-        return rsi
-
     def calculate_vwap(self, bars: List[Dict]) -> float:
-        """Calculate Volume Weighted Average Price"""
+        """Calculate VWAP (used as institutional S/R level, not indicator)"""
         if not bars:
             return 0
 
@@ -301,77 +657,46 @@ class ScalpAnalyzer:
 
         return total_vwap / total_volume
 
-    def calculate_macd(self, prices: List[float]) -> Dict:
-        """Calculate MACD (12, 26, 9)"""
-        if len(prices) < 26:
-            return {"macd": 0, "signal": 0, "histogram": 0}
-
-        ema12 = self.calculate_ema(prices, 12)
-        ema26 = self.calculate_ema(prices, 26)
-        macd_line = ema12 - ema26
-
-        # For signal line, we'd need historical MACD values
-        # Simplified: use current MACD as approximation
-        return {
-            "macd": macd_line,
-            "signal": macd_line * 0.9,  # Simplified
-            "histogram": macd_line * 0.1,
-        }
-
     def analyze(self, ticker: str, interval: str = "5") -> Dict:
-        """Perform complete scalp analysis"""
+        """
+        Perform candlestick + volume focused scalp analysis
+
+        Returns comprehensive analysis with:
+        - Primary candlestick pattern with entry/stop/target logic
+        - Volume confirmation
+        - Support/Resistance levels
+        - Clear reasoning for every recommendation
+        """
         try:
-            # Fetch price data
             bars = self.fetch_bars(ticker, interval)
 
             if not bars or len(bars) < 30:
-                return {"error": f"Insufficient data for {ticker}"}
+                return {"error": f"Insufficient data for {ticker}. Ensure market is open."}
 
-            # Extract close prices
             closes = [bar.get("c", 0) for bar in bars]
             current_price = closes[-1]
             prev_price = closes[-2] if len(closes) > 1 else current_price
 
-            # Calculate indicators
-            ema9 = self.calculate_ema(closes, 9)
-            ema21 = self.calculate_ema(closes, 21)
-            rsi = self.calculate_rsi(closes, 14)
-            vwap = self.calculate_vwap(bars[-50:])  # Use recent bars for VWAP
-            macd_data = self.calculate_macd(closes)
-
-            # Detect candlestick patterns
+            # Core Analysis (Candlestick + Volume based)
             candle_analysis = CandlestickPatterns.analyze_patterns(bars)
+            volume_analysis = VolumeAnalyzer.analyze_volume(bars)
+            sr_levels = SupportResistance.find_swing_points(bars)
+            vwap = self.calculate_vwap(bars[-50:])
 
-            # Get volume info
-            current_volume = bars[-1].get("v", 0)
-            avg_volume = sum(bar.get("v", 0) for bar in bars[-20:]) / 20 if len(bars) >= 20 else current_volume
-
-            # Determine signal using candlestick + indicators
-            signal, confidence = self._determine_signal(
-                current_price, ema9, ema21, vwap, rsi, macd_data,
-                current_volume, avg_volume, candle_analysis
+            # Determine signal using candlestick + volume only (NO lagging indicators)
+            signal_result = self._determine_signal(
+                current_price, vwap, candle_analysis, volume_analysis, sr_levels
             )
 
-            # Calculate entry/exit levels based on candle structure
-            last_bar = bars[-1]
-            candle_low = last_bar.get("l", current_price * 0.995)
-            candle_high = last_bar.get("h", current_price * 1.005)
+            # Calculate entry/stop/target with clear reasoning
+            trade_setup = self._calculate_trade_setup(
+                current_price, candle_analysis, sr_levels, vwap, signal_result["signal"]
+            )
 
-            entry_price = current_price
-            if signal == "LONG":
-                stop_loss = min(candle_low * 0.998, vwap * 0.998)
-                take_profit = current_price + (current_price - stop_loss) * 2  # 1:2 R:R
-            elif signal == "SHORT":
-                stop_loss = max(candle_high * 1.002, vwap * 1.002)
-                take_profit = current_price - (stop_loss - current_price) * 2
-            else:
-                stop_loss = current_price * 0.995
-                take_profit = current_price * 1.005
-
-            # Generate AI analysis with candlestick patterns
-            analysis = self._generate_ai_analysis(
-                ticker, signal, confidence, current_price, ema9, ema21,
-                vwap, rsi, macd_data, interval, candle_analysis
+            # Generate analysis with clear reasoning
+            analysis = self._generate_analysis(
+                ticker, signal_result, candle_analysis, volume_analysis,
+                sr_levels, vwap, current_price, interval
             )
 
             change_percent = ((current_price - prev_price) / prev_price * 100) if prev_price else 0
@@ -379,24 +704,30 @@ class ScalpAnalyzer:
             return {
                 "ticker": ticker,
                 "price": current_price,
-                "change_percent": change_percent,
-                "signal": signal,
-                "confidence": confidence,
-                "indicators": {
-                    "ema9": ema9,
-                    "ema21": ema21,
-                    "vwap": vwap,
-                    "rsi": rsi,
-                    "macd": macd_data["macd"],
-                    "macd_signal": "Bullish" if macd_data["histogram"] > 0 else "Bearish",
-                    "volume": current_volume,
-                    "volume_ratio": current_volume / avg_volume if avg_volume > 0 else 1,
+                "change_percent": round(change_percent, 2),
+                "signal": signal_result["signal"],
+                "confidence": signal_result["confidence"],
+                "signal_reasoning": signal_result["reasoning"],
+                "candlestick": {
+                    "patterns": candle_analysis["patterns"][:3],  # Top 3 patterns
+                    "primary_pattern": candle_analysis["primary_pattern"],
+                    "bias": candle_analysis["bias"],
+                    "pattern_strength": candle_analysis["strength"],
                 },
-                "candlestick": candle_analysis,
-                "entry_price": entry_price,
-                "stop_loss": stop_loss,
-                "take_profit": take_profit,
-                "risk_reward": "1:2",
+                "volume": {
+                    "ratio": volume_analysis["volume_ratio"],
+                    "spike_detected": volume_analysis["spike_detected"],
+                    "confirmation_strength": volume_analysis["confirmation_strength"],
+                    "trend": volume_analysis["volume_trend"],
+                },
+                "levels": {
+                    "vwap": round(vwap, 2),
+                    "nearest_support": sr_levels["nearest_support"]["price"] if sr_levels["nearest_support"] else None,
+                    "nearest_resistance": sr_levels["nearest_resistance"]["price"] if sr_levels["nearest_resistance"] else None,
+                    "support_strength": sr_levels["nearest_support"]["strength"] if sr_levels["nearest_support"] else 0,
+                    "resistance_strength": sr_levels["nearest_resistance"]["strength"] if sr_levels["nearest_resistance"] else 0,
+                },
+                "trade_setup": trade_setup,
                 "analysis": analysis,
                 "timestamp": datetime.now().isoformat(),
             }
@@ -408,138 +739,250 @@ class ScalpAnalyzer:
     def _determine_signal(
         self,
         price: float,
-        ema9: float,
-        ema21: float,
         vwap: float,
-        rsi: float,
-        macd: Dict,
-        volume: float,
-        avg_volume: float,
-        candle_analysis: Dict = None,
-    ) -> tuple:
-        """Determine trading signal with candlestick patterns as primary driver"""
-        bullish_signals = 0
-        bearish_signals = 0
+        candle_analysis: Dict,
+        volume_analysis: Dict,
+        sr_levels: Dict,
+    ) -> Dict:
+        """
+        Determine signal using ONLY candlestick + volume + VWAP level
 
-        # CANDLESTICK PATTERNS (weight: 40%) - Primary driver for scalping
-        if candle_analysis:
-            candle_bias = candle_analysis.get("bias", "neutral")
-            candle_strength = candle_analysis.get("strength", 0)
+        Weighting:
+        - Candlestick Patterns: 75%
+        - Volume Confirmation: 15%
+        - VWAP as S/R Level: 10%
+        """
+        bullish_score = 0
+        bearish_score = 0
+        reasoning = []
 
-            if candle_bias == "bullish":
-                bullish_signals += min(40, int(candle_strength * 0.45))
-            elif candle_bias == "bearish":
-                bearish_signals += min(40, int(candle_strength * 0.45))
+        # === CANDLESTICK PATTERNS: 75% ===
+        candle_bias = candle_analysis.get("bias", "neutral")
+        candle_strength = candle_analysis.get("strength", 0)
+        primary_pattern = candle_analysis.get("primary_pattern")
 
-        # EMA Cross (weight: 20%)
-        if ema9 > ema21:
-            bullish_signals += 20
+        if candle_bias == "bullish":
+            pattern_score = int(candle_strength * 0.75)
+            bullish_score += pattern_score
+            if primary_pattern:
+                reasoning.append(f"{primary_pattern['name']} detected (+{pattern_score} bullish)")
+        elif candle_bias == "bearish":
+            pattern_score = int(candle_strength * 0.75)
+            bearish_score += pattern_score
+            if primary_pattern:
+                reasoning.append(f"{primary_pattern['name']} detected (+{pattern_score} bearish)")
         else:
-            bearish_signals += 20
+            reasoning.append("No clear candlestick pattern")
 
-        # Price vs VWAP (weight: 20%)
+        # === VOLUME CONFIRMATION: 15% ===
+        volume_strength = volume_analysis.get("confirmation_strength", 0)
+        spike_detected = volume_analysis.get("spike_detected", False)
+
+        if spike_detected:
+            volume_score = min(15, int(volume_strength * 0.15))
+            if bullish_score > bearish_score:
+                bullish_score += volume_score
+                reasoning.append(f"Volume spike confirms bullish move (+{volume_score})")
+            elif bearish_score > bullish_score:
+                bearish_score += volume_score
+                reasoning.append(f"Volume spike confirms bearish move (+{volume_score})")
+        else:
+            reasoning.append("No volume confirmation (wait for spike)")
+
+        # === VWAP AS S/R LEVEL: 10% ===
+        vwap_distance_percent = abs(price - vwap) / vwap * 100 if vwap > 0 else 0
+
+        # Check if price is at VWAP level (within 0.3%)
+        at_vwap = vwap_distance_percent < 0.3
+
         if price > vwap:
-            bullish_signals += 20
-        else:
-            bearish_signals += 20
-
-        # RSI 50-level (weight: 10%)
-        if rsi > 50:
-            bullish_signals += 10
-        else:
-            bearish_signals += 10
-
-        # MACD (weight: 10%)
-        if macd["histogram"] > 0:
-            bullish_signals += 10
-        else:
-            bearish_signals += 10
-
-        # Volume confirmation (bonus up to 15%)
-        volume_ratio = volume / avg_volume if avg_volume > 0 else 1
-        if volume_ratio > 1.5:
-            volume_bonus = min(15, int(volume_ratio * 5))
-            if bullish_signals > bearish_signals:
-                bullish_signals += volume_bonus
+            bullish_score += 10
+            if at_vwap:
+                reasoning.append("Price bouncing off VWAP support (+10 bullish)")
             else:
-                bearish_signals += volume_bonus
-
-        # Determine signal - candlestick patterns can override with strong signals
-        if candle_analysis:
-            patterns = candle_analysis.get("patterns", [])
-            has_strong_pattern = any(p["strength"] >= 80 for p in patterns)
-
-            if has_strong_pattern:
-                # Strong candlestick pattern present
-                if bullish_signals >= 60:
-                    return "LONG", min(95, bullish_signals + 10)
-                elif bearish_signals >= 60:
-                    return "SHORT", min(95, bearish_signals + 10)
-
-        # Standard threshold
-        if bullish_signals >= 70:
-            return "LONG", min(95, bullish_signals)
-        elif bearish_signals >= 70:
-            return "SHORT", min(95, bearish_signals)
+                reasoning.append(f"Price above VWAP ${vwap:.2f} (+10 bullish)")
         else:
-            return "NEUTRAL", max(bullish_signals, bearish_signals)
+            bearish_score += 10
+            if at_vwap:
+                reasoning.append("Price rejected at VWAP resistance (+10 bearish)")
+            else:
+                reasoning.append(f"Price below VWAP ${vwap:.2f} (+10 bearish)")
 
-    def _generate_ai_analysis(
+        # === SUPPORT/RESISTANCE CONTEXT (bonus) ===
+        support = sr_levels.get("nearest_support")
+        resistance = sr_levels.get("nearest_resistance")
+
+        if support and abs(price - support["price"]) / price < 0.005:
+            if candle_bias == "bullish":
+                bullish_score += 10
+                reasoning.append(f"Bullish pattern at support ${support['price']:.2f} (+10)")
+
+        if resistance and abs(price - resistance["price"]) / price < 0.005:
+            if candle_bias == "bearish":
+                bearish_score += 10
+                reasoning.append(f"Bearish pattern at resistance ${resistance['price']:.2f} (+10)")
+
+        # === DETERMINE SIGNAL ===
+        # Require minimum 60 points AND a clear candlestick pattern
+        has_pattern = primary_pattern is not None and primary_pattern.get("strength", 0) >= 60
+
+        if bullish_score >= 60 and has_pattern and candle_bias == "bullish":
+            signal = "LONG"
+            confidence = min(95, bullish_score)
+        elif bearish_score >= 60 and has_pattern and candle_bias == "bearish":
+            signal = "SHORT"
+            confidence = min(95, bearish_score)
+        else:
+            signal = "WAIT"
+            confidence = max(bullish_score, bearish_score)
+            if not has_pattern:
+                reasoning.append("No strong pattern - wait for setup")
+
+        return {
+            "signal": signal,
+            "confidence": confidence,
+            "bullish_score": bullish_score,
+            "bearish_score": bearish_score,
+            "reasoning": reasoning,
+        }
+
+    def _calculate_trade_setup(
+        self,
+        current_price: float,
+        candle_analysis: Dict,
+        sr_levels: Dict,
+        vwap: float,
+        signal: str,
+    ) -> Dict:
+        """Calculate entry/stop/target with clear reasoning based on candlestick structure"""
+
+        primary_pattern = candle_analysis.get("primary_pattern")
+        support = sr_levels.get("nearest_support")
+        resistance = sr_levels.get("nearest_resistance")
+
+        if signal == "LONG" and primary_pattern:
+            # Entry: Pattern confirmation price or current price
+            entry = primary_pattern.get("confirmation", current_price)
+
+            # Stop Loss: Pattern invalidation point (below the rejection wick)
+            invalidation = primary_pattern.get("invalidation", current_price * 0.995)
+            stop_loss = invalidation * 0.998  # Slight buffer below invalidation
+
+            # Risk calculation
+            risk = entry - stop_loss
+
+            # Target: 2:1 Risk/Reward minimum
+            take_profit = entry + (risk * 2)
+
+            # If we have resistance, use it as target if closer
+            if resistance and resistance["price"] < take_profit:
+                take_profit = resistance["price"]
+                rr_ratio = (take_profit - entry) / risk if risk > 0 else 2
+            else:
+                rr_ratio = 2.0
+
+            return {
+                "entry_price": round(entry, 4),
+                "stop_loss": round(stop_loss, 4),
+                "take_profit": round(take_profit, 4),
+                "risk_reward": f"1:{rr_ratio:.1f}",
+                "entry_reasoning": primary_pattern.get("entry_logic", "Enter on pattern confirmation"),
+                "stop_reasoning": primary_pattern.get("stop_logic", "Stop below pattern low"),
+                "target_reasoning": primary_pattern.get("target_logic", "Target 2x risk"),
+                "invalidation_price": round(invalidation, 4),
+            }
+
+        elif signal == "SHORT" and primary_pattern:
+            entry = primary_pattern.get("confirmation", current_price)
+            invalidation = primary_pattern.get("invalidation", current_price * 1.005)
+            stop_loss = invalidation * 1.002
+
+            risk = stop_loss - entry
+            take_profit = entry - (risk * 2)
+
+            if support and support["price"] > take_profit:
+                take_profit = support["price"]
+                rr_ratio = (entry - take_profit) / risk if risk > 0 else 2
+            else:
+                rr_ratio = 2.0
+
+            return {
+                "entry_price": round(entry, 4),
+                "stop_loss": round(stop_loss, 4),
+                "take_profit": round(take_profit, 4),
+                "risk_reward": f"1:{rr_ratio:.1f}",
+                "entry_reasoning": primary_pattern.get("entry_logic", "Enter on pattern confirmation"),
+                "stop_reasoning": primary_pattern.get("stop_logic", "Stop above pattern high"),
+                "target_reasoning": primary_pattern.get("target_logic", "Target 2x risk"),
+                "invalidation_price": round(invalidation, 4),
+            }
+
+        else:
+            # No trade - waiting for setup
+            return {
+                "entry_price": None,
+                "stop_loss": None,
+                "take_profit": None,
+                "risk_reward": "N/A",
+                "entry_reasoning": "Wait for clear candlestick pattern with volume confirmation",
+                "stop_reasoning": "N/A",
+                "target_reasoning": "N/A",
+                "invalidation_price": None,
+            }
+
+    def _generate_analysis(
         self,
         ticker: str,
-        signal: str,
-        confidence: int,
-        price: float,
-        ema9: float,
-        ema21: float,
+        signal_result: Dict,
+        candle_analysis: Dict,
+        volume_analysis: Dict,
+        sr_levels: Dict,
         vwap: float,
-        rsi: float,
-        macd: Dict,
+        current_price: float,
         interval: str,
-        candle_analysis: Dict = None,
     ) -> str:
-        """Generate AI-powered analysis using Gemini"""
+        """Generate analysis with AI or fallback"""
         try:
             import google.generativeai as genai
 
             if not self.gemini_key:
                 return self._generate_fallback_analysis(
-                    signal, confidence, price, ema9, ema21, vwap, rsi, candle_analysis
+                    signal_result, candle_analysis, volume_analysis, sr_levels, vwap, current_price
                 )
 
             genai.configure(api_key=self.gemini_key)
             model = genai.GenerativeModel("gemini-1.5-flash")
 
-            # Build pattern string
-            pattern_str = "None detected"
-            if candle_analysis and candle_analysis.get("patterns"):
-                patterns = candle_analysis["patterns"]
-                pattern_str = ", ".join([f"{p['name']} ({p['type']})" for p in patterns[:3]])
+            primary = candle_analysis.get("primary_pattern")
+            pattern_info = f"{primary['name']} (Strength: {primary['strength']})" if primary else "None"
 
-            candle_type = "neutral"
-            if candle_analysis:
-                candle_type = candle_analysis.get("current_candle", {}).get("type", "neutral")
+            prompt = f"""You are a professional scalp trader. Analyze this setup for {ticker} on {interval}-minute chart.
 
-            prompt = f"""You are an expert scalp trader specializing in candlestick patterns. Analyze this {interval}-minute chart for {ticker}.
+CANDLESTICK PATTERN:
+- Primary Pattern: {pattern_info}
+- Pattern Bias: {candle_analysis.get('bias', 'neutral')}
+- Entry Logic: {primary.get('entry_logic', 'N/A') if primary else 'N/A'}
+- Stop Logic: {primary.get('stop_logic', 'N/A') if primary else 'N/A'}
 
-CANDLESTICK PATTERNS DETECTED:
-{pattern_str}
-Current Candle: {candle_type}
-Pattern Bias: {candle_analysis.get('bias', 'neutral') if candle_analysis else 'neutral'}
+VOLUME:
+- Volume Ratio: {volume_analysis['volume_ratio']}x average
+- Spike Detected: {'Yes' if volume_analysis['spike_detected'] else 'No'}
+- Volume Trend: {volume_analysis['volume_trend']}
 
-SUPPORTING INDICATORS:
-- Price: ${price:.2f} vs VWAP ${vwap:.2f} ({'above' if price > vwap else 'below'})
-- EMA 9/21: {'Bullish cross' if ema9 > ema21 else 'Bearish cross'}
-- RSI: {rsi:.1f}
+PRICE LEVELS:
+- Current Price: ${current_price:.2f}
+- VWAP: ${vwap:.2f}
+- Nearest Support: ${sr_levels['nearest_support']['price']:.2f if sr_levels.get('nearest_support') else 'N/A'}
+- Nearest Resistance: ${sr_levels['nearest_resistance']['price']:.2f if sr_levels.get('nearest_resistance') else 'N/A'}
 
-SIGNAL: {signal} (Confidence: {confidence}%)
+SIGNAL: {signal_result['signal']} (Confidence: {signal_result['confidence']}%)
 
-Provide a 2-3 sentence analysis focusing on:
-1. What the candlestick pattern(s) indicate
-2. Whether to enter, wait, or avoid
-3. Key price level to watch
+Provide a 2-3 sentence analysis:
+1. What the candlestick pattern tells us
+2. Whether volume confirms the move
+3. The key price level to watch
 
-Be concise. Use <strong> tags for key points. Focus on price action, not indicators."""
+Be direct. Use <strong> tags for key points. Focus ONLY on candlesticks and volume."""
 
             response = model.generate_content(prompt)
             return response.text.strip()
@@ -547,36 +990,47 @@ Be concise. Use <strong> tags for key points. Focus on price action, not indicat
         except Exception as e:
             logger.warning(f"Gemini analysis failed: {e}")
             return self._generate_fallback_analysis(
-                signal, confidence, price, ema9, ema21, vwap, rsi, candle_analysis
+                signal_result, candle_analysis, volume_analysis, sr_levels, vwap, current_price
             )
 
     def _generate_fallback_analysis(
         self,
-        signal: str,
-        confidence: int,
-        price: float,
-        ema9: float,
-        ema21: float,
+        signal_result: Dict,
+        candle_analysis: Dict,
+        volume_analysis: Dict,
+        sr_levels: Dict,
         vwap: float,
-        rsi: float,
-        candle_analysis: Dict = None,
+        current_price: float,
     ) -> str:
-        """Generate fallback analysis without AI"""
-        # Build pattern description
-        pattern_text = ""
-        if candle_analysis and candle_analysis.get("patterns"):
-            patterns = candle_analysis["patterns"]
-            if patterns:
-                pattern_names = [p["name"] for p in patterns[:2]]
-                pattern_text = f" Detected patterns: <strong>{', '.join(pattern_names)}</strong>."
+        """Generate analysis without AI"""
+        signal = signal_result["signal"]
+        primary = candle_analysis.get("primary_pattern")
+        volume_confirmed = volume_analysis.get("spike_detected", False)
 
-        if signal == "LONG":
-            return f"""<strong>Bullish Setup:</strong>{pattern_text} Price at ${price:.2f} is {'above' if price > vwap else 'near'} VWAP (${vwap:.2f}). Candlestick structure suggests upward momentum. <strong>Look for long entry</strong> with stop below recent swing low."""
-        elif signal == "SHORT":
-            return f"""<strong>Bearish Setup:</strong>{pattern_text} Price at ${price:.2f} is {'below' if price < vwap else 'near'} VWAP (${vwap:.2f}). Candlestick structure suggests selling pressure. <strong>Look for short entry</strong> with stop above recent swing high."""
+        if signal == "LONG" and primary:
+            vol_text = "with volume confirmation" if volume_confirmed else "waiting for volume spike"
+            return f"""<strong>{primary['name']} detected</strong> - bullish reversal pattern {vol_text}.
+            {primary.get('entry_logic', 'Enter on confirmation')}.
+            <strong>Stop below ${primary.get('invalidation', current_price * 0.995):.2f}</strong> (pattern invalidation).
+            Target 2:1 reward at VWAP ${vwap:.2f} or next resistance."""
+
+        elif signal == "SHORT" and primary:
+            vol_text = "with volume confirmation" if volume_confirmed else "waiting for volume spike"
+            return f"""<strong>{primary['name']} detected</strong> - bearish reversal pattern {vol_text}.
+            {primary.get('entry_logic', 'Enter on confirmation')}.
+            <strong>Stop above ${primary.get('invalidation', current_price * 1.005):.2f}</strong> (pattern invalidation).
+            Target 2:1 reward at support or VWAP ${vwap:.2f}."""
+
         else:
-            bias = candle_analysis.get("bias", "neutral") if candle_analysis else "neutral"
-            return f"""<strong>No Clear Setup:</strong>{pattern_text if pattern_text else ' No significant patterns detected.'} Price consolidating around ${price:.2f}. Candle bias is {bias}. <strong>Wait for a clear pattern</strong> before entering."""
+            support = sr_levels.get("nearest_support")
+            resistance = sr_levels.get("nearest_resistance")
+            support_text = f"${support['price']:.2f}" if support else "N/A"
+            resistance_text = f"${resistance['price']:.2f}" if resistance else "N/A"
+
+            return f"""<strong>No actionable pattern</strong> - wait for clear candlestick setup with volume spike.
+            Current price ${current_price:.2f}, VWAP ${vwap:.2f}.
+            Watch for patterns at <strong>support {support_text}</strong> or <strong>resistance {resistance_text}</strong>.
+            Volume currently {volume_analysis['volume_ratio']:.1f}x average."""
 
 
 # Initialize analyzer
@@ -615,13 +1069,11 @@ def quick_analysis(ticker: str):
     if "error" in result:
         return jsonify(result), 400
 
-    # Return limited info for non-logged in users
-    return jsonify(
-        {
-            "ticker": result.get("ticker"),
-            "price": result.get("price"),
-            "signal": result.get("signal"),
-            "confidence": result.get("confidence"),
-            "message": "Login for full analysis with entry/exit levels",
-        }
-    )
+    return jsonify({
+        "ticker": result.get("ticker"),
+        "price": result.get("price"),
+        "signal": result.get("signal"),
+        "confidence": result.get("confidence"),
+        "primary_pattern": result.get("candlestick", {}).get("primary_pattern", {}).get("name") if result.get("candlestick", {}).get("primary_pattern") else None,
+        "message": "Login for full analysis with entry/exit levels and reasoning",
+    })
