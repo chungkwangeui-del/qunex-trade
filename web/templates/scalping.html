@@ -1,0 +1,679 @@
+{% extends "base_layout.html" %}
+
+{% block title %}Scalp Trading - AI Analysis - Qunex Trade{% endblock %}
+
+{% block extra_styles %}
+<style>
+    /* Search Section */
+    .search-section {
+        background: var(--bg-card);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-xl);
+        padding: 24px;
+        margin-bottom: 24px;
+    }
+
+    .search-form {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+    }
+
+    .search-input {
+        flex: 1;
+        max-width: 300px;
+        padding: 12px 16px;
+        background: var(--bg-hover);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-lg);
+        color: var(--text-primary);
+        font-size: 1rem;
+        font-family: 'JetBrains Mono', monospace;
+        text-transform: uppercase;
+    }
+
+    .search-input:focus {
+        outline: none;
+        border-color: var(--accent-cyan);
+        box-shadow: 0 0 0 3px rgba(0, 217, 255, 0.1);
+    }
+
+    .search-btn {
+        padding: 12px 24px;
+        background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+        border: none;
+        border-radius: var(--radius-lg);
+        color: #000;
+        font-weight: var(--font-semibold);
+        cursor: pointer;
+        transition: all var(--transition-fast);
+    }
+
+    .search-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 20px rgba(0, 217, 255, 0.3);
+    }
+
+    .timeframe-tabs {
+        display: flex;
+        gap: 8px;
+        margin-left: auto;
+    }
+
+    .timeframe-tab {
+        padding: 8px 16px;
+        background: var(--bg-hover);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-md);
+        color: var(--text-secondary);
+        font-size: var(--text-sm);
+        cursor: pointer;
+        transition: all var(--transition-fast);
+    }
+
+    .timeframe-tab:hover {
+        background: var(--bg-active);
+    }
+
+    .timeframe-tab.active {
+        background: var(--accent-cyan);
+        color: #000;
+        border-color: var(--accent-cyan);
+    }
+
+    /* Main Grid */
+    .scalp-grid {
+        display: grid;
+        grid-template-columns: 1fr 400px;
+        gap: 24px;
+    }
+
+    @media (max-width: 1200px) {
+        .scalp-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* Chart Section */
+    .chart-section {
+        background: var(--bg-card);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-xl);
+        overflow: hidden;
+    }
+
+    .chart-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 20px;
+        border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .ticker-display {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .ticker-symbol {
+        font-size: 1.5rem;
+        font-weight: var(--font-bold);
+        font-family: 'JetBrains Mono', monospace;
+        background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .ticker-price {
+        font-size: 1.25rem;
+        font-weight: var(--font-semibold);
+        font-family: 'JetBrains Mono', monospace;
+    }
+
+    .ticker-change {
+        font-size: var(--text-sm);
+        padding: 4px 10px;
+        border-radius: var(--radius-sm);
+    }
+
+    .ticker-change.positive {
+        color: var(--success);
+        background: rgba(34, 197, 94, 0.1);
+    }
+
+    .ticker-change.negative {
+        color: var(--danger);
+        background: rgba(239, 68, 68, 0.1);
+    }
+
+    /* Analysis Panel */
+    .analysis-panel {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .signal-card {
+        background: var(--bg-card);
+        border: 2px solid var(--border-subtle);
+        border-radius: var(--radius-xl);
+        padding: 24px;
+        text-align: center;
+        transition: all var(--transition-fast);
+    }
+
+    .signal-card.bullish {
+        border-color: var(--success);
+        background: rgba(34, 197, 94, 0.05);
+    }
+
+    .signal-card.bearish {
+        border-color: var(--danger);
+        background: rgba(239, 68, 68, 0.05);
+    }
+
+    .signal-card.neutral {
+        border-color: var(--text-tertiary);
+    }
+
+    .signal-icon {
+        font-size: 3rem;
+        margin-bottom: 12px;
+    }
+
+    .signal-text {
+        font-size: 1.5rem;
+        font-weight: var(--font-bold);
+        margin-bottom: 8px;
+    }
+
+    .signal-text.bullish { color: var(--success); }
+    .signal-text.bearish { color: var(--danger); }
+    .signal-text.neutral { color: var(--text-tertiary); }
+
+    .signal-confidence {
+        font-size: var(--text-sm);
+        color: var(--text-secondary);
+    }
+
+    /* Indicators Card */
+    .indicators-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-xl);
+        padding: 20px;
+    }
+
+    .card-title {
+        font-size: var(--text-lg);
+        font-weight: var(--font-semibold);
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .indicator-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .indicator-row:last-child {
+        border-bottom: none;
+    }
+
+    .indicator-name {
+        color: var(--text-secondary);
+        font-size: var(--text-sm);
+    }
+
+    .indicator-value {
+        font-family: 'JetBrains Mono', monospace;
+        font-weight: var(--font-medium);
+    }
+
+    .indicator-value.bullish { color: var(--success); }
+    .indicator-value.bearish { color: var(--danger); }
+
+    /* AI Analysis Card */
+    .ai-analysis-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-xl);
+        padding: 20px;
+        flex: 1;
+    }
+
+    .ai-analysis-content {
+        font-size: var(--text-sm);
+        line-height: 1.7;
+        color: var(--text-secondary);
+    }
+
+    .ai-analysis-content strong {
+        color: var(--text-primary);
+    }
+
+    .entry-exit-box {
+        background: var(--bg-hover);
+        border-radius: var(--radius-lg);
+        padding: 16px;
+        margin-top: 16px;
+    }
+
+    .entry-exit-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+    }
+
+    .entry-exit-label {
+        color: var(--text-tertiary);
+        font-size: var(--text-sm);
+    }
+
+    .entry-exit-value {
+        font-family: 'JetBrains Mono', monospace;
+        font-weight: var(--font-semibold);
+    }
+
+    .entry-exit-value.green { color: var(--success); }
+    .entry-exit-value.red { color: var(--danger); }
+    .entry-exit-value.yellow { color: #eab308; }
+
+    /* Loading State */
+    .loading-overlay {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 48px;
+        color: var(--text-tertiary);
+    }
+
+    .spinner {
+        width: 40px;
+        height: 40px;
+        border: 3px solid var(--border-subtle);
+        border-top-color: var(--accent-cyan);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-bottom: 16px;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 60px 24px;
+        color: var(--text-tertiary);
+    }
+
+    .empty-icon {
+        font-size: 4rem;
+        margin-bottom: 16px;
+        opacity: 0.5;
+    }
+
+    .empty-title {
+        font-size: 1.25rem;
+        font-weight: var(--font-semibold);
+        color: var(--text-primary);
+        margin-bottom: 8px;
+    }
+
+    .empty-desc {
+        font-size: var(--text-sm);
+        max-width: 300px;
+        margin: 0 auto;
+    }
+
+    /* Risk Warning */
+    .risk-warning {
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        border-radius: var(--radius-lg);
+        padding: 12px 16px;
+        font-size: var(--text-xs);
+        color: var(--text-secondary);
+        margin-top: 16px;
+    }
+
+    .risk-warning strong {
+        color: var(--danger);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="content-header">
+    <div>
+        <h1 class="content-title">Scalp Trading Analysis</h1>
+        <p class="content-subtitle">AI-powered short-term trading signals using EMA 9/21 + VWAP + RSI strategy</p>
+    </div>
+</div>
+
+<!-- Search Section -->
+<div class="search-section">
+    <form class="search-form" id="searchForm" onsubmit="return analyzeStock(event)">
+        <input type="text" class="search-input" id="tickerInput" placeholder="Enter ticker (e.g., AAPL)" maxlength="10" required>
+        <button type="submit" class="search-btn" id="analyzeBtn">Analyze</button>
+        <div class="timeframe-tabs">
+            <button type="button" class="timeframe-tab" data-interval="1" onclick="setTimeframe('1')">1m</button>
+            <button type="button" class="timeframe-tab active" data-interval="5" onclick="setTimeframe('5')">5m</button>
+            <button type="button" class="timeframe-tab" data-interval="15" onclick="setTimeframe('15')">15m</button>
+        </div>
+    </form>
+</div>
+
+<!-- Main Content -->
+<div class="scalp-grid">
+    <!-- Chart Section -->
+    <div class="chart-section">
+        <div class="chart-header" id="chartHeader" style="display: none;">
+            <div class="ticker-display">
+                <span class="ticker-symbol" id="displayTicker">--</span>
+                <span class="ticker-price" id="displayPrice">$--</span>
+                <span class="ticker-change" id="displayChange">--</span>
+            </div>
+        </div>
+        <div id="chartContainer">
+            <div class="empty-state">
+                <div class="empty-icon">📈</div>
+                <div class="empty-title">Enter a Ticker Symbol</div>
+                <div class="empty-desc">Search for any stock to get AI-powered scalping analysis with entry/exit signals</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Analysis Panel -->
+    <div class="analysis-panel" id="analysisPanel" style="display: none;">
+        <!-- Signal Card -->
+        <div class="signal-card" id="signalCard">
+            <div class="signal-icon" id="signalIcon">⏳</div>
+            <div class="signal-text" id="signalText">Analyzing...</div>
+            <div class="signal-confidence" id="signalConfidence">--</div>
+        </div>
+
+        <!-- Technical Indicators -->
+        <div class="indicators-card">
+            <div class="card-title">Technical Indicators</div>
+            <div class="indicator-row">
+                <span class="indicator-name">EMA 9</span>
+                <span class="indicator-value" id="ema9">--</span>
+            </div>
+            <div class="indicator-row">
+                <span class="indicator-name">EMA 21</span>
+                <span class="indicator-value" id="ema21">--</span>
+            </div>
+            <div class="indicator-row">
+                <span class="indicator-name">EMA Cross</span>
+                <span class="indicator-value" id="emaCross">--</span>
+            </div>
+            <div class="indicator-row">
+                <span class="indicator-name">VWAP</span>
+                <span class="indicator-value" id="vwap">--</span>
+            </div>
+            <div class="indicator-row">
+                <span class="indicator-name">Price vs VWAP</span>
+                <span class="indicator-value" id="priceVsVwap">--</span>
+            </div>
+            <div class="indicator-row">
+                <span class="indicator-name">RSI (14)</span>
+                <span class="indicator-value" id="rsi">--</span>
+            </div>
+            <div class="indicator-row">
+                <span class="indicator-name">MACD Signal</span>
+                <span class="indicator-value" id="macd">--</span>
+            </div>
+            <div class="indicator-row">
+                <span class="indicator-name">Volume</span>
+                <span class="indicator-value" id="volume">--</span>
+            </div>
+        </div>
+
+        <!-- AI Analysis -->
+        <div class="ai-analysis-card">
+            <div class="card-title">AI Analysis</div>
+            <div class="ai-analysis-content" id="aiAnalysis">
+                <div class="loading-overlay">
+                    <div class="spinner"></div>
+                    <span>Waiting for analysis...</span>
+                </div>
+            </div>
+            <div class="entry-exit-box" id="entryExitBox" style="display: none;">
+                <div class="entry-exit-row">
+                    <span class="entry-exit-label">Entry Price</span>
+                    <span class="entry-exit-value green" id="entryPrice">--</span>
+                </div>
+                <div class="entry-exit-row">
+                    <span class="entry-exit-label">Stop Loss</span>
+                    <span class="entry-exit-value red" id="stopLoss">--</span>
+                </div>
+                <div class="entry-exit-row">
+                    <span class="entry-exit-label">Take Profit</span>
+                    <span class="entry-exit-value green" id="takeProfit">--</span>
+                </div>
+                <div class="entry-exit-row">
+                    <span class="entry-exit-label">Risk/Reward</span>
+                    <span class="entry-exit-value yellow" id="riskReward">--</span>
+                </div>
+            </div>
+            <div class="risk-warning">
+                <strong>Risk Warning:</strong> Scalp trading is high-risk. Never risk more than 1-2% of your account per trade. Past performance does not guarantee future results.
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+<script>
+    let currentTicker = '';
+    let currentInterval = '5';
+    let tvWidget = null;
+
+    function setTimeframe(interval) {
+        currentInterval = interval;
+        document.querySelectorAll('.timeframe-tab').forEach(tab => {
+            tab.classList.toggle('active', tab.dataset.interval === interval);
+        });
+        if (currentTicker) {
+            initChart(currentTicker);
+            fetchAnalysis(currentTicker);
+        }
+    }
+
+    function analyzeStock(event) {
+        event.preventDefault();
+        const ticker = document.getElementById('tickerInput').value.toUpperCase().trim();
+        if (!ticker) return false;
+
+        currentTicker = ticker;
+        document.getElementById('chartHeader').style.display = 'flex';
+        document.getElementById('analysisPanel').style.display = 'flex';
+        document.getElementById('displayTicker').textContent = ticker;
+
+        initChart(ticker);
+        fetchAnalysis(ticker);
+
+        return false;
+    }
+
+    function initChart(ticker) {
+        const container = document.getElementById('chartContainer');
+        container.innerHTML = '<div id="tradingview_scalp" style="height:500px;"></div>';
+
+        tvWidget = new TradingView.widget({
+            "autosize": true,
+            "symbol": ticker,
+            "interval": currentInterval,
+            "timezone": "America/New_York",
+            "theme": "dark",
+            "style": "1",
+            "locale": "en",
+            "toolbar_bg": "#000000",
+            "enable_publishing": false,
+            "hide_side_toolbar": false,
+            "allow_symbol_change": true,
+            "container_id": "tradingview_scalp",
+            "studies": [
+                {"id": "MAExp@tv-basicstudies", "inputs": {"length": 9}},
+                {"id": "MAExp@tv-basicstudies", "inputs": {"length": 21}},
+                {"id": "VWAP@tv-basicstudies"},
+                {"id": "RSI@tv-basicstudies", "inputs": {"length": 14}},
+                {"id": "MACD@tv-basicstudies"}
+            ],
+            "backgroundColor": "#000000",
+            "gridColor": "#1a1a1a"
+        });
+    }
+
+    async function fetchAnalysis(ticker) {
+        // Show loading state
+        document.getElementById('signalIcon').textContent = '⏳';
+        document.getElementById('signalText').textContent = 'Analyzing...';
+        document.getElementById('signalText').className = 'signal-text';
+        document.getElementById('signalCard').className = 'signal-card';
+        document.getElementById('signalConfidence').textContent = 'Processing technical indicators...';
+        document.getElementById('entryExitBox').style.display = 'none';
+
+        document.getElementById('aiAnalysis').innerHTML = `
+            <div class="loading-overlay">
+                <div class="spinner"></div>
+                <span>Running AI analysis...</span>
+            </div>
+        `;
+
+        try {
+            const response = await fetch(`/api/scalp/analyze/${ticker}?interval=${currentInterval}`);
+            const data = await response.json();
+
+            if (data.error) {
+                throw new Error(data.error);
+            }
+
+            updateDisplay(data);
+        } catch (error) {
+            console.error('Analysis error:', error);
+            document.getElementById('signalIcon').textContent = '❌';
+            document.getElementById('signalText').textContent = 'Error';
+            document.getElementById('signalConfidence').textContent = error.message || 'Failed to analyze';
+            document.getElementById('aiAnalysis').innerHTML = `
+                <div style="color: var(--danger); text-align: center; padding: 20px;">
+                    Failed to analyze ${ticker}. Please try again.
+                </div>
+            `;
+        }
+    }
+
+    function updateDisplay(data) {
+        // Update price info
+        if (data.price) {
+            document.getElementById('displayPrice').textContent = `$${data.price.toFixed(2)}`;
+            const changeClass = data.change_percent >= 0 ? 'positive' : 'negative';
+            const changeSign = data.change_percent >= 0 ? '+' : '';
+            document.getElementById('displayChange').className = `ticker-change ${changeClass}`;
+            document.getElementById('displayChange').textContent = `${changeSign}${data.change_percent.toFixed(2)}%`;
+        }
+
+        // Update signal card
+        const signal = data.signal || 'NEUTRAL';
+        const signalCard = document.getElementById('signalCard');
+        const signalIcon = document.getElementById('signalIcon');
+        const signalText = document.getElementById('signalText');
+
+        if (signal === 'LONG') {
+            signalCard.className = 'signal-card bullish';
+            signalIcon.textContent = '🚀';
+            signalText.textContent = 'LONG SIGNAL';
+            signalText.className = 'signal-text bullish';
+        } else if (signal === 'SHORT') {
+            signalCard.className = 'signal-card bearish';
+            signalIcon.textContent = '🔻';
+            signalText.textContent = 'SHORT SIGNAL';
+            signalText.className = 'signal-text bearish';
+        } else {
+            signalCard.className = 'signal-card neutral';
+            signalIcon.textContent = '⏸️';
+            signalText.textContent = 'NO SIGNAL';
+            signalText.className = 'signal-text neutral';
+        }
+
+        document.getElementById('signalConfidence').textContent = `Confidence: ${data.confidence || '--'}%`;
+
+        // Update indicators
+        const indicators = data.indicators || {};
+        document.getElementById('ema9').textContent = indicators.ema9 ? `$${indicators.ema9.toFixed(2)}` : '--';
+        document.getElementById('ema21').textContent = indicators.ema21 ? `$${indicators.ema21.toFixed(2)}` : '--';
+
+        if (indicators.ema9 && indicators.ema21) {
+            const emaCross = document.getElementById('emaCross');
+            if (indicators.ema9 > indicators.ema21) {
+                emaCross.textContent = 'Bullish';
+                emaCross.className = 'indicator-value bullish';
+            } else {
+                emaCross.textContent = 'Bearish';
+                emaCross.className = 'indicator-value bearish';
+            }
+        }
+
+        document.getElementById('vwap').textContent = indicators.vwap ? `$${indicators.vwap.toFixed(2)}` : '--';
+
+        if (data.price && indicators.vwap) {
+            const priceVsVwap = document.getElementById('priceVsVwap');
+            if (data.price > indicators.vwap) {
+                priceVsVwap.textContent = 'Above (Bullish)';
+                priceVsVwap.className = 'indicator-value bullish';
+            } else {
+                priceVsVwap.textContent = 'Below (Bearish)';
+                priceVsVwap.className = 'indicator-value bearish';
+            }
+        }
+
+        const rsiEl = document.getElementById('rsi');
+        if (indicators.rsi) {
+            rsiEl.textContent = indicators.rsi.toFixed(1);
+            rsiEl.className = indicators.rsi > 50 ? 'indicator-value bullish' : 'indicator-value bearish';
+        }
+
+        const macdEl = document.getElementById('macd');
+        if (indicators.macd_signal) {
+            macdEl.textContent = indicators.macd_signal;
+            macdEl.className = indicators.macd_signal === 'Bullish' ? 'indicator-value bullish' : 'indicator-value bearish';
+        }
+
+        document.getElementById('volume').textContent = indicators.volume ? formatVolume(indicators.volume) : '--';
+
+        // Update AI Analysis
+        if (data.analysis) {
+            document.getElementById('aiAnalysis').innerHTML = data.analysis;
+        }
+
+        // Update entry/exit if available
+        if (data.entry_price) {
+            document.getElementById('entryExitBox').style.display = 'block';
+            document.getElementById('entryPrice').textContent = `$${data.entry_price.toFixed(2)}`;
+            document.getElementById('stopLoss').textContent = `$${data.stop_loss.toFixed(2)}`;
+            document.getElementById('takeProfit').textContent = `$${data.take_profit.toFixed(2)}`;
+            document.getElementById('riskReward').textContent = data.risk_reward || '1:2';
+        }
+    }
+
+    function formatVolume(vol) {
+        if (vol >= 1000000) return (vol / 1000000).toFixed(1) + 'M';
+        if (vol >= 1000) return (vol / 1000).toFixed(1) + 'K';
+        return vol.toString();
+    }
+
+    // Auto-focus on input
+    document.getElementById('tickerInput').focus();
+</script>
+{% endblock %}

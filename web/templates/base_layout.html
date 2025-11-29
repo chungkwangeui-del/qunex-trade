@@ -100,6 +100,13 @@
 
                 <div class="nav-group">
                     <div class="nav-group-label">Tools</div>
+                    <a href="/scalping" class="nav-item {% if request.path == '/scalping' %}active{% endif %}">
+                        <svg class="nav-icon" viewBox="0 0 24 24">
+                            <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+                        </svg>
+                        <span>Scalping</span>
+                        <span class="nav-badge live">AI</span>
+                    </a>
                     <a href="/watchlist" class="nav-item {% if request.path == '/watchlist' %}active{% endif %}">
                         <svg class="nav-icon" viewBox="0 0 24 24">
                             <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />

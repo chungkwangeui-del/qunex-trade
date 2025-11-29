@@ -320,3 +320,10 @@ def admin():
     if not current_user.email.endswith("@admin.com"):
         return redirect(url_for("main.index"))
     return redirect(url_for("auth.admin_dashboard"))
+
+
+@main.route("/scalping")
+@login_required
+def scalping():
+    """Scalp trading analysis page"""
+    return render_template("scalping.html", user=current_user)

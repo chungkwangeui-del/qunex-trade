@@ -58,11 +58,11 @@ def create_app(config_class=Config):
     csrf.exempt("web.auth.get_active_announcement")
 
     # Register Blueprints
-    # Register Blueprints
     from web.auth import auth, oauth
     from web.api_polygon import api_polygon
     from web.api_watchlist import api_watchlist
     from web.api_portfolio import api_portfolio
+    from web.api_scalp import api_scalp
     from web.main import main as main_blueprint
     from web.api_main import api_main
 
@@ -72,6 +72,7 @@ def create_app(config_class=Config):
     app.register_blueprint(api_polygon)
     app.register_blueprint(api_watchlist)
     app.register_blueprint(api_portfolio)
+    app.register_blueprint(api_scalp)
     app.register_blueprint(main_blueprint)
     app.register_blueprint(api_main)
 
