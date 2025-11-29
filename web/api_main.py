@@ -233,6 +233,7 @@ def get_api_status():
 
     status = {
         "polygon": {"connected": False, "message": "ENV: POLYGON_API_KEY not set", "label": "Polygon.io", "env_var": "POLYGON_API_KEY"},
+        "binance": {"connected": False, "message": "Checking Binance API...", "label": "Binance (Crypto)", "env_var": None},
         "gemini": {"connected": False, "message": "ENV: GEMINI_API_KEY not set", "label": "Gemini AI", "env_var": "GEMINI_API_KEY"},
         "finnhub": {"connected": False, "message": "ENV: FINNHUB_API_KEY not set", "label": "Finnhub", "env_var": "FINNHUB_API_KEY"},
         "alpha_vantage": {"connected": False, "message": "ENV: ALPHA_VANTAGE_API_KEY not set", "label": "Alpha Vantage", "env_var": "ALPHA_VANTAGE_API_KEY"},
@@ -261,6 +262,49 @@ def get_api_status():
                 status["polygon"] = {"connected": False, "message": f"NETWORK: Connection failed - {error_msg[:40]}", "label": "Polygon.io", "env_var": "POLYGON_API_KEY"}
             else:
                 status["polygon"] = {"connected": False, "message": f"ERROR: {error_msg[:50]}", "label": "Polygon.io", "env_var": "POLYGON_API_KEY"}
+
+    # Check Binance API - no API key required for public data
+    # Try Binance.US first (for US users), then Binance.com
+    binance_endpoints = [
+        ("https://api.binance.us/api/v3/ping", "Binance.US"),
+        ("https://api.binance.com/api/v3/ping", "Binance.com"),
+    ]
+    binance_connected = False
+    binance_message = "NETWORK: All Binance endpoints unreachable"
+
+    for endpoint_url, endpoint_name in binance_endpoints:
+        try:
+            resp = requests.get(endpoint_url, timeout=5)
+            if resp.status_code == 200:
+                # Also test klines endpoint to confirm full functionality
+                test_url = endpoint_url.replace("/ping", "/klines")
+                test_resp = requests.get(test_url, params={"symbol": "BTCUSDT", "interval": "1m", "limit": 1}, timeout=5)
+                if test_resp.status_code == 200:
+                    binance_connected = True
+                    binance_message = f"OK: {endpoint_name} working (no API key required)"
+                    break
+                elif test_resp.status_code == 451:
+                    # Geo-restricted, try next endpoint
+                    binance_message = f"GEO_BLOCKED: {endpoint_name} restricted in your region"
+                    continue
+                else:
+                    binance_connected = True
+                    binance_message = f"PARTIAL: {endpoint_name} ping OK, klines returned {test_resp.status_code}"
+                    break
+            elif resp.status_code == 451:
+                binance_message = f"GEO_BLOCKED: {endpoint_name} restricted in your region"
+                continue
+        except requests.exceptions.Timeout:
+            binance_message = f"TIMEOUT: {endpoint_name} not responding (5s)"
+            continue
+        except requests.exceptions.ConnectionError:
+            binance_message = f"NETWORK: Cannot reach {endpoint_name}"
+            continue
+        except Exception as e:
+            binance_message = f"ERROR: {str(e)[:40]}"
+            continue
+
+    status["binance"] = {"connected": binance_connected, "message": binance_message, "label": "Binance (Crypto)", "env_var": None}
 
     # Check Gemini API - actual test
     gemini_key = os.environ.get("GEMINI_API_KEY", "")
