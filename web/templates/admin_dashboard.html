@@ -371,11 +371,11 @@
         <input type="text" id="announcement-message" placeholder="Enter announcement message..."
                style="flex: 1; min-width: 300px; padding: 10px 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: #fff; font-size: 0.875rem;">
         <select id="announcement-type"
-                style="padding: 10px 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: #fff; font-size: 0.875rem;">
-            <option value="info">Info (Blue)</option>
-            <option value="success">Success (Green)</option>
-            <option value="warning">Warning (Yellow)</option>
-            <option value="error">Error (Red)</option>
+                style="padding: 10px 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: #1a1a1a; color: #fff; font-size: 0.875rem; min-width: 160px; cursor: pointer;">
+            <option value="info" style="background: #1a1a1a; color: #fff; padding: 8px;">Info (Blue)</option>
+            <option value="success" style="background: #1a1a1a; color: #fff; padding: 8px;">Success (Green)</option>
+            <option value="warning" style="background: #1a1a1a; color: #fff; padding: 8px;">Warning (Yellow)</option>
+            <option value="error" style="background: #1a1a1a; color: #fff; padding: 8px;">Error (Red)</option>
         </select>
         <button onclick="createAnnouncement()" class="admin-btn" style="padding: 10px 20px;">
             Publish Announcement
@@ -433,13 +433,13 @@
                    oninput="filterUsers()"
                    style="padding: 8px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: #fff; font-size: 0.875rem; width: 250px;">
             <select id="tier-filter" onchange="filterUsers()"
-                    style="padding: 8px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: #fff; font-size: 0.875rem;">
-                <option value="">All Tiers</option>
-                <option value="free">Free</option>
-                <option value="beta">Beta</option>
-                <option value="pro">Pro</option>
-                <option value="premium">Premium</option>
-                <option value="developer">Developer</option>
+                    style="padding: 8px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); background: #1a1a1a; color: #fff; font-size: 0.875rem; min-width: 120px; cursor: pointer;">
+                <option value="" style="background: #1a1a1a; color: #fff;">All Tiers</option>
+                <option value="free" style="background: #1a1a1a; color: #fff;">Free</option>
+                <option value="beta" style="background: #1a1a1a; color: #fff;">Beta</option>
+                <option value="pro" style="background: #1a1a1a; color: #fff;">Pro</option>
+                <option value="premium" style="background: #1a1a1a; color: #fff;">Premium</option>
+                <option value="developer" style="background: #1a1a1a; color: #fff;">Developer</option>
             </select>
             <button onclick="exportUsersCSV()" class="admin-btn" title="Export to CSV">Export CSV</button>
         </div>
