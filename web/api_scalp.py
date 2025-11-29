@@ -2,16 +2,21 @@
 Scalp Trading Analysis API
 Professional candlestick + volume based scalping signals
 
-Strategy Based on Research:
-- Candlestick Patterns: 75% weight (primary driver)
-- Volume Confirmation: 15% weight (validation)
-- VWAP as S/R Level: 10% weight (institutional reference)
+Strategy Based on Research + Korean Trader "쉽알" Methods:
+- Order Blocks: Engulfing patterns create S/R zones
+- FVG (Fair Value Gap): Price gaps that tend to get filled
+- Confluence Scoring: Minimum 2 reasons required for entry
+- Fakeout/Trap Detection: False breakouts for counter-trend entries
+- Volume Spike = Exit Signal (not just confirmation)
 
-Key Findings Applied:
-- Pin Bar at support = 65.2% win rate (IJSRED study)
-- Volume decreases during consolidation, spikes before breakout
-- Risk/Reward minimum 1:2 or 1:3
-- Stop loss at pattern invalidation point
+Key Principles (7 Video Analysis):
+1. Order Block = 장악형 캔들 (Engulfing) creates S/R
+2. Double Engulfing (이중 장악형) = VERY STRONG signal
+3. FVG = 캔들 사이 갭, price returns to fill
+4. Multi-timeframe Confluence = Higher weight
+5. Fakeout at channel = Entry opportunity
+6. Volume spike = Consider taking profits
+7. Minimum 2 confluences required for entry
 
 Supported Markets:
 - US Stocks via Polygon.io API
@@ -496,6 +501,583 @@ class VolumeAnalyzer:
         }
 
 
+class FVGAnalyzer:
+    """
+    Fair Value Gap (FVG) Detection - 쉽알 Strategy
+
+    FVG = Gap between candles where wicks don't overlap
+    - Upward FVG (created during rise) = Support zone when price returns
+    - Downward FVG (created during drop) = Resistance zone when price returns
+
+    Key: Price tends to return and fill these gaps
+    """
+
+    @staticmethod
+    def detect_fvg(bars: List[Dict], min_gap_percent: float = 0.1) -> Dict:
+        """
+        Detect Fair Value Gaps in price action
+
+        FVG occurs when:
+        - 3 consecutive candles
+        - Middle candle creates gap where candle 1 high < candle 3 low (bullish FVG)
+        - Or candle 1 low > candle 3 high (bearish FVG)
+        """
+        if len(bars) < 10:
+            return {"bullish_fvgs": [], "bearish_fvgs": [], "nearest_fvg": None}
+
+        bullish_fvgs = []  # Support zones (gaps during rise)
+        bearish_fvgs = []  # Resistance zones (gaps during drop)
+
+        current_price = bars[-1].get("c", 0)
+
+        for i in range(2, len(bars)):
+            candle1 = bars[i - 2]
+            candle2 = bars[i - 1]  # Middle candle (the big move)
+            candle3 = bars[i]
+
+            c1_high = candle1.get("h", 0)
+            c1_low = candle1.get("l", 0)
+            c3_high = candle3.get("h", 0)
+            c3_low = candle3.get("l", 0)
+
+            # Bullish FVG: Gap below (candle 1 high < candle 3 low)
+            # This creates a support zone
+            if c1_high < c3_low:
+                gap_size = c3_low - c1_high
+                gap_percent = (gap_size / c1_high * 100) if c1_high > 0 else 0
+
+                if gap_percent >= min_gap_percent:
+                    fvg = {
+                        "type": "bullish",
+                        "top": c3_low,
+                        "bottom": c1_high,
+                        "size": gap_size,
+                        "size_percent": round(gap_percent, 2),
+                        "index": i,
+                        "filled": current_price <= c3_low,  # FVG filled if price came back
+                        "strength": min(100, int(gap_percent * 20)),
+                    }
+                    bullish_fvgs.append(fvg)
+
+            # Bearish FVG: Gap above (candle 1 low > candle 3 high)
+            # This creates a resistance zone
+            if c1_low > c3_high:
+                gap_size = c1_low - c3_high
+                gap_percent = (gap_size / c3_high * 100) if c3_high > 0 else 0
+
+                if gap_percent >= min_gap_percent:
+                    fvg = {
+                        "type": "bearish",
+                        "top": c1_low,
+                        "bottom": c3_high,
+                        "size": gap_size,
+                        "size_percent": round(gap_percent, 2),
+                        "index": i,
+                        "filled": current_price >= c3_high,
+                        "strength": min(100, int(gap_percent * 20)),
+                    }
+                    bearish_fvgs.append(fvg)
+
+        # Find nearest unfilled FVG to current price
+        nearest_fvg = None
+        min_distance = float("inf")
+
+        for fvg in bullish_fvgs + bearish_fvgs:
+            if fvg["filled"]:
+                continue
+
+            # Calculate distance to FVG zone
+            if fvg["type"] == "bullish":
+                distance = current_price - fvg["top"]
+                if 0 < distance < min_distance:
+                    min_distance = distance
+                    nearest_fvg = fvg
+            else:  # bearish
+                distance = fvg["bottom"] - current_price
+                if 0 < distance < min_distance:
+                    min_distance = distance
+                    nearest_fvg = fvg
+
+        # Check if price is currently IN an FVG zone
+        at_fvg = None
+        for fvg in bullish_fvgs + bearish_fvgs:
+            if fvg["bottom"] <= current_price <= fvg["top"]:
+                at_fvg = fvg
+                break
+
+        return {
+            "bullish_fvgs": bullish_fvgs[-5:],  # Last 5 bullish FVGs
+            "bearish_fvgs": bearish_fvgs[-5:],  # Last 5 bearish FVGs
+            "nearest_fvg": nearest_fvg,
+            "at_fvg": at_fvg,
+            "total_bullish": len(bullish_fvgs),
+            "total_bearish": len(bearish_fvgs),
+        }
+
+
+class OrderBlockAnalyzer:
+    """
+    Order Block Detection - 쉽알 Strategy (Enhanced)
+
+    Order Block = Engulfing candle pattern
+    - Bullish Order Block: Bearish candle engulfed by bullish = Support
+    - Bearish Order Block: Bullish candle engulfed by bearish = Resistance
+
+    Double Engulfing (이중 장악형) = MUCH STRONGER signal
+    - Pattern: A engulfs B, then C engulfs A
+    - The middle candle's body becomes the key S/R zone
+    """
+
+    @staticmethod
+    def detect_order_blocks(bars: List[Dict]) -> Dict:
+        """Detect Order Blocks (engulfing patterns) as S/R zones"""
+        if len(bars) < 5:
+            return {"bullish_obs": [], "bearish_obs": [], "double_ob": None}
+
+        bullish_obs = []  # Support zones
+        bearish_obs = []  # Resistance zones
+        double_ob = None  # Double engulfing (strongest)
+
+        current_price = bars[-1].get("c", 0)
+
+        for i in range(1, len(bars)):
+            prev = bars[i - 1]
+            curr = bars[i]
+
+            prev_open = prev.get("o", 0)
+            prev_close = prev.get("c", 0)
+            prev_body_top = max(prev_open, prev_close)
+            prev_body_bottom = min(prev_open, prev_close)
+
+            curr_open = curr.get("o", 0)
+            curr_close = curr.get("c", 0)
+            curr_body_top = max(curr_open, curr_close)
+            curr_body_bottom = min(curr_open, curr_close)
+
+            prev_is_bullish = prev_close > prev_open
+            curr_is_bullish = curr_close > curr_open
+
+            # Bullish Order Block (상승 장악형)
+            # Previous bearish candle engulfed by current bullish candle
+            if not prev_is_bullish and curr_is_bullish:
+                if curr_body_bottom <= prev_body_bottom and curr_body_top >= prev_body_top:
+                    ob = {
+                        "type": "bullish",
+                        "zone_top": prev_body_top,
+                        "zone_bottom": prev_body_bottom,
+                        "index": i,
+                        "strength": 70,
+                        "is_double": False,
+                    }
+                    bullish_obs.append(ob)
+
+            # Bearish Order Block (하락 장악형)
+            # Previous bullish candle engulfed by current bearish candle
+            if prev_is_bullish and not curr_is_bullish:
+                if curr_body_bottom <= prev_body_bottom and curr_body_top >= prev_body_top:
+                    ob = {
+                        "type": "bearish",
+                        "zone_top": prev_body_top,
+                        "zone_bottom": prev_body_bottom,
+                        "index": i,
+                        "strength": 70,
+                        "is_double": False,
+                    }
+                    bearish_obs.append(ob)
+
+        # Detect Double Engulfing (이중 장악형) - VERY STRONG
+        # Pattern: A engulfs B, then C engulfs A
+        for i in range(2, len(bars)):
+            c1 = bars[i - 2]
+            c2 = bars[i - 1]
+            c3 = bars[i]
+
+            c1_body_top = max(c1.get("o", 0), c1.get("c", 0))
+            c1_body_bottom = min(c1.get("o", 0), c1.get("c", 0))
+            c2_body_top = max(c2.get("o", 0), c2.get("c", 0))
+            c2_body_bottom = min(c2.get("o", 0), c2.get("c", 0))
+            c3_body_top = max(c3.get("o", 0), c3.get("c", 0))
+            c3_body_bottom = min(c3.get("o", 0), c3.get("c", 0))
+
+            c1_is_bullish = c1.get("c", 0) > c1.get("o", 0)
+            c2_is_bullish = c2.get("c", 0) > c2.get("o", 0)
+            c3_is_bullish = c3.get("c", 0) > c3.get("o", 0)
+
+            # Bullish Double Engulfing: Bearish engulfs bullish, then bullish engulfs that bearish
+            # Result: Strong support at the middle candle's body
+            if c1_is_bullish and not c2_is_bullish and c3_is_bullish:
+                # Check c2 engulfs c1
+                c2_engulfs_c1 = c2_body_bottom <= c1_body_bottom and c2_body_top >= c1_body_top
+                # Check c3 engulfs c2
+                c3_engulfs_c2 = c3_body_bottom <= c2_body_bottom and c3_body_top >= c2_body_top
+
+                if c2_engulfs_c1 and c3_engulfs_c2:
+                    double_ob = {
+                        "type": "bullish",
+                        "zone_top": c2_body_top,
+                        "zone_bottom": c2_body_bottom,
+                        "index": i,
+                        "strength": 95,  # Very strong!
+                        "is_double": True,
+                        "description": "이중 장악형 - Very Strong Support",
+                    }
+
+            # Bearish Double Engulfing
+            if not c1_is_bullish and c2_is_bullish and not c3_is_bullish:
+                c2_engulfs_c1 = c2_body_bottom <= c1_body_bottom and c2_body_top >= c1_body_top
+                c3_engulfs_c2 = c3_body_bottom <= c2_body_bottom and c3_body_top >= c2_body_top
+
+                if c2_engulfs_c1 and c3_engulfs_c2:
+                    double_ob = {
+                        "type": "bearish",
+                        "zone_top": c2_body_top,
+                        "zone_bottom": c2_body_bottom,
+                        "index": i,
+                        "strength": 95,
+                        "is_double": True,
+                        "description": "이중 장악형 - Very Strong Resistance",
+                    }
+
+        # Find nearest Order Block to current price
+        nearest_support_ob = None
+        nearest_resistance_ob = None
+
+        for ob in bullish_obs:
+            if ob["zone_top"] < current_price:
+                if nearest_support_ob is None or ob["zone_top"] > nearest_support_ob["zone_top"]:
+                    nearest_support_ob = ob
+
+        for ob in bearish_obs:
+            if ob["zone_bottom"] > current_price:
+                if nearest_resistance_ob is None or ob["zone_bottom"] < nearest_resistance_ob["zone_bottom"]:
+                    nearest_resistance_ob = ob
+
+        # Check if price is at an Order Block
+        at_ob = None
+        for ob in bullish_obs + bearish_obs:
+            if ob["zone_bottom"] <= current_price <= ob["zone_top"]:
+                at_ob = ob
+                break
+
+        return {
+            "bullish_obs": bullish_obs[-5:],
+            "bearish_obs": bearish_obs[-5:],
+            "double_ob": double_ob,
+            "nearest_support_ob": nearest_support_ob,
+            "nearest_resistance_ob": nearest_resistance_ob,
+            "at_ob": at_ob,
+        }
+
+
+class FakeoutDetector:
+    """
+    Fakeout & Trap Detection - 쉽알 Strategy
+
+    Fakeout = Single bottom false breakout
+    Trap = Double bottom false breakout
+
+    When price breaks a key level but quickly reverses back:
+    - The false breakout low/high becomes a clear stop loss point
+    - Entry when price re-enters the structure
+    """
+
+    @staticmethod
+    def detect_fakeout(bars: List[Dict], sr_levels: Dict) -> Dict:
+        """Detect potential fakeout/trap patterns"""
+        if len(bars) < 10:
+            return {"fakeout": None, "trap": None}
+
+        current_price = bars[-1].get("c", 0)
+        support = sr_levels.get("nearest_support")
+        resistance = sr_levels.get("nearest_resistance")
+
+        fakeout = None
+        trap = None
+
+        # Look for fakeout at support (bullish opportunity)
+        if support:
+            support_price = support.get("price", 0)
+
+            # Check last 10 bars for a break below support that reversed
+            broke_support = False
+            lowest_break = None
+            break_index = None
+
+            for i in range(-10, 0):
+                if i >= -len(bars):
+                    bar = bars[i]
+                    bar_low = bar.get("l", 0)
+                    bar_close = bar.get("c", 0)
+
+                    # Check if bar broke below support
+                    if bar_low < support_price * 0.998:  # 0.2% buffer
+                        broke_support = True
+                        if lowest_break is None or bar_low < lowest_break:
+                            lowest_break = bar_low
+                            break_index = i
+
+            # If we broke support but current price is back above it = Fakeout!
+            if broke_support and current_price > support_price:
+                fakeout = {
+                    "type": "bullish",
+                    "description": "Fakeout below support - Bullish opportunity",
+                    "false_break_low": lowest_break,
+                    "support_level": support_price,
+                    "stop_loss": lowest_break * 0.998,  # Stop below the fakeout low
+                    "strength": 80,
+                    "entry_logic": "Enter LONG, stop below fakeout low",
+                }
+
+        # Look for fakeout at resistance (bearish opportunity)
+        if resistance:
+            resistance_price = resistance.get("price", 0)
+
+            broke_resistance = False
+            highest_break = None
+
+            for i in range(-10, 0):
+                if i >= -len(bars):
+                    bar = bars[i]
+                    bar_high = bar.get("h", 0)
+                    bar_close = bar.get("c", 0)
+
+                    if bar_high > resistance_price * 1.002:
+                        broke_resistance = True
+                        if highest_break is None or bar_high > highest_break:
+                            highest_break = bar_high
+
+            if broke_resistance and current_price < resistance_price:
+                fakeout = {
+                    "type": "bearish",
+                    "description": "Fakeout above resistance - Bearish opportunity",
+                    "false_break_high": highest_break,
+                    "resistance_level": resistance_price,
+                    "stop_loss": highest_break * 1.002,
+                    "strength": 80,
+                    "entry_logic": "Enter SHORT, stop above fakeout high",
+                }
+
+        # Detect Trap (Double bottom/top fakeout) - Even stronger
+        # Look for W or M pattern at support/resistance
+        if len(bars) >= 20 and support:
+            support_price = support.get("price", 0)
+            lows = [bar.get("l", 0) for bar in bars[-20:]]
+
+            # Find two lows near each other below support
+            low_points = []
+            for i, low in enumerate(lows):
+                if low < support_price * 1.005:  # Within 0.5% of support
+                    low_points.append((i, low))
+
+            # Check for double bottom (trap)
+            if len(low_points) >= 2:
+                # Two lows with some distance between them
+                first_low = low_points[0]
+                for second_low in low_points[1:]:
+                    if abs(second_low[0] - first_low[0]) >= 3:  # At least 3 bars apart
+                        if abs(second_low[1] - first_low[1]) / support_price < 0.01:  # Similar levels
+                            if current_price > support_price:
+                                trap = {
+                                    "type": "bullish",
+                                    "description": "Double Bottom Trap - Strong bullish signal",
+                                    "first_low": first_low[1],
+                                    "second_low": second_low[1],
+                                    "stop_loss": min(first_low[1], second_low[1]) * 0.998,
+                                    "strength": 90,
+                                    "entry_logic": "Enter LONG on break above neckline",
+                                }
+                                break
+
+        return {
+            "fakeout": fakeout,
+            "trap": trap,
+        }
+
+
+class ConfluenceScorer:
+    """
+    Confluence Scoring System - 쉽알 Strategy
+
+    Key Rule: Minimum 2 confluences required for entry
+
+    Confluences:
+    1. Order Block at level
+    2. FVG at level
+    3. Support/Resistance
+    4. Trendline (not implemented in this version)
+    5. Candlestick pattern
+    6. Volume confirmation
+    7. Fakeout/Trap pattern
+    """
+
+    @staticmethod
+    def calculate_confluence(
+        candle_analysis: Dict,
+        volume_analysis: Dict,
+        fvg_analysis: Dict,
+        ob_analysis: Dict,
+        fakeout_analysis: Dict,
+        sr_levels: Dict,
+        current_price: float,
+    ) -> Dict:
+        """Calculate total confluence score and count reasons"""
+
+        bullish_reasons = []
+        bearish_reasons = []
+
+        # 1. Candlestick Pattern
+        primary_pattern = candle_analysis.get("primary_pattern")
+        if primary_pattern:
+            if primary_pattern.get("type") == "bullish":
+                bullish_reasons.append({
+                    "reason": f"Candlestick: {primary_pattern['name']}",
+                    "strength": primary_pattern.get("strength", 50),
+                })
+            elif primary_pattern.get("type") == "bearish":
+                bearish_reasons.append({
+                    "reason": f"Candlestick: {primary_pattern['name']}",
+                    "strength": primary_pattern.get("strength", 50),
+                })
+
+        # 2. Volume Confirmation
+        if volume_analysis.get("spike_detected"):
+            reason = {
+                "reason": f"Volume spike {volume_analysis.get('volume_ratio', 1):.1f}x",
+                "strength": volume_analysis.get("confirmation_strength", 50),
+            }
+            # Volume confirms the direction with more score
+            if len(bullish_reasons) > len(bearish_reasons):
+                bullish_reasons.append(reason)
+            elif len(bearish_reasons) > len(bullish_reasons):
+                bearish_reasons.append(reason)
+
+        # 3. At FVG Zone
+        at_fvg = fvg_analysis.get("at_fvg")
+        if at_fvg:
+            if at_fvg["type"] == "bullish":
+                bullish_reasons.append({
+                    "reason": f"At Bullish FVG zone (${at_fvg['bottom']:.2f}-${at_fvg['top']:.2f})",
+                    "strength": at_fvg.get("strength", 60),
+                })
+            else:
+                bearish_reasons.append({
+                    "reason": f"At Bearish FVG zone (${at_fvg['bottom']:.2f}-${at_fvg['top']:.2f})",
+                    "strength": at_fvg.get("strength", 60),
+                })
+
+        # 4. At Order Block
+        at_ob = ob_analysis.get("at_ob")
+        if at_ob:
+            strength = 95 if at_ob.get("is_double") else 70
+            if at_ob["type"] == "bullish":
+                bullish_reasons.append({
+                    "reason": f"At Bullish Order Block" + (" (이중 장악형!)" if at_ob.get("is_double") else ""),
+                    "strength": strength,
+                })
+            else:
+                bearish_reasons.append({
+                    "reason": f"At Bearish Order Block" + (" (이중 장악형!)" if at_ob.get("is_double") else ""),
+                    "strength": strength,
+                })
+
+        # 5. Double Order Block (이중 장악형) - Very strong!
+        double_ob = ob_analysis.get("double_ob")
+        if double_ob:
+            if double_ob["type"] == "bullish" and double_ob["zone_top"] >= current_price:
+                bullish_reasons.append({
+                    "reason": "이중 장악형 Order Block - VERY STRONG",
+                    "strength": 95,
+                })
+            elif double_ob["type"] == "bearish" and double_ob["zone_bottom"] <= current_price:
+                bearish_reasons.append({
+                    "reason": "이중 장악형 Order Block - VERY STRONG",
+                    "strength": 95,
+                })
+
+        # 6. Fakeout/Trap
+        fakeout = fakeout_analysis.get("fakeout")
+        trap = fakeout_analysis.get("trap")
+
+        if trap:
+            if trap["type"] == "bullish":
+                bullish_reasons.append({
+                    "reason": "Double Bottom Trap detected",
+                    "strength": trap.get("strength", 90),
+                })
+            else:
+                bearish_reasons.append({
+                    "reason": "Double Top Trap detected",
+                    "strength": trap.get("strength", 90),
+                })
+        elif fakeout:
+            if fakeout["type"] == "bullish":
+                bullish_reasons.append({
+                    "reason": "Fakeout below support",
+                    "strength": fakeout.get("strength", 80),
+                })
+            else:
+                bearish_reasons.append({
+                    "reason": "Fakeout above resistance",
+                    "strength": fakeout.get("strength", 80),
+                })
+
+        # 7. Near Support/Resistance with pattern
+        support = sr_levels.get("nearest_support")
+        resistance = sr_levels.get("nearest_resistance")
+
+        if support and abs(current_price - support["price"]) / current_price < 0.01:
+            if candle_analysis.get("bias") == "bullish":
+                bullish_reasons.append({
+                    "reason": f"Bullish pattern at support ${support['price']:.2f}",
+                    "strength": 65,
+                })
+
+        if resistance and abs(current_price - resistance["price"]) / current_price < 0.01:
+            if candle_analysis.get("bias") == "bearish":
+                bearish_reasons.append({
+                    "reason": f"Bearish pattern at resistance ${resistance['price']:.2f}",
+                    "strength": 65,
+                })
+
+        # Calculate total scores
+        bullish_score = sum(r["strength"] for r in bullish_reasons)
+        bearish_score = sum(r["strength"] for r in bearish_reasons)
+
+        # Determine direction
+        if len(bullish_reasons) >= 2 and bullish_score > bearish_score:
+            direction = "bullish"
+            confidence = min(95, bullish_score)
+            reasons = bullish_reasons
+        elif len(bearish_reasons) >= 2 and bearish_score > bullish_score:
+            direction = "bearish"
+            confidence = min(95, bearish_score)
+            reasons = bearish_reasons
+        else:
+            direction = "neutral"
+            confidence = max(bullish_score, bearish_score) if bullish_reasons or bearish_reasons else 0
+            reasons = bullish_reasons + bearish_reasons
+
+        # Check minimum 2 confluences rule
+        has_enough_confluence = (
+            (direction == "bullish" and len(bullish_reasons) >= 2) or
+            (direction == "bearish" and len(bearish_reasons) >= 2)
+        )
+
+        return {
+            "direction": direction,
+            "bullish_reasons": bullish_reasons,
+            "bearish_reasons": bearish_reasons,
+            "bullish_count": len(bullish_reasons),
+            "bearish_count": len(bearish_reasons),
+            "bullish_score": bullish_score,
+            "bearish_score": bearish_score,
+            "confidence": confidence,
+            "has_enough_confluence": has_enough_confluence,
+            "min_confluence_met": has_enough_confluence,
+            "total_reasons": len(bullish_reasons) + len(bearish_reasons),
+        }
+
+
 class SupportResistance:
     """Support and Resistance level detection based on price action"""
 
@@ -628,6 +1210,11 @@ class ScalpAnalyzer:
         self.candle_patterns = CandlestickPatterns()
         self.volume_analyzer = VolumeAnalyzer()
         self.sr_analyzer = SupportResistance()
+        # New analyzers based on 쉽알 strategy
+        self.fvg_analyzer = FVGAnalyzer()
+        self.ob_analyzer = OrderBlockAnalyzer()
+        self.fakeout_detector = FakeoutDetector()
+        self.confluence_scorer = ConfluenceScorer()
 
     def is_crypto(self, ticker: str) -> bool:
         """
@@ -798,9 +1385,21 @@ class ScalpAnalyzer:
             sr_levels = SupportResistance.find_swing_points(bars)
             vwap = self.calculate_vwap(bars[-50:])
 
-            # Determine signal using candlestick + volume only (NO lagging indicators)
-            signal_result = self._determine_signal(
-                current_price, vwap, candle_analysis, volume_analysis, sr_levels
+            # NEW: Advanced Analysis (쉽알 Strategy)
+            fvg_analysis = FVGAnalyzer.detect_fvg(bars)
+            ob_analysis = OrderBlockAnalyzer.detect_order_blocks(bars)
+            fakeout_analysis = FakeoutDetector.detect_fakeout(bars, sr_levels)
+
+            # NEW: Confluence Scoring (최소 2개 근거 필요)
+            confluence = ConfluenceScorer.calculate_confluence(
+                candle_analysis, volume_analysis, fvg_analysis,
+                ob_analysis, fakeout_analysis, sr_levels, current_price
+            )
+
+            # Determine signal using confluence-based system
+            signal_result = self._determine_signal_v2(
+                current_price, vwap, candle_analysis, volume_analysis,
+                sr_levels, fvg_analysis, ob_analysis, fakeout_analysis, confluence
             )
 
             # Calculate entry/stop/target with clear reasoning
@@ -815,6 +1414,11 @@ class ScalpAnalyzer:
             )
 
             change_percent = ((current_price - prev_price) / prev_price * 100) if prev_price else 0
+
+            # Check for volume spike exit warning
+            volume_exit_warning = None
+            if volume_analysis.get("strong_spike") and signal_result["signal"] != "WAIT":
+                volume_exit_warning = "⚠️ Volume spike detected - Consider taking profits (거래량 급증 = 익절 시그널)"
 
             return {
                 "ticker": ticker,
@@ -835,6 +1439,7 @@ class ScalpAnalyzer:
                     "spike_detected": volume_analysis["spike_detected"],
                     "confirmation_strength": volume_analysis["confirmation_strength"],
                     "trend": volume_analysis["volume_trend"],
+                    "exit_warning": volume_exit_warning,  # NEW: 거래량 급증 = 익절 시그널
                 },
                 "levels": {
                     "vwap": round(vwap, 2),
@@ -842,6 +1447,29 @@ class ScalpAnalyzer:
                     "nearest_resistance": sr_levels["nearest_resistance"]["price"] if sr_levels["nearest_resistance"] else None,
                     "support_strength": sr_levels["nearest_support"]["strength"] if sr_levels["nearest_support"] else 0,
                     "resistance_strength": sr_levels["nearest_resistance"]["strength"] if sr_levels["nearest_resistance"] else 0,
+                },
+                # NEW: Advanced Analysis (쉽알 Strategy)
+                "fvg": {
+                    "at_fvg": fvg_analysis.get("at_fvg"),
+                    "nearest_fvg": fvg_analysis.get("nearest_fvg"),
+                    "bullish_count": fvg_analysis.get("total_bullish", 0),
+                    "bearish_count": fvg_analysis.get("total_bearish", 0),
+                },
+                "order_blocks": {
+                    "at_ob": ob_analysis.get("at_ob"),
+                    "double_ob": ob_analysis.get("double_ob"),
+                    "nearest_support_ob": ob_analysis.get("nearest_support_ob"),
+                    "nearest_resistance_ob": ob_analysis.get("nearest_resistance_ob"),
+                },
+                "fakeout": fakeout_analysis,
+                "confluence": {
+                    "direction": confluence["direction"],
+                    "bullish_reasons": confluence["bullish_reasons"],
+                    "bearish_reasons": confluence["bearish_reasons"],
+                    "bullish_count": confluence["bullish_count"],
+                    "bearish_count": confluence["bearish_count"],
+                    "min_confluence_met": confluence["min_confluence_met"],
+                    "total_score": max(confluence["bullish_score"], confluence["bearish_score"]),
                 },
                 "trade_setup": trade_setup,
                 "analysis": analysis,
@@ -851,6 +1479,126 @@ class ScalpAnalyzer:
         except Exception as e:
             logger.error(f"Scalp analysis error for {ticker}: {e}")
             return {"error": str(e)}
+
+    def _determine_signal_v2(
+        self,
+        price: float,
+        vwap: float,
+        candle_analysis: Dict,
+        volume_analysis: Dict,
+        sr_levels: Dict,
+        fvg_analysis: Dict,
+        ob_analysis: Dict,
+        fakeout_analysis: Dict,
+        confluence: Dict,
+    ) -> Dict:
+        """
+        NEW Signal Determination using Confluence Scoring (쉽알 Strategy)
+
+        Key Rules:
+        1. Minimum 2 confluences required for entry
+        2. Order Block + FVG overlap = Very strong
+        3. Double Engulfing (이중 장악형) = Highest priority
+        4. Fakeout/Trap = Good entry with clear stop
+        5. Volume spike during position = Exit signal
+        """
+        reasoning = []
+
+        # Get confluence data
+        bullish_count = confluence["bullish_count"]
+        bearish_count = confluence["bearish_count"]
+        bullish_score = confluence["bullish_score"]
+        bearish_score = confluence["bearish_score"]
+        has_enough = confluence["has_enough_confluence"]
+
+        # Add all reasons to reasoning
+        for r in confluence["bullish_reasons"]:
+            reasoning.append(f"🟢 {r['reason']} (+{r['strength']})")
+        for r in confluence["bearish_reasons"]:
+            reasoning.append(f"🔴 {r['reason']} (+{r['strength']})")
+
+        # Check for double engulfing (이중 장악형) - Override everything
+        double_ob = ob_analysis.get("double_ob")
+        if double_ob:
+            if double_ob["type"] == "bullish":
+                reasoning.insert(0, "⭐ 이중 장악형 (Double Engulfing) - VERY STRONG SUPPORT")
+                return {
+                    "signal": "LONG",
+                    "confidence": 90,
+                    "bullish_score": max(bullish_score, 90),
+                    "bearish_score": bearish_score,
+                    "reasoning": reasoning,
+                }
+            elif double_ob["type"] == "bearish":
+                reasoning.insert(0, "⭐ 이중 장악형 (Double Engulfing) - VERY STRONG RESISTANCE")
+                return {
+                    "signal": "SHORT",
+                    "confidence": 90,
+                    "bullish_score": bullish_score,
+                    "bearish_score": max(bearish_score, 90),
+                    "reasoning": reasoning,
+                }
+
+        # Check for fakeout/trap - Strong signal with clear stop
+        trap = fakeout_analysis.get("trap")
+        fakeout = fakeout_analysis.get("fakeout")
+
+        if trap:
+            if trap["type"] == "bullish":
+                reasoning.insert(0, f"🎯 Double Bottom Trap - Entry LONG, Stop ${trap['stop_loss']:.2f}")
+                return {
+                    "signal": "LONG",
+                    "confidence": min(85, bullish_score + 20),
+                    "bullish_score": bullish_score,
+                    "bearish_score": bearish_score,
+                    "reasoning": reasoning,
+                }
+            else:
+                reasoning.insert(0, f"🎯 Double Top Trap - Entry SHORT, Stop ${trap['stop_loss']:.2f}")
+                return {
+                    "signal": "SHORT",
+                    "confidence": min(85, bearish_score + 20),
+                    "bullish_score": bullish_score,
+                    "bearish_score": bearish_score,
+                    "reasoning": reasoning,
+                }
+
+        # Standard confluence-based signal
+        # Rule: Minimum 2 confluences required (최소 2개 근거 필요!)
+        if has_enough:
+            if bullish_count >= 2 and bullish_score > bearish_score:
+                signal = "LONG"
+                confidence = min(95, bullish_score)
+                reasoning.insert(0, f"✅ {bullish_count} bullish confluences detected (최소 2개 충족)")
+            elif bearish_count >= 2 and bearish_score > bullish_score:
+                signal = "SHORT"
+                confidence = min(95, bearish_score)
+                reasoning.insert(0, f"✅ {bearish_count} bearish confluences detected (최소 2개 충족)")
+            else:
+                signal = "WAIT"
+                confidence = max(bullish_score, bearish_score)
+                reasoning.insert(0, "⏳ Mixed signals - wait for clearer setup")
+        else:
+            signal = "WAIT"
+            confidence = max(bullish_score, bearish_score, 10)
+            if bullish_count == 1 or bearish_count == 1:
+                reasoning.insert(0, f"⚠️ Only {max(bullish_count, bearish_count)} confluence - Need 2+ (근거 1개만 있음, 2개 이상 필요)")
+            else:
+                reasoning.insert(0, "❌ No clear confluences - wait for setup")
+
+        # Add VWAP context
+        if price > vwap:
+            reasoning.append(f"📊 Price above VWAP ${vwap:.2f} (bullish bias)")
+        else:
+            reasoning.append(f"📊 Price below VWAP ${vwap:.2f} (bearish bias)")
+
+        return {
+            "signal": signal,
+            "confidence": confidence,
+            "bullish_score": bullish_score,
+            "bearish_score": bearish_score,
+            "reasoning": reasoning,
+        }
 
     def _determine_signal(
         self,
