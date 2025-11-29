@@ -17,17 +17,26 @@ class Config:
         else:
             SECRET_KEY = "dev-secret-key-for-testing-only"
 
-    # Database - use absolute path to ensure consistency
-    SQLALCHEMY_DATABASE_URI = f"sqlite:///{_db_path}"
-    
+    # Database - use DATABASE_URL for production (PostgreSQL), fallback to SQLite for local
+    SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL", f"sqlite:///{_db_path}")
+
+    # Handle Render's postgres:// prefix (SQLAlchemy requires postgresql://)
+    if SQLALCHEMY_DATABASE_URI and SQLALCHEMY_DATABASE_URI.startswith("postgres://"):
+        SQLALCHEMY_DATABASE_URI = SQLALCHEMY_DATABASE_URI.replace("postgres://", "postgresql://", 1)
+
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    SQLALCHEMY_ENGINE_OPTIONS = {
-        "pool_size": 10,
-        "pool_recycle": 3600,
-        "pool_pre_ping": True,
-        "max_overflow": 20,
-        "pool_timeout": 30,
-    }
+
+    # Engine options - only use pooling for PostgreSQL, not SQLite
+    if SQLALCHEMY_DATABASE_URI and "postgresql" in SQLALCHEMY_DATABASE_URI:
+        SQLALCHEMY_ENGINE_OPTIONS = {
+            "pool_size": 10,
+            "pool_recycle": 3600,
+            "pool_pre_ping": True,
+            "max_overflow": 20,
+            "pool_timeout": 30,
+        }
+    else:
+        SQLALCHEMY_ENGINE_OPTIONS = {}
 
     # Security Headers & Cookies
     SESSION_COOKIE_SECURE = os.getenv("RENDER") is not None  # Only True in production
