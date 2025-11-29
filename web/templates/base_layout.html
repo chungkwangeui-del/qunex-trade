@@ -154,6 +154,18 @@
                         <span>News</span>
                     </a>
                 </div>
+
+                <div class="nav-group">
+                    <div class="nav-group-label">Info</div>
+                    <a href="/about" class="nav-item {% if request.path == '/about' %}active{% endif %}">
+                        <svg class="nav-icon" viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="10" />
+                            <line x1="12" y1="16" x2="12" y2="12" />
+                            <line x1="12" y1="8" x2="12.01" y2="8" />
+                        </svg>
+                        <span>About</span>
+                    </a>
+                </div>
             </nav>
 
             <!-- Sidebar Footer -->

@@ -111,9 +111,23 @@
     }
 
     .feature-icon {
-        font-size: 2.5em;
+        width: 56px;
+        height: 56px;
+        background: linear-gradient(135deg, rgba(0, 217, 255, 0.1), rgba(168, 85, 247, 0.1));
+        border: 1px solid rgba(0, 217, 255, 0.2);
+        border-radius: var(--radius-lg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
         margin-bottom: 20px;
-        display: inline-block;
+    }
+
+    .feature-icon svg {
+        width: 28px;
+        height: 28px;
+        stroke: var(--accent-cyan);
+        stroke-width: 2;
+        fill: none;
     }
 
     .feature-title {
@@ -267,7 +281,11 @@
 
     <div class="feature-grid">
         <div class="feature-card">
-            <div class="feature-icon">🤖</div>
+            <div class="feature-icon">
+                <svg viewBox="0 0 24 24">
+                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                </svg>
+            </div>
             <h3 class="feature-title">AI-Powered Analysis</h3>
             <p class="feature-desc">
                 Our AI system analyzes every news article in real-time, filtering out analyst opinions and speculation.
@@ -275,7 +293,12 @@
             </p>
         </div>
         <div class="feature-card">
-            <div class="feature-icon">📡</div>
+            <div class="feature-icon">
+                <svg viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                </svg>
+            </div>
             <h3 class="feature-title">Multi-Source Collection</h3>
             <p class="feature-desc">
                 We aggregate news from the most credible financial sources including Bloomberg, Reuters, and WSJ
@@ -283,7 +306,11 @@
             </p>
         </div>
         <div class="feature-card">
-            <div class="feature-icon">⚡</div>
+            <div class="feature-icon">
+                <svg viewBox="0 0 24 24">
+                    <path d="M13 3L4 14h7l-2 7 9-11h-7l2-7z"/>
+                </svg>
+            </div>
             <h3 class="feature-title">Professional Dashboard</h3>
             <p class="feature-desc">
                 Clean, distraction-free interface designed for traders who need information fast.
@@ -348,7 +375,14 @@
 <div class="section" style="margin-top: 32px;">
     <h2 class="section-title">Disclaimer</h2>
     <div class="disclaimer-box">
-        <div class="disclaimer-title">⚠️ Important Notice</div>
+        <div class="disclaimer-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                <line x1="12" y1="9" x2="12" y2="13"/>
+                <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+            Important Notice
+        </div>
         <p class="disclaimer-text">
             This platform is for informational and educational purposes only.
             Qunex Trade provides news analysis and trading tools but does NOT provide financial advice,
