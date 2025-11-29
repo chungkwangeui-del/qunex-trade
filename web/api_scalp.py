@@ -796,97 +796,98 @@ class FakeoutDetector:
 
         # Look for fakeout at support (bullish opportunity)
         if support:
-            support_price = support.get("price", 0)
+            support_price = support.get("price") or 0
+            if support_price and support_price > 0:
+                # Check last 10 bars for a break below support that reversed
+                broke_support = False
+                lowest_break = None
+                break_index = None
 
-            # Check last 10 bars for a break below support that reversed
-            broke_support = False
-            lowest_break = None
-            break_index = None
+                for i in range(-10, 0):
+                    if i >= -len(bars):
+                        bar = bars[i]
+                        bar_low = bar.get("l") or 0
+                        bar_close = bar.get("c") or 0
 
-            for i in range(-10, 0):
-                if i >= -len(bars):
-                    bar = bars[i]
-                    bar_low = bar.get("l", 0)
-                    bar_close = bar.get("c", 0)
+                        # Check if bar broke below support
+                        if bar_low > 0 and bar_low < support_price * 0.998:  # 0.2% buffer
+                            broke_support = True
+                            if lowest_break is None or bar_low < lowest_break:
+                                lowest_break = bar_low
+                                break_index = i
 
-                    # Check if bar broke below support
-                    if bar_low < support_price * 0.998:  # 0.2% buffer
-                        broke_support = True
-                        if lowest_break is None or bar_low < lowest_break:
-                            lowest_break = bar_low
-                            break_index = i
-
-            # If we broke support but current price is back above it = Fakeout!
-            if broke_support and current_price > support_price:
-                fakeout = {
-                    "type": "bullish",
-                    "description": "Fakeout below support - Bullish opportunity",
-                    "false_break_low": lowest_break,
-                    "support_level": support_price,
-                    "stop_loss": lowest_break * 0.998,  # Stop below the fakeout low
-                    "strength": 80,
-                    "entry_logic": "Enter LONG, stop below fakeout low",
-                }
+                # If we broke support but current price is back above it = Fakeout!
+                if broke_support and lowest_break and current_price > support_price:
+                    fakeout = {
+                        "type": "bullish",
+                        "description": "Fakeout below support - Bullish opportunity",
+                        "false_break_low": lowest_break,
+                        "support_level": support_price,
+                        "stop_loss": lowest_break * 0.998,  # Stop below the fakeout low
+                        "strength": 80,
+                        "entry_logic": "Enter LONG, stop below fakeout low",
+                    }
 
         # Look for fakeout at resistance (bearish opportunity)
         if resistance:
-            resistance_price = resistance.get("price", 0)
+            resistance_price = resistance.get("price") or 0
+            if resistance_price and resistance_price > 0:
+                broke_resistance = False
+                highest_break = None
 
-            broke_resistance = False
-            highest_break = None
+                for i in range(-10, 0):
+                    if i >= -len(bars):
+                        bar = bars[i]
+                        bar_high = bar.get("h") or 0
+                        bar_close = bar.get("c") or 0
 
-            for i in range(-10, 0):
-                if i >= -len(bars):
-                    bar = bars[i]
-                    bar_high = bar.get("h", 0)
-                    bar_close = bar.get("c", 0)
+                        if bar_high > 0 and bar_high > resistance_price * 1.002:
+                            broke_resistance = True
+                            if highest_break is None or bar_high > highest_break:
+                                highest_break = bar_high
 
-                    if bar_high > resistance_price * 1.002:
-                        broke_resistance = True
-                        if highest_break is None or bar_high > highest_break:
-                            highest_break = bar_high
-
-            if broke_resistance and current_price < resistance_price:
-                fakeout = {
-                    "type": "bearish",
-                    "description": "Fakeout above resistance - Bearish opportunity",
-                    "false_break_high": highest_break,
-                    "resistance_level": resistance_price,
-                    "stop_loss": highest_break * 1.002,
-                    "strength": 80,
-                    "entry_logic": "Enter SHORT, stop above fakeout high",
-                }
+                if broke_resistance and highest_break and current_price < resistance_price:
+                    fakeout = {
+                        "type": "bearish",
+                        "description": "Fakeout above resistance - Bearish opportunity",
+                        "false_break_high": highest_break,
+                        "resistance_level": resistance_price,
+                        "stop_loss": highest_break * 1.002,
+                        "strength": 80,
+                        "entry_logic": "Enter SHORT, stop above fakeout high",
+                    }
 
         # Detect Trap (Double bottom/top fakeout) - Even stronger
         # Look for W or M pattern at support/resistance
         if len(bars) >= 20 and support:
-            support_price = support.get("price", 0)
-            lows = [bar.get("l", 0) for bar in bars[-20:]]
+            support_price = support.get("price") or 0
+            if support_price and support_price > 0:
+                lows = [(bar.get("l") or 0) for bar in bars[-20:]]
 
-            # Find two lows near each other below support
-            low_points = []
-            for i, low in enumerate(lows):
-                if low < support_price * 1.005:  # Within 0.5% of support
-                    low_points.append((i, low))
+                # Find two lows near each other below support
+                low_points = []
+                for i, low in enumerate(lows):
+                    if low > 0 and low < support_price * 1.005:  # Within 0.5% of support
+                        low_points.append((i, low))
 
-            # Check for double bottom (trap)
-            if len(low_points) >= 2:
-                # Two lows with some distance between them
-                first_low = low_points[0]
-                for second_low in low_points[1:]:
-                    if abs(second_low[0] - first_low[0]) >= 3:  # At least 3 bars apart
-                        if abs(second_low[1] - first_low[1]) / support_price < 0.01:  # Similar levels
-                            if current_price > support_price:
-                                trap = {
-                                    "type": "bullish",
-                                    "description": "Double Bottom Trap - Strong bullish signal",
-                                    "first_low": first_low[1],
-                                    "second_low": second_low[1],
-                                    "stop_loss": min(first_low[1], second_low[1]) * 0.998,
-                                    "strength": 90,
-                                    "entry_logic": "Enter LONG on break above neckline",
-                                }
-                                break
+                # Check for double bottom (trap)
+                if len(low_points) >= 2:
+                    # Two lows with some distance between them
+                    first_low = low_points[0]
+                    for second_low in low_points[1:]:
+                        if abs(second_low[0] - first_low[0]) >= 3:  # At least 3 bars apart
+                            if abs(second_low[1] - first_low[1]) / support_price < 0.01:  # Similar levels
+                                if current_price > support_price:
+                                    trap = {
+                                        "type": "bullish",
+                                        "description": "Double Bottom Trap - Strong bullish signal",
+                                        "first_low": first_low[1],
+                                        "second_low": second_low[1],
+                                        "stop_loss": min(first_low[1], second_low[1]) * 0.998,
+                                        "strength": 90,
+                                        "entry_logic": "Enter LONG on break above neckline",
+                                    }
+                                    break
 
         return {
             "fakeout": fakeout,
@@ -1025,17 +1026,20 @@ class ConfluenceScorer:
         support = sr_levels.get("nearest_support")
         resistance = sr_levels.get("nearest_resistance")
 
-        if support and abs(current_price - support["price"]) / current_price < 0.01:
+        support_price = support.get("price") if support else None
+        resistance_price = resistance.get("price") if resistance else None
+
+        if support_price and current_price and abs(current_price - support_price) / current_price < 0.01:
             if candle_analysis.get("bias") == "bullish":
                 bullish_reasons.append({
-                    "reason": f"Bullish pattern at support ${support['price']:.2f}",
+                    "reason": f"Bullish pattern at support ${support_price:.2f}",
                     "strength": 65,
                 })
 
-        if resistance and abs(current_price - resistance["price"]) / current_price < 0.01:
+        if resistance_price and current_price and abs(current_price - resistance_price) / current_price < 0.01:
             if candle_analysis.get("bias") == "bearish":
                 bearish_reasons.append({
-                    "reason": f"Bearish pattern at resistance ${resistance['price']:.2f}",
+                    "reason": f"Bearish pattern at resistance ${resistance_price:.2f}",
                     "strength": 65,
                 })
 
