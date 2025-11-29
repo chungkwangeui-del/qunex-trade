@@ -1,582 +1,453 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stocks - Qunex Trade</title>
-    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+{% extends "base_layout.html" %}
 
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+{% block title %}Stocks - Qunex Trade{% endblock %}
 
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+{% block extra_styles %}
+<style>
+    /* Stock Search */
+    .search-section {
+        max-width: 800px;
+        margin: 0 auto 48px;
+    }
 
-        body {
-            font-family: 'Space Grotesk', -apple-system, sans-serif;
-            background: var(--bg-dark);
-            color: var(--text-primary);
-            min-height: 100vh;
-            position: relative;
-            overflow-x: hidden;
-        }
+    .search-container {
+        position: relative;
+    }
 
-        .container {
-            max-width: 1800px;
-            margin: 0 auto;
-            padding: 30px;
-            position: relative;
-            z-index: 1;
-        }
+    .search-input {
+        width: 100%;
+        padding: 20px 140px 20px 28px;
+        font-size: 1rem;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 50px;
+        background: rgba(255, 255, 255, 0.02);
+        color: #fff;
+        font-family: inherit;
+        transition: all 0.2s ease;
+    }
 
-        /* Navigation */
-        nav {
-            background: var(--bg-card);
-            padding: 20px 40px;
-            border-radius: 16px;
-            margin-bottom: 40px;
-            border: 1px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            backdrop-filter: blur(10px);
-        }
+    .search-input:focus {
+        outline: none;
+        border-color: #00d9ff;
+        box-shadow: 0 0 0 3px rgba(0, 217, 255, 0.1);
+        background: rgba(255, 255, 255, 0.04);
+    }
 
-        .nav-brand {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 1.8em;
-            font-weight: 700;
-            letter-spacing: -1px;
-            text-decoration: none;
-            color: var(--text-primary);
-        }
+    .search-input::placeholder {
+        color: rgba(255, 255, 255, 0.4);
+    }
 
-        .logo {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 1.1em;
-            box-shadow: 0 0 20px var(--glow);
-        }
+    .search-btn {
+        position: absolute;
+        right: 8px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: linear-gradient(135deg, #00d9ff, #a855f7);
+        border: none;
+        padding: 12px 28px;
+        border-radius: 50px;
+        color: #000;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 0.9375rem;
+    }
 
-        .brand-text {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
+    .search-btn:hover {
+        transform: translateY(-50%) scale(1.02);
+        box-shadow: 0 4px 16px rgba(0, 217, 255, 0.3);
+    }
 
-        .nav-links {
-            display: flex;
-            gap: 30px;
-            align-items: center;
-        }
+    /* Categories */
+    .categories {
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+        margin-bottom: 48px;
+        flex-wrap: wrap;
+    }
 
-        .nav-link {
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            position: relative;
-        }
+    .category-btn {
+        padding: 10px 24px;
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 50px;
+        color: rgba(255, 255, 255, 0.7);
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-weight: 500;
+        font-size: 0.875rem;
+    }
 
-        .nav-link:hover {
-            color: var(--primary);
-        }
+    .category-btn:hover {
+        background: rgba(255, 255, 255, 0.05);
+        color: #fff;
+        border-color: rgba(255, 255, 255, 0.15);
+    }
 
-        .nav-link.active {
-            color: var(--primary);
-        }
+    .category-btn.active {
+        background: rgba(0, 217, 255, 0.15);
+        color: #00d9ff;
+        border-color: rgba(0, 217, 255, 0.3);
+    }
 
-        .nav-link.active::after {
-            content: '';
-            position: absolute;
-            bottom: -8px;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background: var(--primary);
-            box-shadow: 0 0 10px var(--glow);
-        }
+    /* Stock Grid */
+    .stocks-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 24px;
+        margin-bottom: 40px;
+    }
 
-        .btn-secondary {
-            background: transparent;
-            color: var(--primary);
-            padding: 10px 25px;
-            border: 1px solid var(--primary);
-            border-radius: 10px;
-            text-decoration: none;
-            font-weight: 700;
-            transition: all 0.3s;
-        }
+    .stock-card {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        padding: 24px;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        text-decoration: none;
+        color: inherit;
+        display: flex;
+        flex-direction: column;
+    }
 
-        .btn-secondary:hover {
-            background: rgba(0, 217, 255, 0.1);
-            transform: translateY(-2px);
-        }
+    .stock-card:hover {
+        border-color: rgba(255, 255, 255, 0.15);
+        transform: translateY(-4px);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+    }
 
-        /* Header */
-        .header {
-            margin-bottom: 40px;
-            text-align: center;
-        }
+    .stock-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 16px;
+    }
 
-        h1 {
-            font-size: 3em;
-            margin-bottom: 10px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
+    .stock-symbol {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #fff;
+        margin-bottom: 4px;
+        font-family: 'JetBrains Mono', monospace;
+    }
 
-        .subtitle {
-            color: var(--text-secondary);
-            font-size: 1.2em;
-            margin-bottom: 40px;
-        }
+    .stock-name {
+        font-size: 0.875rem;
+        color: rgba(255, 255, 255, 0.6);
+        font-weight: 500;
+    }
 
-        /* Stock Search */
-        .search-section {
-            max-width: 700px;
-            margin: 0 auto 60px;
-        }
+    .stock-price-container {
+        text-align: right;
+    }
 
-        .search-container {
-            position: relative;
-        }
+    .stock-price {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #fff;
+        margin-bottom: 4px;
+        font-family: 'JetBrains Mono', monospace;
+    }
 
+    .stock-change {
+        font-size: 0.875rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px 10px;
+        border-radius: 6px;
+    }
+
+    .stock-change.positive {
+        color: #22c55e;
+        background: rgba(34, 197, 94, 0.1);
+    }
+
+    .stock-change.negative {
+        color: #ef4444;
+        background: rgba(239, 68, 68, 0.1);
+    }
+
+    .stock-info {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        margin-top: auto;
+        padding-top: 20px;
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .stock-info-item {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .stock-info-label {
+        color: rgba(255, 255, 255, 0.4);
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-weight: 600;
+    }
+
+    .stock-info-value {
+        color: rgba(255, 255, 255, 0.8);
+        font-weight: 500;
+        font-size: 0.875rem;
+        font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Section Title */
+    .section-header {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 32px;
+    }
+
+    .section-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #fff;
+    }
+
+    .section-line {
+        flex-grow: 1;
+        height: 1px;
+        background: rgba(255, 255, 255, 0.08);
+    }
+
+    .loading-spinner {
+        width: 40px;
+        height: 40px;
+        border: 3px solid rgba(255, 255, 255, 0.1);
+        border-top-color: #00d9ff;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 768px) {
         .search-input {
-            width: 100%;
-            padding: 20px 60px 20px 25px;
-            font-size: 1.1rem;
-            border: 2px solid var(--border);
-            border-radius: 50px;
-            background: var(--bg-card);
-            color: var(--text-primary);
-            font-family: 'Space Grotesk', sans-serif;
-            transition: all 0.3s;
-        }
-
-        .search-input:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 20px rgba(0, 217, 255, 0.3);
+            padding: 16px 16px 16px 20px;
+            padding-right: 110px;
         }
 
         .search-btn {
-            position: absolute;
-            right: 8px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: linear-gradient(135deg, var(--primary), var(--accent));
-            border: none;
-            padding: 12px 24px;
-            border-radius: 50px;
-            color: var(--bg-dark);
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .search-btn:hover {
-            transform: translateY(-50%) scale(1.05);
-        }
-
-        /* Categories */
-        .categories {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-bottom: 40px;
-            flex-wrap: wrap;
-        }
-
-        .category-btn {
             padding: 10px 20px;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 25px;
-            color: var(--text-secondary);
-            cursor: pointer;
-            transition: all 0.3s;
-            font-weight: 500;
         }
 
-        .category-btn:hover, .category-btn.active {
-            background: linear-gradient(135deg, var(--primary), var(--accent));
-            color: var(--bg-dark);
-            border-color: var(--primary);
-            transform: translateY(-2px);
-        }
-
-        /* Stock Grid */
         .stocks-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 25px;
-            margin-bottom: 40px;
+            grid-template-columns: 1fr;
         }
+    }
+</style>
+{% endblock %}
 
-        .stock-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 25px;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            text-decoration: none;
-            color: inherit;
-            display: block;
-        }
+{% block content %}
+<div class="content-header">
+    <div>
+        <h1 class="content-title">Stock Analysis</h1>
+        <p class="content-subtitle">Search and explore individual stocks with real-time data</p>
+    </div>
+</div>
 
-        .stock-card:hover {
-            border-color: var(--primary);
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0, 217, 255, 0.3);
-        }
-
-        .stock-symbol {
-            font-size: 1.3em;
-            font-weight: 700;
-            color: var(--primary);
-            margin-bottom: 8px;
-        }
-
-        .stock-name {
-            font-size: 1.1em;
-            color: var(--text-primary);
-            margin-bottom: 15px;
-            font-weight: 600;
-        }
-
-        .stock-price {
-            font-size: 1.8em;
-            font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: 8px;
-        }
-
-        .stock-change {
-            font-size: 1em;
-            font-weight: 600;
-        }
-
-        .stock-change.positive {
-            color: #00ff88;
-        }
-
-        .stock-change.negative {
-            color: #ff006e;
-        }
-
-        .stock-info {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid var(--border);
-            font-size: 0.9em;
-        }
-
-        .stock-info-item {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-
-        .stock-info-label {
-            color: var(--text-secondary);
-            font-size: 0.85em;
-        }
-
-        .stock-info-value {
-            color: var(--text-primary);
-            font-weight: 600;
-        }
-
-        /* Section Title */
-        .section-title {
-            font-size: 2em;
-            margin-bottom: 25px;
-            color: var(--text-primary);
-        }
-
-        .gradient-text {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .container {
-                padding: 15px;
-            }
-
-            nav {
-                padding: 15px 20px;
-                flex-direction: column;
-                gap: 15px;
-            }
-
-            .nav-links {
-                gap: 15px;
-                font-size: 0.9em;
-            }
-
-            h1 {
-                font-size: 2em;
-            }
-
-            .stocks-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
-    <link rel="stylesheet" href="{{ url_for('static', filename='basic.css') }}?v=1762470000">
-</head>
-<body>
-    <!-- Theme Toggle Button -->
-    <button id="theme-toggle" aria-label="Toggle theme">☀️</button>
-
-    <div class="container">
-        <!-- Navigation -->
-        <nav>
-            <a href="/" class="nav-brand">
-                <div class="logo">Q</div>
-                <span class="brand-text">Qunex Trade</span>
-            </a>
-            <div class="nav-links">
-                <a href="/" class="nav-link">Home</a>
-                <a href="/stocks" class="nav-link active">Stocks</a>
-                <a href="/market" class="nav-link">Market</a>
-                <a href="/screener" class="nav-link">Screener</a>
-                <a href="/watchlist" class="nav-link">Watchlist</a>
-                <a href="/calendar" class="nav-link">Calendar</a>
-                <a href="/news" class="nav-link">News</a>
-                <a href="/about" class="nav-link">About</a>
-                {% if user and user.is_authenticated %}
-                    <a href="/auth/account" class="nav-link">Account</a>
-                    <a href="/auth/logout" class="btn-secondary">Logout</a>
-                {% else %}
-                    <a href="/auth/login" class="btn-secondary">Login</a>
-                {% endif %}
-            </div>
-        </nav>
-
-        <!-- Header -->
-        <div class="header">
-            <h1>Stock Analysis</h1>
-            <div class="subtitle">Search and explore individual stocks with real-time data</div>
+<!-- Stock Search -->
+<div class="search-section">
+    <form onsubmit="event.preventDefault(); searchStock();">
+        <div class="search-container">
+            <input type="text" id="stock-search" class="search-input"
+                placeholder="Search stock symbol (e.g., AAPL, TSLA, NVDA)..." autocomplete="off">
+            <button type="submit" class="search-btn">Search</button>
         </div>
+    </form>
+</div>
 
-        <!-- Stock Search -->
-        <div class="search-section">
-            <form onsubmit="event.preventDefault(); searchStock();">
-                <div class="search-container">
-                    <input type="text" id="stock-search" class="search-input"
-                           placeholder="Search stock symbol (e.g., AAPL, TSLA, NVDA)..."
-                           autocomplete="off">
-                    <button type="submit" class="search-btn">Search</button>
-                </div>
-            </form>
-        </div>
+<!-- Categories -->
+<div class="categories">
+    <button class="category-btn active" onclick="filterCategory('all')">All Stocks</button>
+    <button class="category-btn" onclick="filterCategory('tech')">Technology</button>
+    <button class="category-btn" onclick="filterCategory('finance')">Finance</button>
+    <button class="category-btn" onclick="filterCategory('indices')">Indices</button>
+</div>
 
-        <!-- Categories -->
-        <div class="categories">
-            <button class="category-btn active" onclick="filterCategory('all')">All Stocks</button>
-            <button class="category-btn" onclick="filterCategory('tech')">Technology</button>
-            <button class="category-btn" onclick="filterCategory('finance')">Finance</button>
-            <button class="category-btn" onclick="filterCategory('indices')">Indices</button>
-        </div>
-
-        <!-- Popular Stocks Section -->
-        <div>
-            <h2 class="section-title"><span class="gradient-text">Popular Stocks</span></h2>
-            <div id="stocks-container" class="stocks-grid">
-                <!-- Stock cards will be loaded here -->
-                <div style="text-align: center; grid-column: 1 / -1; padding: 40px; color: var(--text-secondary);">
-                    Loading stocks...
-                </div>
-            </div>
+<!-- Popular Stocks Section -->
+<div>
+    <div class="section-header">
+        <h2 class="section-title">Popular Stocks</h2>
+        <div class="section-line"></div>
+    </div>
+    <div id="stocks-container" class="stocks-grid">
+        <div style="text-align: center; grid-column: 1 / -1; padding: 60px; color: rgba(255, 255, 255, 0.5);">
+            <div class="loading-spinner" style="margin: 0 auto 16px;"></div>
+            Loading stocks...
         </div>
     </div>
+</div>
+{% endblock %}
 
-    <script>
-        // Popular stock list
-        const stockList = {
-            all: [
-                { symbol: 'AAPL', name: 'Apple Inc.', category: 'tech' },
-                { symbol: 'MSFT', name: 'Microsoft Corporation', category: 'tech' },
-                { symbol: 'GOOGL', name: 'Alphabet Inc.', category: 'tech' },
-                { symbol: 'AMZN', name: 'Amazon.com Inc.', category: 'tech' },
-                { symbol: 'TSLA', name: 'Tesla Inc.', category: 'tech' },
-                { symbol: 'NVDA', name: 'NVIDIA Corporation', category: 'tech' },
-                { symbol: 'META', name: 'Meta Platforms Inc.', category: 'tech' },
-                { symbol: 'NFLX', name: 'Netflix Inc.', category: 'tech' },
-                { symbol: 'JPM', name: 'JPMorgan Chase & Co.', category: 'finance' },
-                { symbol: 'BAC', name: 'Bank of America Corp.', category: 'finance' },
-                { symbol: 'WFC', name: 'Wells Fargo & Company', category: 'finance' },
-                { symbol: 'GS', name: 'Goldman Sachs Group Inc.', category: 'finance' },
-                { symbol: 'SPY', name: 'S&P 500 ETF', category: 'indices' },
-                { symbol: 'QQQ', name: 'Nasdaq 100 ETF', category: 'indices' },
-                { symbol: 'DIA', name: 'Dow Jones ETF', category: 'indices' }
-            ]
-        };
+{% block extra_scripts %}
+<script>
+    const stockList = {
+        all: [
+            { symbol: 'AAPL', name: 'Apple Inc.', category: 'tech' },
+            { symbol: 'MSFT', name: 'Microsoft Corporation', category: 'tech' },
+            { symbol: 'GOOGL', name: 'Alphabet Inc.', category: 'tech' },
+            { symbol: 'AMZN', name: 'Amazon.com Inc.', category: 'tech' },
+            { symbol: 'TSLA', name: 'Tesla Inc.', category: 'tech' },
+            { symbol: 'NVDA', name: 'NVIDIA Corporation', category: 'tech' },
+            { symbol: 'META', name: 'Meta Platforms Inc.', category: 'tech' },
+            { symbol: 'NFLX', name: 'Netflix Inc.', category: 'tech' },
+            { symbol: 'JPM', name: 'JPMorgan Chase & Co.', category: 'finance' },
+            { symbol: 'BAC', name: 'Bank of America Corp.', category: 'finance' },
+            { symbol: 'WFC', name: 'Wells Fargo & Company', category: 'finance' },
+            { symbol: 'GS', name: 'Goldman Sachs Group Inc.', category: 'finance' },
+            { symbol: 'SPY', name: 'S&P 500 ETF', category: 'indices' },
+            { symbol: 'QQQ', name: 'Nasdaq 100 ETF', category: 'indices' },
+            { symbol: 'DIA', name: 'Dow Jones ETF', category: 'indices' }
+        ]
+    };
 
-        let currentCategory = 'all';
-        let stocksData = {};
+    let currentCategory = 'all';
+    let stocksData = {};
 
-        // Search stock function
-        function searchStock() {
-            const input = document.getElementById('stock-search');
-            const symbol = input.value.trim().toUpperCase();
-
-            if (symbol) {
-                window.location.href = `/stock/${symbol}`;
-            }
+    function searchStock() {
+        const input = document.getElementById('stock-search');
+        const symbol = input.value.trim().toUpperCase();
+        if (symbol) {
+            window.location.href = `/stocks/${symbol}`;
         }
+    }
 
-        // Filter by category
-        function filterCategory(category) {
-            currentCategory = category;
+    function filterCategory(category) {
+        currentCategory = category;
+        document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+        displayStocks();
+    }
 
-            // Update active button
-            document.querySelectorAll('.category-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            event.target.classList.add('active');
+    function displayStocks() {
+        const container = document.getElementById('stocks-container');
+        const filteredStocks = currentCategory === 'all'
+            ? stockList.all
+            : stockList.all.filter(s => s.category === currentCategory);
 
-            // Filter and display stocks
-            displayStocks();
-        }
+        container.innerHTML = '';
 
-        // Display stocks
-        function displayStocks() {
-            const container = document.getElementById('stocks-container');
-            const filteredStocks = currentCategory === 'all'
-                ? stockList.all
-                : stockList.all.filter(s => s.category === currentCategory);
+        filteredStocks.forEach(stock => {
+            const stockData = stocksData[stock.symbol] || {};
+            const price = stockData.price || 0;
+            const change = stockData.change || 0;
+            const changePercent = stockData.changePercent || 0;
+            const volume = stockData.volume || 0;
+            const high = stockData.high || 0;
+            const low = stockData.low || 0;
 
-            container.innerHTML = '';
+            const card = document.createElement('a');
+            card.href = `/stocks/${stock.symbol}`;
+            card.className = 'stock-card';
 
-            filteredStocks.forEach(stock => {
-                const stockData = stocksData[stock.symbol] || {};
-                const price = stockData.price || 0;
-                const change = stockData.change || 0;
-                const changePercent = stockData.changePercent || 0;
-                const volume = stockData.volume || 0;
-                const high = stockData.high || 0;
-                const low = stockData.low || 0;
+            const changeClass = change >= 0 ? 'positive' : 'negative';
+            const changeIcon = change >= 0 ? '▲' : '▼';
 
-                const card = document.createElement('a');
-                card.href = `/stock/${stock.symbol}`;
-                card.className = 'stock-card';
-
-                const changeClass = change >= 0 ? 'positive' : 'negative';
-                const changeIcon = change >= 0 ? '▲' : '▼';
-
-                card.innerHTML = `
-                    <div class="stock-symbol">${stock.symbol}</div>
-                    <div class="stock-name">${stock.name}</div>
-                    <div class="stock-price">$${price.toFixed(2)}</div>
-                    <div class="stock-change ${changeClass}">
-                        ${changeIcon} ${Math.abs(change).toFixed(2)} (${changePercent >= 0 ? '+' : ''}${changePercent.toFixed(2)}%)
+            card.innerHTML = `
+                <div class="stock-header">
+                    <div>
+                        <div class="stock-symbol">${stock.symbol}</div>
+                        <div class="stock-name">${stock.name}</div>
                     </div>
-                    <div class="stock-info">
-                        <div class="stock-info-item">
-                            <span class="stock-info-label">High</span>
-                            <span class="stock-info-value">$${high.toFixed(2)}</span>
-                        </div>
-                        <div class="stock-info-item">
-                            <span class="stock-info-label">Low</span>
-                            <span class="stock-info-value">$${low.toFixed(2)}</span>
-                        </div>
-                        <div class="stock-info-item">
-                            <span class="stock-info-label">Volume</span>
-                            <span class="stock-info-value">${formatVolume(volume)}</span>
+                    <div class="stock-price-container">
+                        <div class="stock-price">$${price.toFixed(2)}</div>
+                        <div class="stock-change ${changeClass}">
+                            ${changeIcon} ${Math.abs(change).toFixed(2)} (${changePercent >= 0 ? '+' : ''}${changePercent.toFixed(2)}%)
                         </div>
                     </div>
-                `;
+                </div>
+                <div class="stock-info">
+                    <div class="stock-info-item">
+                        <span class="stock-info-label">High</span>
+                        <span class="stock-info-value">$${high.toFixed(2)}</span>
+                    </div>
+                    <div class="stock-info-item">
+                        <span class="stock-info-label">Low</span>
+                        <span class="stock-info-value">$${low.toFixed(2)}</span>
+                    </div>
+                    <div class="stock-info-item">
+                        <span class="stock-info-label">Volume</span>
+                        <span class="stock-info-value">${formatVolume(volume)}</span>
+                    </div>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+    }
 
-                container.appendChild(card);
-            });
-        }
+    function formatVolume(volume) {
+        if (volume >= 1000000000) return (volume / 1000000000).toFixed(2) + 'B';
+        if (volume >= 1000000) return (volume / 1000000).toFixed(2) + 'M';
+        if (volume >= 1000) return (volume / 1000).toFixed(2) + 'K';
+        return volume.toString();
+    }
 
-        // Format volume
-        function formatVolume(volume) {
-            if (volume >= 1000000000) {
-                return (volume / 1000000000).toFixed(2) + 'B';
-            } else if (volume >= 1000000) {
-                return (volume / 1000000).toFixed(2) + 'M';
-            } else if (volume >= 1000) {
-                return (volume / 1000).toFixed(2) + 'K';
+    async function loadStockData() {
+        try {
+            // Get all tickers and fetch data in one request
+            const tickers = stockList.all.map(s => s.symbol).join(',');
+            const response = await fetch(`/api/market/snapshot?tickers=${tickers}`);
+            const data = await response.json();
+
+            if (data.error) {
+                console.error('API Error:', data.error);
+                displayStocks();
+                return;
             }
-            return volume.toString();
-        }
 
-        // Load stock data
-        async function loadStockData() {
+            // Process snapshot data for each stock
             for (const stock of stockList.all) {
-                try {
-                    const response = await fetch(`/api/stock/${stock.symbol}/chart?timeframe=1D`);
-                    const data = await response.json();
-
-                    if (data.candles && data.candles.length > 0) {
-                        const lastCandle = data.candles[data.candles.length - 1];
-                        const prevCandle = data.candles[data.candles.length - 2] || lastCandle;
-
-                        stocksData[stock.symbol] = {
-                            price: lastCandle.close,
-                            change: lastCandle.close - prevCandle.close,
-                            changePercent: prevCandle.close ? ((lastCandle.close - prevCandle.close) / prevCandle.close) * 100 : 0,
-                            volume: lastCandle.volume,
-                            high: lastCandle.high,
-                            low: lastCandle.low
-                        };
-                    }
-                } catch (error) {
-                    console.error(`Error loading data for ${stock.symbol}:`, error);
-                    // Use placeholder data
+                const tickerData = data[stock.symbol];
+                if (tickerData) {
+                    // Use day_close as price if price is null (market closed)
+                    const price = tickerData.price || tickerData.day_close || 0;
                     stocksData[stock.symbol] = {
-                        price: 0,
-                        change: 0,
-                        changePercent: 0,
-                        volume: 0,
-                        high: 0,
-                        low: 0
+                        price: price,
+                        change: tickerData.change || 0,
+                        changePercent: tickerData.change_percent || 0,
+                        volume: tickerData.day_volume || tickerData.volume || 0,
+                        high: tickerData.day_high || tickerData.high || 0,
+                        low: tickerData.day_low || tickerData.low || 0
                     };
+                } else {
+                    stocksData[stock.symbol] = { price: 0, change: 0, changePercent: 0, volume: 0, high: 0, low: 0 };
                 }
             }
-
-            displayStocks();
-        }
-
-        // Initialize
-        loadStockData();
-
-        // Allow enter key in search
-        document.getElementById('stock-search').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                searchStock();
+        } catch (error) {
+            console.error('Error loading stock data:', error);
+            // Set default values for all stocks on error
+            for (const stock of stockList.all) {
+                stocksData[stock.symbol] = { price: 0, change: 0, changePercent: 0, volume: 0, high: 0, low: 0 };
             }
-        });
-    </script>
-    <!-- Theme Toggle Script -->
-    <script src="{{ url_for('static', filename='theme-toggle.js') }}" defer></script>
-</body>
-</html>
+        }
+        displayStocks();
+    }
+
+    // Initial load
+    loadStockData();
+
+    // Auto-refresh every 60 seconds
+    setInterval(loadStockData, 60000);
+
+    document.getElementById('stock-search').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            searchStock();
+        }
+    });
+</script>
+{% endblock %}

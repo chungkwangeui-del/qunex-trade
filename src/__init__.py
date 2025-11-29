@@ -5,7 +5,8 @@
 from web.polygon_service import PolygonService, get_polygon_service
 
 # Export NewsCollector and its client
-from web.news_collector import NewsCollector, NewsApiClient
+from src.news_collector import NewsCollector
+from newsapi import NewsApiClient
 
 # Export other utilities if needed
 # (Add more re-exports here as tests require)

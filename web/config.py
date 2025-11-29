@@ -4,6 +4,10 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+# Get the project root directory (parent of 'web' folder)
+_project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+_db_path = os.path.join(_project_root, "instance", "qunextrade.db")
+
 class Config:
     # Security
     SECRET_KEY = os.getenv("SECRET_KEY")
@@ -12,16 +16,9 @@ class Config:
             raise ValueError("SECRET_KEY environment variable must be set in production!")
         else:
             SECRET_KEY = "dev-secret-key-for-testing-only"
-    
-    # Database
-    SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL")
-    if SQLALCHEMY_DATABASE_URI:
-        if SQLALCHEMY_DATABASE_URI.startswith("postgres://"):
-            SQLALCHEMY_DATABASE_URI = SQLALCHEMY_DATABASE_URI.replace("postgres://", "postgresql+psycopg://", 1)
-        elif SQLALCHEMY_DATABASE_URI.startswith("postgresql://"):
-            SQLALCHEMY_DATABASE_URI = SQLALCHEMY_DATABASE_URI.replace("postgresql://", "postgresql+psycopg://", 1)
-    else:
-        SQLALCHEMY_DATABASE_URI = "sqlite:///qunextrade.db"
+
+    # Database - use absolute path to ensure consistency
+    SQLALCHEMY_DATABASE_URI = f"sqlite:///{_db_path}"
     
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ENGINE_OPTIONS = {
@@ -33,7 +30,7 @@ class Config:
     }
 
     # Security Headers & Cookies
-    SESSION_COOKIE_SECURE = True
+    SESSION_COOKIE_SECURE = os.getenv("RENDER") is not None  # Only True in production
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = "Lax"
     PERMANENT_SESSION_LIFETIME = timedelta(days=7)

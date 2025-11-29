@@ -64,11 +64,10 @@ def refresh_news_data():
             return False
 
         if not gemini_key or gemini_key.strip() == "":
-            logger.critical(
-                "CRITICAL ERROR: GEMINI_API_KEY is missing or empty. Aborting news refresh."
+            logger.warning(
+                "WARNING: GEMINI_API_KEY is missing. News will be saved without AI analysis."
             )
-            logger.critical("Get an API key from: https://makersuite.google.com/app/apikey")
-            return False
+            logger.warning("Get an API key from: https://makersuite.google.com/app/apikey")
 
         # Use app context for database operations
         with app.app_context():

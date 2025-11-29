@@ -1,397 +1,370 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Account - Qunex Trade</title>
-    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+{% extends "base_layout.html" %}
 
-        :root {
-            --primary: #00d9ff;
-            --secondary: #7c3aed;
-            --bg-dark: #0a0e27;
-            --bg-card: #131829;
-            --text-primary: #ffffff;
-            --text-secondary: #8b92b0;
-            --border: rgba(0, 217, 255, 0.15);
-            --success: #00ff88;
-            --warning: #fbbf24;
-        }
+{% block title %}Account - Qunex Trade{% endblock %}
 
-        body {
-            font-family: 'Space Grotesk', sans-serif;
-            background: var(--bg-dark);
-            color: var(--text-primary);
-            min-height: 100vh;
-            position: relative;
-        }
+{% block extra_styles %}
+<style>
+    .account-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 24px;
+    }
 
-        }
+    .account-card {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        padding: 28px;
+        transition: all 0.2s ease;
+    }
 
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 40px 20px;
-            position: relative;
-            z-index: 1;
-        }
+    .account-card:hover {
+        border-color: rgba(255, 255, 255, 0.15);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
 
-        .header {
-            text-align: center;
-            margin-bottom: 50px;
-        }
+    .card-header {
+        margin-bottom: 20px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
 
-        .header h1 {
-            font-size: 3em;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 10px;
-        }
+    .card-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #fff;
+        margin: 0;
+    }
 
-        .header p {
-            color: var(--text-secondary);
-            font-size: 1.2em;
-        }
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 14px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    }
 
-        .account-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 40px;
-            margin-bottom: 30px;
-        }
+    .info-row:last-child {
+        border-bottom: none;
+    }
 
-        .account-card h2 {
-            font-size: 1.8em;
-            color: var(--primary);
-            margin-bottom: 25px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid var(--border);
-        }
+    .info-label {
+        color: rgba(255, 255, 255, 0.6);
+        font-weight: 500;
+        font-size: 0.875rem;
+    }
 
-        .info-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 20px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        }
+    .info-value {
+        color: #fff;
+        font-weight: 600;
+        font-size: 0.9375rem;
+    }
 
-        .info-row:last-child {
-            border-bottom: none;
-        }
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 12px;
+        border-radius: var(--radius-full);
+        font-weight: var(--font-bold);
+        font-size: var(--text-xs);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
 
-        .info-label {
-            color: var(--text-secondary);
-            font-weight: 600;
-            font-size: 1.1em;
-        }
+    .badge.free {
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--text-secondary);
+        border: 1px solid var(--border-subtle);
+    }
 
-        .info-value {
-            color: var(--text-primary);
-            font-weight: 600;
-            font-size: 1.1em;
-        }
+    .badge.pro {
+        background: rgba(0, 217, 255, 0.15);
+        color: var(--accent-cyan);
+        border: 1px solid rgba(0, 217, 255, 0.3);
+        box-shadow: 0 0 10px rgba(0, 217, 255, 0.1);
+    }
 
-        .badge {
-            display: inline-block;
-            padding: 8px 20px;
-            border-radius: 10px;
-            font-weight: 700;
-            font-size: 0.9em;
-            text-transform: uppercase;
-        }
+    .badge.premium {
+        background: rgba(168, 85, 247, 0.15);
+        color: var(--accent-purple);
+        border: 1px solid rgba(168, 85, 247, 0.3);
+        box-shadow: 0 0 10px rgba(168, 85, 247, 0.1);
+    }
 
-        .badge.free {
-            background: rgba(139, 146, 176, 0.2);
-            color: var(--text-secondary);
-            border: 1px solid var(--text-secondary);
-        }
+    .badge.developer {
+        background: rgba(251, 191, 36, 0.15);
+        color: var(--warning);
+        border: 1px solid rgba(251, 191, 36, 0.3);
+        box-shadow: 0 0 10px rgba(251, 191, 36, 0.1);
+    }
 
-        .badge.pro {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            color: white;
-            box-shadow: 0 0 20px rgba(0, 217, 255, 0.3);
-        }
+    .badge.active {
+        background: rgba(34, 197, 94, 0.15);
+        color: var(--success);
+    }
 
-        .badge.premium {
-            background: linear-gradient(135deg, #ff006e 0%, #7c3aed 100%);
-            color: white;
-            box-shadow: 0 0 20px rgba(255, 0, 110, 0.3);
-        }
+    .badge.inactive {
+        background: rgba(239, 68, 68, 0.15);
+        color: var(--danger);
+    }
 
-        .badge.developer {
-            background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
-            color: #000;
-            font-weight: 800;
-            box-shadow: 0 0 30px rgba(255, 215, 0, 0.6);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
+    .actions {
+        display: flex;
+        gap: 16px;
+        margin-top: 32px;
+        flex-wrap: wrap;
+    }
 
-        .badge.active {
-            background: rgba(0, 255, 136, 0.2);
-            color: var(--success);
-            border: 1px solid var(--success);
-        }
+    .form-group {
+        margin-bottom: 20px;
+    }
 
-        .badge.inactive {
-            background: rgba(251, 191, 36, 0.2);
-            color: var(--warning);
-            border: 1px solid var(--warning);
-        }
+    .form-label {
+        display: block;
+        margin-bottom: 8px;
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
 
-        .btn {
-            display: inline-block;
-            padding: 15px 35px;
-            border-radius: 12px;
-            text-decoration: none;
-            font-weight: 700;
-            font-size: 1.1em;
-            transition: all 0.3s;
-            border: none;
-            cursor: pointer;
-            text-align: center;
-        }
+    .form-input {
+        width: 100%;
+        padding: 12px 16px;
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        color: #fff;
+        font-family: inherit;
+        font-size: 0.9375rem;
+        transition: all 0.2s ease;
+    }
 
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            color: white;
-            box-shadow: 0 4px 15px rgba(0, 217, 255, 0.3);
-        }
+    .form-input:focus {
+        outline: none;
+        border-color: #00d9ff;
+        box-shadow: 0 0 0 3px rgba(0, 217, 255, 0.15);
+        background: rgba(0, 0, 0, 0.4);
+    }
 
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 25px rgba(0, 217, 255, 0.5);
-        }
+    .form-input::placeholder {
+        color: rgba(255, 255, 255, 0.3);
+    }
 
-        .btn-secondary {
-            background: transparent;
-            color: var(--primary);
-            border: 2px solid var(--primary);
-        }
+    .check-icon {
+        color: #22c55e;
+        font-weight: bold;
+    }
 
-        .btn-secondary:hover {
-            background: rgba(0, 217, 255, 0.1);
-            transform: translateY(-2px);
-        }
+    .cross-icon {
+        color: #ef4444;
+        font-weight: bold;
+    }
 
-        .btn-danger {
-            background: transparent;
-            color: #ff006e;
-            border: 2px solid #ff006e;
-        }
+    .btn-update {
+        width: 100%;
+        padding: 14px 24px;
+        background: linear-gradient(135deg, #00d9ff, #a855f7);
+        border: none;
+        border-radius: 10px;
+        color: #000;
+        font-size: 0.9375rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
 
-        .btn-danger:hover {
-            background: rgba(255, 0, 110, 0.1);
-            transform: translateY(-2px);
+    .btn-update:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(0, 217, 255, 0.3);
+    }
+
+    @media (max-width: 768px) {
+        .account-grid {
+            grid-template-columns: 1fr;
         }
 
         .actions {
-            display: flex;
-            gap: 20px;
-            margin-top: 30px;
-            flex-wrap: wrap;
+            flex-direction: column;
         }
+    }
+</style>
+{% endblock %}
 
-        .back-link {
-            display: inline-block;
-            color: var(--text-secondary);
-            text-decoration: none;
-            margin-bottom: 30px;
-            font-size: 1.1em;
-            transition: all 0.3s;
-        }
+{% block content %}
+<div class="content-header">
+    <div>
+        <h1 class="content-title">My Account</h1>
+        <p class="content-subtitle">
+            Manage your subscription and account settings
+        </p>
+    </div>
+    {% if user.subscription_tier == 'developer' %}
+    <div class="header-actions">
+        <a href="/auth/admin/dashboard" class="btn btn-primary"
+            style="background: linear-gradient(135deg, var(--accent-purple), var(--danger)); border: none;">
+            🔐 Admin Dashboard
+        </a>
+    </div>
+    {% endif %}
+</div>
 
-        .back-link:hover {
-            color: var(--primary);
-        }
-
-        @media (max-width: 768px) {
-            .header h1 {
-                font-size: 2.5em;
-            }
-
-            .account-card {
-                padding: 25px;
-            }
-
-            .info-row {
-                flex-direction: column;
-                gap: 10px;
-            }
-
-            .actions {
-                flex-direction: column;
-            }
-
-            .btn {
-                width: 100%;
-            }
-        }
-    </style>
-    <link rel="stylesheet" href="{{ url_for('static', filename='basic.css') }}?v=1762456000">
-</head>
-<body>
-    <!-- Theme Toggle Button -->
-    <button id="theme-toggle" aria-label="Toggle theme">☀️</button>
-
-
-    <div class="container">
-        <a href="/" class="back-link">← Back to Home</a>
-
-        <div class="header">
-            <h1>My Account</h1>
-            <p>Manage your subscription and account settings</p>
-            {% if user.subscription_tier == 'developer' %}
-            <p style="margin-top: 20px;">
-                <a href="/auth/admin/dashboard" style="background: linear-gradient(135deg, #ff006e 0%, #7c3aed 100%); color: white; padding: 12px 30px; border-radius: 10px; text-decoration: none; font-weight: 700; display: inline-block; box-shadow: 0 4px 15px rgba(255, 0, 110, 0.3);">
-                    🔐 Admin Dashboard
-                </a>
-            </p>
-            {% endif %}
+<div class="account-grid">
+    <!-- Account Information -->
+    <div class="account-card">
+        <div class="card-header">
+            <h2 class="card-title">Profile Details</h2>
         </div>
-
-        <!-- Account Information -->
-        <div class="account-card">
-            <h2>Account Information</h2>
-            <div class="info-row">
-                <span class="info-label">Email</span>
-                <span class="info-value">{{ user.email }}</span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">Username</span>
-                <span class="info-value">{{ user.username }}</span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">Member Since</span>
-                <span class="info-value">{{ user.created_at.strftime('%B %d, %Y') if user.created_at else 'N/A' }}</span>
-            </div>
+        <div class="info-row">
+            <span class="info-label">Email</span>
+            <span class="info-value">{{ user.email }}</span>
         </div>
-
-        <!-- Subscription Information -->
-        <div class="account-card">
-            <h2>Subscription</h2>
-            <div class="info-row">
-                <span class="info-label">Current Plan</span>
-                <span class="info-value">
-                    <span class="badge {{ user.subscription_tier }}">{{ user.subscription_tier|title }}</span>
-                </span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">Status</span>
-                <span class="info-value">
-                    <span class="badge {{ user.subscription_status }}">{{ user.subscription_status|title }}</span>
-                </span>
-            </div>
-
-            {% if user.subscription_tier == 'free' %}
-            <div class="info-row">
-                <span class="info-label">Signals per Day</span>
-                <span class="info-value">3 signals (limited)</span>
-            </div>
-            {% elif user.subscription_tier == 'pro' %}
-            <div class="info-row">
-                <span class="info-label">Signals per Day</span>
-                <span class="info-value">Unlimited</span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">Price</span>
-                <span class="info-value">$19.99/month</span>
-            </div>
-            {% elif user.subscription_tier == 'premium' %}
-            <div class="info-row">
-                <span class="info-label">Signals per Day</span>
-                <span class="info-value">Unlimited + API Access</span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">Price</span>
-                <span class="info-value">$49.99/month</span>
-            </div>
-            {% elif user.subscription_tier == 'developer' %}
-            <div class="info-row">
-                <span class="info-label">Access Level</span>
-                <span class="info-value">FULL ACCESS - Site Creator</span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">Price</span>
-                <span class="info-value">Complimentary</span>
-            </div>
-            {% endif %}
-
-            <div class="actions">
-                {% if user.subscription_tier == 'free' %}
-                <a href="/payments/pricing" class="btn btn-primary">Upgrade to Pro</a>
-                {% else %}
-                <a href="/payments/cancel-subscription" class="btn btn-danger" onclick="return confirm('Are you sure you want to cancel your subscription?')">Cancel Subscription</a>
-                <a href="/payments/pricing" class="btn btn-secondary">Change Plan</a>
-                {% endif %}
-            </div>
+        <div class="info-row">
+            <span class="info-label">Username</span>
+            <span class="info-value">{{ user.username }}</span>
         </div>
-
-        <!-- Password Change -->
-        {% if user.password_hash %}
-        <div class="account-card">
-            <h2>Change Password</h2>
-            <form method="POST" action="/auth/change-password" style="margin-top: 20px;">
-                <div class="form-group" style="margin-bottom: 15px;">
-                    <label style="display: block; margin-bottom: 5px; color: var(--text-secondary); font-size: 0.9em;">Current Password</label>
-                    <input type="password" name="current_password" required style="width: 100%; padding: 12px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; color: var(--text-primary);">
-                </div>
-                <div class="form-group" style="margin-bottom: 15px;">
-                    <label style="display: block; margin-bottom: 5px; color: var(--text-secondary); font-size: 0.9em;">New Password</label>
-                    <input type="password" name="new_password" required minlength="6" style="width: 100%; padding: 12px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; color: var(--text-primary);">
-                </div>
-                <div class="form-group" style="margin-bottom: 20px;">
-                    <label style="display: block; margin-bottom: 5px; color: var(--text-secondary); font-size: 0.9em;">Confirm New Password</label>
-                    <input type="password" name="confirm_password" required minlength="6" style="width: 100%; padding: 12px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; color: var(--text-primary);">
-                </div>
-                <button type="submit" class="btn btn-primary">Update Password</button>
-            </form>
-        </div>
-        {% endif %}
-
-        <!-- Features Access -->
-        <div class="account-card">
-            <h2>Your Features</h2>
-            <div class="info-row">
-                <span class="info-label">Daily Signals</span>
-                <span class="info-value">{{ '3 (Limited)' if user.subscription_tier == 'free' else 'Unlimited ✓' }}</span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">30-Day History</span>
-                <span class="info-value">{{ '✓' if user.is_pro() else '✗' }}</span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">Email Alerts</span>
-                <span class="info-value">{{ '✓' if user.is_pro() else '✗' }}</span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">CSV Download</span>
-                <span class="info-value">{{ '✓' if user.is_pro() else '✗' }}</span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">API Access</span>
-                <span class="info-value">{{ '✓' if user.subscription_tier in ['premium', 'developer'] else '✗' }}</span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">Priority Support</span>
-                <span class="info-value">{{ '✓' if user.is_pro() else '✗' }}</span>
-            </div>
+        <div class="info-row">
+            <span class="info-label">Member Since</span>
+            <span class="info-value">{{ user.created_at.strftime('%B %d, %Y') if user.created_at else 'N/A' }}</span>
         </div>
     </div>
 
-    <!-- UI Enhancement Scripts -->
-    <script src="{{ url_for('static', filename='toast.js') }}"></script>
-    <script src="{{ url_for('static', filename='ui-enhancements.js') }}"></script>
-    <!-- Theme Toggle Script -->
-    <script src="{{ url_for('static', filename='theme-toggle.js') }}" defer></script>
-</body>
-</html>
+    <!-- Subscription Information -->
+    <div class="account-card">
+        <div class="card-header">
+            <h2 class="card-title">Subscription</h2>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Current Plan</span>
+            <span class="info-value">
+                <span class="badge {{ user.subscription_tier }}">{{ user.subscription_tier|title }}</span>
+            </span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Status</span>
+            <span class="info-value">
+                <span class="badge {{ user.subscription_status }}">{{ user.subscription_status|title }}</span>
+            </span>
+        </div>
+
+        {% if user.subscription_tier == 'free' %}
+        <div class="info-row">
+            <span class="info-label">Signals per Day</span>
+            <span class="info-value">3 signals (limited)</span>
+        </div>
+        {% elif user.subscription_tier == 'pro' %}
+        <div class="info-row">
+            <span class="info-label">Signals per Day</span>
+            <span class="info-value">Unlimited</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Price</span>
+            <span class="info-value">$19.99/month</span>
+        </div>
+        {% elif user.subscription_tier == 'premium' %}
+        <div class="info-row">
+            <span class="info-label">Signals per Day</span>
+            <span class="info-value">Unlimited + API Access</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Price</span>
+            <span class="info-value">$49.99/month</span>
+        </div>
+        {% elif user.subscription_tier == 'developer' %}
+        <div class="info-row">
+            <span class="info-label">Access Level</span>
+            <span class="info-value">FULL ACCESS - Site Creator</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Price</span>
+            <span class="info-value">Complimentary</span>
+        </div>
+        {% endif %}
+
+        <!-- Actions removed as pricing is disabled -->
+        <!--
+        <div class="actions">
+            {% if user.subscription_tier == 'free' %}
+            <a href="#" class="btn btn-primary disabled">Upgrade Unavailable</a>
+            {% else %}
+            <a href="#" class="btn btn-secondary disabled">Manage Subscription</a>
+            {% endif %}
+        </div>
+        -->
+    </div>
+
+    <!-- Features Access -->
+    <div class="account-card">
+        <div class="card-header">
+            <h2 class="card-title">Your Features</h2>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Daily Signals</span>
+            <span class="info-value">{{ '3 (Limited)' if user.subscription_tier == 'free' else 'Unlimited ✓' }}</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">30-Day History</span>
+            <span class="info-value">
+                {% if user.is_pro() %}<span class="check-icon">✓</span>{% else %}<span class="cross-icon">✗</span>{%
+                endif %}
+            </span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Email Alerts</span>
+            <span class="info-value">
+                {% if user.is_pro() %}<span class="check-icon">✓</span>{% else %}<span class="cross-icon">✗</span>{%
+                endif %}
+            </span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">CSV Download</span>
+            <span class="info-value">
+                {% if user.is_pro() %}<span class="check-icon">✓</span>{% else %}<span class="cross-icon">✗</span>{%
+                endif %}
+            </span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">API Access</span>
+            <span class="info-value">
+                {% if user.subscription_tier in ['premium', 'developer'] %}<span class="check-icon">✓</span>{% else
+                %}<span class="cross-icon">✗</span>{% endif %}
+            </span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Priority Support</span>
+            <span class="info-value">
+                {% if user.is_pro() %}<span class="check-icon">✓</span>{% else %}<span class="cross-icon">✗</span>{%
+                endif %}
+            </span>
+        </div>
+    </div>
+
+    <!-- Password Change -->
+    {% if user.password_hash %}
+    <div class="account-card">
+        <div class="card-header">
+            <h2 class="card-title">Change Password</h2>
+        </div>
+        <form method="POST" action="/auth/change-password">
+            <div class="form-group">
+                <label class="form-label">Current Password</label>
+                <input type="password" name="current_password" required class="form-input">
+            </div>
+            <div class="form-group">
+                <label class="form-label">New Password</label>
+                <input type="password" name="new_password" required minlength="6" class="form-input">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Confirm New Password</label>
+                <input type="password" name="confirm_password" required minlength="6" class="form-input">
+            </div>
+            <button type="submit" class="btn-update">Update Password</button>
+        </form>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='toast.js') }}"></script>
+<script src="{{ url_for('static', filename='ui-enhancements.js') }}"></script>
+{% endblock %}

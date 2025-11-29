@@ -1,252 +1,630 @@
 {% extends "base_layout.html" %}
 
-{% block title %}Market Dashboard - Qunex Trade{% endblock %}
+{% block title %}Live Market - Qunex Trade{% endblock %}
 
 {% block extra_styles %}
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
-    .market-stats {
+    /* Market Indices */
+    .indices-row {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 24px;
-        margin-bottom: 40px;
-    }
-
-    .stat-card {
-        background: rgba(255, 255, 255, 0.02);
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        border-radius: 16px;
-        padding: 24px;
-        transition: all 0.2s;
-    }
-
-    .stat-card:hover {
-        border-color: rgba(255, 255, 255, 0.1);
-        transform: translateY(-2px);
-    }
-
-    .stat-label {
-        font-size: 0.875rem;
-        color: rgba(255, 255, 255, 0.6);
-        margin-bottom: 8px;
-    }
-
-    .stat-value {
-        font-size: 2rem;
-        font-weight: 700;
-        margin-bottom: 8px;
-    }
-
-    .stat-change {
-        font-size: 0.875rem;
-        font-weight: 600;
-    }
-
-    .stat-change.positive {
-        color: #22c55e;
-    }
-
-    .stat-change.negative {
-        color: #ef4444;
-    }
-
-    .chart-container {
-        background: rgba(255, 255, 255, 0.02);
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        border-radius: 16px;
-        padding: 24px;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
         margin-bottom: 32px;
     }
 
-    .chart-header {
+    .index-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-xl);
+        padding: 20px;
+        transition: all var(--transition-normal);
+    }
+
+    .index-card:hover {
+        border-color: var(--border-medium);
+        transform: translateY(-2px);
+    }
+
+    .index-name {
+        font-size: var(--text-xs);
+        color: var(--text-tertiary);
+        margin-bottom: 8px;
+        font-weight: var(--font-semibold);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .index-value {
+        font-size: var(--text-2xl);
+        font-weight: var(--font-bold);
+        margin-bottom: 8px;
+        font-family: 'JetBrains Mono', monospace;
+    }
+
+    .index-change {
         display: flex;
-        justify-content: space-between;
         align-items: center;
+        gap: 6px;
+        font-size: var(--text-sm);
+        font-weight: var(--font-semibold);
+    }
+
+    .index-change.positive { color: var(--success); }
+    .index-change.negative { color: var(--danger); }
+
+    /* Tabs */
+    .market-tabs {
+        display: flex;
+        gap: 8px;
         margin-bottom: 24px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid var(--border-subtle);
+        flex-wrap: wrap;
     }
 
-    .chart-title {
-        font-size: 1.25rem;
-        font-weight: 700;
+    .tab-button {
+        padding: 10px 20px;
+        background: transparent;
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-md);
+        color: var(--text-secondary);
+        font-weight: var(--font-medium);
+        font-size: var(--text-sm);
+        cursor: pointer;
+        transition: all var(--transition-fast);
+        font-family: var(--font-primary);
     }
 
-    .movers-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-        gap: 24px;
-        margin-top: 32px;
+    .tab-button:hover {
+        background: var(--bg-hover);
+        color: var(--text-primary);
     }
 
-    .movers-card {
-        background: rgba(255, 255, 255, 0.02);
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        border-radius: 16px;
-        padding: 24px;
+    .tab-button.active {
+        background: var(--text-primary);
+        color: var(--bg-primary);
+        border-color: transparent;
     }
 
-    .movers-title {
-        font-size: 1.125rem;
-        font-weight: 700;
-        margin-bottom: 20px;
-    }
-
-    .mover-item {
+    /* Filters */
+    .filters-section {
         display: flex;
-        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
         align-items: center;
-        padding: 12px 0;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     }
 
-    .mover-item:last-child {
+    .search-box {
+        flex: 1;
+        max-width: 300px;
+        position: relative;
+    }
+
+    .search-input {
+        width: 100%;
+        padding: 10px 12px 10px 40px;
+        background: var(--bg-card);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-md);
+        color: var(--text-primary);
+        font-size: var(--text-sm);
+        transition: all var(--transition-fast);
+    }
+
+    .search-input:focus {
+        outline: none;
+        border-color: var(--accent-cyan);
+        box-shadow: 0 0 0 3px rgba(0, 217, 255, 0.1);
+    }
+
+    .search-input::placeholder { color: var(--text-tertiary); }
+
+    .search-icon {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-tertiary);
+    }
+
+    .filter-select {
+        padding: 10px 16px;
+        background: var(--bg-card);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-md);
+        color: var(--text-primary);
+        font-size: var(--text-sm);
+        cursor: pointer;
+        transition: all var(--transition-fast);
+    }
+
+    .filter-select:focus {
+        outline: none;
+        border-color: var(--accent-cyan);
+    }
+
+    .realtime-indicator {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 12px;
+        background: rgba(34, 197, 94, 0.1);
+        border: 1px solid rgba(34, 197, 94, 0.3);
+        border-radius: var(--radius-full);
+        font-size: var(--text-xs);
+        color: var(--success);
+        margin-left: auto;
+        font-weight: var(--font-semibold);
+    }
+
+    .realtime-dot {
+        width: 6px;
+        height: 6px;
+        background: var(--success);
+        border-radius: 50%;
+        animation: pulse 2s infinite;
+    }
+
+    /* Market Table */
+    .market-table-container {
+        background: var(--bg-card);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-xl);
+        overflow: hidden;
+    }
+
+    .market-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .market-table thead {
+        background: var(--bg-hover);
+    }
+
+    .market-table th {
+        padding: 16px;
+        text-align: left;
+        font-size: var(--text-xs);
+        font-weight: var(--font-semibold);
+        color: var(--text-tertiary);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .market-table th.text-right { text-align: right; }
+
+    .market-table tbody tr {
+        border-bottom: 1px solid var(--border-subtle);
+        transition: all var(--transition-fast);
+    }
+
+    .market-table tbody tr:hover {
+        background: var(--bg-hover);
+    }
+
+    .market-table tbody tr:last-child {
         border-bottom: none;
     }
 
-    .mover-symbol {
+    .market-table td {
+        padding: 16px;
+        font-size: var(--text-sm);
+    }
+
+    .stock-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .stock-logo {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, rgba(0, 217, 255, 0.2), rgba(168, 85, 247, 0.2));
+        border-radius: var(--radius-md);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: var(--font-bold);
+        font-size: var(--text-xs);
+        color: var(--text-primary);
+    }
+
+    .stock-symbol {
+        font-weight: var(--font-semibold);
+        color: var(--text-primary);
+    }
+
+    .stock-name {
+        font-size: var(--text-xs);
+        color: var(--text-tertiary);
+    }
+
+    .price-cell {
         font-family: 'JetBrains Mono', monospace;
-        font-weight: 700;
-        color: #00d9ff;
+        font-weight: var(--font-semibold);
+        text-align: right;
+        color: var(--text-primary);
     }
 
-    .mover-price {
-        font-weight: 600;
+    .change-cell {
+        text-align: right;
+        font-weight: var(--font-semibold);
     }
 
-    .section-title {
-        font-size: 1.5rem;
-        font-weight: 800;
-        margin-bottom: 24px;
+    .change-cell.positive { color: var(--success); }
+    .change-cell.negative { color: var(--danger); }
+
+    .volume-bar {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .volume-bar-bg {
+        flex: 1;
+        height: 4px;
+        background: var(--border-subtle);
+        border-radius: 2px;
+        overflow: hidden;
+    }
+
+    .volume-bar-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple));
+        border-radius: 2px;
+    }
+
+    .volume-text {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: var(--text-xs);
+        color: var(--text-tertiary);
+        min-width: 50px;
+        text-align: right;
+    }
+
+    .market-cap {
+        font-family: 'JetBrains Mono', monospace;
+        text-align: right;
+        color: var(--text-secondary);
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+    }
+
+    .btn-action {
+        padding: 6px 12px;
+        background: var(--bg-hover);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-sm);
+        color: var(--text-secondary);
+        font-size: var(--text-xs);
+        font-weight: var(--font-medium);
+        cursor: pointer;
+        transition: all var(--transition-fast);
+    }
+
+    .btn-action:hover {
+        background: var(--bg-active);
+        color: var(--text-primary);
+    }
+
+    .btn-action.primary {
+        background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+        border-color: transparent;
+        color: #000;
+    }
+
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+    }
+
+    @media (max-width: 768px) {
+        .indices-row {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .filters-section {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .search-box {
+            max-width: none;
+        }
+
+        .market-table th,
+        .market-table td {
+            padding: 12px 8px;
+        }
     }
 </style>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
 <div class="content-header">
-    <h1 class="content-title">Market Dashboard</h1>
-    <p class="content-subtitle">Real-time market data and analysis</p>
+    <div>
+        <h1 class="content-title">Live Market</h1>
+        <p class="content-subtitle">Real-time stock prices and market data</p>
+    </div>
 </div>
 
-<!-- Major Indices -->
-<div class="market-stats">
-    {% for index in indices %}
-    <div class="stat-card">
-        <div class="stat-label">{{ index.name }}</div>
-        <div class="stat-value">${{ "{:,.2f}".format(index.price) }}</div>
-        <div class="stat-change {{ 'positive' if index.change_percent >= 0 else 'negative' }}">
-            {{ '+' if index.change_percent >= 0 else '' }}{{ "{:.2f}".format(index.change_percent) }}%
-            ({{ '+' if index.change >= 0 else '' }}${{ "{:.2f}".format(index.change) }})
-        </div>
+<!-- Market Indices -->
+<div class="indices-row">
+    <div class="index-card" id="index-spy">
+        <div class="index-name">S&P 500</div>
+        <div class="index-value">--</div>
+        <div class="index-change">Loading...</div>
     </div>
-    {% endfor %}
+    <div class="index-card" id="index-qqq">
+        <div class="index-name">NASDAQ</div>
+        <div class="index-value">--</div>
+        <div class="index-change">Loading...</div>
+    </div>
+    <div class="index-card" id="index-dia">
+        <div class="index-name">DOW JONES</div>
+        <div class="index-value">--</div>
+        <div class="index-change">Loading...</div>
+    </div>
+    <div class="index-card" id="index-iwm">
+        <div class="index-name">RUSSELL 2000</div>
+        <div class="index-value">--</div>
+        <div class="index-change">Loading...</div>
+    </div>
 </div>
 
-<!-- Market Chart -->
-<div class="chart-container">
-    <div class="chart-header">
-        <h2 class="chart-title">S&P 500 Performance</h2>
-    </div>
-    <canvas id="marketChart" height="80"></canvas>
+<!-- Market Tabs -->
+<div class="market-tabs">
+    <button class="tab-button active" onclick="switchTab('all')">All Stocks</button>
+    <button class="tab-button" onclick="switchTab('gainers')">Top Gainers</button>
+    <button class="tab-button" onclick="switchTab('losers')">Top Losers</button>
+    <button class="tab-button" onclick="switchTab('active')">Most Active</button>
+    <button class="tab-button" onclick="switchTab('pennystocks')">Penny Stocks</button>
 </div>
 
-<!-- Market Movers -->
-<h2 class="section-title">Market Movers</h2>
-<div class="movers-grid">
-    <div class="movers-card">
-        <h3 class="movers-title">Top Gainers</h3>
-        {% for stock in gainers[:10] %}
-        <div class="mover-item">
-            <div>
-                <div class="mover-symbol">{{ stock.ticker }}</div>
-            </div>
-            <div style="text-align: right;">
-                <div class="mover-price">${{ "{:.2f}".format(stock.price) }}</div>
-                <div class="stat-change positive">+{{ "{:.2f}".format(stock.change_percent) }}%</div>
-            </div>
-        </div>
-        {% endfor %}
+<!-- Filters Section -->
+<div class="filters-section">
+    <div class="search-box">
+        <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <path d="m21 21-4.35-4.35"></path>
+        </svg>
+        <input type="text" class="search-input" placeholder="Search stocks...">
     </div>
+    <select class="filter-select">
+        <option>All Sectors</option>
+        <option>Technology</option>
+        <option>Healthcare</option>
+        <option>Finance</option>
+        <option>Energy</option>
+    </select>
+    <select class="filter-select">
+        <option>All Caps</option>
+        <option>Large Cap</option>
+        <option>Mid Cap</option>
+        <option>Small Cap</option>
+    </select>
+    <div class="realtime-indicator">
+        <span class="realtime-dot"></span>
+        <span>Real-time</span>
+    </div>
+</div>
 
-    <div class="movers-card">
-        <h3 class="movers-title">Top Losers</h3>
-        {% for stock in losers[:10] %}
-        <div class="mover-item">
-            <div>
-                <div class="mover-symbol">{{ stock.ticker }}</div>
-            </div>
-            <div style="text-align: right;">
-                <div class="mover-price">${{ "{:.2f}".format(stock.price) }}</div>
-                <div class="stat-change negative">{{ "{:.2f}".format(stock.change_percent) }}%</div>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-
-    <div class="movers-card">
-        <h3 class="movers-title">Most Active</h3>
-        {% for stock in most_active[:10] %}
-        <div class="mover-item">
-            <div>
-                <div class="mover-symbol">{{ stock.ticker }}</div>
-            </div>
-            <div style="text-align: right;">
-                <div class="mover-price">${{ "{:.2f}".format(stock.price) }}</div>
-                <div class="stat-change {{ 'positive' if stock.change_percent >= 0 else 'negative' }}">
-                    {{ '+' if stock.change_percent >= 0 else '' }}{{ "{:.2f}".format(stock.change_percent) }}%
-                </div>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
+<!-- Market Table -->
+<div class="market-table-container">
+    <table class="market-table">
+        <thead>
+            <tr>
+                <th>Symbol</th>
+                <th class="text-right">Price</th>
+                <th class="text-right">Change</th>
+                <th>Volume</th>
+                <th class="text-right">Day Range</th>
+                <th class="text-right">Actions</th>
+            </tr>
+        </thead>
+        <tbody id="stockTableBody">
+            <tr>
+                <td colspan="6" class="text-center" style="padding: 40px; color: var(--text-tertiary);">
+                    Loading stocks...
+                </td>
+            </tr>
+        </tbody>
+    </table>
 </div>
 {% endblock %}
 
 {% block extra_scripts %}
 <script>
-    const ctx = document.getElementById('marketChart');
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: {{ chart_labels| tojson }},
-        datasets: [{
-            label: 'S&P 500',
-            data: {{ chart_data| tojson }},
-        borderColor: '#00d9ff',
-        backgroundColor: 'rgba(0, 217, 255, 0.1)',
-        borderWidth: 2,
-        tension: 0.4,
-        fill: true,
-        pointRadius: 0,
-        pointHoverRadius: 6
-        }]
-    },
-        options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            legend: {
-                display: false
+    let currentTab = 'all';
+    let allStocksData = [];
+
+    // Load market indices
+    async function loadIndices() {
+        try {
+            const response = await fetch('/api/market/indices');
+            if (response.ok) {
+                const data = await response.json();
+                const indices = data.indices || data;
+
+                updateIndexCard('index-spy', indices.SPY);
+                updateIndexCard('index-qqq', indices.QQQ);
+                updateIndexCard('index-dia', indices.DIA);
+                updateIndexCard('index-iwm', indices.IWM);
             }
-        },
-        scales: {
-            x: {
-                grid: {
-                    color: 'rgba(255, 255, 255, 0.05)'
-                },
-                ticks: {
-                    color: 'rgba(255, 255, 255, 0.6)'
-                }
-            },
-            y: {
-                grid: {
-                    color: 'rgba(255, 255, 255, 0.05)'
-                },
-                ticks: {
-                    color: 'rgba(255, 255, 255, 0.6)'
-                }
-            }
+        } catch (error) {
+            console.error('Failed to load indices:', error);
         }
     }
-});
+
+    function updateIndexCard(cardId, data) {
+        const card = document.getElementById(cardId);
+        if (!card || !data) return;
+
+        const valueEl = card.querySelector('.index-value');
+        const changeEl = card.querySelector('.index-change');
+
+        valueEl.textContent = formatPrice(data.price);
+
+        const changePercent = data.change_percent || 0;
+        const change = data.change || 0;
+        const isPositive = changePercent >= 0;
+
+        changeEl.textContent = `${isPositive ? '+' : ''}${change.toFixed(2)} (${isPositive ? '+' : ''}${changePercent.toFixed(2)}%)`;
+        changeEl.className = `index-change ${isPositive ? 'positive' : 'negative'}`;
+    }
+
+    // Load stocks based on current tab
+    async function loadStocks() {
+        const tbody = document.getElementById('stockTableBody');
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center" style="padding: 40px; color: var(--text-tertiary);">Loading stocks...</td></tr>';
+
+        try {
+            let data;
+
+            if (currentTab === 'gainers') {
+                const response = await fetch('/api/market/gainers');
+                data = await response.json();
+                allStocksData = data || [];
+            } else if (currentTab === 'losers') {
+                const response = await fetch('/api/market/losers');
+                data = await response.json();
+                allStocksData = data || [];
+            } else if (currentTab === 'pennystocks') {
+                const response = await fetch('/api/market/screener?max_price=5&min_volume=100000');
+                data = await response.json();
+                allStocksData = data.results || [];
+            } else {
+                // All stocks - get movers for now
+                const response = await fetch('/api/market/movers');
+                data = await response.json();
+                allStocksData = [...(data.gainers || []), ...(data.losers || [])];
+            }
+
+            renderStocks(allStocksData);
+        } catch (error) {
+            console.error('Failed to load stocks:', error);
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center" style="padding: 40px; color: var(--danger);">Failed to load stocks</td></tr>';
+        }
+    }
+
+    function renderStocks(stocks) {
+        const tbody = document.getElementById('stockTableBody');
+
+        if (!stocks || stocks.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center" style="padding: 40px; color: var(--text-tertiary);">No stocks found</td></tr>';
+            return;
+        }
+
+        const maxVolume = Math.max(...stocks.map(s => s.volume || 0));
+
+        tbody.innerHTML = stocks.map(stock => {
+            const changePercent = stock.change_percent || 0;
+            const isPositive = changePercent >= 0;
+            const volumeWidth = maxVolume > 0 ? ((stock.volume || 0) / maxVolume * 100) : 0;
+
+            return `
+                <tr>
+                    <td>
+                        <div class="stock-info">
+                            <div class="stock-logo">${stock.ticker.substring(0, 4)}</div>
+                            <div>
+                                <div class="stock-symbol">${stock.ticker}</div>
+                                <div class="stock-name">${stock.name || ''}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="price-cell">$${(stock.price || 0).toFixed(2)}</td>
+                    <td class="change-cell ${isPositive ? 'positive' : 'negative'}">
+                        ${isPositive ? '+' : ''}${changePercent.toFixed(2)}%
+                    </td>
+                    <td>
+                        <div class="volume-bar">
+                            <div class="volume-bar-bg"><div class="volume-bar-fill" style="width: ${volumeWidth}%;"></div></div>
+                            <span class="volume-text">${formatVolume(stock.volume)}</span>
+                        </div>
+                    </td>
+                    <td class="market-cap">$${(stock.day_low || 0).toFixed(2)} - $${(stock.day_high || 0).toFixed(2)}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-action" onclick="addToWatchlist('${stock.ticker}')">Watch</button>
+                            <button class="btn-action primary" onclick="window.location='/stocks/${stock.ticker}'">View</button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    function formatPrice(price) {
+        if (!price) return '--';
+        return price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function formatVolume(volume) {
+        if (!volume) return '0';
+        if (volume >= 1e9) return (volume / 1e9).toFixed(1) + 'B';
+        if (volume >= 1e6) return (volume / 1e6).toFixed(1) + 'M';
+        if (volume >= 1e3) return (volume / 1e3).toFixed(1) + 'K';
+        return volume.toString();
+    }
+
+    function switchTab(tab) {
+        currentTab = tab;
+        const buttons = document.querySelectorAll('.tab-button');
+        buttons.forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+        loadStocks();
+    }
+
+    async function addToWatchlist(ticker) {
+        try {
+            const response = await fetch('/api/watchlist', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ticker: ticker })
+            });
+            if (response.ok) {
+                alert(`${ticker} added to watchlist!`);
+            } else {
+                const data = await response.json();
+                alert(data.error || 'Failed to add to watchlist');
+            }
+        } catch (error) {
+            alert('Failed to add to watchlist');
+        }
+    }
+
+    document.querySelector('.search-input').addEventListener('input', function(e) {
+        const searchTerm = e.target.value.toLowerCase();
+        const rows = document.querySelectorAll('.market-table tbody tr');
+        rows.forEach(row => {
+            const symbolEl = row.querySelector('.stock-symbol');
+            const nameEl = row.querySelector('.stock-name');
+            if (symbolEl && nameEl) {
+                const symbol = symbolEl.textContent.toLowerCase();
+                const name = nameEl.textContent.toLowerCase();
+                row.style.display = (symbol.includes(searchTerm) || name.includes(searchTerm)) ? '' : 'none';
+            }
+        });
+    });
+
+    // Initial load
+    loadIndices();
+    loadStocks();
+
+    // Auto-refresh every 60 seconds
+    setInterval(() => {
+        loadIndices();
+        loadStocks();
+    }, 60000);
 </script>
 {% endblock %}

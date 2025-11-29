@@ -230,14 +230,18 @@ class EconomicEvent(db.Model):
 
     def to_dict(self):
         """Convert to dictionary for JSON serialization"""
+        # Format date as YYYY-MM-DD for calendar display
+        date_str = self.date.strftime("%Y-%m-%d") if self.date else None
         return {
             "id": self.id,
             "title": self.title,
             "description": self.description,
-            "date": self.date.isoformat() if self.date else None,
+            "date": date_str,
             "time": self.time,
             "country": self.country,
+            "currency": self.country or "USD",  # Alias for calendar template
             "importance": self.importance,
+            "impact": self.importance or "medium",  # Alias for calendar template
             "actual": self.actual,
             "forecast": self.forecast,
             "previous": self.previous,
@@ -524,5 +528,33 @@ class Signal(db.Model):
             "actual_return": self.actual_return,
             "signal_date": self.signal_date.isoformat() if self.signal_date else None,
             "closed_at": self.closed_at.isoformat() if self.closed_at else None,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+        }
+
+
+class Announcement(db.Model):
+    """Site-wide announcement banner managed by admin"""
+
+    id = db.Column(db.Integer, primary_key=True)
+    message = db.Column(db.String(500), nullable=False)
+    link_text = db.Column(db.String(100), nullable=True)  # Optional link text
+    link_url = db.Column(db.String(500), nullable=True)   # Optional link URL
+    banner_type = db.Column(db.String(20), default="info")  # info, warning, success, error
+    is_active = db.Column(db.Boolean, default=True, index=True)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
+    created_by = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=True)
+
+    def __repr__(self):
+        return f"<Announcement {self.id}: {self.message[:30]}...>"
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "message": self.message,
+            "link_text": self.link_text,
+            "link_url": self.link_url,
+            "banner_type": self.banner_type,
+            "is_active": self.is_active,
             "created_at": self.created_at.isoformat() if self.created_at else None,
         }

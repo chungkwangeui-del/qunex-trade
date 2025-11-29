@@ -1,489 +1,440 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ symbol }} - Stock Chart - Qunex Trade</title>
-    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+{% extends "base_layout.html" %}
 
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+{% block title %}{{ ticker }} - Stock Chart - Qunex Trade{% endblock %}
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='basic.css') }}?v=1762480000">
+{% block extra_styles %}
+<style>
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: rgba(255, 255, 255, 0.6);
+        text-decoration: none;
+        font-size: 0.875rem;
+        margin-bottom: 24px;
+        transition: color 0.2s ease;
+    }
 
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+    .back-link:hover {
+        color: #00d9ff;
+    }
 
-        body {
-            font-family: 'Space Grotesk', -apple-system, sans-serif;
-            background: var(--bg-dark);
-            color: var(--text-primary);
-            min-height: 100vh;
-        }
+    /* Stock Header */
+    .stock-header-card {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        padding: 32px;
+        margin-bottom: 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: all 0.2s ease;
+    }
 
-        .container {
-            max-width: 1800px;
-            margin: 0 auto;
-            padding: 20px;
-        }
+    .stock-header-card:hover {
+        border-color: rgba(255, 255, 255, 0.15);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
 
-        /* Navigation */
-        nav {
-            background: var(--bg-card);
-            padding: 20px 40px;
-            border-radius: 16px;
-            margin-bottom: 30px;
-            border: 1px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            backdrop-filter: blur(10px);
-        }
+    .stock-symbol-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #00d9ff, #a855f7);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 8px;
+        font-family: 'JetBrains Mono', monospace;
+    }
 
-        .nav-brand {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 1.8em;
-            font-weight: 700;
-            letter-spacing: -1px;
-            text-decoration: none;
-            color: var(--text-primary);
-        }
+    .stock-company-name {
+        font-size: 1rem;
+        color: rgba(255, 255, 255, 0.6);
+        font-weight: 500;
+    }
 
-        .logo {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 1.1em;
-            box-shadow: 0 0 20px var(--glow);
-        }
+    .stock-price-display {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #fff;
+        margin-bottom: 8px;
+        font-family: 'JetBrains Mono', monospace;
+    }
 
-        .brand-text {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
+    .stock-change-display {
+        font-size: 1.125rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 14px;
+        border-radius: 8px;
+    }
 
-        .nav-links {
-            display: flex;
-            gap: 30px;
-            align-items: center;
-        }
+    .stock-change-display.positive {
+        color: #22c55e;
+        background: rgba(34, 197, 94, 0.1);
+    }
 
-        .nav-link {
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            position: relative;
-        }
+    .stock-change-display.negative {
+        color: #ef4444;
+        background: rgba(239, 68, 68, 0.1);
+    }
 
-        .nav-link:hover {
-            color: var(--primary);
-        }
+    /* Dashboard Grid */
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: 1fr 380px;
+        gap: 24px;
+    }
 
-        .btn-secondary {
-            background: transparent;
-            color: var(--primary);
-            padding: 10px 25px;
-            border: 1px solid var(--primary);
-            border-radius: 10px;
-            text-decoration: none;
-            font-weight: 700;
-            transition: all 0.3s;
-        }
-
-        .btn-secondary:hover {
-            background: rgba(0, 217, 255, 0.1);
-            transform: translateY(-2px);
-        }
-
-        /* Header */
-        .stock-header {
-            background: var(--bg-card);
-            padding: 35px 40px;
-            border-radius: 16px;
-            margin-bottom: 20px;
-            border: 1px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: all 0.3s ease;
-        }
-
-        .stock-header:hover {
-            border-color: var(--primary);
-            box-shadow: 0 5px 20px rgba(0, 217, 255, 0.15);
-        }
-
-        .stock-title {
-            font-size: 2.5rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 10px;
-        }
-
-        .stock-price {
-            font-size: 3rem;
-            font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: 8px;
-        }
-
-        .stock-change {
-            font-size: 1.3rem;
-            margin-top: 5px;
-            font-weight: 600;
-        }
-
-        /* AI Score Card - Coming Soon */
-        .ai-score-card {
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
-            padding: 45px 30px;
-            border-radius: 16px;
-            margin-bottom: 20px;
-            text-align: center;
-            border: 2px dashed var(--primary);
-            transition: all 0.3s ease;
-        }
-
-        .ai-score-card:hover {
-            border-color: var(--secondary);
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.2);
-        }
-
-        .coming-soon-icon {
-            font-size: 3.5rem;
-            margin-bottom: 20px;
-            opacity: 0.8;
-            filter: drop-shadow(0 0 10px rgba(102, 126, 234, 0.5));
-        }
-
-        .coming-soon-title {
-            font-size: 1.8rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 12px;
-        }
-
-        .coming-soon-subtitle {
-            font-size: 1.1rem;
-            color: var(--text-primary);
-            margin-bottom: 18px;
-            font-weight: 600;
-        }
-
-        .coming-soon-description {
-            font-size: 0.95rem;
-            color: var(--text-secondary);
-            line-height: 1.7;
-            max-width: 320px;
-            margin: 0 auto;
-        }
-
-        .nav-links {
-            display: flex;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-
-        /* Chart Section */
-        .chart-section {
-            background: var(--bg-card);
-            padding: 25px;
-            border-radius: 16px;
-            margin-bottom: 20px;
-            border: 1px solid var(--border);
-            transition: all 0.3s ease;
-        }
-
-        .chart-section:hover {
-            border-color: var(--primary);
-            box-shadow: 0 5px 20px rgba(0, 217, 255, 0.1);
-        }
-
-
-        /* News Section */
-        .news-section {
-            background: var(--bg-card);
-            padding: 30px;
-            border-radius: 16px;
-            border: 1px solid var(--border);
-            transition: all 0.3s ease;
-        }
-
-        .news-section:hover {
-            border-color: var(--primary);
-            box-shadow: 0 5px 20px rgba(0, 217, 255, 0.1);
-        }
-
-        .section-title {
-            font-size: 1.8rem;
-            font-weight: 700;
-            margin-bottom: 25px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .news-grid {
-            display: grid;
-            gap: 15px;
-        }
-
-        .news-item {
-            background: var(--bg-dark);
-            padding: 20px;
-            border-radius: 12px;
-            border-left: 4px solid var(--primary);
-            transition: transform 0.2s;
-            cursor: pointer;
-        }
-
-        .news-item:hover {
-            transform: translateX(5px);
-        }
-
-        .news-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-
-        .news-meta {
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-            margin-bottom: 10px;
-        }
-
-        .news-description {
-            font-size: 0.95rem;
-            color: var(--text-secondary);
-            line-height: 1.5;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: var(--text-secondary);
-        }
-
-        .error {
-            color: #ff006e;
-            text-align: center;
-            padding: 20px;
-        }
-
-        /* Grid Layout */
+    @media (max-width: 1200px) {
         .dashboard-grid {
-            display: grid;
-            grid-template-columns: 1fr 350px;
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* Chart Section */
+    .chart-card {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 24px;
+        transition: all 0.2s ease;
+    }
+
+    .chart-card:hover {
+        border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    /* AI Score Card */
+    .ai-score-card {
+        background: linear-gradient(135deg, rgba(0, 217, 255, 0.05) 0%, rgba(168, 85, 247, 0.05) 100%);
+        border: 2px dashed rgba(0, 217, 255, 0.3);
+        border-radius: 16px;
+        padding: 48px 32px;
+        text-align: center;
+        transition: all 0.2s ease;
+    }
+
+    .ai-score-card:hover {
+        border-color: rgba(168, 85, 247, 0.5);
+        transform: translateY(-4px);
+        box-shadow: 0 12px 40px rgba(0, 217, 255, 0.1);
+    }
+
+    .coming-soon-icon {
+        font-size: 3.5rem;
+        margin-bottom: 20px;
+        filter: drop-shadow(0 0 10px rgba(0, 217, 255, 0.5));
+    }
+
+    .coming-soon-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #00d9ff, #a855f7);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 12px;
+    }
+
+    .coming-soon-subtitle {
+        font-size: 1rem;
+        color: #fff;
+        margin-bottom: 16px;
+        font-weight: 600;
+    }
+
+    .coming-soon-description {
+        font-size: 0.875rem;
+        color: rgba(255, 255, 255, 0.6);
+        line-height: 1.7;
+        max-width: 300px;
+        margin: 0 auto;
+    }
+
+    /* News Section */
+    .news-card {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        padding: 28px;
+        transition: all 0.2s ease;
+    }
+
+    .news-card:hover {
+        border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .section-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #fff;
+        margin-bottom: 20px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .news-grid {
+        display: grid;
+        gap: 16px;
+    }
+
+    .news-item {
+        background: rgba(0, 0, 0, 0.3);
+        padding: 20px;
+        border-radius: 12px;
+        border-left: 3px solid #00d9ff;
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+
+    .news-item:hover {
+        transform: translateX(6px);
+        background: rgba(0, 217, 255, 0.05);
+    }
+
+    .news-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #fff;
+        margin-bottom: 8px;
+        line-height: 1.4;
+    }
+
+    .news-meta {
+        font-size: 0.8125rem;
+        color: rgba(255, 255, 255, 0.5);
+        margin-bottom: 10px;
+        font-family: 'JetBrains Mono', monospace;
+    }
+
+    .news-description {
+        font-size: 0.875rem;
+        color: rgba(255, 255, 255, 0.6);
+        line-height: 1.6;
+    }
+
+    .loading-state {
+        text-align: center;
+        padding: 40px;
+        color: rgba(255, 255, 255, 0.5);
+    }
+
+    .error-state {
+        color: #ef4444;
+        text-align: center;
+        padding: 20px;
+    }
+
+    @media (max-width: 768px) {
+        .stock-header-card {
+            flex-direction: column;
+            text-align: center;
             gap: 20px;
         }
 
-        @media (max-width: 1200px) {
-            .dashboard-grid {
-                grid-template-columns: 1fr;
-            }
+        .stock-symbol-title {
+            font-size: 2rem;
         }
-    </style>
-</head>
-<body>
-    <!-- Theme Toggle Button -->
-    <button id="theme-toggle" aria-label="Toggle theme">☀️</button>
 
-    <div class="container">
-        <!-- Navigation -->
-        <nav>
-            <a href="/" class="nav-brand">
-                <div class="logo">Q</div>
-                <span class="brand-text">Qunex Trade</span>
-            </a>
-            <div class="nav-links">
-                <a href="/" class="nav-link">Home</a>
-                <a href="/stocks" class="nav-link">Stocks</a>
-                <a href="/market" class="nav-link">Market</a>
-                <a href="/screener" class="nav-link">Screener</a>
-                <a href="/watchlist" class="nav-link">Watchlist</a>
-                <a href="/calendar" class="nav-link">Calendar</a>
-                <a href="/news" class="nav-link">News</a>
-                <a href="/about" class="nav-link">About</a>
-                {% if user and user.is_authenticated %}
-                    <a href="/auth/account" class="nav-link">Account</a>
-                    <a href="/auth/logout" class="btn-secondary">Logout</a>
-                {% else %}
-                    <a href="/auth/login" class="btn-secondary">Login</a>
-                {% endif %}
-            </div>
-        </nav>
+        .stock-price-display {
+            font-size: 2rem;
+        }
+    }
+</style>
+{% endblock %}
 
-        <!-- Stock Header -->
-        <div class="stock-header">
-            <div>
-                <h1 class="stock-title">{{ symbol }}</h1>
-                <div class="stock-price" id="current-price">Loading...</div>
-                <div class="stock-change" id="price-change">--</div>
+{% block content %}
+<a href="/stocks" class="back-link">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M19 12H5M12 19l-7-7 7-7"/>
+    </svg>
+    Back to Stocks
+</a>
+
+<!-- Stock Header -->
+<div class="stock-header-card">
+    <div>
+        <h1 class="stock-symbol-title">{{ ticker }}</h1>
+        <div class="stock-company-name" id="company-name">
+            {% if details and details.name %}{{ details.name }}{% else %}Loading...{% endif %}
+        </div>
+    </div>
+    <div style="text-align: right;">
+        <div class="stock-price-display" id="current-price">
+            {% if quote and quote.price %}${{ "%.2f"|format(quote.price) }}{% else %}Loading...{% endif %}
+        </div>
+        <div class="stock-change-display {% if quote and quote.change_percent >= 0 %}positive{% else %}negative{% endif %}" id="price-change">
+            {% if quote %}
+                {% if quote.change_percent >= 0 %}▲{% else %}▼{% endif %}
+                {{ "%.2f"|format(quote.change|abs) }} ({{ "%+.2f"|format(quote.change_percent) }}%)
+            {% else %}--{% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="dashboard-grid">
+    <!-- Left Column: Chart + News -->
+    <div>
+        <div class="chart-card">
+            <!-- TradingView Widget -->
+            <div class="tradingview-widget-container" style="height:100%; width:100%;">
+                <div id="tradingview_chart" style="height:550px;"></div>
             </div>
         </div>
 
-        <div class="dashboard-grid">
-            <!-- Left Column: Chart -->
-            <div>
-                <div class="chart-section">
-                    <!-- TradingView Widget -->
-                    <div class="tradingview-widget-container" style="height:100%; width:100%;">
-                        <div id="tradingview_chart" style="height:600px;"></div>
-                    </div>
-                </div>
-
-                <!-- News Section -->
-                <div class="news-section">
-                    <h2 class="section-title">Recent News</h2>
-                    <div id="news-container" class="loading">Loading news...</div>
-                </div>
-            </div>
-
-            <!-- Right Column: AI Score - Coming Soon -->
-            <div>
-                <div class="ai-score-card">
-                    <div class="coming-soon-icon">🚀</div>
-                    <div class="coming-soon-title">AI Score Coming Soon</div>
-                    <div class="coming-soon-subtitle">QUNEX AI Analysis</div>
-                    <div class="coming-soon-description">
-                        We're developing an advanced AI-powered scoring system that analyzes technical indicators, fundamentals, and market sentiment to provide actionable insights.
-                    </div>
-                </div>
-            </div>
+        <!-- News Section -->
+        <div class="news-card">
+            <h2 class="section-title">Recent News</h2>
+            <div id="news-container" class="loading-state">Loading news...</div>
         </div>
     </div>
 
-    <!-- TradingView Widget -->
-    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
-    <script>
-        const symbol = '{{ symbol }}';
+    <!-- Right Column: AI Score -->
+    <div>
+        <div class="ai-score-card">
+            <div class="coming-soon-icon">🚀</div>
+            <div class="coming-soon-title">AI Score Coming Soon</div>
+            <div class="coming-soon-subtitle">QUNEX AI Analysis</div>
+            <div class="coming-soon-description">
+                We're developing an advanced AI-powered scoring system that analyzes technical indicators, fundamentals, and market sentiment to provide actionable insights.
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
 
-        // Initialize TradingView Chart
-        new TradingView.widget({
-            "autosize": true,
-            "symbol": symbol,
-            "interval": "D",
-            "timezone": "America/New_York",
-            "theme": "dark",
-            "style": "1",
-            "locale": "en",
-            "toolbar_bg": "#000000",
-            "enable_publishing": false,
-            "hide_side_toolbar": false,
-            "allow_symbol_change": true,
-            "container_id": "tradingview_chart",
-            "studies": [
-                "RSI@tv-basicstudies",
-                "MACD@tv-basicstudies"
-            ],
-            "backgroundColor": "#000000",
-            "gridColor": "#1a1a1a",
-            "hide_top_toolbar": false,
-            "hide_legend": false,
-            "save_image": true,
-            "details": true,
-            "hotlist": true,
-            "calendar": true
-        });
+{% block extra_scripts %}
+<!-- TradingView Widget -->
+<script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+<script>
+    const ticker = '{{ ticker }}';
 
-        // Update current price from API
-        async function updatePriceInfo() {
-            try {
-                const response = await fetch(`/api/stock/${symbol}/chart?timeframe=1D`);
-                const data = await response.json();
+    // Initialize TradingView Chart with correct ticker
+    new TradingView.widget({
+        "autosize": true,
+        "symbol": ticker,
+        "interval": "D",
+        "timezone": "America/New_York",
+        "theme": "dark",
+        "style": "1",
+        "locale": "en",
+        "toolbar_bg": "#000000",
+        "enable_publishing": false,
+        "hide_side_toolbar": false,
+        "allow_symbol_change": true,
+        "container_id": "tradingview_chart",
+        "studies": [
+            "RSI@tv-basicstudies",
+            "MACD@tv-basicstudies"
+        ],
+        "backgroundColor": "#000000",
+        "gridColor": "#1a1a1a",
+        "hide_top_toolbar": false,
+        "hide_legend": false,
+        "save_image": true,
+        "details": true,
+        "hotlist": true,
+        "calendar": true
+    });
 
-                if (data.candles && data.candles.length > 0) {
-                    const lastCandle = data.candles[data.candles.length - 1];
-                    const prevCandle = data.candles[data.candles.length - 2] || lastCandle;
-                    const price = lastCandle.close;
-                    const change = price - prevCandle.close;
-                    const changePercent = prevCandle.close ? (change / prevCandle.close) * 100 : 0;
+    // Update price from API (refreshes every 60 seconds)
+    async function updatePriceInfo() {
+        try {
+            const response = await fetch(`/api/market/snapshot?tickers=${ticker}`);
+            const data = await response.json();
 
-                    document.getElementById('current-price').textContent = `$${price.toFixed(2)}`;
-                    document.getElementById('price-change').innerHTML = `
-                        <span style="color: ${change >= 0 ? '#00ff88' : '#ff006e'}">
-                            ${change >= 0 ? '▲' : '▼'} ${Math.abs(change).toFixed(2)} (${changePercent >= 0 ? '+' : ''}${changePercent.toFixed(2)}%)
-                        </span>
-                    `;
+            if (data[ticker]) {
+                const stockData = data[ticker];
+                const price = stockData.price || stockData.day_close || 0;
+                const change = stockData.change || 0;
+                const changePercent = stockData.change_percent || 0;
+
+                document.getElementById('current-price').textContent = `$${price.toFixed(2)}`;
+
+                const changeEl = document.getElementById('price-change');
+                changeEl.className = `stock-change-display ${change >= 0 ? 'positive' : 'negative'}`;
+                changeEl.innerHTML = `${change >= 0 ? '▲' : '▼'} ${Math.abs(change).toFixed(2)} (${changePercent >= 0 ? '+' : ''}${changePercent.toFixed(2)}%)`;
+
+                // Update company name if not already loaded
+                const nameEl = document.getElementById('company-name');
+                if (nameEl.textContent === 'Loading...') {
+                    const detailsResponse = await fetch(`/api/market/details/${ticker}`);
+                    const details = await detailsResponse.json();
+                    if (details && details.name) {
+                        nameEl.textContent = details.name;
+                    }
                 }
-            } catch (error) {
-                console.error('Error fetching price:', error);
             }
+        } catch (error) {
+            console.error('Error fetching price:', error);
         }
+    }
 
-        // AI Score - Temporarily disabled (coming soon)
-        // async function loadAIScore() {
-        //     // Feature temporarily disabled while we improve data quality
-        // }
+    // Load related news
+    async function loadNews() {
+        try {
+            // Use the general news API and filter by ticker mention
+            const response = await fetch('/api/news?limit=20');
+            const data = await response.json();
 
-        // Load news
-        async function loadNews() {
-            try {
-                const response = await fetch(`/api/stock/${symbol}/news`);
-                const data = await response.json();
+            const newsContainer = document.getElementById('news-container');
+            const articles = data.articles || data || [];
 
-                const newsContainer = document.getElementById('news-container');
+            // Filter news that mentions the ticker
+            const relevantNews = articles.filter(article => {
+                const title = (article.title || '').toUpperCase();
+                const description = (article.description || article.ai_analysis || '').toUpperCase();
+                return title.includes(ticker) || description.includes(ticker);
+            }).slice(0, 5);
 
-                if (!data.articles || data.articles.length === 0) {
-                    newsContainer.innerHTML = '<div class="loading">No recent news available</div>';
+            if (relevantNews.length === 0) {
+                // Show general market news if no ticker-specific news
+                const generalNews = articles.slice(0, 3);
+                if (generalNews.length === 0) {
+                    newsContainer.innerHTML = '<div class="loading-state">No recent news available</div>';
                     return;
                 }
-
-                newsContainer.innerHTML = '';
-                newsContainer.className = 'news-grid';
-
-                data.articles.forEach(article => {
-                    const newsItem = document.createElement('div');
-                    newsItem.className = 'news-item';
-                    newsItem.onclick = () => window.open(article.url, '_blank');
-
-                    const publishedDate = new Date(article.published).toLocaleDateString();
-
-                    newsItem.innerHTML = `
-                        <div class="news-title">${article.title}</div>
-                        <div class="news-meta">${article.publisher} • ${publishedDate}</div>
-                        <div class="news-description">${article.description || ''}</div>
-                    `;
-
-                    newsContainer.appendChild(newsItem);
-                });
-
-            } catch (error) {
-                console.error('Error loading news:', error);
-                document.getElementById('news-container').innerHTML = '<div class="error">Error loading news</div>';
+                renderNews(generalNews, newsContainer, 'Latest Market News');
+            } else {
+                renderNews(relevantNews, newsContainer);
             }
-        }
 
-        // Initialize all components
-        updatePriceInfo();
-        // loadAIScore(); // Temporarily disabled - coming soon
-        loadNews();
-    </script>
-    <!-- Theme Toggle Script -->
-    <script src="{{ url_for('static', filename='theme-toggle.js') }}" defer></script>
-</body>
-</html>
+        } catch (error) {
+            console.error('Error loading news:', error);
+            document.getElementById('news-container').innerHTML = '<div class="error-state">Error loading news</div>';
+        }
+    }
+
+    function renderNews(articles, container, title = null) {
+        container.innerHTML = '';
+        container.className = 'news-grid';
+
+        articles.forEach(article => {
+            const newsItem = document.createElement('div');
+            newsItem.className = 'news-item';
+            newsItem.onclick = () => window.open(article.url, '_blank');
+
+            const publishedDate = article.published_at ? new Date(article.published_at).toLocaleDateString() : '';
+            const source = article.source || 'News';
+
+            newsItem.innerHTML = `
+                <div class="news-title">${article.title}</div>
+                <div class="news-meta">${source} • ${publishedDate}</div>
+                <div class="news-description">${article.description || article.ai_analysis || ''}</div>
+            `;
+
+            container.appendChild(newsItem);
+        });
+    }
+
+    // Initialize
+    updatePriceInfo();
+    loadNews();
+
+    // Auto-refresh price every 60 seconds
+    setInterval(updatePriceInfo, 60000);
+</script>
+{% endblock %}

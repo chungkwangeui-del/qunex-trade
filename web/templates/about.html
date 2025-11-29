@@ -1,600 +1,316 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>About - Qunex Trade</title>
-    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+{% extends "base_layout.html" %}
 
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+{% block title %}About - Qunex Trade{% endblock %}
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='basic.css') }}?v=1762480000">
+{% block extra_styles %}
+<style>
+    .about-header {
+        text-align: center;
+        margin-bottom: 60px;
+        padding: 40px 0;
+        color: var(--text-secondary);
+        max-width: 800px;
+        margin: 0 auto;
+        line-height: 1.6;
+    }
 
+    .section {
+        background: var(--bg-card);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-xl);
+        padding: 40px;
+        margin-bottom: 32px;
+        position: relative;
+        overflow: hidden;
+    }
 
+    .section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, var(--border-medium), transparent);
+    }
 
+    .section-title {
+        font-size: var(--text-2xl);
+        font-weight: var(--font-bold);
+        color: var(--text-primary);
+        margin-bottom: 24px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
 
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+    .section-content {
+        color: var(--text-secondary);
+        line-height: 1.8;
+        font-size: var(--text-lg);
+    }
 
-        /* CSS variables moved to basic.css */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 24px;
+        margin: 48px 0;
+    }
 
-        body {
-            font-family: 'Space Grotesk', -apple-system, sans-serif;
-            background: var(--bg-dark);
-            color: var(--text-primary);
-            min-height: 100vh;
-            position: relative;
-            overflow-x: hidden;
-        }
+    .stat-card {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-lg);
+        padding: 32px 24px;
+        text-align: center;
+        transition: all var(--transition-fast);
+    }
 
-        }
+    .stat-card:hover {
+        transform: translateY(-4px);
+        border-color: var(--accent-cyan);
+        background: rgba(0, 217, 255, 0.02);
+    }
 
-        .container {
-            max-width: 1800px;
-            margin: 0 auto;
-            padding: 30px;
-            position: relative;
-            z-index: 1;
-        }
+    .stat-value {
+        font-size: 2.5em;
+        font-weight: var(--font-bold);
+        color: var(--accent-cyan);
+        margin-bottom: 8px;
+        font-family: var(--font-mono);
+        line-height: 1;
+    }
 
-        /* Navigation */
-        nav {
-            background: var(--bg-card);
-            padding: 20px 40px;
-            border-radius: 16px;
-            margin-bottom: 40px;
-            border: 1px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            backdrop-filter: blur(10px);
-        }
+    .stat-label {
+        color: var(--text-secondary);
+        font-size: var(--text-sm);
+        font-weight: var(--font-medium);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
 
-        .nav-brand {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 1.8em;
-            font-weight: 700;
-            letter-spacing: -1px;
-            text-decoration: none;
-            color: var(--text-primary);
-        }
+    .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 24px;
+        margin-top: 32px;
+    }
 
-        .logo {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 1.1em;
-            box-shadow: 0 0 20px var(--glow);
-        }
+    .feature-card {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-lg);
+        padding: 32px;
+        transition: all var(--transition-fast);
+    }
 
-        .brand-text {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
+    .feature-card:hover {
+        transform: translateY(-4px);
+        border-color: var(--border-medium);
+        background: var(--bg-hover);
+    }
 
-        .nav-links {
-            display: flex;
-            gap: 30px;
-            align-items: center;
-        }
+    .feature-icon {
+        font-size: 2.5em;
+        margin-bottom: 20px;
+        display: inline-block;
+    }
 
-        .nav-link {
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            position: relative;
-        }
+    .feature-title {
+        font-size: var(--text-xl);
+        font-weight: var(--font-bold);
+        color: var(--text-primary);
+        margin-bottom: 12px;
+    }
 
-        .nav-link:hover {
-            color: var(--primary);
-        }
+    .feature-desc {
+        color: var(--text-secondary);
+        line-height: 1.6;
+    }
 
-        .nav-link.active {
-            color: var(--primary);
-        }
+    .tech-stack {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 24px;
+    }
 
-        .nav-link.active::after {
-            content: '';
-            position: absolute;
-            bottom: -8px;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background: var(--primary);
-            box-shadow: 0 0 10px var(--glow);
-        }
+    .tech-badge {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--border-subtle);
+        padding: 8px 16px;
+        border-radius: var(--radius-full);
+        font-size: var(--text-sm);
+        color: var(--text-primary);
+        font-family: var(--font-mono);
+        transition: all var(--transition-fast);
+    }
 
-        .btn-secondary {
-            background: transparent;
-            color: var(--primary);
-            padding: 10px 25px;
-            border: 1px solid var(--primary);
-            border-radius: 10px;
-            text-decoration: none;
-            font-weight: 700;
-            transition: all 0.3s;
-        }
+    .tech-badge:hover {
+        border-color: var(--accent-purple);
+        color: var(--accent-purple);
+        background: rgba(168, 85, 247, 0.1);
+    }
 
-        .btn-secondary:hover {
-            background: rgba(0, 217, 255, 0.1);
-            transform: translateY(-2px);
-        }
+    .creator-section {
+        background: linear-gradient(135deg, rgba(0, 217, 255, 0.05) 0%, rgba(168, 85, 247, 0.05) 100%);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-xl);
+        padding: 48px;
+        text-align: center;
+        margin-top: 48px;
+    }
 
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            color: white;
-            padding: 10px 25px;
-            border: none;
-            border-radius: 10px;
-            text-decoration: none;
-            font-weight: 700;
-            transition: all 0.3s;
-            cursor: pointer;
-        }
+    .creator-title {
+        font-size: var(--text-2xl);
+        font-weight: var(--font-bold);
+        margin-bottom: 16px;
+        color: var(--text-primary);
+    }
 
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px var(--glow);
-        }
+    .creator-name {
+        font-size: var(--text-xl);
+        color: var(--accent-cyan);
+        font-weight: var(--font-bold);
+        margin-bottom: 8px;
+    }
 
-        /* Header */
-        .header {
-            margin-bottom: 40px;
-            text-align: center;
-            padding: 40px 0;
-        }
+    .creator-role {
+        color: var(--text-secondary);
+        font-size: var(--text-lg);
+        margin-bottom: 24px;
+    }
 
-        h1 {
-            font-size: 3em;
-            margin-bottom: 10px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
+    .disclaimer-box {
+        background: rgba(239, 68, 68, 0.05);
+        border: 1px solid rgba(239, 68, 68, 0.2);
+        border-radius: var(--radius-lg);
+        padding: 24px;
+        margin-top: 24px;
+    }
 
-        .subtitle {
-            color: var(--text-secondary);
-            font-size: 1.2em;
-            line-height: 1.6;
-            max-width: 900px;
-            margin: 0 auto;
-        }
+    .disclaimer-title {
+        color: var(--danger);
+        font-weight: var(--font-bold);
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
 
-        /* Section */
-        .section {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 40px;
-            margin-bottom: 30px;
-        }
+    .disclaimer-text {
+        color: var(--text-secondary);
+        font-size: var(--text-sm);
+        line-height: 1.6;
+    }
 
-        h2 {
-            font-size: 2em;
-            color: var(--text-primary);
-            margin-bottom: 20px;
-        }
-
-        h3 {
-            font-size: 1.5em;
-            color: var(--text-primary);
-            margin-top: 25px;
-            margin-bottom: 15px;
-        }
-
-        p {
-            color: var(--text-secondary);
-            line-height: 1.8;
-            margin-bottom: 15px;
-        }
-
-        ul {
-            list-style: none;
-            padding-left: 0;
-        }
-
-        li {
-            padding-left: 35px;
-            position: relative;
-            margin-bottom: 12px;
-            color: var(--text-secondary);
-            line-height: 1.6;
-        }
-
-        li::before {
-            content: "→";
-            position: absolute;
-            left: 0;
-            color: var(--primary);
-            font-weight: bold;
-            font-size: 1.2em;
-        }
-
-        li strong {
-            color: var(--text-primary);
-        }
-
-        /* Stats Row */
-        .stats-row {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 25px;
-            margin: 40px 0;
-        }
-
-        .stat-box {
-            background: var(--bg-dark);
-            padding: 30px;
-            border-radius: 16px;
-            border: 1px solid var(--border);
-            text-align: center;
-            transition: all 0.3s;
-        }
-
-        .stat-box:hover {
-            transform: translateY(-5px);
-            border-color: var(--primary);
-            box-shadow: 0 10px 30px rgba(0, 217, 255, 0.2);
-        }
-
-        .stat-number {
+    @media (max-width: 768px) {
+        .about-title {
             font-size: 2.5em;
-            font-weight: 700;
-            background: linear-gradient(135deg, #00ff88 0%, var(--primary) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 10px;
-            font-family: 'JetBrains Mono', monospace;
         }
 
-        .stat-label {
-            color: var(--text-secondary);
-            font-size: 1em;
+        .stats-grid {
+            grid-template-columns: 1fr 1fr;
         }
+    }
+</style>
+{% endblock %}
 
-        /* Tech Stack */
-        .tech-stack {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            margin-top: 25px;
-        }
+{% block content %}
+<div class="about-header">
+    <h1 class="about-title">About Qunex Trade</h1>
+    <p class="about-subtitle">
+        Professional-grade trading intelligence platform powered by AI.
+        Real-time market news analysis, data-driven insights, and essential tools for serious traders.
+    </p>
+</div>
 
-        .tech-badge {
-            background: rgba(0, 217, 255, 0.1);
-            border: 1px solid var(--border);
-            padding: 12px 22px;
-            border-radius: 10px;
-            font-size: 0.95em;
-            color: var(--primary);
-            font-weight: 600;
-            font-family: 'JetBrains Mono', monospace;
-            transition: all 0.3s;
-        }
+<!-- What is Qunex Trade -->
+<div class="section">
+    <h2 class="section-title">What is Qunex Trade?</h2>
+    <div class="section-content">
+        <p style="margin-bottom: 16px;">
+            Qunex Trade is a professional trading intelligence platform designed for active traders and investors
+            who need reliable, real-time information to make informed decisions. We cut through the noise and
+            deliver only what matters: factual market events, economic data, and actionable insights.
+        </p>
+        <p>
+            Unlike traditional financial news platforms cluttered with analyst opinions and speculation, we use
+            advanced AI to filter and analyze news from credible sources—delivering only verified events that
+            actually impact markets.
+        </p>
+    </div>
 
-        .tech-badge:hover {
-            background: rgba(0, 217, 255, 0.2);
-            border-color: var(--primary);
-        }
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-value">Real-Time</div>
+            <div class="stat-label">Market News</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">AI-Powered</div>
+            <div class="stat-label">Analysis</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">80%</div>
+            <div class="stat-label">Noise Filtered</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">24/7</div>
+            <div class="stat-label">Monitoring</div>
+        </div>
+    </div>
+</div>
 
-        /* Creator Section */
-        .creator {
-            background: linear-gradient(135deg, rgba(0, 217, 255, 0.1) 0%, rgba(124, 58, 237, 0.1) 100%);
-            padding: 50px;
-            border-radius: 20px;
-            border: 1px solid var(--primary);
-            text-align: center;
-            box-shadow: 0 0 40px rgba(0, 217, 255, 0.1);
-        }
+<!-- Core Features -->
+<div class="section">
+    <h2 class="section-title">Core Features</h2>
 
-        .creator h3 {
-            font-size: 2.5em;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 20px;
-        }
-
-        .creator p {
-            font-size: 1.2em;
-            color: var(--text-primary);
-            line-height: 1.9;
-        }
-
-        .creator .highlight {
-            color: var(--primary);
-            font-weight: 700;
-            font-size: 1.1em;
-        }
-
-        /* Feature Grid */
-        .feature-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 25px;
-            margin-top: 30px;
-        }
-
-        .feature-card {
-            background: var(--bg-dark);
-            border: 1px solid var(--border);
-            border-radius: 15px;
-            padding: 30px;
-            text-align: center;
-            transition: all 0.3s;
-        }
-
-        .feature-card:hover {
-            transform: translateY(-5px);
-            border-color: var(--primary);
-            box-shadow: 0 10px 30px rgba(0, 217, 255, 0.2);
-        }
-
-        .feature-icon {
-            font-size: 3em;
-            margin-bottom: 15px;
-        }
-
-        .feature-card h4 {
-            font-size: 1.3em;
-            color: var(--text-primary);
-            margin-bottom: 12px;
-        }
-
-        .feature-card p {
-            color: var(--text-secondary);
-            font-size: 0.95em;
-        }
-
-        /* Disclaimer */
-        .disclaimer-box {
-            background: rgba(255, 0, 110, 0.05);
-            border: 1px solid rgba(255, 0, 110, 0.3);
-            padding: 30px;
-            border-radius: 16px;
-        }
-
-        .warning-icon {
-            font-size: 2em;
-            margin-bottom: 15px;
-        }
-
-        .disclaimer-box p:first-of-type {
-            color: #fbbf24;
-            font-weight: 700;
-            font-size: 1.2em;
-        }
-
-        /* Footer */
-        footer {
-            text-align: center;
-            padding: 40px 20px;
-            border-top: 1px solid var(--border);
-            margin-top: 60px;
-            color: var(--text-secondary);
-        }
-
-        footer p {
-            margin: 10px 0;
-        }
-
-        .gradient-text {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            font-weight: 700;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .container {
-                padding: 15px;
-            }
-
-            nav {
-                padding: 15px 20px;
-                flex-direction: column;
-                gap: 15px;
-            }
-
-            .nav-links {
-                gap: 15px;
-                font-size: 0.9em;
-            }
-
-            h1 {
-                font-size: 2em;
-            }
-
-            .section {
-                padding: 25px;
-            }
-        }
-    </style>
-</head>
-<body>
-    <!-- Theme Toggle Button -->
-    <button id="theme-toggle" aria-label="Toggle theme">☀️</button>
-
-
-    <div class="container">
-        <!-- Navigation -->
-        <nav>
-            <a href="/" class="nav-brand">
-                <div class="logo">Q</div>
-                <span class="brand-text">Qunex Trade</span>
-            </a>
-            <div class="nav-links">
-                <a href="/" class="nav-link">Home</a>
-                <a href="/stocks" class="nav-link">Stocks</a>
-                <a href="/market" class="nav-link">Market</a>
-                <a href="/screener" class="nav-link">Screener</a>
-                <a href="/watchlist" class="nav-link">Watchlist</a>
-                <a href="/calendar" class="nav-link">Calendar</a>
-                <a href="/news" class="nav-link">News</a>
-                <a href="/about" class="nav-link active">About</a>
-                {% if user and user.is_authenticated %}
-                    <a href="/auth/account" class="nav-link">Account</a>
-                    <a href="/auth/logout" class="btn-secondary">Logout</a>
-                {% else %}
-                    <a href="/auth/login" class="btn-secondary">Login</a>
-                {% endif %}
-            </div>
-        </nav>
-
-        <!-- Header -->
-        <div class="header">
-            <h1>About Qunex Trade</h1>
-            <p class="subtitle">
-                Professional-grade trading intelligence platform powered by AI.<br>
-                Real-time market news analysis, data-driven insights, and essential tools for serious traders.
+    <div class="feature-grid">
+        <div class="feature-card">
+            <div class="feature-icon">🤖</div>
+            <h3 class="feature-title">AI-Powered Analysis</h3>
+            <p class="feature-desc">
+                Our AI system analyzes every news article in real-time, filtering out analyst opinions and speculation.
+                Only factual events make it to your dashboard.
             </p>
         </div>
-
-        <!-- What is Qunex Trade -->
-        <div class="section">
-            <h2>What is Qunex Trade?</h2>
-            <p>
-                Qunex Trade is a professional trading intelligence platform designed for active traders and investors
-                who need reliable, real-time information to make informed decisions. We cut through the noise and
-                deliver only what matters: factual market events, economic data, and actionable insights.
+        <div class="feature-card">
+            <div class="feature-icon">📡</div>
+            <h3 class="feature-title">Multi-Source Collection</h3>
+            <p class="feature-desc">
+                We aggregate news from the most credible financial sources including Bloomberg, Reuters, and WSJ
+                to ensure you never miss critical market information.
             </p>
-
-            <p>
-                Unlike traditional financial news platforms cluttered with analyst opinions and speculation, we use
-                advanced AI to filter and analyze news from credible sources—delivering only verified events that
-                actually impact markets.
-            </p>
-
-            <div class="stats-row">
-                <div class="stat-box">
-                    <div class="stat-number">Real-Time</div>
-                    <div class="stat-label">Market News</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-number">AI-Powered</div>
-                    <div class="stat-label">Analysis</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-number">70-80%</div>
-                    <div class="stat-label">Noise Filtered</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-number">24/7</div>
-                    <div class="stat-label">Monitoring</div>
-                </div>
-            </div>
         </div>
-
-        <!-- Core Features -->
-        <div class="section">
-            <h2>Core Features</h2>
-
-            <h3>1. AI-Powered News Analysis</h3>
-            <p>
-                Our AI system (Claude 3 Haiku) analyzes every news article in real-time, filtering out analyst
-                opinions, speculation, and promotional content. Only factual events make it to your dashboard.
-            </p>
-            <ul>
-                <li><strong>Intelligent Filtering:</strong> Automatically removes "should you buy", "analyst predicts", and speculative content</li>
-                <li><strong>Real Events Only:</strong> Fed announcements, economic data releases, actual policy changes—not predictions</li>
-                <li><strong>Market-Wide vs. Specific:</strong> Instantly identifies news affecting entire markets (Fed, Trump policies) vs. individual stocks</li>
-                <li><strong>Importance Scoring:</strong> 5-star rating system prioritizes critical market-moving events</li>
-            </ul>
-
-            <h3>2. Multi-Source News Collection</h3>
-            <p>
-                We aggregate news from the most credible financial sources to ensure you never miss critical market information.
-            </p>
-            <ul>
-                <li><strong>Polygon.io:</strong> Real-time market news with verified accuracy</li>
-                <li><strong>Tier-1 Financial Sources:</strong> Bloomberg, Reuters, WSJ, Financial Times, CNBC, MarketWatch</li>
-                <li><strong>Automatic Deduplication:</strong> No repetitive news across sources</li>
-                <li><strong>Hourly Updates:</strong> Fresh analysis every hour, all day long</li>
-            </ul>
-
-            <h3>3. Professional Dashboard</h3>
-            <p>
+        <div class="feature-card">
+            <div class="feature-icon">⚡</div>
+            <h3 class="feature-title">Professional Dashboard</h3>
+            <p class="feature-desc">
                 Clean, distraction-free interface designed for traders who need information fast.
+                Filter by importance and view market-wide impacts instantly.
             </p>
-            <ul>
-                <li><strong>Filter by Importance:</strong> View all news, 5-star critical, or 4-star important events</li>
-                <li><strong>Market-Wide First:</strong> News affecting entire markets appears at the top</li>
-                <li><strong>Real-Time Refresh:</strong> One-click update to get latest news</li>
-                <li><strong>Responsive Design:</strong> Works perfectly on desktop, tablet, and mobile</li>
-            </ul>
         </div>
+    </div>
+</div>
 
-        <!-- Key Benefits -->
-        <div class="section">
-            <h2>Why Traders Choose Qunex Trade</h2>
+<!-- Technology Stack -->
+<div class="section">
+    <h2 class="section-title">Technology Stack</h2>
 
-            <div class="feature-grid">
-                <div class="feature-card">
-                    <div class="feature-icon">⚡</div>
-                    <h4>Save Time</h4>
-                    <p>Filters out 70-80% of noise. No more wading through analyst opinions and clickbait.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🎯</div>
-                    <h4>Real Events Only</h4>
-                    <p>Fed decisions, economic data, policy changes—not predictions or speculation.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🧠</div>
-                    <h4>AI-Powered Intelligence</h4>
-                    <p>Advanced AI analyzes every article to identify market impact and affected stocks.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">📊</div>
-                    <h4>Market-Wide Focus</h4>
-                    <p>Prioritizes news affecting entire markets—the news that moves ALL stocks.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">✅</div>
-                    <h4>Credible Sources</h4>
-                    <p>Only tier-1 financial news: Bloomberg, Reuters, WSJ, FT, CNBC, MarketWatch.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🔄</div>
-                    <h4>Always Updated</h4>
-                    <p>Automatic hourly refreshes ensure you never miss breaking market news.</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Technology Stack -->
-        <div class="section">
-            <h2>Technology Stack</h2>
-
-            <h3>AI & Machine Learning</h3>
+    <div style="display: grid; gap: 32px;">
+        <div>
+            <h3 style="font-size: var(--text-lg); color: var(--text-primary); margin-bottom: 12px;">AI & Machine
+                Learning</h3>
             <div class="tech-stack">
                 <span class="tech-badge">Gemini 1.5 Pro</span>
                 <span class="tech-badge">Google AI</span>
                 <span class="tech-badge">Python 3.14</span>
                 <span class="tech-badge">Advanced NLP</span>
             </div>
+        </div>
 
-            <h3>Data Sources</h3>
+        <div>
+            <h3 style="font-size: var(--text-lg); color: var(--text-primary); margin-bottom: 12px;">Data Sources</h3>
             <div class="tech-stack">
                 <span class="tech-badge">Polygon.io API</span>
                 <span class="tech-badge">NewsAPI</span>
@@ -602,8 +318,10 @@
                 <span class="tech-badge">Reuters</span>
                 <span class="tech-badge">Wall Street Journal</span>
             </div>
+        </div>
 
-            <h3>Web Platform</h3>
+        <div>
+            <h3 style="font-size: var(--text-lg); color: var(--text-primary); margin-bottom: 12px;">Web Platform</h3>
             <div class="tech-stack">
                 <span class="tech-badge">Flask 3.1</span>
                 <span class="tech-badge">PostgreSQL</span>
@@ -611,67 +329,34 @@
                 <span class="tech-badge">JavaScript</span>
                 <span class="tech-badge">Responsive Design</span>
             </div>
-
-            <h3>Infrastructure</h3>
-            <div class="tech-stack">
-                <span class="tech-badge">Automated Pipeline</span>
-                <span class="tech-badge">Real-Time Processing</span>
-                <span class="tech-badge">Cloud Hosting</span>
-                <span class="tech-badge">24/7 Monitoring</span>
-            </div>
         </div>
-
-        <!-- Creator Section -->
-        <div class="section">
-            <div class="creator">
-                <h3>Created By</h3>
-                <p>
-                    <span class="highlight">Kwangui Chung</span><br>
-                    University of Illinois at Urbana-Champaign (UIUC) Student
-                </p>
-                <p style="margin-top: 25px; font-size: 1.1em; color: var(--text-secondary);">
-                    Built with a focus on delivering professional-grade trading tools.<br>
-                    Combining AI technology with real trader needs.
-                </p>
-            </div>
-        </div>
-
-        <!-- Disclaimer -->
-        <div class="section">
-            <h2>Disclaimer</h2>
-            <div class="disclaimer-box">
-                <div class="warning-icon">⚠️</div>
-                <p>
-                    This platform is for informational and educational purposes only.
-                </p>
-                <p>
-                    Qunex Trade provides news analysis and trading tools but does NOT provide financial advice,
-                    investment recommendations, or trading signals. All trading and investment decisions are your own
-                    responsibility. Past performance does not guarantee future results. Trading involves substantial
-                    risk of loss. Always conduct your own research and consult with a licensed financial advisor
-                    before making investment decisions.
-                </p>
-                <p>
-                    Use at your own risk. We are not responsible for any trading losses.
-                </p>
-            </div>
-        </div>
-
-        <!-- Footer -->
-        <footer>
-            <p><span class="gradient-text">Qunex Trade</span> - Professional Trading Intelligence</p>
-            <p>AI-powered market analysis for serious traders</p>
-            <p style="margin-top: 15px; font-size: 0.9em;">
-                <a href="/terms" style="color: var(--primary); text-decoration: none; margin: 0 10px;">Terms of Service</a> •
-                <a href="/privacy" style="color: var(--primary); text-decoration: none; margin: 0 10px;">Privacy Policy</a>
-            </p>
-            <p style="margin-top: 10px; font-size: 0.85em; color: var(--text-secondary);">
-                ⚠️ Not financial advice. For informational purposes only.
-            </p>
-            <p style="margin-top: 10px;">© 2025 Qunex Trade. All Rights Reserved.</p>
-        </footer>
     </div>
-    <!-- Theme Toggle Script -->
-    <script src="{{ url_for('static', filename='theme-toggle.js') }}" defer></script>
-</body>
-</html>
+</div>
+
+<!-- Creator Section -->
+<div class="creator-section">
+    <h3 class="creator-title">Created By</h3>
+    <div class="creator-name">Kwangui Chung</div>
+    <div class="creator-role">University of Illinois at Urbana-Champaign (UIUC) Student</div>
+    <p style="color: var(--text-secondary); max-width: 600px; margin: 0 auto;">
+        Built with a focus on delivering professional-grade trading tools.
+        Combining AI technology with real trader needs.
+    </p>
+</div>
+
+<!-- Disclaimer -->
+<div class="section" style="margin-top: 32px;">
+    <h2 class="section-title">Disclaimer</h2>
+    <div class="disclaimer-box">
+        <div class="disclaimer-title">⚠️ Important Notice</div>
+        <p class="disclaimer-text">
+            This platform is for informational and educational purposes only.
+            Qunex Trade provides news analysis and trading tools but does NOT provide financial advice,
+            investment recommendations, or trading signals. All trading and investment decisions are your own
+            responsibility. Past performance does not guarantee future results. Trading involves substantial
+            risk of loss. Always conduct your own research and consult with a licensed financial advisor
+            before making investment decisions.
+        </p>
+    </div>
+</div>
+{% endblock %}

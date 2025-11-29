@@ -1,396 +1,824 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - Qunex Trade</title>
-    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+{% extends "base_layout.html" %}
+
+{% block title %}Admin Dashboard - Qunex Trade{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: rgba(255, 255, 255, 0.6);
+        text-decoration: none;
+        font-size: 0.875rem;
+        margin-bottom: 24px;
+        transition: color 0.2s ease;
+    }
+
+    .back-link:hover {
+        color: #00d9ff;
+    }
+
+    /* Stats Grid */
+    .admin-stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-bottom: 32px;
+    }
+
+    .admin-stat-card {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        padding: 24px;
+        text-align: center;
+        transition: all 0.2s ease;
+    }
+
+    .admin-stat-card:hover {
+        border-color: rgba(255, 255, 255, 0.15);
+        transform: translateY(-2px);
+    }
+
+    .admin-stat-label {
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 8px;
+    }
+
+    .admin-stat-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #00d9ff, #a855f7);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Section */
+    .admin-section {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        padding: 28px;
+        margin-bottom: 24px;
+    }
+
+    .admin-section h2 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #fff;
+        margin-bottom: 20px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    /* Table */
+    .admin-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .admin-table th {
+        padding: 14px 12px;
+        text-align: left;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .admin-table td {
+        padding: 16px 12px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        font-size: 0.875rem;
+    }
+
+    .admin-table tbody tr:hover td {
+        background: rgba(255, 255, 255, 0.02);
+    }
+
+    .admin-table .email {
+        font-family: 'JetBrains Mono', monospace;
+        color: #00d9ff;
+        font-size: 0.8125rem;
+    }
+
+    .admin-table .username {
+        font-weight: 600;
+        color: #fff;
+    }
+
+    .admin-table .date {
+        font-family: 'JetBrains Mono', monospace;
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 0.8125rem;
+    }
+
+    /* Badges */
+    .admin-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 6px;
+        font-weight: 700;
+        font-size: 0.6875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .admin-badge.free {
+        background: rgba(255, 255, 255, 0.05);
+        color: rgba(255, 255, 255, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .admin-badge.pro {
+        background: linear-gradient(135deg, #00d9ff, #a855f7);
+        color: #000;
+    }
+
+    .admin-badge.premium {
+        background: linear-gradient(135deg, #ff006e, #a855f7);
+        color: #fff;
+    }
+
+    .admin-badge.beta {
+        background: linear-gradient(135deg, #ffd93d, #ff6b35);
+        color: #000;
+    }
+
+    .admin-badge.developer {
+        background: linear-gradient(135deg, #ffd700, #ff8c00);
+        color: #000;
+    }
+
+    .admin-badge.active {
+        background: rgba(34, 197, 94, 0.15);
+        color: #22c55e;
+        border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+
+    .admin-badge.inactive {
+        background: rgba(245, 158, 11, 0.15);
+        color: #f59e0b;
+        border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .admin-badge.connected {
+        background: rgba(34, 197, 94, 0.15);
+        color: #22c55e;
+        border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+
+    .admin-badge.disconnected {
+        background: rgba(239, 68, 68, 0.15);
+        color: #ef4444;
+        border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    /* API Status Grid */
+    .api-status-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 16px;
+        margin-top: 16px;
+    }
+
+    .api-status-card {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px 20px;
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 12px;
+        transition: all 0.2s ease;
+    }
+
+    .api-status-card:hover {
+        border-color: rgba(255, 255, 255, 0.12);
+    }
+
+    .api-status-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .api-status-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    .api-status-icon svg {
+        width: 20px;
+        height: 20px;
+        opacity: 0.7;
+    }
+
+    .api-status-name {
+        font-weight: 600;
+        color: #fff;
+        font-size: 0.9375rem;
+    }
+
+    .api-status-message {
+        font-size: 0.75rem;
+        color: rgba(255, 255, 255, 0.5);
+        margin-top: 2px;
+        font-family: 'JetBrains Mono', monospace;
+        word-break: break-word;
+    }
+
+    .api-status-env {
+        font-size: 0.625rem;
+        color: rgba(255, 255, 255, 0.3);
+        margin-top: 4px;
+        font-family: 'JetBrains Mono', monospace;
+    }
+
+    .api-status-badge {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        animation: pulse 2s infinite;
+    }
+
+    .status-dot.connected {
+        background: #22c55e;
+        box-shadow: 0 0 8px rgba(34, 197, 94, 0.5);
+    }
+
+    .status-dot.disconnected {
+        background: #ef4444;
+        box-shadow: 0 0 8px rgba(239, 68, 68, 0.5);
+        animation: none;
+    }
+
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+    }
+
+    /* Action Buttons */
+    .admin-btn {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.75rem;
+        transition: all 0.2s ease;
+        border: 1px solid rgba(0, 217, 255, 0.3);
+        background: transparent;
+        color: #00d9ff;
+        cursor: pointer;
+        margin-right: 4px;
+        margin-bottom: 4px;
+    }
+
+    .admin-btn:hover {
+        background: rgba(0, 217, 255, 0.1);
+        transform: translateY(-1px);
+    }
+
+    /* Responsive */
+    .table-wrapper {
+        overflow-x: auto;
+    }
+
+    @media (max-width: 768px) {
+        .admin-section {
+            padding: 20px;
         }
 
-        :root {
-            --primary: #00d9ff;
-            --secondary: #7c3aed;
-            --accent: #ff006e;
-            --bg-dark: #0a0e27;
-            --bg-card: #131829;
-            --bg-hover: #1a1f3a;
-            --text-primary: #ffffff;
-            --text-secondary: #8b92b0;
-            --border: rgba(0, 217, 255, 0.15);
-            --success: #00ff88;
-            --warning: #fbbf24;
+        .admin-table th,
+        .admin-table td {
+            padding: 10px 8px;
         }
+    }
+</style>
+{% endblock %}
 
-        body {
-            font-family: 'Space Grotesk', -apple-system, sans-serif;
-            background: var(--bg-dark);
-            color: var(--text-primary);
-            min-height: 100vh;
-            position: relative;
-            overflow-x: hidden;
-        }
+{% block content %}
+<a href="/account" class="back-link">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M19 12H5M12 19l-7-7 7-7"/>
+    </svg>
+    Back to Account
+</a>
 
-        }
+<div class="content-header">
+    <div>
+        <h1 class="content-title">Admin Dashboard</h1>
+        <p class="content-subtitle">Manage users and subscriptions</p>
+    </div>
+</div>
 
-        .container {
-            max-width: 1600px;
-            margin: 0 auto;
-            padding: 30px;
-            position: relative;
-            z-index: 1;
-        }
+<!-- Statistics -->
+<div class="admin-stats-grid">
+    <div class="admin-stat-card">
+        <div class="admin-stat-label">Total Users</div>
+        <div class="admin-stat-value">{{ stats.total_users }}</div>
+    </div>
+    <div class="admin-stat-card">
+        <div class="admin-stat-label">Free Users</div>
+        <div class="admin-stat-value">{{ stats.free_users }}</div>
+    </div>
+    <div class="admin-stat-card">
+        <div class="admin-stat-label">Pro Users</div>
+        <div class="admin-stat-value">{{ stats.pro_users }}</div>
+    </div>
+    <div class="admin-stat-card">
+        <div class="admin-stat-label">Premium Users</div>
+        <div class="admin-stat-value">{{ stats.premium_users }}</div>
+    </div>
+    <div class="admin-stat-card">
+        <div class="admin-stat-label">Developer</div>
+        <div class="admin-stat-value">{{ stats.developer_users }}</div>
+    </div>
+    <div class="admin-stat-card">
+        <div class="admin-stat-label">Monthly Revenue</div>
+        <div class="admin-stat-value" style="font-size: 1.75rem;">${{ "%.0f"|format(stats.monthly_revenue) }}</div>
+    </div>
+</div>
 
-        .header {
-            background: var(--bg-card);
-            padding: 40px;
-            border-radius: 16px;
-            margin-bottom: 30px;
-            border: 1px solid var(--border);
-        }
+<!-- Announcement Management -->
+<div class="admin-section">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.06);">
+        <h2 style="margin: 0; padding: 0; border: none;">Site Announcement</h2>
+    </div>
 
-        .header h1 {
-            font-size: 3em;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 10px;
-        }
+    <!-- Create new announcement -->
+    <div style="display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap;">
+        <input type="text" id="announcement-message" placeholder="Enter announcement message..."
+               style="flex: 1; min-width: 300px; padding: 10px 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: #fff; font-size: 0.875rem;">
+        <select id="announcement-type"
+                style="padding: 10px 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: #fff; font-size: 0.875rem;">
+            <option value="info">Info (Blue)</option>
+            <option value="success">Success (Green)</option>
+            <option value="warning">Warning (Yellow)</option>
+            <option value="error">Error (Red)</option>
+        </select>
+        <button onclick="createAnnouncement()" class="admin-btn" style="padding: 10px 20px;">
+            Publish Announcement
+        </button>
+    </div>
 
-        .header p {
-            color: var(--text-secondary);
-            font-size: 1.2em;
-        }
-
-        .back-link {
-            display: inline-block;
-            color: var(--text-secondary);
-            text-decoration: none;
-            margin-bottom: 20px;
-            font-size: 1.1em;
-            transition: all 0.3s;
-        }
-
-        .back-link:hover {
-            color: var(--primary);
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .stat-card {
-            background: var(--bg-card);
-            padding: 30px;
-            border-radius: 16px;
-            border: 1px solid var(--border);
-            text-align: center;
-        }
-
-        .stat-label {
-            color: var(--text-secondary);
-            font-size: 0.9em;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            margin-bottom: 10px;
-        }
-
-        .stat-value {
-            font-size: 3em;
-            font-weight: 700;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-family: 'JetBrains Mono', monospace;
-        }
-
-        .section {
-            background: var(--bg-card);
-            padding: 40px;
-            border-radius: 20px;
-            margin-bottom: 30px;
-            border: 1px solid var(--border);
-        }
-
-        .section h2 {
-            font-size: 2em;
-            color: var(--primary);
-            margin-bottom: 25px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        table {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0;
-        }
-
-        thead {
-            background: var(--bg-dark);
-        }
-
-        th {
-            padding: 20px 15px;
-            text-align: left;
-            font-weight: 600;
-            color: var(--text-secondary);
-            font-size: 0.85em;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            border-bottom: 2px solid var(--primary);
-        }
-
-        td {
-            padding: 20px 15px;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-        }
-
-        tbody tr {
-            transition: all 0.2s;
-        }
-
-        tbody tr:hover {
-            background: var(--bg-hover);
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 6px 15px;
-            border-radius: 8px;
-            font-weight: 700;
-            font-size: 0.85em;
-            text-transform: uppercase;
-        }
-
-        .badge.free {
-            background: rgba(139, 146, 176, 0.2);
-            color: var(--text-secondary);
-            border: 1px solid var(--text-secondary);
-        }
-
-        .badge.pro {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            color: white;
-        }
-
-        .badge.premium {
-            background: linear-gradient(135deg, #ff006e 0%, #7c3aed 100%);
-            color: white;
-        }
-
-        .badge.beta {
-            background: linear-gradient(135deg, #ffd93d 0%, #ff6b35 100%);
-            color: white;
-            font-weight: 700;
-            box-shadow: 0 0 10px rgba(255, 107, 53, 0.3);
-        }
-
-        .badge.developer {
-            background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
-            color: #000;
-            font-weight: 800;
-            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
-        }
-
-        .badge.active {
-            background: rgba(0, 255, 136, 0.2);
-            color: var(--success);
-            border: 1px solid var(--success);
-        }
-
-        .badge.inactive {
-            background: rgba(251, 191, 36, 0.2);
-            color: var(--warning);
-            border: 1px solid var(--warning);
-        }
-
-        .btn {
-            display: inline-block;
-            padding: 8px 16px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 0.9em;
-            transition: all 0.3s;
-            border: 1px solid var(--border);
-            cursor: pointer;
-            background: transparent;
-            color: var(--primary);
-        }
-
-        .btn:hover {
-            background: rgba(0, 217, 255, 0.1);
-            transform: translateY(-1px);
-        }
-
-        .email {
-            font-family: 'JetBrains Mono', monospace;
-            color: var(--primary);
-        }
-
-        .username {
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        .date {
-            font-family: 'JetBrains Mono', monospace;
-            color: var(--text-secondary);
-            font-size: 0.9em;
-        }
-
-        @media (max-width: 768px) {
-            .header h1 { font-size: 2em; }
-            .section { padding: 20px; }
-            table { font-size: 0.85em; }
-            th, td { padding: 12px 8px; }
-        }
-    </style>
-    <link rel="stylesheet" href="{{ url_for('static', filename='basic.css') }}?v=1762456000">
-</head>
-<body>
-    <!-- Theme Toggle Button -->
-    <button id="theme-toggle" aria-label="Toggle theme">☀️</button>
-
-
-    <div class="container">
-        <a href="/auth/account" class="back-link">← Back to Account</a>
-
-        <div class="header">
-            <h1>Admin Dashboard</h1>
-            <p>Manage users and subscriptions</p>
-        </div>
-
-        <!-- Statistics -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-label">Total Users</div>
-                <div class="stat-value">{{ stats.total_users }}</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Free Users</div>
-                <div class="stat-value">{{ stats.free_users }}</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Pro Users</div>
-                <div class="stat-value">{{ stats.pro_users }}</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Premium Users</div>
-                <div class="stat-value">{{ stats.premium_users }}</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Developer</div>
-                <div class="stat-value">{{ stats.developer_users }}</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Monthly Revenue</div>
-                <div class="stat-value" style="font-size: 2em;">${{ "%.0f"|format(stats.monthly_revenue) }}</div>
-            </div>
-        </div>
-
-        <!-- User List -->
-        <div class="section">
-            <h2>All Users ({{ users|length }})</h2>
-
-            <div style="overflow-x: auto;">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Username</th>
-                            <th>Email</th>
-                            <th>Tier</th>
-                            <th>Status</th>
-                            <th>Joined</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for user in users %}
-                        <tr>
-                            <td>{{ user.id }}</td>
-                            <td class="username">{{ user.username }}</td>
-                            <td class="email">{{ user.email }}</td>
-                            <td><span class="badge {{ user.subscription_tier }}">{{ user.subscription_tier }}</span></td>
-                            <td><span class="badge {{ user.subscription_status }}">{{ user.subscription_status }}</span></td>
-                            <td class="date">{{ user.created_at.strftime('%Y-%m-%d %H:%M') if user.created_at else 'N/A' }}</td>
-                            <td>
-                                {% if user.subscription_tier == 'free' %}
-                                <button class="btn" onclick="upgradeUser('{{ user.email }}', 'beta')">→ Beta</button>
-                                <button class="btn" onclick="upgradeUser('{{ user.email }}', 'pro')">→ Pro</button>
-                                <button class="btn" onclick="upgradeUser('{{ user.email }}', 'premium')">→ Premium</button>
-                                <button class="btn" onclick="upgradeUser('{{ user.email }}', 'developer')">→ Developer</button>
-                                {% elif user.subscription_tier == 'pro' %}
-                                <button class="btn" onclick="upgradeUser('{{ user.email }}', 'beta')">→ Beta</button>
-                                <button class="btn" onclick="upgradeUser('{{ user.email }}', 'premium')">→ Premium</button>
-                                <button class="btn" onclick="upgradeUser('{{ user.email }}', 'developer')">→ Developer</button>
-                                <button class="btn" onclick="upgradeUser('{{ user.email }}', 'free')">→ Free</button>
-                                {% elif user.subscription_tier == 'premium' %}
-                                <button class="btn" onclick="upgradeUser('{{ user.email }}', 'beta')">→ Beta</button>
-                                <button class="btn" onclick="upgradeUser('{{ user.email }}', 'developer')">→ Developer</button>
-                                <button class="btn" onclick="upgradeUser('{{ user.email }}', 'pro')">→ Pro</button>
-                                <button class="btn" onclick="upgradeUser('{{ user.email }}', 'free')">→ Free</button>
-                                {% elif user.subscription_tier == 'beta' %}
-                                <button class="btn" onclick="upgradeUser('{{ user.email }}', 'developer')">→ Developer</button>
-                                <button class="btn" onclick="upgradeUser('{{ user.email }}', 'premium')">→ Premium</button>
-                                <button class="btn" onclick="upgradeUser('{{ user.email }}', 'pro')">→ Pro</button>
-                                <button class="btn" onclick="upgradeUser('{{ user.email }}', 'free')">→ Free</button>
-                                {% else %}
-                                <button class="btn" onclick="upgradeUser('{{ user.email }}', 'beta')">→ Beta</button>
-                                <button class="btn" onclick="upgradeUser('{{ user.email }}', 'premium')">→ Premium</button>
-                                <button class="btn" onclick="upgradeUser('{{ user.email }}', 'pro')">→ Pro</button>
-                                <button class="btn" onclick="upgradeUser('{{ user.email }}', 'free')">→ Free</button>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+    <!-- Current announcement preview -->
+    <div id="current-announcement" style="margin-bottom: 16px;">
+        <div style="color: rgba(255,255,255,0.5); font-size: 0.75rem; margin-bottom: 8px;">CURRENT ACTIVE ANNOUNCEMENT:</div>
+        <div id="announcement-preview" style="padding: 12px 16px; border-radius: 8px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06);">
+            <span style="color: rgba(255,255,255,0.4);">No active announcement</span>
         </div>
     </div>
 
-    <script>
-        function upgradeUser(email, tier) {
-            if (!confirm(`Upgrade ${email} to ${tier.toUpperCase()}?`)) {
-                return;
-            }
+    <!-- Announcement history -->
+    <div id="announcement-history" style="display: none;">
+        <div style="color: rgba(255,255,255,0.5); font-size: 0.75rem; margin-bottom: 8px;">HISTORY:</div>
+        <div id="announcement-list"></div>
+    </div>
+</div>
 
-            const password = prompt('Enter admin password:');
-            if (!password) {
-                return;
-            }
+<!-- API Status Section -->
+<div class="admin-section">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.06);">
+        <h2 style="margin: 0; padding: 0; border: none;">API & Services Status</h2>
+        <div style="display: flex; gap: 8px;">
+            <button onclick="loadApiStatus()" class="admin-btn" title="Refresh status">Refresh</button>
+            <button id="copy-status-btn" onclick="copyApiStatus()" class="admin-btn" title="Copy status report to clipboard">Copy Status</button>
+        </div>
+    </div>
+    <div class="api-status-grid" id="api-status-grid">
+        <div class="api-status-card">
+            <div class="api-status-info">
+                <div class="api-status-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M12 6v6l4 2"/>
+                    </svg>
+                </div>
+                <div>
+                    <div class="api-status-name">Loading...</div>
+                    <div class="api-status-message">Checking API status</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
-            fetch(`/auth/admin/upgrade-user/${encodeURIComponent(email)}/${tier}?password=${encodeURIComponent(password)}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.error) {
-                        alert('Error: ' + data.error);
-                    } else if (data.success) {
-                        alert(`✓ ${data.username} upgraded from ${data.old_tier} to ${data.new_tier}`);
-                        location.reload();
-                    }
-                })
-                .catch(error => {
-                    alert('Error: ' + error);
-                });
+<!-- User List -->
+<div class="admin-section">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid rgba(255, 255, 255, 0.06);">
+        <h2 style="margin: 0; padding: 0; border: none;">All Users (<span id="user-count">{{ users|length }}</span>)</h2>
+        <div style="display: flex; gap: 8px; align-items: center;">
+            <input type="text" id="user-search" placeholder="Search by email or username..."
+                   oninput="filterUsers()"
+                   style="padding: 8px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: #fff; font-size: 0.875rem; width: 250px;">
+            <select id="tier-filter" onchange="filterUsers()"
+                    style="padding: 8px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: #fff; font-size: 0.875rem;">
+                <option value="">All Tiers</option>
+                <option value="free">Free</option>
+                <option value="beta">Beta</option>
+                <option value="pro">Pro</option>
+                <option value="premium">Premium</option>
+                <option value="developer">Developer</option>
+            </select>
+            <button onclick="exportUsersCSV()" class="admin-btn" title="Export to CSV">Export CSV</button>
+        </div>
+    </div>
+
+    <div class="table-wrapper">
+        <table class="admin-table" id="users-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Tier</th>
+                    <th>Status</th>
+                    <th>Joined</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>{{ user.id }}</td>
+                    <td class="username">{{ user.username }}</td>
+                    <td class="email">{{ user.email }}</td>
+                    <td><span class="admin-badge {{ user.subscription_tier }}">{{ user.subscription_tier }}</span></td>
+                    <td><span class="admin-badge {{ user.subscription_status }}">{{ user.subscription_status }}</span></td>
+                    <td class="date">{{ user.created_at.strftime('%Y-%m-%d %H:%M') if user.created_at else 'N/A' }}</td>
+                    <td>
+                        {% if user.subscription_tier == 'free' %}
+                        <button class="admin-btn" onclick="upgradeUser('{{ user.email }}', 'beta')">Beta</button>
+                        <button class="admin-btn" onclick="upgradeUser('{{ user.email }}', 'pro')">Pro</button>
+                        <button class="admin-btn" onclick="upgradeUser('{{ user.email }}', 'premium')">Premium</button>
+                        <button class="admin-btn" onclick="upgradeUser('{{ user.email }}', 'developer')">Dev</button>
+                        {% elif user.subscription_tier == 'pro' %}
+                        <button class="admin-btn" onclick="upgradeUser('{{ user.email }}', 'beta')">Beta</button>
+                        <button class="admin-btn" onclick="upgradeUser('{{ user.email }}', 'premium')">Premium</button>
+                        <button class="admin-btn" onclick="upgradeUser('{{ user.email }}', 'developer')">Dev</button>
+                        <button class="admin-btn" onclick="upgradeUser('{{ user.email }}', 'free')">Free</button>
+                        {% elif user.subscription_tier == 'premium' %}
+                        <button class="admin-btn" onclick="upgradeUser('{{ user.email }}', 'beta')">Beta</button>
+                        <button class="admin-btn" onclick="upgradeUser('{{ user.email }}', 'developer')">Dev</button>
+                        <button class="admin-btn" onclick="upgradeUser('{{ user.email }}', 'pro')">Pro</button>
+                        <button class="admin-btn" onclick="upgradeUser('{{ user.email }}', 'free')">Free</button>
+                        {% elif user.subscription_tier == 'beta' %}
+                        <button class="admin-btn" onclick="upgradeUser('{{ user.email }}', 'developer')">Dev</button>
+                        <button class="admin-btn" onclick="upgradeUser('{{ user.email }}', 'premium')">Premium</button>
+                        <button class="admin-btn" onclick="upgradeUser('{{ user.email }}', 'pro')">Pro</button>
+                        <button class="admin-btn" onclick="upgradeUser('{{ user.email }}', 'free')">Free</button>
+                        {% else %}
+                        <button class="admin-btn" onclick="upgradeUser('{{ user.email }}', 'beta')">Beta</button>
+                        <button class="admin-btn" onclick="upgradeUser('{{ user.email }}', 'premium')">Premium</button>
+                        <button class="admin-btn" onclick="upgradeUser('{{ user.email }}', 'pro')">Pro</button>
+                        <button class="admin-btn" onclick="upgradeUser('{{ user.email }}', 'free')">Free</button>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // Announcement management
+    const bannerColors = {
+        info: { bg: 'rgba(0, 217, 255, 0.15)', border: 'rgba(0, 217, 255, 0.3)', text: '#00d9ff' },
+        success: { bg: 'rgba(34, 197, 94, 0.15)', border: 'rgba(34, 197, 94, 0.3)', text: '#22c55e' },
+        warning: { bg: 'rgba(245, 158, 11, 0.15)', border: 'rgba(245, 158, 11, 0.3)', text: '#f59e0b' },
+        error: { bg: 'rgba(239, 68, 68, 0.15)', border: 'rgba(239, 68, 68, 0.3)', text: '#ef4444' }
+    };
+
+    async function loadAnnouncements() {
+        try {
+            const response = await fetch('/auth/admin/announcement');
+            const data = await response.json();
+
+            if (data.announcements && data.announcements.length > 0) {
+                const active = data.announcements.find(a => a.is_active);
+                const preview = document.getElementById('announcement-preview');
+
+                if (active) {
+                    const colors = bannerColors[active.banner_type] || bannerColors.info;
+                    preview.innerHTML = `
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="color: ${colors.text};">${active.message}</span>
+                            <button onclick="toggleAnnouncement(${active.id})" class="admin-btn" style="margin-left: 12px;">Deactivate</button>
+                        </div>
+                    `;
+                    preview.style.background = colors.bg;
+                    preview.style.borderColor = colors.border;
+                } else {
+                    preview.innerHTML = '<span style="color: rgba(255,255,255,0.4);">No active announcement</span>';
+                    preview.style.background = 'rgba(255,255,255,0.02)';
+                    preview.style.borderColor = 'rgba(255,255,255,0.06)';
+                }
+
+                // Show history if there are announcements
+                if (data.announcements.length > 1) {
+                    document.getElementById('announcement-history').style.display = 'block';
+                    const listHtml = data.announcements.slice(0, 5).map(a => {
+                        const colors = bannerColors[a.banner_type] || bannerColors.info;
+                        const status = a.is_active ? '<span style="color: #22c55e;">Active</span>' : '<span style="color: rgba(255,255,255,0.4);">Inactive</span>';
+                        return `
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; margin-bottom: 4px; background: rgba(255,255,255,0.02); border-radius: 6px; font-size: 0.8125rem;">
+                                <span style="color: ${colors.text}; flex: 1;">${a.message.substring(0, 60)}${a.message.length > 60 ? '...' : ''}</span>
+                                <span style="margin: 0 12px;">${status}</span>
+                                <div style="display: flex; gap: 4px;">
+                                    ${!a.is_active ? `<button onclick="toggleAnnouncement(${a.id})" class="admin-btn">Activate</button>` : ''}
+                                    <button onclick="deleteAnnouncement(${a.id})" class="admin-btn" style="border-color: rgba(239,68,68,0.3); color: #ef4444;">Delete</button>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                    document.getElementById('announcement-list').innerHTML = listHtml;
+                }
+            }
+        } catch (error) {
+            console.error('Error loading announcements:', error);
         }
-    </script>
-    <!-- UI Enhancement Scripts -->
-    <script src="{{ url_for('static', filename='toast.js') }}"></script>
-    <script src="{{ url_for('static', filename='ui-enhancements.js') }}"></script>
-    <!-- Theme Toggle Script -->
-    <script src="{{ url_for('static', filename='theme-toggle.js') }}" defer></script>
-</body>
-</html>
+    }
+
+    async function createAnnouncement() {
+        const message = document.getElementById('announcement-message').value.trim();
+        const bannerType = document.getElementById('announcement-type').value;
+
+        if (!message) {
+            alert('Please enter a message');
+            return;
+        }
+
+        try {
+            const response = await fetch('/auth/admin/announcement', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message, banner_type: bannerType })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                document.getElementById('announcement-message').value = '';
+                loadAnnouncements();
+                alert('Announcement published!');
+            } else {
+                alert('Error: ' + (data.error || 'Failed to create announcement'));
+            }
+        } catch (error) {
+            console.error('Error creating announcement:', error);
+            alert('Error creating announcement');
+        }
+    }
+
+    async function toggleAnnouncement(id) {
+        try {
+            const response = await fetch(`/auth/admin/announcement/${id}/toggle`, { method: 'POST' });
+            const data = await response.json();
+
+            if (data.success) {
+                loadAnnouncements();
+            } else {
+                alert('Error: ' + (data.error || 'Failed to toggle announcement'));
+            }
+        } catch (error) {
+            console.error('Error toggling announcement:', error);
+        }
+    }
+
+    async function deleteAnnouncement(id) {
+        if (!confirm('Delete this announcement?')) return;
+
+        try {
+            const response = await fetch(`/auth/admin/announcement/${id}`, { method: 'DELETE' });
+            const data = await response.json();
+
+            if (data.success) {
+                loadAnnouncements();
+            } else {
+                alert('Error: ' + (data.error || 'Failed to delete announcement'));
+            }
+        } catch (error) {
+            console.error('Error deleting announcement:', error);
+        }
+    }
+
+    // Load announcements on page load
+    loadAnnouncements();
+
+    // SVG icons for each service
+    const serviceIcons = {
+        polygon: '<path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>',
+        gemini: '<circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>',
+        finnhub: '<path d="M3 3v18h18"/><path d="M7 16l4-4 4 4 5-6"/>',
+        alpha_vantage: '<rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><path d="M3 9h18M9 21V9"/>',
+        google_oauth: '<circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/>',
+        recaptcha: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
+        mail: '<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>',
+        redis: '<ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>',
+        database: '<ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>'
+    };
+
+    // Load API status on page load
+    async function loadApiStatus() {
+        const container = document.getElementById('api-status-grid');
+
+        try {
+            const response = await fetch('/api/status');
+            const status = await response.json();
+
+            // Render all service cards dynamically
+            container.innerHTML = Object.entries(status).map(([key, data]) => {
+                const icon = serviceIcons[key] || serviceIcons.database;
+                const statusClass = data.connected ? 'connected' : 'disconnected';
+                const statusText = data.connected ? 'Connected' : 'Disconnected';
+                const envVar = data.env_var || key.toUpperCase();
+
+                return `
+                    <div class="api-status-card" data-service="${key}" data-status="${data.message}" data-env="${envVar}">
+                        <div class="api-status-info">
+                            <div class="api-status-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    ${icon}
+                                </svg>
+                            </div>
+                            <div>
+                                <div class="api-status-name">${data.label || key}</div>
+                                <div class="api-status-message">${data.message}</div>
+                                <div class="api-status-env">ENV: ${envVar}</div>
+                            </div>
+                        </div>
+                        <div class="api-status-badge">
+                            <span class="status-dot ${statusClass}"></span>
+                            <span class="admin-badge ${statusClass}">${statusText}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Store status for copy function
+            window.apiStatusData = status;
+
+        } catch (error) {
+            console.error('Error loading API status:', error);
+            container.innerHTML = `
+                <div class="api-status-card">
+                    <div class="api-status-info">
+                        <div class="api-status-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <path d="M15 9l-6 6M9 9l6 6"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="api-status-name">Error</div>
+                            <div class="api-status-message">Failed to load API status</div>
+                        </div>
+                    </div>
+                    <div class="api-status-badge">
+                        <span class="status-dot disconnected"></span>
+                        <span class="admin-badge disconnected">Error</span>
+                    </div>
+                </div>
+            `;
+        }
+    }
+
+    // Copy all API status to clipboard
+    function copyApiStatus() {
+        if (!window.apiStatusData) {
+            alert('Status not loaded yet');
+            return;
+        }
+
+        const lines = Object.entries(window.apiStatusData).map(([key, data]) => {
+            const status = data.connected ? 'OK' : 'FAIL';
+            return `[${status}] ${data.label}: ${data.message}`;
+        });
+
+        const text = `API Status Report:\n${'='.repeat(50)}\n${lines.join('\n')}\n${'='.repeat(50)}\nGenerated: ${new Date().toISOString()}`;
+
+        navigator.clipboard.writeText(text).then(() => {
+            const btn = document.getElementById('copy-status-btn');
+            const originalText = btn.textContent;
+            btn.textContent = 'Copied!';
+            setTimeout(() => btn.textContent = originalText, 2000);
+        }).catch(err => {
+            alert('Failed to copy: ' + err);
+        });
+    }
+
+    // Load status on page load
+    loadApiStatus();
+
+    // User search and filter
+    function filterUsers() {
+        const searchTerm = document.getElementById('user-search').value.toLowerCase();
+        const tierFilter = document.getElementById('tier-filter').value.toLowerCase();
+        const table = document.getElementById('users-table');
+        const rows = table.querySelectorAll('tbody tr');
+        let visibleCount = 0;
+
+        rows.forEach(row => {
+            const username = row.querySelector('.username')?.textContent.toLowerCase() || '';
+            const email = row.querySelector('.email')?.textContent.toLowerCase() || '';
+            const tierBadge = row.querySelector('.admin-badge')?.textContent.toLowerCase() || '';
+
+            const matchesSearch = !searchTerm || username.includes(searchTerm) || email.includes(searchTerm);
+            const matchesTier = !tierFilter || tierBadge.includes(tierFilter);
+
+            if (matchesSearch && matchesTier) {
+                row.style.display = '';
+                visibleCount++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        document.getElementById('user-count').textContent = visibleCount;
+    }
+
+    // Export users to CSV
+    function exportUsersCSV() {
+        const table = document.getElementById('users-table');
+        const rows = table.querySelectorAll('tbody tr');
+        const visibleRows = Array.from(rows).filter(row => row.style.display !== 'none');
+
+        if (visibleRows.length === 0) {
+            alert('No users to export');
+            return;
+        }
+
+        const headers = ['ID', 'Username', 'Email', 'Tier', 'Status', 'Joined'];
+        const csvRows = [headers.join(',')];
+
+        visibleRows.forEach(row => {
+            const cells = row.querySelectorAll('td');
+            const rowData = [
+                cells[0]?.textContent.trim() || '',
+                cells[1]?.textContent.trim() || '',
+                cells[2]?.textContent.trim() || '',
+                cells[3]?.textContent.trim() || '',
+                cells[4]?.textContent.trim() || '',
+                cells[5]?.textContent.trim() || ''
+            ];
+            csvRows.push(rowData.map(cell => `"${cell.replace(/"/g, '""')}"`).join(','));
+        });
+
+        const csvContent = csvRows.join('\n');
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `users_export_${new Date().toISOString().split('T')[0]}.csv`;
+        link.click();
+    }
+
+    function upgradeUser(email, tier) {
+        if (!confirm(`Upgrade ${email} to ${tier.toUpperCase()}?`)) {
+            return;
+        }
+
+        const password = prompt('Enter admin password:');
+        if (!password) {
+            return;
+        }
+
+        fetch(`/auth/admin/upgrade-user/${encodeURIComponent(email)}/${tier}?password=${encodeURIComponent(password)}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert('Error: ' + data.error);
+                } else if (data.success) {
+                    alert(`${data.username} upgraded from ${data.old_tier} to ${data.new_tier}`);
+                    location.reload();
+                }
+            })
+            .catch(error => {
+                alert('Error: ' + error);
+            });
+    }
+</script>
+{% endblock %}

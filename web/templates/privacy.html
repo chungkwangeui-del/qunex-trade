@@ -1,297 +1,175 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Privacy Policy - Qunex Trade</title>
-    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+{% extends "base_layout.html" %}
 
-        :root {
-            --primary: #00d9ff;
-            --secondary: #7c3aed;
-            --bg-dark: #0a0e27;
-            --bg-card: #131829;
-            --text-primary: #ffffff;
-            --text-secondary: #8b92b0;
-            --border: rgba(0, 217, 255, 0.15);
-        }
+{% block title %}Privacy Policy - Qunex Trade{% endblock %}
 
-        body {
-            font-family: 'Space Grotesk', sans-serif;
-            background: var(--bg-dark);
-            color: var(--text-primary);
-            line-height: 1.8;
-        }
+{% block extra_styles %}
+<style>
+    .legal-header {
+        margin-bottom: 48px;
+    }
 
-        nav {
-            background: var(--bg-card);
-            padding: 20px 40px;
-            margin-bottom: 40px;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+    .legal-updated {
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 0.875rem;
+        margin-top: 8px;
+    }
 
-        .nav-brand {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 1.5em;
-            font-weight: 700;
-            text-decoration: none;
-            color: var(--text-primary);
-        }
+    .legal-content {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        padding: 40px;
+    }
 
-        .logo {
-            width: 35px;
-            height: 35px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-        }
+    .legal-content h2 {
+        color: #00d9ff;
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-top: 48px;
+        margin-bottom: 16px;
+    }
 
-        .brand-text {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
+    .legal-content h2:first-of-type {
+        margin-top: 0;
+    }
 
-        .nav-links {
-            display: flex;
-            gap: 20px;
-            align-items: center;
-        }
+    .legal-content p {
+        color: rgba(255, 255, 255, 0.7);
+        line-height: 1.8;
+        margin-bottom: 16px;
+    }
 
-        .nav-links a {
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-weight: 600;
-            transition: color 0.3s;
-        }
+    .legal-content ul {
+        color: rgba(255, 255, 255, 0.7);
+        margin: 16px 0;
+        padding-left: 24px;
+    }
 
-        .nav-links a:hover {
-            color: var(--primary);
-        }
+    .legal-content li {
+        margin-bottom: 8px;
+        line-height: 1.7;
+    }
 
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 40px 20px;
-        }
+    .legal-content strong {
+        color: #fff;
+    }
 
-        h1 {
-            font-size: 3em;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 10px;
-        }
+    .legal-highlight {
+        background: rgba(0, 217, 255, 0.05);
+        border-left: 3px solid #00d9ff;
+        padding: 20px 24px;
+        margin: 24px 0;
+        border-radius: 0 8px 8px 0;
+    }
 
-        .last-updated {
-            color: var(--text-secondary);
-            margin-bottom: 40px;
-        }
+    .legal-highlight p {
+        margin: 0;
+        color: rgba(255, 255, 255, 0.7);
+    }
+</style>
+{% endblock %}
 
-        h2 {
-            color: var(--primary);
-            margin-top: 40px;
-            margin-bottom: 20px;
-            font-size: 1.8em;
-        }
-
-        p {
-            margin-bottom: 20px;
-            color: var(--text-secondary);
-        }
-
-        a {
-            color: var(--primary);
-            text-decoration: none;
-        }
-
-        a:hover {
-            text-decoration: underline;
-        }
-
-        ul {
-            margin: 20px 0;
-            padding-left: 40px;
-            color: var(--text-secondary);
-        }
-
-        li {
-            margin-bottom: 10px;
-        }
-    </style>
-    <link rel="stylesheet" href="{{ url_for('static', filename='basic.css') }}?v=1762456000">
-</head>
-<body>
-    <!-- Theme Toggle Button -->
-    <button id="theme-toggle" aria-label="Toggle theme">☀️</button>
-
-
-    <nav>
-        <a href="/" class="nav-brand">
-            <div class="logo">Q</div>
-            <span class="brand-text">Qunex Trade</span>
-        </a>
-        <div class="nav-links">
-            <a href="/">Home</a>
-            <a href="/market">Market</a>
-            <a href="/screener">Screener</a>
-            <a href="/calendar">Calendar</a>
-            <a href="/news">News</a>
-            <a href="/about">About</a>
-        </div>
-    </nav>
-
-    <div class="container">
-        <h1>Privacy Policy</h1>
-        <p class="last-updated">Last Updated: January 2025</p>
-
-        <h2>1. Introduction</h2>
-        <p>
-            Qunex Trade ("we", "our", "us") respects your privacy and is committed to protecting your personal data. This privacy policy explains how we collect, use, and protect your information.
-        </p>
-
-        <h2>2. Information We Collect</h2>
-        <p><strong>Account Information:</strong></p>
-        <ul>
-            <li>Email address</li>
-            <li>Username</li>
-            <li>Password (encrypted)</li>
-            <li>Subscription status</li>
-        </ul>
-
-        <p><strong>Usage Data:</strong></p>
-        <ul>
-            <li>IP address</li>
-            <li>Browser type</li>
-            <li>Pages visited</li>
-            <li>Time and date of visits</li>
-            <li>Signal viewing history</li>
-        </ul>
-
-        <p><strong>Payment Information:</strong></p>
-        <ul>
-            <li>Payment information is processed by Stripe</li>
-            <li>We do NOT store credit card details</li>
-            <li>We receive transaction confirmations only</li>
-        </ul>
-
-        <h2>3. How We Use Your Information</h2>
-        <p>We use your information to:</p>
-        <ul>
-            <li>Provide and maintain the Service</li>
-            <li>Process subscriptions and payments</li>
-            <li>Send service notifications and updates</li>
-            <li>Improve our AI models and features</li>
-            <li>Prevent fraud and abuse</li>
-            <li>Comply with legal obligations</li>
-        </ul>
-
-        <h2>4. Data Sharing</h2>
-        <p>We share your data with:</p>
-        <ul>
-            <li><strong>Stripe:</strong> For payment processing</li>
-            <li><strong>Analytics Services:</strong> Google Analytics (anonymized)</li>
-            <li><strong>Legal Authorities:</strong> When required by law</li>
-        </ul>
-
-        <p><strong>We will NEVER:</strong></p>
-        <ul>
-            <li>Sell your personal data</li>
-            <li>Share your trading signals with third parties</li>
-            <li>Send unsolicited marketing emails</li>
-        </ul>
-
-        <h2>5. Data Security</h2>
-        <p>We implement security measures including:</p>
-        <ul>
-            <li>HTTPS encryption for all connections</li>
-            <li>Password hashing with Werkzeug</li>
-            <li>Secure database storage</li>
-            <li>Regular security updates</li>
-            <li>Access controls and monitoring</li>
-        </ul>
-
-        <h2>6. Your Rights</h2>
-        <p>You have the right to:</p>
-        <ul>
-            <li><strong>Access:</strong> Request a copy of your data</li>
-            <li><strong>Rectification:</strong> Correct inaccurate data</li>
-            <li><strong>Erasure:</strong> Request deletion of your data</li>
-            <li><strong>Export:</strong> Download your data in CSV format</li>
-            <li><strong>Withdraw Consent:</strong> Cancel subscriptions anytime</li>
-        </ul>
-
-        <h2>7. Cookies</h2>
-        <p>We use cookies for:</p>
-        <ul>
-            <li>Session management (login status)</li>
-            <li>Analytics (Google Analytics)</li>
-            <li>Preferences (theme, language)</li>
-        </ul>
-        <p>You can disable cookies in your browser settings.</p>
-
-        <h2>8. Data Retention</h2>
-        <ul>
-            <li><strong>Account Data:</strong> Retained while account is active</li>
-            <li><strong>Transaction Data:</strong> Retained for 7 years (tax compliance)</li>
-            <li><strong>Deleted Accounts:</strong> Data purged within 30 days</li>
-        </ul>
-
-        <h2>9. Third-Party Services</h2>
-        <p>We use the following third-party services:</p>
-        <ul>
-            <li><strong>Render:</strong> Hosting (US-based servers)</li>
-            <li><strong>Stripe:</strong> Payment processing</li>
-            <li><strong>Google Analytics:</strong> Usage analytics</li>
-            <li><strong>Yahoo Finance:</strong> Market data (no personal data shared)</li>
-        </ul>
-
-        <h2>10. International Data Transfers</h2>
-        <p>
-            Your data may be transferred to and processed in the United States. By using the Service, you consent to this transfer.
-        </p>
-
-        <h2>11. Children's Privacy</h2>
-        <p>
-            Qunex Trade is not intended for users under 18. We do not knowingly collect data from children.
-        </p>
-
-        <h2>12. Changes to This Policy</h2>
-        <p>
-            We may update this policy from time to time. We will notify you of significant changes via email or website notice.
-        </p>
-
-        <h2>13. Contact Us</h2>
-        <p>
-            For privacy-related questions or to exercise your rights, contact:<br>
-            Email: privacy@qunextrade.com<br>
-            <br>
-            To request data deletion or export, email us from your registered account.
-        </p>
-
-        <p style="margin-top: 60px; text-align: center; color: var(--text-secondary);">
-            © 2025 Qunex Trade. All rights reserved.
-        </p>
+{% block content %}
+<div class="content-header">
+    <div>
+        <h1 class="content-title">Privacy Policy</h1>
+        <p class="content-subtitle legal-updated">Last Updated: January 2025</p>
     </div>
-    <!-- UI Enhancement Scripts -->
-    <script src="{{ url_for('static', filename='toast.js') }}"></script>
-    <script src="{{ url_for('static', filename='ui-enhancements.js') }}"></script>
-    <!-- Theme Toggle Script -->
-    <script src="{{ url_for('static', filename='theme-toggle.js') }}" defer></script>
-</body>
-</html>
+</div>
+
+<div class="legal-content">
+    <h2>1. Introduction</h2>
+    <p>
+        Qunex Trade ("we", "our", "us") respects your privacy and is committed to protecting your personal data. This privacy policy explains how we collect, use, and protect your information.
+    </p>
+
+    <h2>2. Information We Collect</h2>
+    <p><strong>Account Information:</strong></p>
+    <ul>
+        <li>Email address</li>
+        <li>Username</li>
+        <li>Password (encrypted)</li>
+        <li>Account preferences</li>
+    </ul>
+
+    <p><strong>Usage Data:</strong></p>
+    <ul>
+        <li>IP address</li>
+        <li>Browser type</li>
+        <li>Pages visited</li>
+        <li>Time and date of visits</li>
+        <li>Feature usage patterns</li>
+    </ul>
+
+    <h2>3. How We Use Your Information</h2>
+    <p>We use your information to:</p>
+    <ul>
+        <li>Provide and maintain the Service</li>
+        <li>Send service notifications and updates</li>
+        <li>Improve our AI models and features</li>
+        <li>Prevent fraud and abuse</li>
+        <li>Comply with legal obligations</li>
+    </ul>
+
+    <h2>4. Data Sharing</h2>
+    <div class="legal-highlight">
+        <p><strong>We will NEVER sell your personal data or share your trading activity with third parties for marketing purposes.</strong></p>
+    </div>
+    <p>We may share data with:</p>
+    <ul>
+        <li><strong>Analytics Services:</strong> Google Analytics (anonymized)</li>
+        <li><strong>Legal Authorities:</strong> When required by law</li>
+    </ul>
+
+    <h2>5. Data Security</h2>
+    <p>We implement security measures including:</p>
+    <ul>
+        <li>HTTPS encryption for all connections</li>
+        <li>Password hashing with industry-standard algorithms</li>
+        <li>Secure database storage</li>
+        <li>Regular security updates</li>
+        <li>Access controls and monitoring</li>
+    </ul>
+
+    <h2>6. Your Rights</h2>
+    <p>You have the right to:</p>
+    <ul>
+        <li><strong>Access:</strong> Request a copy of your data</li>
+        <li><strong>Rectification:</strong> Correct inaccurate data</li>
+        <li><strong>Erasure:</strong> Request deletion of your data</li>
+        <li><strong>Export:</strong> Download your data</li>
+        <li><strong>Withdraw Consent:</strong> Delete your account anytime</li>
+    </ul>
+
+    <h2>7. Cookies</h2>
+    <p>We use cookies for:</p>
+    <ul>
+        <li>Session management (login status)</li>
+        <li>Analytics (Google Analytics)</li>
+        <li>Preferences (theme settings)</li>
+    </ul>
+    <p>You can disable cookies in your browser settings.</p>
+
+    <h2>8. Data Retention</h2>
+    <ul>
+        <li><strong>Account Data:</strong> Retained while account is active</li>
+        <li><strong>Deleted Accounts:</strong> Data purged within 30 days</li>
+    </ul>
+
+    <h2>9. Children's Privacy</h2>
+    <p>
+        Qunex Trade is not intended for users under 18. We do not knowingly collect data from children.
+    </p>
+
+    <h2>10. Changes to This Policy</h2>
+    <p>
+        We may update this policy from time to time. We will notify you of significant changes via email or website notice.
+    </p>
+
+    <h2>11. Contact Us</h2>
+    <p>
+        For privacy-related questions or to exercise your rights, contact:<br>
+        Email: privacy@qunextrade.com
+    </p>
+</div>
+{% endblock %}

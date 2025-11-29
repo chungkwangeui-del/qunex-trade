@@ -7,6 +7,8 @@ from flask import Blueprint, jsonify, request
 from flask_login import login_required, current_user
 from web.database import db, Watchlist
 from web.polygon_service import get_polygon_service
+from web.extensions import csrf
+from werkzeug.exceptions import BadRequest
 from datetime import datetime
 from typing import Dict, Any, Tuple
 import logging
@@ -15,6 +17,9 @@ import re
 logger = logging.getLogger(__name__)
 
 api_watchlist = Blueprint("api_watchlist", __name__)
+
+# Exempt API routes from CSRF for JavaScript fetch calls
+csrf.exempt(api_watchlist)
 
 
 @api_watchlist.route("/api/watchlist", methods=["GET"])
@@ -113,7 +118,13 @@ def get_watchlist() -> Tuple[Any, int]:
 def add_to_watchlist():
     """Add a stock to watchlist"""
     try:
-        data = request.get_json()
+        try:
+            data = request.get_json()
+        except BadRequest:
+            return jsonify({"error": "Invalid JSON data"}), 400
+
+        if not data:
+            return jsonify({"error": "Invalid JSON data"}), 400
         ticker = data.get("ticker", "").upper().strip()
 
         if not ticker:

@@ -1,0 +1,330 @@
+{% extends "base_layout.html" %}
+
+{% block title %}Qunex Trade - AI-Powered Stock Market Intelligence{% endblock %}
+
+{% block extra_styles %}
+<style>
+    /* Hero Section Styles */
+    .hero-section {
+        position: relative;
+        padding: 80px 0 100px;
+        /* Reduced top padding since we have a header now */
+        overflow: hidden;
+        text-align: center;
+    }
+
+    .hero-glow {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 1000px;
+        height: 1000px;
+        background: radial-gradient(circle, rgba(0, 217, 255, 0.15) 0%, rgba(168, 85, 247, 0.05) 40%, transparent 70%);
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 16px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 100px;
+        font-size: 0.85rem;
+        color: var(--accent-cyan);
+        margin-bottom: 32px;
+        backdrop-filter: blur(10px);
+    }
+
+    .hero-title {
+        font-size: clamp(3rem, 6vw, 5rem);
+        font-weight: 800;
+        line-height: 1.1;
+        letter-spacing: -0.03em;
+        margin-bottom: 24px;
+        background: linear-gradient(to bottom, #ffffff, rgba(255, 255, 255, 0.5));
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        position: relative;
+        z-index: 1;
+    }
+
+    .hero-subtitle {
+        font-size: 1.25rem;
+        color: var(--text-secondary);
+        max-width: 600px;
+        margin: 0 auto 48px;
+        line-height: 1.6;
+        position: relative;
+        z-index: 1;
+    }
+
+    .hero-image-container {
+        margin-top: 80px;
+        position: relative;
+        z-index: 1;
+        perspective: 1000px;
+    }
+
+    .hero-image {
+        background: rgba(20, 20, 20, 0.8);
+        border: 1px solid var(--border-medium);
+        border-radius: 24px;
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.05), 0 20px 50px -10px rgba(0, 0, 0, 0.5);
+        overflow: hidden;
+        transform: rotateX(5deg);
+        transition: transform 0.5s ease;
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+
+    .hero-image:hover {
+        transform: rotateX(0deg);
+    }
+
+    .feature-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-subtle);
+        border-radius: 24px;
+        padding: 40px;
+        transition: all 0.3s ease;
+        height: 100%;
+    }
+
+    .feature-card:hover {
+        border-color: var(--border-medium);
+        transform: translateY(-5px);
+        background: var(--bg-hover);
+    }
+
+    .feature-icon-box {
+        width: 56px;
+        height: 56px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--border-subtle);
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 24px;
+        color: var(--accent-cyan);
+    }
+
+    .stat-value {
+        font-size: 3.5rem;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="hero-glow"></div>
+
+    <div class="relative z-10 max-w-4xl mx-auto">
+        <div class="hero-badge animate-fade-in">
+            <span class="w-2 h-2 rounded-full bg-green-500 mr-2"
+                style="background: #22c55e; box-shadow: 0 0 10px #22c55e;"></span>
+            Now Free for Everyone
+        </div>
+
+        <h1 class="hero-title animate-slide-up">
+            Master the Markets with<br>
+            <span class="text-gradient">AI-Powered Intelligence</span>
+        </h1>
+
+        <p class="hero-subtitle animate-slide-up" style="animation-delay: 0.1s;">
+            Professional-grade market data, advanced screening, and intelligent analysis.
+            No credit card required. Open access for all traders.
+        </p>
+
+        <div class="flex items-center justify-center gap-4 animate-slide-up" style="animation-delay: 0.2s;">
+            {% if not current_user.is_authenticated %}
+            <a href="/auth/signup" class="btn btn-primary btn-lg">
+                Start Trading Now
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    class="ml-2">
+                    <path d="M5 12h14M12 5l7 7-7 7" />
+                </svg>
+            </a>
+            {% else %}
+            <a href="/dashboard" class="btn btn-primary btn-lg">
+                Go to Dashboard
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    class="ml-2">
+                    <path d="M5 12h14M12 5l7 7-7 7" />
+                </svg>
+            </a>
+            {% endif %}
+            <a href="/market" class="btn btn-secondary btn-lg">
+                View Live Markets
+            </a>
+        </div>
+    </div>
+
+    <!-- Hero Dashboard Preview -->
+    <div class="hero-image-container animate-slide-up" style="animation-delay: 0.3s;">
+        <div class="hero-image">
+            <img src="/static/dashboard-preview.png" alt="Dashboard Preview"
+                style="width: 100%; display: block; opacity: 0.8;"
+                onerror="this.style.display='none'; this.parentElement.style.height='500px'; this.parentElement.style.background='linear-gradient(to bottom right, #111, #000)'">
+            <!-- Fallback UI if image missing -->
+            <div style="padding: 40px; text-align: left;">
+                <div class="flex gap-4 mb-8">
+                    <div style="width: 200px; height: 100px; background: rgba(255,255,255,0.05); border-radius: 12px;">
+                    </div>
+                    <div style="width: 200px; height: 100px; background: rgba(255,255,255,0.05); border-radius: 12px;">
+                    </div>
+                    <div style="width: 200px; height: 100px; background: rgba(255,255,255,0.05); border-radius: 12px;">
+                    </div>
+                </div>
+                <div style="width: 100%; height: 300px; background: rgba(255,255,255,0.03); border-radius: 12px;">
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Stats Section -->
+<section class="py-20 border-y border-white/5 bg-white/[0.01]"
+    style="padding: 5rem 0; border-top: 1px solid var(--border-subtle); border-bottom: 1px solid var(--border-subtle);">
+    <div class="max-w-7xl mx-auto px-6">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-12 text-center">
+            <div>
+                <div class="stat-value">10K+</div>
+                <div class="text-sm text-secondary uppercase tracking-wider font-semibold mt-2">Active Traders</div>
+            </div>
+            <div>
+                <div class="stat-value">5K+</div>
+                <div class="text-sm text-secondary uppercase tracking-wider font-semibold mt-2">Stocks Tracked</div>
+            </div>
+            <div>
+                <div class="stat-value">1M+</div>
+                <div class="text-sm text-secondary uppercase tracking-wider font-semibold mt-2">AI Analyses</div>
+            </div>
+            <div>
+                <div class="stat-value">0ms</div>
+                <div class="text-sm text-secondary uppercase tracking-wider font-semibold mt-2">Latency</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Grid -->
+<section class="py-32 relative" style="padding: 8rem 0;">
+    <div class="max-w-7xl mx-auto px-6">
+        <div class="text-center mb-20">
+            <h2 class="text-3xl md:text-5xl font-bold mb-6">Everything you need to win</h2>
+            <p class="text-xl text-secondary max-w-2xl mx-auto">
+                Powerful tools designed for the modern trader.
+            </p>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-8">
+            <!-- Feature 1 -->
+            <div class="feature-card">
+                <div class="feature-icon-box">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                        <path d="M2 17l10 5 10-5" />
+                        <path d="M2 12l10 5 10-5" />
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold mb-3">AI Analysis</h3>
+                <p class="text-secondary mb-6">
+                    Proprietary algorithms analyze market sentiment and technical patterns to identify
+                    high-probability setups.
+                </p>
+                <a href="/dashboard"
+                    class="text-accent-cyan hover:text-white font-semibold text-sm flex items-center gap-2 transition-colors">
+                    Try AI Tools <span class="text-lg">→</span>
+                </a>
+            </div>
+
+            <!-- Feature 2 -->
+            <div class="feature-card">
+                <div class="feature-icon-box">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="12" y1="1" x2="12" y2="23" />
+                        <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold mb-3">Real-Time Data</h3>
+                <p class="text-secondary mb-6">
+                    Institutional-grade data feeds from Polygon.io ensure you're always trading with the most
+                    accurate prices.
+                </p>
+                <a href="/market"
+                    class="text-accent-cyan hover:text-white font-semibold text-sm flex items-center gap-2 transition-colors">
+                    View Markets <span class="text-lg">→</span>
+                </a>
+            </div>
+
+            <!-- Feature 3 -->
+            <div class="feature-card">
+                <div class="feature-icon-box">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8" />
+                        <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold mb-3">Smart Screener</h3>
+                <p class="text-secondary mb-6">
+                    Filter thousands of stocks instantly based on technical, fundamental, and sentiment criteria.
+                </p>
+                <a href="/screener"
+                    class="text-accent-cyan hover:text-white font-semibold text-sm flex items-center gap-2 transition-colors">
+                    Start Screening <span class="text-lg">→</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-32 text-center relative overflow-hidden" style="padding: 8rem 0;">
+    <div class="absolute inset-0 bg-gradient-to-b from-transparent to-accent-cyan/5 pointer-events-none"></div>
+    <div class="max-w-4xl mx-auto px-6 relative z-10">
+        <h2 class="text-4xl md:text-6xl font-bold mb-8 tracking-tight">Ready to level up?</h2>
+        <p class="text-xl text-secondary mb-12 max-w-2xl mx-auto">
+            Join the next generation of traders using data-driven insights to beat the market.
+        </p>
+        {% if not current_user.is_authenticated %}
+        <a href="/auth/signup" class="btn btn-primary btn-lg px-12">
+            Get Started for Free
+        </a>
+        {% else %}
+        <a href="/dashboard" class="btn btn-primary btn-lg px-12">
+            Go to Dashboard
+        </a>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="border-t border-white/5 py-12 bg-black"
+    style="border-top: 1px solid var(--border-subtle); padding: 3rem 0;">
+    <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-6">
+        <div class="flex items-center gap-2 text-secondary">
+            <span class="font-bold text-white">Qunex Trade</span>
+            <span>© 2025</span>
+        </div>
+
+        <div class="flex gap-8">
+            <a href="/market" class="text-sm text-secondary hover:text-white transition-colors">Market</a>
+            <a href="/about" class="text-sm text-secondary hover:text-white transition-colors">About</a>
+            <a href="#" class="text-sm text-secondary hover:text-white transition-colors">Privacy</a>
+            <a href="#" class="text-sm text-secondary hover:text-white transition-colors">Terms</a>
+        </div>
+    </div>
+</footer>
+{% endblock %}

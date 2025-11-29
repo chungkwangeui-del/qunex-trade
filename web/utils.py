@@ -22,11 +22,13 @@ def get_economic_events(days_ahead: int = 60):
     Get economic calendar events from database.
     """
     try:
-        end_date = datetime.now(timezone.utc) + timedelta(days=days_ahead)
+        # Use naive datetime for comparison (DB stores naive datetimes)
+        now = datetime.now()
+        end_date = now + timedelta(days=days_ahead)
 
         events = (
             EconomicEvent.query.filter(
-                EconomicEvent.date >= datetime.now(timezone.utc), EconomicEvent.date <= end_date
+                EconomicEvent.date >= now, EconomicEvent.date <= end_date
             )
             .order_by(EconomicEvent.date.asc())
             .all()
