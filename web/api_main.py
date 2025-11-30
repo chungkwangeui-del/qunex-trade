@@ -5,6 +5,8 @@ from web.polygon_service import get_polygon_service
 from datetime import datetime, timezone, timedelta
 from sqlalchemy import or_
 import logging
+import requests
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -116,9 +118,108 @@ def get_calendar():
 
 @api_main.route("/api/economic-calendar/refresh", methods=["GET", "POST"])
 def refresh_calendar():
-    """Populate economic calendar with upcoming US economic events"""
+    """Fetch real economic calendar data from Finnhub API"""
     try:
-        # Major recurring US economic events
+        finnhub_api_key = os.environ.get("FINNHUB_API_KEY")
+
+        if not finnhub_api_key:
+            logger.warning("FINNHUB_API_KEY not configured, using fallback data")
+            return _refresh_calendar_fallback()
+
+        # Fetch next 60 days of economic events from Finnhub
+        today = datetime.now(timezone.utc).date()
+        end_date = today + timedelta(days=60)
+
+        url = "https://finnhub.io/api/v1/calendar/economic"
+        params = {
+            "from": today.strftime("%Y-%m-%d"),
+            "to": end_date.strftime("%Y-%m-%d"),
+            "token": finnhub_api_key
+        }
+
+        response = requests.get(url, params=params, timeout=30)
+        response.raise_for_status()
+        data = response.json()
+
+        if "economicCalendar" not in data:
+            logger.error(f"Unexpected Finnhub response: {data}")
+            return jsonify({"success": False, "message": "Invalid response from Finnhub"})
+
+        events = data["economicCalendar"]
+        saved_count = 0
+
+        # Clear old events first (optional - keeps DB clean)
+        EconomicEvent.query.filter(
+            EconomicEvent.date >= datetime.combine(today, datetime.min.time()).replace(tzinfo=timezone.utc)
+        ).delete()
+
+        # Map Finnhub impact to our importance levels
+        impact_map = {
+            3: "high",    # High impact
+            2: "medium",  # Medium impact
+            1: "low",     # Low impact
+        }
+
+        for event_data in events:
+            # Filter for US events (USD) - most relevant for stock traders
+            country = event_data.get("country", "")
+            if country != "US":
+                continue
+
+            event_date_str = event_data.get("date", "")
+            if not event_date_str:
+                continue
+
+            try:
+                event_date = datetime.strptime(event_date_str, "%Y-%m-%d")
+                event_date = event_date.replace(tzinfo=timezone.utc)
+            except ValueError:
+                continue
+
+            # Get impact level (1-3)
+            impact = event_data.get("impact", 1)
+            importance = impact_map.get(impact, "low")
+
+            # Get actual/estimate/previous values
+            actual = event_data.get("actual", "")
+            estimate = event_data.get("estimate", "")
+            prev = event_data.get("prev", "")
+
+            event = EconomicEvent(
+                title=event_data.get("event", "Unknown Event"),
+                description=f"{event_data.get('event', '')} - {country}",
+                date=event_date,
+                time=event_data.get("time", "TBD"),
+                country="USD",
+                importance=importance,
+                forecast=str(estimate) if estimate else "TBD",
+                previous=str(prev) if prev else "TBD",
+                source="Finnhub"
+            )
+            db.session.add(event)
+            saved_count += 1
+
+        db.session.commit()
+        logger.info(f"Fetched {saved_count} US economic events from Finnhub")
+
+        return jsonify({
+            "success": True,
+            "count": saved_count,
+            "message": f"Added {saved_count} US economic events from Finnhub"
+        })
+
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Finnhub API request failed: {e}")
+        return jsonify({"success": False, "message": f"API request failed: {str(e)}"})
+    except Exception as e:
+        logger.error(f"Error refreshing calendar: {e}", exc_info=True)
+        db.session.rollback()
+        return jsonify({"success": False, "message": str(e)})
+
+
+def _refresh_calendar_fallback():
+    """Fallback: Generate placeholder events when Finnhub API is not available"""
+    try:
         event_templates = [
             {"title": "FOMC Meeting Minutes", "importance": "high", "time": "2:00 PM EST"},
             {"title": "Non-Farm Payrolls", "importance": "high", "time": "8:30 AM EST"},
@@ -128,27 +229,18 @@ def refresh_calendar():
             {"title": "GDP (Quarterly)", "importance": "high", "time": "8:30 AM EST"},
             {"title": "Jobless Claims", "importance": "medium", "time": "8:30 AM EST"},
             {"title": "ISM Manufacturing PMI", "importance": "medium", "time": "10:00 AM EST"},
-            {"title": "Consumer Confidence", "importance": "medium", "time": "10:00 AM EST"},
-            {"title": "Durable Goods Orders", "importance": "medium", "time": "8:30 AM EST"},
-            {"title": "Housing Starts", "importance": "low", "time": "8:30 AM EST"},
-            {"title": "Fed Chair Powell Speech", "importance": "high", "time": "TBD"},
         ]
 
         today = datetime.now(timezone.utc).date()
         saved_count = 0
 
-        # Generate events for the next 60 days
         for i in range(60):
             event_date = today + timedelta(days=i)
-
-            # Skip weekends
             if event_date.weekday() >= 5:
                 continue
 
-            # Add different events on different days
             template = event_templates[i % len(event_templates)]
 
-            # Check if event already exists
             existing = EconomicEvent.query.filter_by(
                 title=template["title"],
                 date=datetime.combine(event_date, datetime.min.time()).replace(tzinfo=timezone.utc)
@@ -159,29 +251,26 @@ def refresh_calendar():
 
             event = EconomicEvent(
                 title=template["title"],
-                description=f"US Economic Indicator: {template['title']}",
+                description=f"US Economic Indicator: {template['title']} (Placeholder)",
                 date=datetime.combine(event_date, datetime.min.time()).replace(tzinfo=timezone.utc),
                 time=template["time"],
                 country="USD",
                 importance=template["importance"],
                 forecast="TBD",
                 previous="TBD",
-                source="Economic Calendar"
+                source="Placeholder"
             )
             db.session.add(event)
             saved_count += 1
 
         db.session.commit()
-        logger.info(f"Saved {saved_count} economic events to database")
-
         return jsonify({
             "success": True,
             "count": saved_count,
-            "message": f"Added {saved_count} economic events"
+            "message": f"Added {saved_count} placeholder events (Configure FINNHUB_API_KEY for real data)"
         })
 
     except Exception as e:
-        logger.error(f"Error refreshing calendar: {e}", exc_info=True)
         db.session.rollback()
         return jsonify({"success": False, "message": str(e)})
 
