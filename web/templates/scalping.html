@@ -1063,6 +1063,10 @@
                     <span class="entry-exit-value green" id="takeProfit">--</span>
                 </div>
                 <div class="reasoning-text" id="targetReasoning"></div>
+                <!-- R:R Warning -->
+                <div class="exit-warning" id="rrWarning" style="display: none;">
+                    <span id="rrWarningText"></span>
+                </div>
             </div>
 
             <div class="risk-warning">
@@ -1376,6 +1380,15 @@
             document.getElementById('entryReasoning').textContent = setup.entry_reasoning || '';
             document.getElementById('stopReasoning').textContent = setup.stop_reasoning || '';
             document.getElementById('targetReasoning').textContent = setup.target_reasoning || '';
+
+            // R:R Warning display
+            const rrWarningEl = document.getElementById('rrWarning');
+            if (setup.rr_warning) {
+                rrWarningEl.style.display = 'flex';
+                document.getElementById('rrWarningText').textContent = setup.rr_warning;
+            } else {
+                rrWarningEl.style.display = 'none';
+            }
         } else {
             document.getElementById('tradeSetupBox').style.display = 'block';
             document.getElementById('entryPrice').textContent = '--';
@@ -1385,6 +1398,7 @@
             document.getElementById('entryReasoning').textContent = setup.entry_reasoning || 'Wait for clear candlestick pattern';
             document.getElementById('stopReasoning').textContent = '';
             document.getElementById('targetReasoning').textContent = '';
+            document.getElementById('rrWarning').style.display = 'none';
         }
     }
 

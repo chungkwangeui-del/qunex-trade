@@ -27,7 +27,11 @@
       "Bash(timeout:*)",
       "Bash(set PYTHONPATH=%CD%)",
       "Bash(curl:*)",
-      "Bash(if exist app dir /b app)"
+      "Bash(if exist app dir /b app)",
+      "Bash(ping:*)",
+      "Bash(del \"c:\\Users\\chung\\OneDrive\\바탕 화면\\PENNY STOCK TRADE\\test_scalp.py\")",
+      "Bash(tasklist:*)",
+      "Bash(set \"PYTHONPATH=c:\\Users\\chung\\OneDrive\\바탕 화면\\PENNY STOCK TRADE\")"
     ],
     "deny": [],
     "ask": []

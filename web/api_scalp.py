@@ -462,7 +462,10 @@ class VolumeAnalyzer:
             }
 
         volumes = [bar.get("v", 0) for bar in bars]
+        # Use second-to-last bar if current bar volume is suspiciously low (incomplete candle)
         current_volume = volumes[-1]
+        if current_volume < 1 and len(volumes) > 1:
+            current_volume = volumes[-2]  # Use completed candle
         avg_volume = sum(volumes[-20:]) / 20
         recent_avg = sum(volumes[-5:]) / 5
         older_avg = sum(volumes[-20:-5]) / 15 if len(volumes) >= 20 else avg_volume
@@ -547,6 +550,9 @@ class FVGAnalyzer:
                 gap_percent = (gap_size / c1_high * 100) if c1_high > 0 else 0
 
                 if gap_percent >= min_gap_percent:
+                    # FVG strength: Base 60 + bonus for larger gaps
+                    # 0.1% gap = 60, 0.5% gap = 80, 1%+ gap = 100
+                    fvg_strength = min(100, 60 + int(gap_percent * 40))
                     fvg = {
                         "type": "bullish",
                         "top": c3_low,
@@ -555,7 +561,7 @@ class FVGAnalyzer:
                         "size_percent": round(gap_percent, 2),
                         "index": i,
                         "filled": current_price <= c3_low,  # FVG filled if price came back
-                        "strength": min(100, int(gap_percent * 20)),
+                        "strength": fvg_strength,
                     }
                     bullish_fvgs.append(fvg)
 
@@ -566,6 +572,9 @@ class FVGAnalyzer:
                 gap_percent = (gap_size / c3_high * 100) if c3_high > 0 else 0
 
                 if gap_percent >= min_gap_percent:
+                    # FVG strength: Base 60 + bonus for larger gaps
+                    # 0.1% gap = 60, 0.5% gap = 80, 1%+ gap = 100
+                    fvg_strength = min(100, 60 + int(gap_percent * 40))
                     fvg = {
                         "type": "bearish",
                         "top": c1_low,
@@ -574,7 +583,7 @@ class FVGAnalyzer:
                         "size_percent": round(gap_percent, 2),
                         "index": i,
                         "filled": current_price >= c3_high,
-                        "strength": min(100, int(gap_percent * 20)),
+                        "strength": fvg_strength,
                     }
                     bearish_fvgs.append(fvg)
 
@@ -1566,6 +1575,13 @@ class ScalpAnalyzer:
                 else:
                     # Conflict detected - trap says LONG but bearish is stronger
                     reasoning.insert(0, "⚠️ 상충 신호! Trap=LONG but Bearish stronger - WAIT")
+                    return {
+                        "signal": "WAIT",
+                        "confidence": 0,
+                        "bullish_score": bullish_score,
+                        "bearish_score": bearish_score,
+                        "reasoning": reasoning,
+                    }
             else:
                 reasoning.insert(0, f"🎯 Double Top Trap - Entry SHORT, Stop ${trap['stop_loss']:.2f}")
                 # Only follow trap if no strong bullish conflict
@@ -1580,6 +1596,13 @@ class ScalpAnalyzer:
                 else:
                     # Conflict detected - trap says SHORT but bullish is stronger
                     reasoning.insert(0, "⚠️ 상충 신호! Trap=SHORT but Bullish stronger - WAIT")
+                    return {
+                        "signal": "WAIT",
+                        "confidence": 0,
+                        "bullish_score": bullish_score,
+                        "bearish_score": bearish_score,
+                        "reasoning": reasoning,
+                    }
 
         # Standard confluence-based signal
         # Rule: Minimum 2 confluences required (최소 2개 근거 필요!)
@@ -1774,13 +1797,23 @@ class ScalpAnalyzer:
 
             # If we have resistance, use it as target if closer
             resistance_price = resistance.get("price") if resistance else None
+            rr_warning = None
             if resistance_price and resistance_price < take_profit:
-                take_profit = resistance_price
-                rr_ratio = (take_profit - entry) / risk if risk > 0 else 2
+                potential_take_profit = resistance_price
+                potential_rr = (potential_take_profit - entry) / risk if risk > 0 else 2
+
+                # If R:R would be below 1:1, warn and keep minimum 1:1 target
+                if potential_rr < 1.0:
+                    rr_warning = f"⚠️ R:R < 1:1 (저항선 ${resistance_price:.2f}) - 최소 1:1 목표 권장"
+                    take_profit = entry + risk  # Minimum 1:1 target
+                    rr_ratio = 1.0
+                else:
+                    take_profit = potential_take_profit
+                    rr_ratio = potential_rr
             else:
                 rr_ratio = 2.0
 
-            return {
+            result = {
                 "entry_price": round(entry, 4),
                 "stop_loss": round(stop_loss, 4),
                 "take_profit": round(take_profit, 4),
@@ -1790,6 +1823,9 @@ class ScalpAnalyzer:
                 "target_reasoning": primary_pattern.get("target_logic", "Target 2x risk"),
                 "invalidation_price": round(invalidation, 4),
             }
+            if rr_warning:
+                result["rr_warning"] = rr_warning
+            return result
 
         elif signal == "SHORT" and primary_pattern:
             entry = primary_pattern.get("confirmation") or current_price
@@ -1800,13 +1836,23 @@ class ScalpAnalyzer:
             take_profit = entry - (risk * 2) if entry and risk else 0
 
             support_price = support.get("price") if support else None
+            rr_warning = None
             if support_price and support_price > take_profit:
-                take_profit = support_price
-                rr_ratio = (entry - take_profit) / risk if risk > 0 else 2
+                potential_take_profit = support_price
+                potential_rr = (entry - potential_take_profit) / risk if risk > 0 else 2
+
+                # If R:R would be below 1:1, warn and keep minimum 1:1 target
+                if potential_rr < 1.0:
+                    rr_warning = f"⚠️ R:R < 1:1 (지지선 ${support_price:.2f}) - 최소 1:1 목표 권장"
+                    take_profit = entry - risk  # Minimum 1:1 target
+                    rr_ratio = 1.0
+                else:
+                    take_profit = potential_take_profit
+                    rr_ratio = potential_rr
             else:
                 rr_ratio = 2.0
 
-            return {
+            result = {
                 "entry_price": round(entry, 4),
                 "stop_loss": round(stop_loss, 4),
                 "take_profit": round(take_profit, 4),
@@ -1816,6 +1862,9 @@ class ScalpAnalyzer:
                 "target_reasoning": primary_pattern.get("target_logic", "Target 2x risk"),
                 "invalidation_price": round(invalidation, 4),
             }
+            if rr_warning:
+                result["rr_warning"] = rr_warning
+            return result
 
         else:
             # No trade - waiting for setup
