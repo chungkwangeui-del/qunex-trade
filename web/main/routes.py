@@ -334,3 +334,17 @@ def scalping():
 def day_trading():
     """AI Day Trading Analysis with Advanced S/R"""
     return render_template("day_trading.html", user=current_user)
+
+
+@main.route("/sector-heatmap")
+@login_required
+def sector_heatmap():
+    """Sector Heatmap - Real-time sector performance visualization"""
+    return render_template("sector_heatmap.html", user=current_user)
+
+
+@main.route("/analytics")
+@login_required
+def analytics():
+    """Performance Analytics Dashboard"""
+    return render_template("analytics.html", user=current_user)

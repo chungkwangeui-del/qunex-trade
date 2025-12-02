@@ -347,6 +347,92 @@
         50% { opacity: 0.5; }
     }
 
+    /* Market Status Banner */
+    .market-status-banner {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 20px;
+        border-radius: var(--radius-lg);
+        margin-bottom: 24px;
+        font-size: var(--text-sm);
+        font-weight: var(--font-medium);
+    }
+
+    .market-status-banner.open {
+        background: rgba(34, 197, 94, 0.1);
+        border: 1px solid rgba(34, 197, 94, 0.3);
+        color: var(--success);
+    }
+
+    .market-status-banner.closed {
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        color: var(--danger);
+    }
+
+    .market-status-banner.pre-market,
+    .market-status-banner.post-market {
+        background: rgba(245, 158, 11, 0.1);
+        border: 1px solid rgba(245, 158, 11, 0.3);
+        color: var(--warning);
+    }
+
+    .status-indicator {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: currentColor;
+        animation: pulse 2s infinite;
+    }
+
+    /* Extended Hours Data */
+    .extended-hours-data {
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: 1px solid var(--border-subtle);
+        font-size: var(--text-xs);
+    }
+
+    .extended-label {
+        color: var(--text-tertiary);
+        margin-bottom: 4px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .extended-label .session-tag {
+        padding: 2px 6px;
+        border-radius: var(--radius-sm);
+        font-size: 10px;
+        font-weight: var(--font-semibold);
+        text-transform: uppercase;
+    }
+
+    .session-tag.premarket {
+        background: rgba(245, 158, 11, 0.2);
+        color: var(--warning);
+    }
+
+    .session-tag.afterhours {
+        background: rgba(168, 85, 247, 0.2);
+        color: var(--accent-purple);
+    }
+
+    .extended-price {
+        font-family: 'JetBrains Mono', monospace;
+        font-weight: var(--font-semibold);
+    }
+
+    .extended-change {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: var(--text-xs);
+    }
+
+    .extended-change.positive { color: var(--success); }
+    .extended-change.negative { color: var(--danger); }
+
     @media (max-width: 768px) {
         .indices-row {
             grid-template-columns: 1fr 1fr;
@@ -377,27 +463,37 @@
     </div>
 </div>
 
+<!-- Market Status Banner -->
+<div class="market-status-banner" id="marketStatusBanner" style="display: none;">
+    <span class="status-indicator"></span>
+    <span class="status-text"></span>
+</div>
+
 <!-- Market Indices -->
 <div class="indices-row">
     <div class="index-card" id="index-spy">
         <div class="index-name">S&P 500 <span class="etf-tag">SPY</span></div>
         <div class="index-value">--</div>
         <div class="index-change">Loading...</div>
+        <div class="extended-hours-data" style="display: none;"></div>
     </div>
     <div class="index-card" id="index-qqq">
         <div class="index-name">NASDAQ <span class="etf-tag">QQQ</span></div>
         <div class="index-value">--</div>
         <div class="index-change">Loading...</div>
+        <div class="extended-hours-data" style="display: none;"></div>
     </div>
     <div class="index-card" id="index-dia">
         <div class="index-name">DOW JONES <span class="etf-tag">DIA</span></div>
         <div class="index-value">--</div>
         <div class="index-change">Loading...</div>
+        <div class="extended-hours-data" style="display: none;"></div>
     </div>
     <div class="index-card" id="index-iwm">
         <div class="index-name">RUSSELL 2000 <span class="etf-tag">IWM</span></div>
         <div class="index-value">--</div>
         <div class="index-change">Loading...</div>
+        <div class="extended-hours-data" style="display: none;"></div>
     </div>
 </div>
 
@@ -643,14 +739,115 @@
         });
     });
 
+    // Load market status
+    async function loadMarketStatus() {
+        try {
+            const response = await fetch('/api/market/status');
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success) {
+                    updateMarketStatusBanner(data.status);
+                }
+            }
+        } catch (error) {
+            console.error('Failed to load market status:', error);
+        }
+    }
+
+    function updateMarketStatusBanner(status) {
+        const banner = document.getElementById('marketStatusBanner');
+        if (!status) return;
+
+        const marketPhase = status.market || 'closed';
+        const statusText = document.querySelector('.market-status-banner .status-text');
+
+        banner.className = 'market-status-banner ' + marketPhase.replace(' ', '-');
+        banner.style.display = 'flex';
+
+        switch (marketPhase) {
+            case 'open':
+                statusText.textContent = 'Market is Open - Regular Trading Hours';
+                break;
+            case 'pre-market':
+                statusText.textContent = 'Pre-Market Trading Session (4:00 AM - 9:30 AM ET)';
+                break;
+            case 'post-market':
+                statusText.textContent = 'After-Hours Trading Session (4:00 PM - 8:00 PM ET)';
+                break;
+            case 'closed':
+                statusText.textContent = 'Market is Closed';
+                break;
+            default:
+                statusText.textContent = 'Market Status: ' + marketPhase;
+        }
+    }
+
+    // Load extended hours data for indices
+    async function loadExtendedHours() {
+        const indices = ['SPY', 'QQQ', 'DIA', 'IWM'];
+
+        for (const ticker of indices) {
+            try {
+                const response = await fetch(`/api/market/extended-hours/${ticker}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success && data.data) {
+                        updateExtendedHoursCard(ticker, data.data);
+                    }
+                }
+            } catch (error) {
+                console.error(`Failed to load extended hours for ${ticker}:`, error);
+            }
+        }
+    }
+
+    function updateExtendedHoursCard(ticker, data) {
+        const cardMap = {
+            'SPY': 'index-spy',
+            'QQQ': 'index-qqq',
+            'DIA': 'index-dia',
+            'IWM': 'index-iwm'
+        };
+
+        const card = document.getElementById(cardMap[ticker]);
+        if (!card || !data.is_extended_hours) return;
+
+        const extendedDiv = card.querySelector('.extended-hours-data');
+        if (!extendedDiv) return;
+
+        const sessionType = data.session_type || 'regular';
+        const extendedPrice = data.extended_price || data.current_price;
+        const extendedChange = data.extended_change || 0;
+        const extendedChangePct = data.extended_change_percent || 0;
+        const isPositive = extendedChange >= 0;
+
+        const sessionLabel = sessionType === 'premarket' ? 'Pre-Market' : 'After-Hours';
+        const sessionClass = sessionType === 'premarket' ? 'premarket' : 'afterhours';
+
+        extendedDiv.innerHTML = `
+            <div class="extended-label">
+                <span class="session-tag ${sessionClass}">${sessionLabel}</span>
+            </div>
+            <div class="extended-price">$${extendedPrice.toFixed(2)}</div>
+            <div class="extended-change ${isPositive ? 'positive' : 'negative'}">
+                ${isPositive ? '+' : ''}${extendedChange.toFixed(2)} (${isPositive ? '+' : ''}${extendedChangePct.toFixed(2)}%)
+            </div>
+        `;
+        extendedDiv.style.display = 'block';
+    }
+
     // Initial load
+    loadMarketStatus();
     loadIndices();
     loadStocks();
+    loadExtendedHours();
 
     // Auto-refresh every 60 seconds
     setInterval(() => {
+        loadMarketStatus();
         loadIndices();
         loadStocks();
+        loadExtendedHours();
     }, 60000);
 </script>
 {% endblock %}

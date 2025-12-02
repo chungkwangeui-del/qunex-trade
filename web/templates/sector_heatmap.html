@@ -1,0 +1,563 @@
+{% extends "base_layout.html" %}
+
+{% block title %}Sector Heatmap - Qunex Trade{% endblock %}
+
+{% block extra_styles %}
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+    /* Market Summary */
+    .market-summary {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+        margin-bottom: 32px;
+    }
+
+    .summary-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-xl);
+        padding: 24px;
+        text-align: center;
+    }
+
+    .summary-label {
+        font-size: var(--text-xs);
+        color: var(--text-tertiary);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 8px;
+    }
+
+    .summary-value {
+        font-size: var(--text-2xl);
+        font-weight: var(--font-bold);
+        font-family: 'JetBrains Mono', monospace;
+    }
+
+    .summary-value.positive { color: var(--success); }
+    .summary-value.negative { color: var(--danger); }
+    .summary-value.bullish { color: var(--success); }
+    .summary-value.bearish { color: var(--danger); }
+    .summary-value.mixed { color: var(--warning); }
+
+    /* Heatmap Grid */
+    .heatmap-container {
+        background: var(--bg-card);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-xl);
+        padding: 24px;
+        margin-bottom: 32px;
+    }
+
+    .heatmap-title {
+        font-size: var(--text-xl);
+        font-weight: var(--font-semibold);
+        margin-bottom: 24px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .realtime-badge {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        background: rgba(34, 197, 94, 0.1);
+        border: 1px solid rgba(34, 197, 94, 0.3);
+        border-radius: var(--radius-full);
+        font-size: var(--text-xs);
+        color: var(--success);
+        font-weight: var(--font-medium);
+    }
+
+    .realtime-dot {
+        width: 6px;
+        height: 6px;
+        background: var(--success);
+        border-radius: 50%;
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+    }
+
+    .heatmap-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+    }
+
+    @media (max-width: 1024px) {
+        .heatmap-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .heatmap-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 480px) {
+        .heatmap-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .sector-tile {
+        position: relative;
+        padding: 24px;
+        border-radius: var(--radius-lg);
+        cursor: pointer;
+        transition: all var(--transition-fast);
+        overflow: hidden;
+        min-height: 120px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .sector-tile:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Color gradients based on performance */
+    .sector-tile.strong-gain {
+        background: linear-gradient(135deg, rgba(34, 197, 94, 0.3), rgba(34, 197, 94, 0.15));
+        border: 1px solid rgba(34, 197, 94, 0.4);
+    }
+
+    .sector-tile.gain {
+        background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(34, 197, 94, 0.1));
+        border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+
+    .sector-tile.slight-gain {
+        background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(34, 197, 94, 0.05));
+        border: 1px solid rgba(34, 197, 94, 0.2);
+    }
+
+    .sector-tile.neutral {
+        background: var(--bg-hover);
+        border: 1px solid var(--border-subtle);
+    }
+
+    .sector-tile.slight-loss {
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(239, 68, 68, 0.05));
+        border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+
+    .sector-tile.loss {
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(239, 68, 68, 0.1));
+        border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .sector-tile.strong-loss {
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.3), rgba(239, 68, 68, 0.15));
+        border: 1px solid rgba(239, 68, 68, 0.4);
+    }
+
+    .sector-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 12px;
+    }
+
+    .sector-name {
+        font-size: var(--text-sm);
+        font-weight: var(--font-semibold);
+        color: var(--text-primary);
+    }
+
+    .sector-ticker {
+        font-size: var(--text-xs);
+        color: var(--text-tertiary);
+        font-family: 'JetBrains Mono', monospace;
+        padding: 2px 6px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: var(--radius-sm);
+    }
+
+    .sector-change {
+        font-size: var(--text-2xl);
+        font-weight: var(--font-bold);
+        font-family: 'JetBrains Mono', monospace;
+    }
+
+    .sector-change.positive { color: var(--success); }
+    .sector-change.negative { color: var(--danger); }
+
+    .sector-price {
+        font-size: var(--text-sm);
+        color: var(--text-secondary);
+        font-family: 'JetBrains Mono', monospace;
+        margin-top: 4px;
+    }
+
+    .sector-volume {
+        font-size: var(--text-xs);
+        color: var(--text-tertiary);
+        margin-top: 4px;
+    }
+
+    /* Legend */
+    .heatmap-legend {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+        margin-top: 24px;
+        flex-wrap: wrap;
+    }
+
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: var(--text-xs);
+        color: var(--text-tertiary);
+    }
+
+    .legend-color {
+        width: 16px;
+        height: 16px;
+        border-radius: 4px;
+    }
+
+    .legend-color.strong-gain { background: rgba(34, 197, 94, 0.4); }
+    .legend-color.gain { background: rgba(34, 197, 94, 0.25); }
+    .legend-color.slight-gain { background: rgba(34, 197, 94, 0.1); }
+    .legend-color.neutral { background: var(--bg-hover); }
+    .legend-color.slight-loss { background: rgba(239, 68, 68, 0.1); }
+    .legend-color.loss { background: rgba(239, 68, 68, 0.25); }
+    .legend-color.strong-loss { background: rgba(239, 68, 68, 0.4); }
+
+    /* Sector Detail Panel */
+    .sector-detail {
+        background: var(--bg-card);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-xl);
+        padding: 24px;
+        display: none;
+    }
+
+    .sector-detail.show {
+        display: block;
+    }
+
+    .detail-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .detail-title {
+        font-size: var(--text-xl);
+        font-weight: var(--font-semibold);
+    }
+
+    .detail-close {
+        width: 32px;
+        height: 32px;
+        background: var(--bg-hover);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-md);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        color: var(--text-secondary);
+        transition: all var(--transition-fast);
+    }
+
+    .detail-close:hover {
+        background: var(--bg-active);
+        color: var(--text-primary);
+    }
+
+    .detail-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 16px;
+    }
+
+    .detail-item {
+        padding: 16px;
+        background: var(--bg-hover);
+        border-radius: var(--radius-md);
+    }
+
+    .detail-label {
+        font-size: var(--text-xs);
+        color: var(--text-tertiary);
+        margin-bottom: 6px;
+    }
+
+    .detail-value {
+        font-size: var(--text-lg);
+        font-weight: var(--font-semibold);
+        font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Loading State */
+    .loading-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 80px;
+    }
+
+    .spinner {
+        width: 48px;
+        height: 48px;
+        border: 3px solid var(--border-subtle);
+        border-top-color: var(--accent-cyan);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="content-header">
+    <div>
+        <h1 class="content-title">Sector Heatmap</h1>
+        <p class="content-subtitle">Real-time sector performance visualization</p>
+    </div>
+</div>
+
+<!-- Market Summary -->
+<div class="market-summary" id="marketSummary">
+    <div class="summary-card">
+        <div class="summary-label">Market Sentiment</div>
+        <div class="summary-value" id="marketSentiment">--</div>
+    </div>
+    <div class="summary-card">
+        <div class="summary-label">Avg Sector Change</div>
+        <div class="summary-value" id="avgChange">--</div>
+    </div>
+    <div class="summary-card">
+        <div class="summary-label">Sectors Up</div>
+        <div class="summary-value positive" id="sectorsUp">--</div>
+    </div>
+    <div class="summary-card">
+        <div class="summary-label">Sectors Down</div>
+        <div class="summary-value negative" id="sectorsDown">--</div>
+    </div>
+</div>
+
+<!-- Sector Heatmap -->
+<div class="heatmap-container">
+    <div class="heatmap-title">
+        <span>11 GICS Sectors</span>
+        <div class="realtime-badge">
+            <span class="realtime-dot"></span>
+            <span>Live</span>
+        </div>
+    </div>
+
+    <div class="heatmap-grid" id="heatmapGrid">
+        <div class="loading-container">
+            <div class="spinner"></div>
+        </div>
+    </div>
+
+    <div class="heatmap-legend">
+        <div class="legend-item">
+            <div class="legend-color strong-gain"></div>
+            <span>>2%</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color gain"></div>
+            <span>1-2%</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color slight-gain"></div>
+            <span>0-1%</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color neutral"></div>
+            <span>0%</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color slight-loss"></div>
+            <span>0-1%</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color loss"></div>
+            <span>1-2%</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color strong-loss"></div>
+            <span>>2%</span>
+        </div>
+    </div>
+</div>
+
+<!-- Sector Detail Panel -->
+<div class="sector-detail" id="sectorDetail">
+    <div class="detail-header">
+        <div class="detail-title" id="detailTitle">Technology</div>
+        <button class="detail-close" onclick="closeSectorDetail()">&times;</button>
+    </div>
+    <div class="detail-grid" id="detailGrid">
+        <!-- Filled dynamically -->
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    let sectorData = [];
+
+    async function loadSectorHeatmap() {
+        try {
+            const response = await fetch('/api/market/sector-heatmap');
+            const data = await response.json();
+
+            if (data.success) {
+                sectorData = data.sectors;
+                renderHeatmap(data.sectors);
+                updateSummary(data.summary);
+            } else {
+                showError(data.error || 'Failed to load sector data');
+            }
+        } catch (error) {
+            console.error('Error loading sector heatmap:', error);
+            showError('Failed to load sector data');
+        }
+    }
+
+    function renderHeatmap(sectors) {
+        const grid = document.getElementById('heatmapGrid');
+
+        if (!sectors || sectors.length === 0) {
+            grid.innerHTML = '<p style="text-align: center; color: var(--text-tertiary); padding: 40px;">No sector data available</p>';
+            return;
+        }
+
+        grid.innerHTML = sectors.map(sector => {
+            const changePercent = sector.change_percent || 0;
+            const colorClass = getColorClass(changePercent);
+            const isPositive = changePercent >= 0;
+
+            return `
+                <div class="sector-tile ${colorClass}" onclick="showSectorDetail('${sector.sector}', '${sector.ticker}')">
+                    <div class="sector-header">
+                        <div class="sector-name">${sector.sector}</div>
+                        <div class="sector-ticker">${sector.ticker}</div>
+                    </div>
+                    <div>
+                        <div class="sector-change ${isPositive ? 'positive' : 'negative'}">
+                            ${isPositive ? '+' : ''}${changePercent.toFixed(2)}%
+                        </div>
+                        <div class="sector-price">$${(sector.price || 0).toFixed(2)}</div>
+                        <div class="sector-volume">Vol: ${formatVolume(sector.volume)}</div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function getColorClass(changePercent) {
+        if (changePercent > 2) return 'strong-gain';
+        if (changePercent > 1) return 'gain';
+        if (changePercent > 0) return 'slight-gain';
+        if (changePercent === 0) return 'neutral';
+        if (changePercent > -1) return 'slight-loss';
+        if (changePercent > -2) return 'loss';
+        return 'strong-loss';
+    }
+
+    function updateSummary(summary) {
+        if (!summary) return;
+
+        // Sentiment
+        const sentimentEl = document.getElementById('marketSentiment');
+        sentimentEl.textContent = (summary.sentiment || 'mixed').toUpperCase();
+        sentimentEl.className = `summary-value ${summary.sentiment || 'mixed'}`;
+
+        // Average change
+        const avgChangeEl = document.getElementById('avgChange');
+        const avgChange = summary.avg_change || 0;
+        avgChangeEl.textContent = `${avgChange >= 0 ? '+' : ''}${avgChange.toFixed(2)}%`;
+        avgChangeEl.className = `summary-value ${avgChange >= 0 ? 'positive' : 'negative'}`;
+
+        // Sectors up/down
+        document.getElementById('sectorsUp').textContent = summary.gainers || 0;
+        document.getElementById('sectorsDown').textContent = summary.losers || 0;
+    }
+
+    function showSectorDetail(sectorName, ticker) {
+        const sector = sectorData.find(s => s.sector === sectorName);
+        if (!sector) return;
+
+        document.getElementById('detailTitle').textContent = `${sectorName} (${ticker})`;
+
+        const changePercent = sector.change_percent || 0;
+        const isPositive = changePercent >= 0;
+
+        document.getElementById('detailGrid').innerHTML = `
+            <div class="detail-item">
+                <div class="detail-label">Current Price</div>
+                <div class="detail-value">$${(sector.price || 0).toFixed(2)}</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Change</div>
+                <div class="detail-value ${isPositive ? 'positive' : 'negative'}">
+                    ${isPositive ? '+' : ''}${(sector.change || 0).toFixed(2)}
+                </div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Change %</div>
+                <div class="detail-value ${isPositive ? 'positive' : 'negative'}">
+                    ${isPositive ? '+' : ''}${changePercent.toFixed(2)}%
+                </div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Volume</div>
+                <div class="detail-value">${formatVolume(sector.volume)}</div>
+            </div>
+        `;
+
+        document.getElementById('sectorDetail').classList.add('show');
+    }
+
+    function closeSectorDetail() {
+        document.getElementById('sectorDetail').classList.remove('show');
+    }
+
+    function formatVolume(volume) {
+        if (!volume) return '0';
+        if (volume >= 1e9) return (volume / 1e9).toFixed(1) + 'B';
+        if (volume >= 1e6) return (volume / 1e6).toFixed(1) + 'M';
+        if (volume >= 1e3) return (volume / 1e3).toFixed(1) + 'K';
+        return volume.toString();
+    }
+
+    function showError(message) {
+        const grid = document.getElementById('heatmapGrid');
+        grid.innerHTML = `<p style="text-align: center; color: var(--danger); padding: 40px;">${message}</p>`;
+    }
+
+    // Initial load
+    loadSectorHeatmap();
+
+    // Auto-refresh every 60 seconds
+    setInterval(loadSectorHeatmap, 60000);
+</script>
+{% endblock %}

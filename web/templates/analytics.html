@@ -1,0 +1,761 @@
+{% extends "base_layout.html" %}
+
+{% block title %}Performance Analytics - Qunex Trade{% endblock %}
+
+{% block extra_styles %}
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+    /* Stats Cards */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 16px;
+        margin-bottom: 32px;
+    }
+
+    .stat-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-xl);
+        padding: 24px;
+        text-align: center;
+        transition: all var(--transition-fast);
+    }
+
+    .stat-card:hover {
+        border-color: var(--border-medium);
+        transform: translateY(-2px);
+    }
+
+    .stat-card.highlight {
+        background: linear-gradient(135deg, rgba(0, 217, 255, 0.1), rgba(168, 85, 247, 0.1));
+    }
+
+    .stat-label {
+        font-size: var(--text-xs);
+        color: var(--text-tertiary);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 8px;
+    }
+
+    .stat-value {
+        font-size: var(--text-2xl);
+        font-weight: var(--font-bold);
+        font-family: 'JetBrains Mono', monospace;
+    }
+
+    .stat-value.positive { color: var(--success); }
+    .stat-value.negative { color: var(--danger); }
+
+    .stat-sub {
+        font-size: var(--text-xs);
+        color: var(--text-tertiary);
+        margin-top: 4px;
+    }
+
+    /* Win Rate Circle */
+    .win-rate-container {
+        position: relative;
+        width: 120px;
+        height: 120px;
+        margin: 0 auto 12px;
+    }
+
+    .win-rate-circle {
+        width: 100%;
+        height: 100%;
+        transform: rotate(-90deg);
+    }
+
+    .win-rate-bg {
+        fill: none;
+        stroke: var(--border-subtle);
+        stroke-width: 8;
+    }
+
+    .win-rate-fg {
+        fill: none;
+        stroke: var(--success);
+        stroke-width: 8;
+        stroke-linecap: round;
+        transition: stroke-dashoffset 1s ease-out;
+    }
+
+    .win-rate-text {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: var(--text-2xl);
+        font-weight: var(--font-bold);
+        font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Sections */
+    .analytics-section {
+        background: var(--bg-card);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-xl);
+        margin-bottom: 24px;
+        overflow: hidden;
+    }
+
+    .section-header {
+        padding: 20px 24px;
+        background: var(--bg-hover);
+        border-bottom: 1px solid var(--border-subtle);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .section-title {
+        font-size: var(--text-lg);
+        font-weight: var(--font-semibold);
+    }
+
+    .section-content {
+        padding: 24px;
+    }
+
+    /* Charts Container */
+    .chart-container {
+        height: 300px;
+        position: relative;
+    }
+
+    .chart-placeholder {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        color: var(--text-tertiary);
+    }
+
+    /* Bar Chart */
+    .bar-chart {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-around;
+        height: 200px;
+        padding: 20px 0;
+        gap: 8px;
+    }
+
+    .bar-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        flex: 1;
+        max-width: 60px;
+    }
+
+    .bar {
+        width: 100%;
+        min-height: 4px;
+        border-radius: 4px 4px 0 0;
+        transition: height 0.5s ease-out;
+    }
+
+    .bar.positive { background: linear-gradient(to top, rgba(34, 197, 94, 0.3), var(--success)); }
+    .bar.negative { background: linear-gradient(to top, rgba(239, 68, 68, 0.3), var(--danger)); }
+
+    .bar-label {
+        font-size: var(--text-xs);
+        color: var(--text-tertiary);
+        margin-top: 8px;
+        text-align: center;
+    }
+
+    .bar-value {
+        font-size: var(--text-xs);
+        font-family: 'JetBrains Mono', monospace;
+        margin-top: 4px;
+    }
+
+    .bar-value.positive { color: var(--success); }
+    .bar-value.negative { color: var(--danger); }
+
+    /* Trades Table */
+    .trades-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .trades-table th {
+        padding: 12px 16px;
+        text-align: left;
+        font-size: var(--text-xs);
+        font-weight: var(--font-semibold);
+        color: var(--text-tertiary);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        background: var(--bg-hover);
+        border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .trades-table th.text-right { text-align: right; }
+
+    .trades-table tbody tr {
+        border-bottom: 1px solid var(--border-subtle);
+        transition: background var(--transition-fast);
+    }
+
+    .trades-table tbody tr:hover {
+        background: var(--bg-hover);
+    }
+
+    .trades-table td {
+        padding: 14px 16px;
+        font-size: var(--text-sm);
+    }
+
+    .trades-table .ticker {
+        font-weight: var(--font-semibold);
+    }
+
+    .trades-table .pnl {
+        font-family: 'JetBrains Mono', monospace;
+        font-weight: var(--font-semibold);
+        text-align: right;
+    }
+
+    .trades-table .pnl.positive { color: var(--success); }
+    .trades-table .pnl.negative { color: var(--danger); }
+
+    .trades-table .date {
+        color: var(--text-tertiary);
+        font-size: var(--text-xs);
+    }
+
+    /* Two Column Layout */
+    .two-column {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+    }
+
+    @media (max-width: 1024px) {
+        .two-column {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* Performance by Ticker */
+    .ticker-perf {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .ticker-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px;
+        background: var(--bg-hover);
+        border-radius: var(--radius-md);
+    }
+
+    .ticker-symbol {
+        font-weight: var(--font-semibold);
+        min-width: 60px;
+    }
+
+    .ticker-bar-container {
+        flex: 1;
+        height: 8px;
+        background: var(--border-subtle);
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+    .ticker-bar {
+        height: 100%;
+        border-radius: 4px;
+        transition: width 0.5s ease-out;
+    }
+
+    .ticker-bar.positive { background: var(--success); }
+    .ticker-bar.negative { background: var(--danger); }
+
+    .ticker-pnl {
+        font-family: 'JetBrains Mono', monospace;
+        font-weight: var(--font-semibold);
+        min-width: 80px;
+        text-align: right;
+    }
+
+    .ticker-pnl.positive { color: var(--success); }
+    .ticker-pnl.negative { color: var(--danger); }
+
+    /* Holdings Grid */
+    .holdings-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 16px;
+    }
+
+    .holding-card {
+        background: var(--bg-hover);
+        border-radius: var(--radius-lg);
+        padding: 16px;
+    }
+
+    .holding-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+    }
+
+    .holding-ticker {
+        font-weight: var(--font-semibold);
+        font-size: var(--text-lg);
+    }
+
+    .holding-shares {
+        font-size: var(--text-xs);
+        color: var(--text-tertiary);
+    }
+
+    .holding-value {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: var(--text-xl);
+        font-weight: var(--font-bold);
+        margin-bottom: 4px;
+    }
+
+    .holding-pnl {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: var(--text-sm);
+    }
+
+    .holding-pnl.positive { color: var(--success); }
+    .holding-pnl.negative { color: var(--danger); }
+
+    /* Loading */
+    .loading-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 80px;
+    }
+
+    .spinner {
+        width: 48px;
+        height: 48px;
+        border: 3px solid var(--border-subtle);
+        border-top-color: var(--accent-cyan);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: var(--text-tertiary);
+    }
+
+    .empty-icon {
+        font-size: 48px;
+        margin-bottom: 16px;
+        opacity: 0.3;
+    }
+
+    .empty-title {
+        font-size: var(--text-xl);
+        font-weight: var(--font-semibold);
+        color: var(--text-primary);
+        margin-bottom: 8px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="content-header">
+    <div>
+        <h1 class="content-title">Performance Analytics</h1>
+        <p class="content-subtitle">Track your trading performance and metrics</p>
+    </div>
+</div>
+
+<!-- Loading State -->
+<div id="loadingState" class="loading-container">
+    <div class="spinner"></div>
+</div>
+
+<!-- Empty State -->
+<div id="emptyState" class="empty-state" style="display: none;">
+    <div class="empty-icon">📊</div>
+    <div class="empty-title">No Trading Data Yet</div>
+    <p>Complete some trades to see your performance analytics</p>
+    <a href="/portfolio" class="btn btn-primary" style="margin-top: 20px;">Go to Portfolio</a>
+</div>
+
+<!-- Analytics Content -->
+<div id="analyticsContent" style="display: none;">
+    <!-- Key Stats -->
+    <div class="stats-grid" id="statsGrid">
+        <!-- Win Rate -->
+        <div class="stat-card highlight">
+            <div class="win-rate-container">
+                <svg class="win-rate-circle" viewBox="0 0 36 36">
+                    <circle class="win-rate-bg" cx="18" cy="18" r="16"/>
+                    <circle class="win-rate-fg" id="winRateCircle" cx="18" cy="18" r="16"
+                            stroke-dasharray="100.53" stroke-dashoffset="100.53"/>
+                </svg>
+                <div class="win-rate-text" id="winRateText">0%</div>
+            </div>
+            <div class="stat-label">Win Rate</div>
+        </div>
+
+        <!-- Total P&L -->
+        <div class="stat-card">
+            <div class="stat-value" id="totalPnl">$0.00</div>
+            <div class="stat-label">Total P&L</div>
+            <div class="stat-sub" id="totalPnlSub">Realized + Unrealized</div>
+        </div>
+
+        <!-- Total Trades -->
+        <div class="stat-card">
+            <div class="stat-value" id="totalTrades">0</div>
+            <div class="stat-label">Completed Trades</div>
+            <div class="stat-sub" id="winLossCount">0W / 0L</div>
+        </div>
+
+        <!-- Profit Factor -->
+        <div class="stat-card">
+            <div class="stat-value" id="profitFactor">0.00</div>
+            <div class="stat-label">Profit Factor</div>
+            <div class="stat-sub">Gross Profit / Gross Loss</div>
+        </div>
+
+        <!-- Avg Win -->
+        <div class="stat-card">
+            <div class="stat-value positive" id="avgWin">$0.00</div>
+            <div class="stat-label">Avg Win</div>
+            <div class="stat-sub" id="avgWinPct">0%</div>
+        </div>
+
+        <!-- Avg Loss -->
+        <div class="stat-card">
+            <div class="stat-value negative" id="avgLoss">$0.00</div>
+            <div class="stat-label">Avg Loss</div>
+            <div class="stat-sub" id="avgLossPct">0%</div>
+        </div>
+    </div>
+
+    <!-- Monthly P&L Chart -->
+    <div class="analytics-section">
+        <div class="section-header">
+            <h2 class="section-title">Monthly P&L</h2>
+        </div>
+        <div class="section-content">
+            <div class="bar-chart" id="monthlyChart">
+                <div class="chart-placeholder">Loading chart...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Two Column: Best/Worst Trades + Performance by Ticker -->
+    <div class="two-column">
+        <!-- Best Trades -->
+        <div class="analytics-section">
+            <div class="section-header">
+                <h2 class="section-title">Best Trades</h2>
+            </div>
+            <div class="section-content" style="padding: 0;">
+                <table class="trades-table" id="bestTradesTable">
+                    <thead>
+                        <tr>
+                            <th>Ticker</th>
+                            <th>Date</th>
+                            <th class="text-right">P&L</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Worst Trades -->
+        <div class="analytics-section">
+            <div class="section-header">
+                <h2 class="section-title">Worst Trades</h2>
+            </div>
+            <div class="section-content" style="padding: 0;">
+                <table class="trades-table" id="worstTradesTable">
+                    <thead>
+                        <tr>
+                            <th>Ticker</th>
+                            <th>Date</th>
+                            <th class="text-right">P&L</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Performance by Ticker -->
+    <div class="analytics-section">
+        <div class="section-header">
+            <h2 class="section-title">Performance by Ticker</h2>
+        </div>
+        <div class="section-content">
+            <div class="ticker-perf" id="tickerPerf">
+                <!-- Filled dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Current Holdings -->
+    <div class="analytics-section">
+        <div class="section-header">
+            <h2 class="section-title">Current Holdings</h2>
+        </div>
+        <div class="section-content">
+            <div class="holdings-grid" id="holdingsGrid">
+                <!-- Filled dynamically -->
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    async function loadAnalytics() {
+        try {
+            const response = await fetch('/api/portfolio/analytics');
+            const data = await response.json();
+
+            document.getElementById('loadingState').style.display = 'none';
+
+            if (!data.success) {
+                showError(data.error || 'Failed to load analytics');
+                return;
+            }
+
+            const analytics = data.analytics;
+
+            // Check if there's data
+            if (analytics.total_trades === 0 && analytics.total_transactions === 0) {
+                document.getElementById('emptyState').style.display = 'block';
+                return;
+            }
+
+            document.getElementById('analyticsContent').style.display = 'block';
+
+            // Update stats
+            updateStats(analytics);
+
+            // Update charts
+            renderMonthlyChart(analytics.monthly_pnl);
+
+            // Update tables
+            renderTradesTable('bestTradesTable', analytics.best_trades, true);
+            renderTradesTable('worstTradesTable', analytics.worst_trades, false);
+
+            // Update ticker performance
+            renderTickerPerformance(analytics.ticker_performance);
+
+            // Update holdings
+            renderHoldings(analytics.current_holdings);
+
+        } catch (error) {
+            console.error('Error loading analytics:', error);
+            document.getElementById('loadingState').style.display = 'none';
+            showError('Failed to load analytics data');
+        }
+    }
+
+    function updateStats(analytics) {
+        // Win rate circle
+        const winRate = analytics.win_rate || 0;
+        const circumference = 2 * Math.PI * 16; // r=16
+        const offset = circumference - (winRate / 100) * circumference;
+
+        document.getElementById('winRateCircle').style.strokeDashoffset = offset;
+        document.getElementById('winRateText').textContent = `${winRate.toFixed(0)}%`;
+
+        // Total P&L
+        const totalPnl = analytics.total_pnl || 0;
+        const pnlEl = document.getElementById('totalPnl');
+        pnlEl.textContent = formatCurrency(totalPnl);
+        pnlEl.className = `stat-value ${totalPnl >= 0 ? 'positive' : 'negative'}`;
+
+        // Total trades
+        document.getElementById('totalTrades').textContent = analytics.total_trades || 0;
+        document.getElementById('winLossCount').textContent =
+            `${analytics.win_count || 0}W / ${analytics.loss_count || 0}L`;
+
+        // Profit factor
+        const profitFactor = analytics.profit_factor;
+        document.getElementById('profitFactor').textContent =
+            profitFactor === '∞' ? '∞' : (profitFactor || 0).toFixed(2);
+
+        // Avg win/loss
+        document.getElementById('avgWin').textContent = formatCurrency(analytics.avg_win || 0);
+        document.getElementById('avgWinPct').textContent = `+${(analytics.avg_win_percent || 0).toFixed(1)}%`;
+        document.getElementById('avgLoss').textContent = formatCurrency(analytics.avg_loss || 0);
+        document.getElementById('avgLossPct').textContent = `${(analytics.avg_loss_percent || 0).toFixed(1)}%`;
+    }
+
+    function renderMonthlyChart(monthlyData) {
+        const container = document.getElementById('monthlyChart');
+
+        if (!monthlyData || monthlyData.length === 0) {
+            container.innerHTML = '<div class="chart-placeholder">No monthly data available</div>';
+            return;
+        }
+
+        // Find max absolute value for scaling
+        const maxAbs = Math.max(...monthlyData.map(m => Math.abs(m.pnl)));
+
+        container.innerHTML = monthlyData.map(month => {
+            const pnl = month.pnl || 0;
+            const isPositive = pnl >= 0;
+            const height = maxAbs > 0 ? (Math.abs(pnl) / maxAbs * 150) : 0;
+            const monthLabel = formatMonth(month.month);
+
+            return `
+                <div class="bar-item">
+                    <div class="bar ${isPositive ? 'positive' : 'negative'}" style="height: ${Math.max(4, height)}px;"></div>
+                    <div class="bar-label">${monthLabel}</div>
+                    <div class="bar-value ${isPositive ? 'positive' : 'negative'}">${formatCurrency(pnl)}</div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function renderTradesTable(tableId, trades, isBest) {
+        const tbody = document.querySelector(`#${tableId} tbody`);
+
+        if (!trades || trades.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: var(--text-tertiary); padding: 20px;">No trades yet</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = trades.map(trade => {
+            const pnl = trade.pnl || 0;
+            const pnlPct = trade.pnl_percent || 0;
+            const isPositive = pnl >= 0;
+
+            return `
+                <tr>
+                    <td class="ticker">${trade.ticker}</td>
+                    <td class="date">${formatDate(trade.date)}</td>
+                    <td class="pnl ${isPositive ? 'positive' : 'negative'}">
+                        ${formatCurrency(pnl)}<br>
+                        <span style="font-size: 11px;">${isPositive ? '+' : ''}${pnlPct.toFixed(1)}%</span>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    function renderTickerPerformance(tickerData) {
+        const container = document.getElementById('tickerPerf');
+
+        if (!tickerData || tickerData.length === 0) {
+            container.innerHTML = '<p style="text-align: center; color: var(--text-tertiary);">No ticker data available</p>';
+            return;
+        }
+
+        // Find max absolute PnL for scaling
+        const maxAbs = Math.max(...tickerData.map(t => Math.abs(t.realized_pnl)));
+
+        container.innerHTML = tickerData.map(ticker => {
+            const pnl = ticker.realized_pnl || 0;
+            const isPositive = pnl >= 0;
+            const barWidth = maxAbs > 0 ? (Math.abs(pnl) / maxAbs * 100) : 0;
+
+            return `
+                <div class="ticker-row">
+                    <span class="ticker-symbol">${ticker.ticker}</span>
+                    <div class="ticker-bar-container">
+                        <div class="ticker-bar ${isPositive ? 'positive' : 'negative'}" style="width: ${barWidth}%;"></div>
+                    </div>
+                    <span class="ticker-pnl ${isPositive ? 'positive' : 'negative'}">${formatCurrency(pnl)}</span>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function renderHoldings(holdings) {
+        const container = document.getElementById('holdingsGrid');
+
+        if (!holdings || holdings.length === 0) {
+            container.innerHTML = '<p style="text-align: center; color: var(--text-tertiary); grid-column: 1/-1;">No current holdings</p>';
+            return;
+        }
+
+        container.innerHTML = holdings.map(holding => {
+            const pnl = holding.unrealized_pnl || 0;
+            const pnlPct = holding.unrealized_pct || 0;
+            const isPositive = pnl >= 0;
+
+            return `
+                <div class="holding-card">
+                    <div class="holding-header">
+                        <span class="holding-ticker">${holding.ticker}</span>
+                        <span class="holding-shares">${holding.shares.toFixed(2)} shares</span>
+                    </div>
+                    <div class="holding-value">${formatCurrency(holding.current_value)}</div>
+                    <div class="holding-pnl ${isPositive ? 'positive' : 'negative'}">
+                        ${isPositive ? '+' : ''}${formatCurrency(pnl)} (${isPositive ? '+' : ''}${pnlPct.toFixed(1)}%)
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function formatCurrency(value) {
+        if (value === null || value === undefined) return '$0.00';
+        const absValue = Math.abs(value);
+        const formatted = absValue.toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+        return (value < 0 ? '-$' : '$') + formatted;
+    }
+
+    function formatDate(dateStr) {
+        if (!dateStr) return '--';
+        const date = new Date(dateStr);
+        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    }
+
+    function formatMonth(monthStr) {
+        if (!monthStr) return '--';
+        const [year, month] = monthStr.split('-');
+        const date = new Date(year, month - 1);
+        return date.toLocaleDateString('en-US', { month: 'short' });
+    }
+
+    function showError(message) {
+        document.getElementById('loadingState').style.display = 'none';
+        document.getElementById('analyticsContent').innerHTML = `
+            <div class="empty-state">
+                <div class="empty-icon">⚠️</div>
+                <div class="empty-title">Error</div>
+                <p>${message}</p>
+            </div>
+        `;
+        document.getElementById('analyticsContent').style.display = 'block';
+    }
+
+    // Initialize
+    loadAnalytics();
+</script>
+{% endblock %}

@@ -101,6 +101,13 @@
                         </svg>
                         <span>Portfolio</span>
                     </a>
+                    <a href="/analytics" class="nav-item {% if request.path == '/analytics' %}active{% endif %}">
+                        <svg class="nav-icon" viewBox="0 0 24 24">
+                            <path d="M21 21H4.6c-.6 0-1.1-.2-1.4-.6-.4-.4-.6-.9-.6-1.4V3" />
+                            <path d="M7 14l4-4 4 4 6-6" />
+                        </svg>
+                        <span>Analytics</span>
+                    </a>
                     <a href="/screener" class="nav-item {% if request.path == '/screener' %}active{% endif %}">
                         <svg class="nav-icon" viewBox="0 0 24 24">
                             <circle cx="11" cy="11" r="8" />
@@ -126,6 +133,15 @@
                         </svg>
                         <span>Scalping</span>
                         <span class="nav-badge live">AI</span>
+                    </a>
+                    <a href="/sector-heatmap" class="nav-item {% if request.path == '/sector-heatmap' %}active{% endif %}">
+                        <svg class="nav-icon" viewBox="0 0 24 24">
+                            <rect x="3" y="3" width="7" height="7" rx="1" />
+                            <rect x="14" y="3" width="7" height="7" rx="1" />
+                            <rect x="3" y="14" width="7" height="7" rx="1" />
+                            <rect x="14" y="14" width="7" height="7" rx="1" />
+                        </svg>
+                        <span>Sector Heatmap</span>
                     </a>
                     <a href="/watchlist" class="nav-item {% if request.path == '/watchlist' %}active{% endif %}">
                         <svg class="nav-icon" viewBox="0 0 24 24">

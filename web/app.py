@@ -64,6 +64,7 @@ def create_app(config_class=Config):
     from web.api_portfolio import api_portfolio
     from web.api_scalp import api_scalp
     from web.api_advanced_sr import api_advanced_sr
+    from web.api_market_features import api_market_features
     from web.main import main as main_blueprint
     from web.api_main import api_main
 
@@ -75,6 +76,7 @@ def create_app(config_class=Config):
     app.register_blueprint(api_portfolio)
     app.register_blueprint(api_scalp)
     app.register_blueprint(api_advanced_sr)
+    app.register_blueprint(api_market_features)
     app.register_blueprint(main_blueprint)
     app.register_blueprint(api_main)
 

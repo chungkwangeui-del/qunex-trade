@@ -745,6 +745,111 @@ class PolygonService:
         return results
 
 
+    def get_extended_hours_data(self, ticker: str) -> Optional[Dict]:
+        """
+        Get premarket and afterhours trading data for a stock.
+
+        Returns extended hours quotes including:
+        - Premarket price and change
+        - Afterhours price and change
+        - Regular session close for comparison
+        """
+        try:
+            # Get the snapshot which includes extended hours data
+            endpoint = f"/v2/snapshot/locale/us/markets/stocks/tickers/{ticker}"
+            snapshot = self._make_request(endpoint)
+
+            if not snapshot or snapshot.get("status") not in ["OK", "DELAYED"]:
+                return None
+
+            ticker_data = snapshot.get("ticker", {})
+            day = ticker_data.get("day", {})
+            prev_day = ticker_data.get("prevDay", {})
+            min_data = ticker_data.get("min", {})  # Most recent minute bar
+            last_quote = ticker_data.get("lastQuote", {})
+            last_trade = ticker_data.get("lastTrade", {})
+
+            # Get previous close for calculations
+            prev_close = prev_day.get("c", 0)
+            regular_close = day.get("c") or prev_close
+
+            # Current/latest price from various sources
+            current_price = (
+                last_trade.get("p") or
+                min_data.get("c") or
+                day.get("c") or
+                prev_close
+            )
+
+            # Calculate if we're in extended hours based on market status
+            market_status = self.get_market_status()
+            market_phase = market_status.get("market", "closed") if market_status else "closed"
+
+            # Determine session type
+            is_premarket = market_phase == "pre-market"
+            is_afterhours = market_phase == "post-market"
+            is_regular = market_phase == "open"
+
+            result = {
+                "ticker": ticker,
+                "regular_close": regular_close,
+                "prev_close": prev_close,
+                "current_price": current_price,
+                "market_phase": market_phase,
+                "is_extended_hours": is_premarket or is_afterhours,
+                "last_updated": last_trade.get("t"),
+            }
+
+            # Extended hours data
+            if is_premarket or is_afterhours:
+                change = current_price - prev_close if prev_close else 0
+                change_percent = (change / prev_close * 100) if prev_close else 0
+
+                result["extended_price"] = current_price
+                result["extended_change"] = change
+                result["extended_change_percent"] = change_percent
+                result["session_type"] = "premarket" if is_premarket else "afterhours"
+            else:
+                # Regular hours - show day change
+                change = current_price - prev_close if prev_close else 0
+                change_percent = (change / prev_close * 100) if prev_close else 0
+                result["extended_price"] = None
+                result["extended_change"] = None
+                result["extended_change_percent"] = None
+                result["session_type"] = "regular"
+
+            # Regular session stats
+            result["day_change"] = (regular_close - prev_close) if regular_close and prev_close else 0
+            result["day_change_percent"] = (
+                ((regular_close - prev_close) / prev_close * 100)
+                if regular_close and prev_close else 0
+            )
+            result["day_high"] = day.get("h")
+            result["day_low"] = day.get("l")
+            result["day_volume"] = day.get("v")
+
+            # Bid/Ask spread (for extended hours liquidity assessment)
+            result["bid"] = last_quote.get("P")  # Bid price
+            result["ask"] = last_quote.get("p")  # Ask price (lowercase p in Polygon)
+            result["bid_size"] = last_quote.get("S")
+            result["ask_size"] = last_quote.get("s")
+
+            return result
+
+        except Exception as e:
+            logger.error(f"Error getting extended hours data for {ticker}: {e}")
+            return None
+
+    def get_extended_hours_bulk(self, tickers: List[str]) -> Dict[str, Dict]:
+        """Get extended hours data for multiple tickers"""
+        results = {}
+        for ticker in tickers[:20]:  # Limit to 20 to avoid rate limits
+            data = self.get_extended_hours_data(ticker)
+            if data:
+                results[ticker] = data
+        return results
+
+
 # Singleton instance
 _polygon_instance = None
 
