@@ -1,0 +1,877 @@
+{% extends "base_layout.html" %}
+
+{% block title %}AI Day Trading Analysis - Advanced S/R - Qunex Trade{% endblock %}
+
+{% block extra_styles %}
+<style>
+    /* Search Section */
+    .search-section {
+        background: var(--bg-card);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-xl);
+        padding: 24px;
+        margin-bottom: 24px;
+    }
+
+    .search-form {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .search-input {
+        flex: 1;
+        min-width: 200px;
+        max-width: 300px;
+        padding: 12px 16px;
+        background: var(--bg-hover);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-lg);
+        color: var(--text-primary);
+        font-size: 1rem;
+        font-family: 'JetBrains Mono', monospace;
+        text-transform: uppercase;
+    }
+
+    .search-input:focus {
+        outline: none;
+        border-color: var(--accent-cyan);
+        box-shadow: 0 0 0 3px rgba(0, 217, 255, 0.1);
+    }
+
+    .search-btn {
+        padding: 12px 24px;
+        background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+        border: none;
+        border-radius: var(--radius-lg);
+        color: #000;
+        font-weight: var(--font-semibold);
+        cursor: pointer;
+        transition: all var(--transition-fast);
+    }
+
+    .search-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 20px rgba(0, 217, 255, 0.3);
+    }
+
+    .search-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    /* Main Grid */
+    .analysis-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+    }
+
+    @media (max-width: 1200px) {
+        .analysis-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* Cards */
+    .analysis-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-xl);
+        padding: 24px;
+        transition: all var(--transition-fast);
+    }
+
+    .analysis-card:hover {
+        border-color: rgba(0, 217, 255, 0.2);
+    }
+
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .card-title {
+        font-size: var(--text-lg);
+        font-weight: var(--font-semibold);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .card-badge {
+        font-size: var(--text-xs);
+        padding: 4px 10px;
+        background: linear-gradient(135deg, rgba(0, 217, 255, 0.2), rgba(168, 85, 247, 0.2));
+        border-radius: var(--radius-sm);
+        color: var(--accent-cyan);
+        font-weight: var(--font-medium);
+    }
+
+    /* S/R Levels */
+    .sr-level {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 16px;
+        background: rgba(255, 255, 255, 0.02);
+        border-radius: var(--radius-md);
+        margin-bottom: 8px;
+        transition: all var(--transition-fast);
+    }
+
+    .sr-level:hover {
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    .sr-level.support {
+        border-left: 3px solid var(--success);
+    }
+
+    .sr-level.resistance {
+        border-left: 3px solid var(--danger);
+    }
+
+    .sr-price {
+        font-family: 'JetBrains Mono', monospace;
+        font-weight: var(--font-bold);
+        font-size: var(--text-lg);
+    }
+
+    .sr-meta {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 4px;
+    }
+
+    .sr-strength {
+        font-size: var(--text-xs);
+        padding: 2px 8px;
+        border-radius: var(--radius-sm);
+        font-family: 'JetBrains Mono', monospace;
+    }
+
+    .sr-strength.high {
+        background: rgba(34, 197, 94, 0.15);
+        color: var(--success);
+    }
+
+    .sr-strength.medium {
+        background: rgba(234, 179, 8, 0.15);
+        color: #eab308;
+    }
+
+    .sr-strength.low {
+        background: rgba(239, 68, 68, 0.15);
+        color: var(--danger);
+    }
+
+    .sr-confluence {
+        font-size: var(--text-xs);
+        color: var(--text-tertiary);
+    }
+
+    /* Bounce Probability */
+    .bounce-card {
+        background: linear-gradient(180deg, rgba(0, 217, 255, 0.05) 0%, transparent 100%);
+        border: 1px solid rgba(0, 217, 255, 0.2);
+        border-radius: var(--radius-xl);
+        padding: 20px;
+        margin-bottom: 16px;
+    }
+
+    .bounce-probability {
+        font-size: 2.5rem;
+        font-weight: var(--font-bold);
+        font-family: 'JetBrains Mono', monospace;
+        text-align: center;
+        margin: 16px 0;
+    }
+
+    .bounce-probability.high {
+        color: var(--success);
+    }
+
+    .bounce-probability.medium {
+        color: #eab308;
+    }
+
+    .bounce-probability.low {
+        color: var(--danger);
+    }
+
+    .bounce-factors {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-top: 16px;
+    }
+
+    .factor-item {
+        font-size: var(--text-sm);
+        padding: 8px 12px;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: var(--radius-md);
+        color: var(--text-secondary);
+    }
+
+    /* Volume Profile */
+    .vpoc-display {
+        text-align: center;
+        padding: 20px;
+        background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(0, 217, 255, 0.1));
+        border-radius: var(--radius-lg);
+        margin-bottom: 16px;
+    }
+
+    .vpoc-label {
+        font-size: var(--text-xs);
+        color: var(--text-tertiary);
+        margin-bottom: 4px;
+    }
+
+    .vpoc-price {
+        font-size: 1.5rem;
+        font-weight: var(--font-bold);
+        font-family: 'JetBrains Mono', monospace;
+        color: var(--accent-purple);
+    }
+
+    .value-area {
+        display: flex;
+        justify-content: space-between;
+        padding: 12px 16px;
+        background: rgba(255, 255, 255, 0.02);
+        border-radius: var(--radius-md);
+        margin-top: 12px;
+    }
+
+    .va-item {
+        text-align: center;
+    }
+
+    .va-label {
+        font-size: var(--text-xs);
+        color: var(--text-tertiary);
+    }
+
+    .va-price {
+        font-family: 'JetBrains Mono', monospace;
+        font-weight: var(--font-semibold);
+    }
+
+    /* Alerts */
+    .alert-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 16px;
+        background: rgba(255, 255, 255, 0.02);
+        border-radius: var(--radius-md);
+        margin-bottom: 8px;
+    }
+
+    .alert-icon {
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: var(--radius-md);
+        font-size: 1rem;
+    }
+
+    .alert-icon.support {
+        background: rgba(34, 197, 94, 0.15);
+    }
+
+    .alert-icon.resistance {
+        background: rgba(239, 68, 68, 0.15);
+    }
+
+    .alert-content {
+        flex: 1;
+    }
+
+    .alert-message {
+        font-size: var(--text-sm);
+        font-weight: var(--font-medium);
+    }
+
+    .alert-action {
+        font-size: var(--text-xs);
+        color: var(--text-tertiary);
+    }
+
+    /* Recommendation */
+    .recommendation-card {
+        background: var(--bg-card);
+        border: 2px solid var(--border-subtle);
+        border-radius: var(--radius-xl);
+        padding: 24px;
+        margin-top: 24px;
+    }
+
+    .recommendation-card.long {
+        border-color: var(--success);
+        background: linear-gradient(180deg, rgba(34, 197, 94, 0.08) 0%, var(--bg-card) 100%);
+    }
+
+    .recommendation-card.short {
+        border-color: var(--danger);
+        background: linear-gradient(180deg, rgba(239, 68, 68, 0.08) 0%, var(--bg-card) 100%);
+    }
+
+    .recommendation-card.wait {
+        border-color: #eab308;
+        background: linear-gradient(180deg, rgba(234, 179, 8, 0.08) 0%, var(--bg-card) 100%);
+    }
+
+    .rec-action {
+        font-size: 1.5rem;
+        font-weight: var(--font-bold);
+        margin-bottom: 8px;
+    }
+
+    .rec-reason {
+        color: var(--text-secondary);
+        font-size: var(--text-sm);
+        margin-bottom: 16px;
+    }
+
+    .rec-levels {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+        padding-top: 16px;
+        border-top: 1px solid var(--border-subtle);
+    }
+
+    .rec-level {
+        text-align: center;
+    }
+
+    .rec-level-label {
+        font-size: var(--text-xs);
+        color: var(--text-tertiary);
+        margin-bottom: 4px;
+    }
+
+    .rec-level-value {
+        font-family: 'JetBrains Mono', monospace;
+        font-weight: var(--font-bold);
+    }
+
+    /* Loading & Empty States */
+    .loading-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 60px;
+    }
+
+    .spinner {
+        width: 40px;
+        height: 40px;
+        border: 3px solid var(--border-subtle);
+        border-top-color: var(--accent-cyan);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 60px 24px;
+        color: var(--text-tertiary);
+    }
+
+    .empty-icon {
+        font-size: 3rem;
+        margin-bottom: 16px;
+        opacity: 0.5;
+    }
+
+    .empty-title {
+        font-size: var(--text-lg);
+        font-weight: var(--font-semibold);
+        color: var(--text-secondary);
+        margin-bottom: 8px;
+    }
+
+    /* Feature Info */
+    .feature-info {
+        background: linear-gradient(135deg, rgba(0, 217, 255, 0.05), rgba(168, 85, 247, 0.05));
+        border: 1px solid rgba(0, 217, 255, 0.2);
+        border-radius: var(--radius-lg);
+        padding: 16px 20px;
+        margin-bottom: 24px;
+    }
+
+    .feature-title {
+        font-weight: var(--font-semibold);
+        color: var(--accent-cyan);
+        margin-bottom: 12px;
+    }
+
+    .feature-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 12px;
+    }
+
+    .feature-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: var(--text-sm);
+        color: var(--text-secondary);
+    }
+
+    .feature-icon {
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0, 217, 255, 0.1);
+        border-radius: var(--radius-sm);
+        font-size: 12px;
+    }
+
+    /* Full Width Card */
+    .full-width {
+        grid-column: 1 / -1;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="content-header">
+    <div>
+        <h1 class="content-title">AI Day Trading Analysis</h1>
+        <p class="content-subtitle">Advanced S/R with Multi-Timeframe Confluence, Volume Profile, and ML Predictions</p>
+    </div>
+</div>
+
+<!-- Feature Info -->
+<div class="feature-info">
+    <div class="feature-title">Advanced Analysis Features</div>
+    <div class="feature-list">
+        <div class="feature-item">
+            <span class="feature-icon">1</span>
+            <span>Multi-Timeframe S/R Confluence (5m, 15m, 1h)</span>
+        </div>
+        <div class="feature-item">
+            <span class="feature-icon">2</span>
+            <span>Volume Profile / VPOC Analysis</span>
+        </div>
+        <div class="feature-item">
+            <span class="feature-icon">3</span>
+            <span>ML-based Bounce Probability Prediction</span>
+        </div>
+        <div class="feature-item">
+            <span class="feature-icon">4</span>
+            <span>Real-time Alert System</span>
+        </div>
+    </div>
+</div>
+
+<!-- Search Section -->
+<div class="search-section">
+    <form class="search-form" id="searchForm" onsubmit="return analyzeStock(event)">
+        <input type="text" class="search-input" id="tickerInput" placeholder="AAPL, TSLA, BTCUSDT..." maxlength="12" required>
+        <button type="submit" class="search-btn" id="analyzeBtn">Full Analysis</button>
+    </form>
+</div>
+
+<!-- Results Container -->
+<div id="resultsContainer" style="display: none;">
+    <!-- Trading Recommendation (Full Width) -->
+    <div class="recommendation-card wait" id="recommendationCard">
+        <div class="rec-action" id="recAction">ANALYZING...</div>
+        <div class="rec-reason" id="recReason">Please wait while we analyze the market...</div>
+        <div class="rec-levels" id="recLevels" style="display: none;">
+            <div class="rec-level">
+                <div class="rec-level-label">Entry Zone</div>
+                <div class="rec-level-value" id="recEntry">--</div>
+            </div>
+            <div class="rec-level">
+                <div class="rec-level-label">Stop Loss</div>
+                <div class="rec-level-value" id="recStop">--</div>
+            </div>
+            <div class="rec-level">
+                <div class="rec-level-label">Probability</div>
+                <div class="rec-level-value" id="recProbability">--</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Analysis Grid -->
+    <div class="analysis-grid" style="margin-top: 24px;">
+        <!-- Multi-Timeframe S/R -->
+        <div class="analysis-card">
+            <div class="card-header">
+                <div class="card-title">
+                    Support Levels
+                    <span class="card-badge">MTF Confluence</span>
+                </div>
+            </div>
+            <div id="supportLevels">
+                <div class="empty-state">
+                    <div class="empty-icon">📊</div>
+                    <div class="empty-title">No data yet</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="analysis-card">
+            <div class="card-header">
+                <div class="card-title">
+                    Resistance Levels
+                    <span class="card-badge">MTF Confluence</span>
+                </div>
+            </div>
+            <div id="resistanceLevels">
+                <div class="empty-state">
+                    <div class="empty-icon">📊</div>
+                    <div class="empty-title">No data yet</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Volume Profile -->
+        <div class="analysis-card">
+            <div class="card-header">
+                <div class="card-title">
+                    Volume Profile
+                    <span class="card-badge">VPOC</span>
+                </div>
+            </div>
+            <div id="volumeProfile">
+                <div class="vpoc-display">
+                    <div class="vpoc-label">Volume Point of Control</div>
+                    <div class="vpoc-price" id="vpocPrice">--</div>
+                </div>
+                <div class="value-area">
+                    <div class="va-item">
+                        <div class="va-label">Value Area Low</div>
+                        <div class="va-price" id="valPrice">--</div>
+                    </div>
+                    <div class="va-item">
+                        <div class="va-label">Value Area High</div>
+                        <div class="va-price" id="vahPrice">--</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bounce Predictions -->
+        <div class="analysis-card">
+            <div class="card-header">
+                <div class="card-title">
+                    Bounce Prediction
+                    <span class="card-badge">ML-based</span>
+                </div>
+            </div>
+            <div id="bouncePrediction">
+                <div class="bounce-card">
+                    <div class="vpoc-label">Best Support Bounce Probability</div>
+                    <div class="bounce-probability medium" id="supportBounceProb">--%</div>
+                    <div class="bounce-factors" id="supportBounceFactors">
+                        <!-- Factors will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active Alerts (Full Width) -->
+        <div class="analysis-card full-width">
+            <div class="card-header">
+                <div class="card-title">
+                    Active Alerts
+                    <span class="card-badge" id="alertCount">0 alerts</span>
+                </div>
+            </div>
+            <div id="alertsList">
+                <div class="empty-state">
+                    <div class="empty-icon">🔔</div>
+                    <div class="empty-title">No active alerts</div>
+                    <div style="font-size: var(--text-sm); color: var(--text-tertiary);">
+                        Alerts will be created automatically when analyzing a ticker
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Initial Empty State -->
+<div id="emptyState">
+    <div class="analysis-card" style="text-align: center; padding: 80px 24px;">
+        <div class="empty-icon" style="font-size: 4rem; margin-bottom: 24px;">🎯</div>
+        <div class="empty-title" style="font-size: var(--text-xl); margin-bottom: 12px;">Enter a Ticker to Begin</div>
+        <div style="color: var(--text-tertiary); max-width: 500px; margin: 0 auto;">
+            Get AI-powered day trading analysis with multi-timeframe S/R confluence,<br>
+            volume profile analysis, and ML-based bounce predictions.
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    let currentTicker = null;
+
+    async function analyzeStock(event) {
+        event.preventDefault();
+
+        const ticker = document.getElementById('tickerInput').value.toUpperCase().trim();
+        if (!ticker) return false;
+
+        currentTicker = ticker;
+
+        // Show loading state
+        document.getElementById('emptyState').style.display = 'none';
+        document.getElementById('resultsContainer').style.display = 'block';
+
+        const btn = document.getElementById('analyzeBtn');
+        btn.disabled = true;
+        btn.textContent = 'Analyzing...';
+
+        // Reset recommendation card
+        const recCard = document.getElementById('recommendationCard');
+        recCard.className = 'recommendation-card wait';
+        document.getElementById('recAction').textContent = 'ANALYZING...';
+        document.getElementById('recReason').textContent = 'Please wait while we perform comprehensive analysis...';
+        document.getElementById('recLevels').style.display = 'none';
+
+        try {
+            // Fetch full analysis
+            const response = await fetch(`/api/scalp/full/${ticker}?timeframes=5,15,60`);
+            const data = await response.json();
+
+            if (data.error) {
+                showError(data.error);
+                return;
+            }
+
+            // Update UI with results
+            updateResults(data);
+
+        } catch (error) {
+            console.error('Analysis error:', error);
+            showError('Failed to analyze. Please try again.');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Full Analysis';
+        }
+
+        return false;
+    }
+
+    function updateResults(data) {
+        const advancedSr = data.advanced_sr || {};
+
+        // Update Recommendation
+        updateRecommendation(data, advancedSr);
+
+        // Update S/R Levels
+        updateSRLevels(advancedSr);
+
+        // Update Volume Profile
+        updateVolumeProfile(advancedSr.volume_profile);
+
+        // Update Bounce Predictions
+        updateBouncePredictions(advancedSr.bounce_predictions);
+
+        // Update Alerts
+        updateAlerts(advancedSr.alerts);
+    }
+
+    function updateRecommendation(data, advancedSr) {
+        const recCard = document.getElementById('recommendationCard');
+        const signal = data.signal || 'WAIT';
+        const recommendation = advancedSr.recommendation?.primary;
+
+        // Set card style based on signal
+        recCard.className = 'recommendation-card';
+        if (signal === 'LONG') {
+            recCard.classList.add('long');
+        } else if (signal === 'SHORT') {
+            recCard.classList.add('short');
+        } else {
+            recCard.classList.add('wait');
+        }
+
+        // Update action
+        const actionEl = document.getElementById('recAction');
+        actionEl.textContent = recommendation?.action || signal;
+
+        // Update reason
+        const reasonEl = document.getElementById('recReason');
+        reasonEl.textContent = recommendation?.reason || data.analysis || 'No specific recommendation at this time.';
+
+        // Update levels if available
+        const levelsEl = document.getElementById('recLevels');
+        if (recommendation && recommendation.action !== 'WAIT' && recommendation.action !== 'WATCH') {
+            levelsEl.style.display = 'grid';
+            document.getElementById('recEntry').textContent = recommendation.entry ? `$${recommendation.entry.toFixed(2)}` : '--';
+            document.getElementById('recStop').textContent = recommendation.stop ? `$${recommendation.stop.toFixed(2)}` : '--';
+
+            // Get bounce probability
+            const bouncePred = advancedSr.bounce_predictions;
+            const prob = signal === 'LONG'
+                ? bouncePred?.best_support?.probability
+                : bouncePred?.best_resistance?.probability;
+            document.getElementById('recProbability').textContent = prob ? `${prob.toFixed(0)}%` : '--';
+        } else {
+            levelsEl.style.display = 'none';
+        }
+    }
+
+    function updateSRLevels(advancedSr) {
+        // Support Levels
+        const supportContainer = document.getElementById('supportLevels');
+        const supports = advancedSr.enhanced_supports || [];
+
+        if (supports.length > 0) {
+            supportContainer.innerHTML = supports.slice(0, 5).map(s => `
+                <div class="sr-level support">
+                    <div>
+                        <div class="sr-price">$${s.price?.toFixed(2) || '--'}</div>
+                        <div class="sr-confluence">${s.tf_names?.join(', ') || s.type || 'Single TF'}</div>
+                    </div>
+                    <div class="sr-meta">
+                        <span class="sr-strength ${getStrengthClass(s.strength)}">${s.strength?.toFixed(0) || 0}%</span>
+                        <span class="sr-confluence">${s.confluence_count || 1} TF</span>
+                    </div>
+                </div>
+            `).join('');
+        } else {
+            supportContainer.innerHTML = '<div class="empty-state"><div class="empty-title">No supports found</div></div>';
+        }
+
+        // Resistance Levels
+        const resistanceContainer = document.getElementById('resistanceLevels');
+        const resistances = advancedSr.enhanced_resistances || [];
+
+        if (resistances.length > 0) {
+            resistanceContainer.innerHTML = resistances.slice(0, 5).map(r => `
+                <div class="sr-level resistance">
+                    <div>
+                        <div class="sr-price">$${r.price?.toFixed(2) || '--'}</div>
+                        <div class="sr-confluence">${r.tf_names?.join(', ') || r.type || 'Single TF'}</div>
+                    </div>
+                    <div class="sr-meta">
+                        <span class="sr-strength ${getStrengthClass(r.strength)}">${r.strength?.toFixed(0) || 0}%</span>
+                        <span class="sr-confluence">${r.confluence_count || 1} TF</span>
+                    </div>
+                </div>
+            `).join('');
+        } else {
+            resistanceContainer.innerHTML = '<div class="empty-state"><div class="empty-title">No resistances found</div></div>';
+        }
+    }
+
+    function updateVolumeProfile(volumeProfile) {
+        if (!volumeProfile) return;
+
+        const vpoc = volumeProfile.vpoc;
+        const va = volumeProfile.value_area;
+
+        document.getElementById('vpocPrice').textContent = vpoc?.price ? `$${vpoc.price.toFixed(2)}` : '--';
+        document.getElementById('valPrice').textContent = va?.low ? `$${va.low.toFixed(2)}` : '--';
+        document.getElementById('vahPrice').textContent = va?.high ? `$${va.high.toFixed(2)}` : '--';
+    }
+
+    function updateBouncePredictions(predictions) {
+        if (!predictions) return;
+
+        const bestSupport = predictions.best_support;
+
+        if (bestSupport) {
+            const prob = bestSupport.probability || 0;
+            const probEl = document.getElementById('supportBounceProb');
+            probEl.textContent = `${prob.toFixed(0)}%`;
+            probEl.className = 'bounce-probability';
+
+            if (prob >= 70) probEl.classList.add('high');
+            else if (prob >= 50) probEl.classList.add('medium');
+            else probEl.classList.add('low');
+
+            // Update factors
+            const factorsEl = document.getElementById('supportBounceFactors');
+            const factors = bestSupport.factors || [];
+            factorsEl.innerHTML = factors.slice(0, 5).map(f => `
+                <div class="factor-item">${f}</div>
+            `).join('');
+        }
+    }
+
+    function updateAlerts(alertsData) {
+        const container = document.getElementById('alertsList');
+        const countEl = document.getElementById('alertCount');
+
+        const alerts = alertsData?.active || [];
+        countEl.textContent = `${alerts.length} alerts`;
+
+        if (alerts.length > 0) {
+            container.innerHTML = alerts.slice(0, 6).map(alert => {
+                const isSupport = alert.type?.includes('support');
+                return `
+                    <div class="alert-item">
+                        <div class="alert-icon ${isSupport ? 'support' : 'resistance'}">
+                            ${isSupport ? '📉' : '📈'}
+                        </div>
+                        <div class="alert-content">
+                            <div class="alert-message">${alert.message}</div>
+                            <div class="alert-action">${alert.action}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        } else {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-icon">🔔</div>
+                    <div class="empty-title">Alerts created</div>
+                    <div style="font-size: var(--text-sm); color: var(--text-tertiary);">
+                        You'll be notified when price approaches key levels
+                    </div>
+                </div>
+            `;
+        }
+    }
+
+    function getStrengthClass(strength) {
+        if (strength >= 70) return 'high';
+        if (strength >= 50) return 'medium';
+        return 'low';
+    }
+
+    function showError(message) {
+        const recCard = document.getElementById('recommendationCard');
+        recCard.className = 'recommendation-card';
+        document.getElementById('recAction').textContent = 'ERROR';
+        document.getElementById('recReason').textContent = message;
+        document.getElementById('recLevels').style.display = 'none';
+    }
+
+    // Allow Enter key to submit
+    document.getElementById('tickerInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            analyzeStock(e);
+        }
+    });
+</script>
+{% endblock %}

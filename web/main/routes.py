@@ -327,3 +327,10 @@ def admin():
 def scalping():
     """Scalp trading analysis page"""
     return render_template("scalping.html", user=current_user)
+
+
+@main.route("/day-trading")
+@login_required
+def day_trading():
+    """AI Day Trading Analysis with Advanced S/R"""
+    return render_template("day_trading.html", user=current_user)

@@ -2031,3 +2031,96 @@ def quick_analysis(ticker: str):
         "primary_pattern": result.get("candlestick", {}).get("primary_pattern", {}).get("name") if result.get("candlestick", {}).get("primary_pattern") else None,
         "message": "Login for full analysis with entry/exit levels and reasoning",
     })
+
+
+@api_scalp.route("/api/scalp/full/<ticker>")
+@login_required
+def full_analysis(ticker: str):
+    """
+    FULL Day Trading Analysis with Advanced S/R
+
+    Combines:
+    - Basic Scalping Analysis (candlesticks, volume, patterns)
+    - Multi-Timeframe S/R Confluence
+    - Volume Profile / VPOC
+    - ML-based Bounce Predictions
+    - Alert Creation
+
+    This is the MOST COMPREHENSIVE analysis for day trading.
+    """
+    ticker = ticker.upper().strip()
+    interval = request.args.get("interval", "5")
+    timeframes_param = request.args.get("timeframes", "5,15,60")
+
+    if not ticker or len(ticker) > 10:
+        return jsonify({"error": "Invalid ticker symbol"}), 400
+
+    # Parse timeframes
+    timeframes = [t.strip() for t in timeframes_param.split(",")]
+    valid_tfs = ["1", "5", "15", "60", "240"]
+    timeframes = [t for t in timeframes if t in valid_tfs] or ["5", "15", "60"]
+
+    # 1. Basic Scalping Analysis
+    scalp_result = analyzer.analyze(ticker, interval)
+
+    if "error" in scalp_result:
+        return jsonify(scalp_result), 400
+
+    # 2. Advanced S/R Analysis
+    try:
+        from web.advanced_sr_analysis import get_advanced_sr_analyzer
+
+        advanced_analyzer = get_advanced_sr_analyzer()
+        advanced_sr = advanced_analyzer.full_analysis(ticker, timeframes, create_alerts=True)
+
+        # Combine results
+        combined = {
+            **scalp_result,
+            "advanced_sr": {
+                "mtf_analysis": advanced_sr.get("mtf_analysis"),
+                "volume_profile": advanced_sr.get("volume_profile"),
+                "bounce_predictions": advanced_sr.get("bounce_predictions"),
+                "alerts": advanced_sr.get("alerts"),
+                "recommendation": advanced_sr.get("recommendation"),
+                "enhanced_supports": advanced_sr.get("supports", [])[:5],
+                "enhanced_resistances": advanced_sr.get("resistances", [])[:5],
+            },
+        }
+
+        # Enhance the trade setup with advanced S/R levels
+        best_support = advanced_sr.get("bounce_predictions", {}).get("best_support")
+        best_resistance = advanced_sr.get("bounce_predictions", {}).get("best_resistance")
+
+        if best_support and scalp_result.get("signal") == "LONG":
+            support_info = best_support.get("level_info", {})
+            combined["enhanced_trade_setup"] = {
+                "entry_zone": {
+                    "price": support_info.get("price"),
+                    "type": "Multi-Timeframe Support",
+                    "bounce_probability": best_support.get("probability"),
+                    "confluence_count": support_info.get("confluence_count", 1),
+                },
+                "stop_loss": support_info.get("price", 0) * 0.99 if support_info.get("price") else None,
+                "reasoning": best_support.get("factors", []),
+            }
+
+        if best_resistance and scalp_result.get("signal") == "SHORT":
+            resistance_info = best_resistance.get("level_info", {})
+            combined["enhanced_trade_setup"] = {
+                "entry_zone": {
+                    "price": resistance_info.get("price"),
+                    "type": "Multi-Timeframe Resistance",
+                    "rejection_probability": best_resistance.get("probability"),
+                    "confluence_count": resistance_info.get("confluence_count", 1),
+                },
+                "stop_loss": resistance_info.get("price", 0) * 1.01 if resistance_info.get("price") else None,
+                "reasoning": best_resistance.get("factors", []),
+            }
+
+        return jsonify(combined)
+
+    except Exception as e:
+        logger.warning(f"Advanced S/R analysis failed: {e}")
+        # Return basic analysis if advanced fails
+        scalp_result["advanced_sr"] = {"error": str(e)}
+        return jsonify(scalp_result)
