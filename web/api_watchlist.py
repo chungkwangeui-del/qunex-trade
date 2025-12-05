@@ -44,11 +44,11 @@ def get_watchlist() -> Tuple[Any, int]:
         polygon = get_polygon_service()
         results = []
 
-        for item in watchlist_items:
-            # Get current price and previous close to calculate changes
-            quote = polygon.get_stock_quote(item.ticker)
-            prev_data = polygon.get_previous_close(item.ticker)
+        # Get all tickers for bulk snapshot
+        tickers = [item.ticker for item in watchlist_items]
+        bulk_snapshots = polygon.get_market_snapshot(tickers)
 
+        for item in watchlist_items:
             stock_data = {
                 "id": item.id,
                 "ticker": item.ticker,
@@ -59,50 +59,64 @@ def get_watchlist() -> Tuple[Any, int]:
                 "alert_price_below": item.alert_price_below,
             }
 
-            if quote and prev_data:
-                current_price = quote.get("price")
-                prev_close = prev_data.get("close")
+            # Use bulk snapshot data (more accurate change data)
+            snapshot = bulk_snapshots.get(item.ticker, {})
 
-                # Calculate change and change_percent
-                change = current_price - prev_close if (current_price and prev_close) else 0
-                change_percent = (change / prev_close * 100) if prev_close else 0
-
+            if snapshot:
                 stock_data.update(
                     {
-                        "price": current_price,
-                        "change": change,
-                        "change_percent": change_percent,
-                        "volume": prev_data.get("volume"),
-                        "high": prev_data.get("high"),
-                        "low": prev_data.get("low"),
-                        "open": prev_data.get("open"),
-                        "prev_close": prev_close,
-                    }
-                )
-            elif prev_data:
-                # Use previous close data only
-                stock_data.update(
-                    {
-                        "price": prev_data.get("close"),
-                        "change": 0,
-                        "change_percent": 0,
-                        "volume": prev_data.get("volume"),
-                        "high": prev_data.get("high"),
-                        "low": prev_data.get("low"),
-                        "open": prev_data.get("open"),
-                        "prev_close": prev_data.get("close"),
+                        "price": snapshot.get("price") or snapshot.get("day_close") or 0,
+                        "change": snapshot.get("change", 0) or 0,
+                        "change_percent": snapshot.get("change_percent", 0) or 0,
+                        "volume": snapshot.get("day_volume", 0) or 0,
+                        "high": snapshot.get("day_high"),
+                        "low": snapshot.get("day_low"),
+                        "open": snapshot.get("day_open"),
+                        "prev_close": snapshot.get("prev_close"),
                     }
                 )
             else:
-                stock_data.update(
-                    {
-                        "price": 0,
-                        "change": 0,
-                        "change_percent": 0,
-                        "volume": 0,
-                        "error": "Quote data unavailable",
-                    }
-                )
+                # Fallback to individual API calls if not in bulk snapshot
+                snapshot_single = polygon.get_snapshot(item.ticker)
+                if snapshot_single:
+                    stock_data.update(
+                        {
+                            "price": snapshot_single.get("price", 0),
+                            "change": snapshot_single.get("todaysChange", 0),
+                            "change_percent": snapshot_single.get("todaysChangePerc", 0),
+                            "volume": snapshot_single.get("day", {}).get("v", 0),
+                            "high": snapshot_single.get("day", {}).get("h"),
+                            "low": snapshot_single.get("day", {}).get("l"),
+                            "open": snapshot_single.get("day", {}).get("o"),
+                            "prev_close": snapshot_single.get("prevDay", {}).get("c"),
+                        }
+                    )
+                else:
+                    # Last resort fallback
+                    prev_data = polygon.get_previous_close(item.ticker)
+                    if prev_data:
+                        stock_data.update(
+                            {
+                                "price": prev_data.get("close", 0),
+                                "change": 0,
+                                "change_percent": 0,
+                                "volume": prev_data.get("volume", 0),
+                                "high": prev_data.get("high"),
+                                "low": prev_data.get("low"),
+                                "open": prev_data.get("open"),
+                                "prev_close": prev_data.get("close"),
+                            }
+                        )
+                    else:
+                        stock_data.update(
+                            {
+                                "price": 0,
+                                "change": 0,
+                                "change_percent": 0,
+                                "volume": 0,
+                                "error": "Quote data unavailable",
+                            }
+                        )
 
             results.append(stock_data)
 
@@ -256,6 +270,11 @@ def get_watchlist_stats():
             )
 
         polygon = get_polygon_service()
+
+        # Get all tickers for bulk snapshot
+        tickers = [item.ticker for item in watchlist_items]
+        bulk_snapshots = polygon.get_market_snapshot(tickers)
+
         gainers = 0
         losers = 0
         best_performer = None
@@ -264,38 +283,32 @@ def get_watchlist_stats():
         worst_change = float("inf")
 
         for item in watchlist_items:
-            # Get current price and previous close to calculate change
-            quote = polygon.get_stock_quote(item.ticker)
-            prev_data = polygon.get_previous_close(item.ticker)
+            snapshot = bulk_snapshots.get(item.ticker, {})
 
-            if quote and prev_data:
-                current_price = quote.get("price")
-                prev_close = prev_data.get("close")
+            if snapshot:
+                current_price = snapshot.get("price") or snapshot.get("day_close") or 0
+                change_pct = snapshot.get("change_percent", 0) or 0
 
-                if current_price and prev_close:
-                    change = current_price - prev_close
-                    change_pct = change / prev_close * 100
+                if change_pct > 0:
+                    gainers += 1
+                elif change_pct < 0:
+                    losers += 1
 
-                    if change_pct > 0:
-                        gainers += 1
-                    elif change_pct < 0:
-                        losers += 1
+                if change_pct > best_change:
+                    best_change = change_pct
+                    best_performer = {
+                        "ticker": item.ticker,
+                        "change_percent": round(change_pct, 2),
+                        "price": current_price,
+                    }
 
-                    if change_pct > best_change:
-                        best_change = change_pct
-                        best_performer = {
-                            "ticker": item.ticker,
-                            "change_percent": change_pct,
-                            "price": current_price,
-                        }
-
-                    if change_pct < worst_change:
-                        worst_change = change_pct
-                        worst_performer = {
-                            "ticker": item.ticker,
-                            "change_percent": change_pct,
-                            "price": current_price,
-                        }
+                if change_pct < worst_change:
+                    worst_change = change_pct
+                    worst_performer = {
+                        "ticker": item.ticker,
+                        "change_percent": round(change_pct, 2),
+                        "price": current_price,
+                    }
 
         return jsonify(
             {
