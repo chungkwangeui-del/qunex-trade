@@ -63,15 +63,22 @@ def get_watchlist() -> Tuple[Any, int]:
             snapshot = bulk_snapshots.get(item.ticker, {})
 
             if snapshot:
+                # Use prev_close as fallback when market is closed
+                price = (
+                    snapshot.get("price") or
+                    snapshot.get("day_close") or
+                    snapshot.get("prev_close") or
+                    0
+                )
                 stock_data.update(
                     {
-                        "price": snapshot.get("price") or snapshot.get("day_close") or 0,
+                        "price": price,
                         "change": snapshot.get("change", 0) or 0,
                         "change_percent": snapshot.get("change_percent", 0) or 0,
-                        "volume": snapshot.get("day_volume", 0) or 0,
-                        "high": snapshot.get("day_high"),
-                        "low": snapshot.get("day_low"),
-                        "open": snapshot.get("day_open"),
+                        "volume": snapshot.get("day_volume") or snapshot.get("prev_volume") or 0,
+                        "high": snapshot.get("day_high") or snapshot.get("prev_high"),
+                        "low": snapshot.get("day_low") or snapshot.get("prev_low"),
+                        "open": snapshot.get("day_open") or snapshot.get("prev_open"),
                         "prev_close": snapshot.get("prev_close"),
                     }
                 )

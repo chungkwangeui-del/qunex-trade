@@ -249,10 +249,15 @@ def get_treemap_data():
                 try:
                     snapshot = bulk_data.get(ticker, {})
 
-                    # Use snapshot data if available, otherwise use defaults
-                    price = snapshot.get("price") or snapshot.get("day_close") or 0
+                    # Use snapshot data - fallback to prev_close when market closed
+                    price = (
+                        snapshot.get("price") or
+                        snapshot.get("day_close") or
+                        snapshot.get("prev_close") or
+                        0
+                    )
                     change_percent = snapshot.get("change_percent", 0) or 0
-                    volume = snapshot.get("day_volume", 0) or 0
+                    volume = snapshot.get("day_volume") or snapshot.get("prev_volume") or 0
 
                     # Market cap in dollars (default_cap_b is in billions)
                     market_cap = default_cap_b * 1_000_000_000
