@@ -60,9 +60,10 @@ def get_watchlist() -> Tuple[Any, int]:
             }
 
             # Use bulk snapshot data (more accurate change data)
-            snapshot = bulk_snapshots.get(item.ticker, {})
+            snapshot = bulk_snapshots.get(item.ticker)
 
-            if snapshot:
+            # Check if snapshot has actual data (not just empty dict)
+            if snapshot and (snapshot.get("price") or snapshot.get("prev_close")):
                 # Use prev_close as fallback when market is closed
                 price = (
                     snapshot.get("price") or
@@ -85,17 +86,19 @@ def get_watchlist() -> Tuple[Any, int]:
             else:
                 # Fallback to individual API calls if not in bulk snapshot
                 snapshot_single = polygon.get_snapshot(item.ticker)
-                if snapshot_single:
+                if snapshot_single and (snapshot_single.get("price") or snapshot_single.get("prevDay", {}).get("c")):
+                    prev_close = snapshot_single.get("prevDay", {}).get("c", 0)
+                    price = snapshot_single.get("price") or prev_close or 0
                     stock_data.update(
                         {
-                            "price": snapshot_single.get("price", 0),
-                            "change": snapshot_single.get("todaysChange", 0),
-                            "change_percent": snapshot_single.get("todaysChangePerc", 0),
-                            "volume": snapshot_single.get("day", {}).get("v", 0),
-                            "high": snapshot_single.get("day", {}).get("h"),
-                            "low": snapshot_single.get("day", {}).get("l"),
-                            "open": snapshot_single.get("day", {}).get("o"),
-                            "prev_close": snapshot_single.get("prevDay", {}).get("c"),
+                            "price": price,
+                            "change": snapshot_single.get("todaysChange", 0) or 0,
+                            "change_percent": snapshot_single.get("todaysChangePerc", 0) or 0,
+                            "volume": snapshot_single.get("day", {}).get("v") or snapshot_single.get("prevDay", {}).get("v", 0),
+                            "high": snapshot_single.get("day", {}).get("h") or snapshot_single.get("prevDay", {}).get("h"),
+                            "low": snapshot_single.get("day", {}).get("l") or snapshot_single.get("prevDay", {}).get("l"),
+                            "open": snapshot_single.get("day", {}).get("o") or snapshot_single.get("prevDay", {}).get("o"),
+                            "prev_close": prev_close,
                         }
                     )
                 else:
