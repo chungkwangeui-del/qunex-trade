@@ -162,6 +162,145 @@ def get_sector_heatmap():
         return jsonify({"success": False, "error": str(e)}), 500
 
 
+@api_market_features.route("/api/market/treemap")
+@login_required
+def get_treemap_data():
+    """
+    Get stock data for Finviz-style treemap visualization.
+    Uses bulk snapshot API for efficiency (single API call for all stocks).
+    """
+    try:
+        polygon = get_polygon_service()
+
+        # Major stocks by sector with estimated market caps (in billions)
+        # Market caps are approximate and used for sizing when API data unavailable
+        sector_stocks = {
+            "Technology": {
+                "AAPL": 3000, "MSFT": 2800, "NVDA": 1200, "GOOGL": 1700, "META": 900,
+                "AVGO": 400, "ORCL": 300, "CRM": 250, "AMD": 200, "ADBE": 250,
+                "CSCO": 200, "INTC": 150, "IBM": 150, "QCOM": 180, "TXN": 160
+            },
+            "Healthcare": {
+                "UNH": 500, "JNJ": 400, "LLY": 550, "PFE": 160, "ABBV": 280,
+                "MRK": 270, "TMO": 200, "ABT": 190, "DHR": 170, "BMY": 100,
+                "AMGN": 140, "MDT": 110, "GILD": 100, "CVS": 90, "ELV": 100
+            },
+            "Financial": {
+                "JPM": 500, "BAC": 280, "WFC": 180, "GS": 130, "MS": 140,
+                "BLK": 120, "C": 100, "SCHW": 110, "AXP": 150, "SPGI": 130,
+                "CB": 100, "MMC": 90, "PNC": 70, "USB": 60, "TFC": 50
+            },
+            "Consumer Cyclical": {
+                "AMZN": 1500, "TSLA": 700, "HD": 350, "MCD": 200, "NKE": 150,
+                "LOW": 140, "SBUX": 110, "TJX": 100, "BKNG": 120, "MAR": 70,
+                "CMG": 70, "ORLY": 60, "YUM": 40, "DHI": 50, "GM": 50
+            },
+            "Communication": {
+                "GOOG": 1700, "DIS": 180, "NFLX": 250, "CMCSA": 160, "VZ": 160,
+                "T": 120, "TMUS": 200, "CHTR": 50, "EA": 40, "WBD": 25,
+                "TTWO": 30, "OMC": 20, "IPG": 12, "PARA": 10, "FOXA": 15
+            },
+            "Industrials": {
+                "CAT": 150, "GE": 180, "UNP": 140, "HON": 130, "UPS": 120,
+                "RTX": 140, "BA": 130, "DE": 110, "LMT": 110, "ADP": 100,
+                "MMM": 60, "GD": 70, "WM": 80, "CSX": 70, "NSC": 55
+            },
+            "Consumer Defensive": {
+                "WMT": 420, "PG": 360, "COST": 300, "KO": 260, "PEP": 230,
+                "PM": 180, "MO": 80, "MDLZ": 90, "CL": 75, "TGT": 70,
+                "KMB": 45, "GIS": 40, "STZ": 45, "KHC": 40, "HSY": 45
+            },
+            "Energy": {
+                "XOM": 450, "CVX": 280, "COP": 130, "EOG": 70, "SLB": 65,
+                "MPC": 55, "PXD": 50, "PSX": 50, "VLO": 45, "OXY": 50,
+                "WMB": 45, "KMI": 40, "HAL": 30, "DVN": 30, "HES": 45
+            },
+            "Utilities": {
+                "NEE": 150, "DUK": 80, "SO": 85, "D": 45, "AEP": 50,
+                "SRE": 50, "XEL": 35, "EXC": 40, "ED": 35, "WEC": 30,
+                "ES": 25, "PEG": 35, "AWK": 28, "DTE": 22, "ETR": 22
+            },
+            "Real Estate": {
+                "PLD": 120, "AMT": 100, "EQIX": 75, "CCI": 45, "PSA": 55,
+                "SPG": 50, "O": 45, "WELL": 45, "DLR": 40, "AVB": 30,
+                "EQR": 25, "VTR": 22, "SBAC": 25, "WY": 22, "ARE": 18
+            },
+            "Materials": {
+                "LIN": 200, "APD": 65, "SHW": 80, "ECL": 55, "FCX": 60,
+                "NEM": 45, "NUE": 40, "VMC": 35, "MLM": 35, "DD": 35,
+                "DOW": 35, "PPG": 30, "ALB": 15, "CTVA": 35, "CF": 15
+            }
+        }
+
+        # Get all tickers for bulk request
+        all_tickers = []
+        for sector_tickers in sector_stocks.values():
+            all_tickers.extend(sector_tickers.keys())
+
+        # Fetch bulk snapshot data (single API call)
+        bulk_data = polygon.get_market_snapshot(all_tickers)
+
+        treemap_data = {"name": "Market", "children": []}
+
+        for sector_name, tickers_with_caps in sector_stocks.items():
+            sector_data = {"name": sector_name, "children": []}
+
+            for ticker, default_cap_b in tickers_with_caps.items():
+                try:
+                    snapshot = bulk_data.get(ticker, {})
+
+                    # Use snapshot data if available, otherwise use defaults
+                    price = snapshot.get("price") or snapshot.get("day_close") or 0
+                    change_percent = snapshot.get("change_percent", 0) or 0
+                    volume = snapshot.get("day_volume", 0) or 0
+
+                    # Market cap in dollars (default_cap_b is in billions)
+                    market_cap = default_cap_b * 1_000_000_000
+
+                    sector_data["children"].append({
+                        "name": ticker,
+                        "ticker": ticker,
+                        "value": market_cap,
+                        "market_cap": market_cap,
+                        "price": price,
+                        "change": snapshot.get("change", 0) or 0,
+                        "change_percent": round(change_percent, 2),
+                        "volume": volume
+                    })
+                except Exception as e:
+                    logger.warning(f"Error processing {ticker}: {e}")
+                    continue
+
+            if sector_data["children"]:
+                # Calculate sector totals
+                sector_market_cap = sum(s["market_cap"] for s in sector_data["children"])
+                weighted_change = sum(s["change_percent"] * s["market_cap"] for s in sector_data["children"])
+                sector_change = weighted_change / sector_market_cap if sector_market_cap > 0 else 0
+
+                sector_data["value"] = sector_market_cap
+                sector_data["change_percent"] = round(sector_change, 2)
+                treemap_data["children"].append(sector_data)
+
+        # Calculate market totals
+        total_market_cap = sum(s["value"] for s in treemap_data["children"])
+        weighted_market_change = sum(s["change_percent"] * s["value"] for s in treemap_data["children"])
+        market_change = weighted_market_change / total_market_cap if total_market_cap > 0 else 0
+
+        return jsonify({
+            "success": True,
+            "data": treemap_data,
+            "summary": {
+                "total_market_cap": total_market_cap,
+                "market_change": round(market_change, 2),
+                "sectors_count": len(treemap_data["children"]),
+                "stocks_count": sum(len(s["children"]) for s in treemap_data["children"])
+            }
+        })
+    except Exception as e:
+        logger.error(f"Error fetching treemap data: {e}", exc_info=True)
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
 # ============================================================================
 # PERFORMANCE ANALYTICS ENDPOINTS
 # ============================================================================

@@ -308,6 +308,40 @@ class PolygonService:
 
         return snapshot
 
+    def get_snapshot(self, ticker: str) -> Optional[Dict]:
+        """Get snapshot data for a single ticker including price and change data"""
+        endpoint = f"/v2/snapshot/locale/us/markets/stocks/tickers/{ticker}"
+        data = self._make_request(endpoint)
+
+        # Accept both "OK" and "DELAYED" status
+        if not data or data.get("status") not in ["OK", "DELAYED"]:
+            return None
+
+        ticker_data = data.get("ticker", {})
+        if not ticker_data:
+            return None
+
+        day = ticker_data.get("day", {})
+        prev_day = ticker_data.get("prevDay", {})
+        last_trade = ticker_data.get("lastTrade", {})
+
+        # Calculate change values
+        current_price = last_trade.get("p") or day.get("c") or 0
+        prev_close = prev_day.get("c", 0)
+        change = current_price - prev_close if current_price and prev_close else 0
+        change_percent = (change / prev_close * 100) if prev_close else 0
+
+        return {
+            "ticker": ticker,
+            "price": current_price,
+            "todaysChange": change,
+            "todaysChangePerc": change_percent,
+            "day": day,
+            "prevDay": prev_day,
+            "lastTrade": last_trade,
+            "updated": ticker_data.get("updated"),
+        }
+
     def get_gainers_losers(self, direction: str = "gainers") -> List[Dict]:
         """
         Get top gainers or losers (filtered to exclude penny stocks) - Cached for 1 minute
