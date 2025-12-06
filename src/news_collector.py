@@ -161,8 +161,8 @@ class NewsCollector:
 
     def _is_quality_news_polygon(self, article: Dict) -> bool:
         """
-        Filter Polygon news for quality and relevance.
-        Focus on REAL EVENTS, not analyst opinions or predictions.
+        Filter Polygon news for government/policy news only.
+        Focus on government actions that impact markets.
         """
         title = article.get("title", "")
         description = article.get("description", "")
@@ -171,63 +171,65 @@ class NewsCollector:
             return False
 
         # Filter out non-English articles (Hebrew, Chinese, etc.)
-        # Check if title is mostly ASCII (English uses ASCII characters)
         non_ascii_count = sum(1 for c in title if ord(c) > 127)
-        if non_ascii_count > len(title) * 0.1:  # More than 10% non-ASCII = likely non-English
+        if non_ascii_count > len(title) * 0.1:
             return False
 
         title_lower = title.lower()
         desc_lower = description.lower()
         combined_text = title_lower + " " + desc_lower
 
-        # FILTER OUT: Analyst opinions, predictions, recommendations
-        analyst_keywords = [
-            "analyst says",
-            "analyst predicts",
-            "analyst expects",
-            "should you buy",
-            "should you sell",
-            "time to buy",
-            "stock to watch",
-            "stocks to buy",
-            "top picks",
-            "buy rating",
-            "sell rating",
-            "price target",
-            "bull case",
-            "bear case",
-            "my prediction",
-            "could reach",
-            "may hit",
-            "might see",
-            "investor alert",
-            "hot stock",
-        ]
-
-        for keyword in analyst_keywords:
-            if keyword in combined_text:
-                return False
-
-        # FILTER OUT: Promotional content
+        # FILTER OUT: Promotional/spam content
         spam_keywords = [
-            "subscribe",
-            "click here",
-            "limited time",
-            "buy now",
-            "discount",
-            "free trial",
-            "advertisement",
-            "sponsored",
-            "webinar",
-            "register now",
-            "sign up",
+            "subscribe", "click here", "limited time", "buy now",
+            "discount", "free trial", "advertisement", "sponsored",
+            "webinar", "register now", "sign up",
         ]
-
         for keyword in spam_keywords:
             if keyword in title_lower:
                 return False
 
-        return True
+        # REQUIRE: Government/policy-related keywords
+        # Only include news about government actions affecting markets
+        government_keywords = [
+            # Federal Reserve
+            "federal reserve", "fed ", "the fed", "fomc", "powell",
+            "interest rate", "rate hike", "rate cut", "basis points",
+            "monetary policy", "quantitative", "tightening", "easing",
+            # Government/White House
+            "trump", "biden", "white house", "president",
+            "administration", "executive order",
+            # Congress/Legislature
+            "congress", "senate", "house of representatives",
+            "legislation", "bill passes", "bill signed", "lawmakers",
+            "bipartisan", "republican", "democrat",
+            # Treasury/Economic Policy
+            "treasury", "yellen", "bessent", "debt ceiling",
+            "government spending", "fiscal policy", "budget",
+            "stimulus", "relief package",
+            # Trade Policy
+            "tariff", "trade war", "trade deal", "sanctions",
+            "import", "export ban", "trade policy",
+            # Regulatory
+            "sec ", "securities and exchange", "regulation",
+            "antitrust", "ftc", "doj", "justice department",
+            "investigation", "lawsuit", "settlement",
+            # Economic Data (Government Reports)
+            "jobs report", "unemployment", "nonfarm payroll",
+            "cpi", "inflation data", "gdp", "retail sales",
+            "consumer spending", "economic data",
+            # Geopolitical
+            "china", "russia", "ukraine", "middle east",
+            "geopolitical", "war", "conflict",
+        ]
+
+        # Check if any government keyword is present
+        for keyword in government_keywords:
+            if keyword in combined_text:
+                return True
+
+        # No government-related keyword found - reject
+        return False
 
     def collect_all_news(self, limit: int = 100) -> List[Dict]:
         """
