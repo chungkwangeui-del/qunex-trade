@@ -170,6 +170,12 @@ class NewsCollector:
         if not title or not description:
             return False
 
+        # Filter out non-English articles (Hebrew, Chinese, etc.)
+        # Check if title is mostly ASCII (English uses ASCII characters)
+        non_ascii_count = sum(1 for c in title if ord(c) > 127)
+        if non_ascii_count > len(title) * 0.1:  # More than 10% non-ASCII = likely non-English
+            return False
+
         title_lower = title.lower()
         desc_lower = description.lower()
         combined_text = title_lower + " " + desc_lower
