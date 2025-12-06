@@ -612,22 +612,31 @@
 
     // Color scale for performance (-3% to +3%)
     function getColor(changePercent) {
-        const clampedChange = Math.max(-3, Math.min(3, changePercent));
+        // Finviz-style color scale: smooth gradient from red to green
+        // Range: -4% (deep red) to +4% (deep green)
+        const clampedChange = Math.max(-4, Math.min(4, changePercent));
 
-        if (clampedChange >= 0) {
-            // Green gradient for gains
-            const intensity = clampedChange / 3;
-            if (intensity > 0.66) return '#166534';  // Dark green
-            if (intensity > 0.33) return '#16a34a';  // Medium green
-            if (intensity > 0.1) return '#22c55e';   // Light green
-            return '#374151';  // Neutral gray
+        if (Math.abs(clampedChange) < 0.05) {
+            // Nearly zero change - dark neutral
+            return '#2d3748';
+        }
+
+        if (clampedChange > 0) {
+            // Green gradient for gains (Finviz-style greens)
+            const intensity = clampedChange / 4;
+            // Interpolate from dark gray-green to bright green
+            const r = Math.round(30 - intensity * 15);
+            const g = Math.round(60 + intensity * 140);
+            const b = Math.round(50 - intensity * 20);
+            return `rgb(${r}, ${g}, ${b})`;
         } else {
-            // Red gradient for losses
-            const intensity = Math.abs(clampedChange) / 3;
-            if (intensity > 0.66) return '#7f1d1d';  // Dark red
-            if (intensity > 0.33) return '#b91c1c';  // Medium red
-            if (intensity > 0.1) return '#dc2626';   // Light red
-            return '#374151';  // Neutral gray
+            // Red gradient for losses (Finviz-style reds)
+            const intensity = Math.abs(clampedChange) / 4;
+            // Interpolate from dark gray-red to bright red
+            const r = Math.round(60 + intensity * 160);
+            const g = Math.round(50 - intensity * 35);
+            const b = Math.round(50 - intensity * 35);
+            return `rgb(${r}, ${g}, ${b})`;
         }
     }
 
@@ -678,12 +687,15 @@
             .sum(d => d.value)
             .sort((a, b) => b.value - a.value);
 
-        // Create treemap layout
+        // Create treemap layout - Finviz-style with squarified tiles
         d3.treemap()
+            .tile(d3.treemapSquarify.ratio(1)) // More square-ish cells like Finviz
             .size([width, height])
-            .paddingTop(20)
-            .paddingRight(2)
-            .paddingInner(1)
+            .paddingTop(18)      // Space for sector label
+            .paddingRight(1)
+            .paddingBottom(1)
+            .paddingLeft(1)
+            .paddingInner(2)     // Gap between cells within sector
             .round(true)
             (root);
 
@@ -698,25 +710,40 @@
         // Sector background and label
         sectors.each(function(sector) {
             const g = d3.select(this);
-            const sectorChange = sector.data.change_percent || 0;
 
-            // Sector label
+            // Sector background (dark border effect)
+            g.append('rect')
+                .attr('x', sector.x0)
+                .attr('y', sector.y0)
+                .attr('width', sector.x1 - sector.x0)
+                .attr('height', sector.y1 - sector.y0)
+                .attr('fill', 'none')
+                .attr('stroke', '#1a1a2e')
+                .attr('stroke-width', 2);
+
+            // Sector label - positioned at top left
             g.append('text')
                 .attr('class', 'sector-label')
-                .attr('x', sector.x0 + 4)
-                .attr('y', sector.y0 + 14)
-                .text(sector.data.name);
+                .attr('x', sector.x0 + 5)
+                .attr('y', sector.y0 + 13)
+                .text(sector.data.name)
+                .style('font-size', '11px')
+                .style('font-weight', '600')
+                .style('fill', '#ffffff')
+                .style('text-shadow', '1px 1px 2px rgba(0,0,0,0.8)');
 
             // Draw individual stocks
             g.selectAll('rect.treemap-cell')
                 .data(sector.children || [])
                 .join('rect')
                 .attr('class', 'treemap-cell')
-                .attr('x', d => d.x0)
-                .attr('y', d => d.y0)
-                .attr('width', d => Math.max(0, d.x1 - d.x0))
-                .attr('height', d => Math.max(0, d.y1 - d.y0))
+                .attr('x', d => d.x0 + 0.5)
+                .attr('y', d => d.y0 + 0.5)
+                .attr('width', d => Math.max(0, d.x1 - d.x0 - 1))
+                .attr('height', d => Math.max(0, d.y1 - d.y0 - 1))
                 .attr('fill', d => getColor(d.data.change_percent))
+                .attr('stroke', '#0d0d1a')
+                .attr('stroke-width', 0.5)
                 .on('mousemove', function(event, d) {
                     const changePercent = d.data.change_percent || 0;
                     const isPositive = changePercent >= 0;
@@ -753,39 +780,66 @@
                     window.location.href = `/stocks/${d.data.ticker}`;
                 });
 
-            // Add stock labels
-            g.selectAll('text.stock-label')
+            // Add stock labels - Finviz style (ticker + change on every visible cell)
+            g.selectAll('g.stock-label')
                 .data(sector.children || [])
                 .join('g')
+                .attr('class', 'stock-label')
                 .each(function(d) {
                     const cellWidth = d.x1 - d.x0;
                     const cellHeight = d.y1 - d.y0;
                     const centerX = (d.x0 + d.x1) / 2;
                     const centerY = (d.y0 + d.y1) / 2;
+                    const changePercent = d.data.change_percent || 0;
+                    const isPositive = changePercent >= 0;
+                    const labelGroup = d3.select(this);
 
-                    // Only show labels for cells large enough
-                    if (cellWidth > 35 && cellHeight > 30) {
-                        const g = d3.select(this);
-                        const changePercent = d.data.change_percent || 0;
-                        const isPositive = changePercent >= 0;
+                    // Calculate font size based on cell size (Finviz-style scaling)
+                    const minDim = Math.min(cellWidth, cellHeight);
+                    let tickerSize, changeSize;
 
-                        // Ticker
-                        g.append('text')
-                            .attr('class', 'treemap-label treemap-label-ticker')
+                    if (minDim >= 80) {
+                        tickerSize = 14;
+                        changeSize = 12;
+                    } else if (minDim >= 50) {
+                        tickerSize = 11;
+                        changeSize = 9;
+                    } else if (minDim >= 35) {
+                        tickerSize = 9;
+                        changeSize = 8;
+                    } else if (minDim >= 25) {
+                        tickerSize = 8;
+                        changeSize = 0; // No change% for tiny cells
+                    } else {
+                        return; // Too small for any label
+                    }
+
+                    // Ticker symbol
+                    labelGroup.append('text')
+                        .attr('x', centerX)
+                        .attr('y', changeSize > 0 ? centerY - 2 : centerY + 3)
+                        .attr('text-anchor', 'middle')
+                        .attr('dominant-baseline', 'middle')
+                        .style('font-size', tickerSize + 'px')
+                        .style('font-weight', '700')
+                        .style('fill', '#ffffff')
+                        .style('text-shadow', '1px 1px 2px rgba(0,0,0,0.7)')
+                        .style('pointer-events', 'none')
+                        .text(d.data.ticker);
+
+                    // Change percent (if cell is big enough)
+                    if (changeSize > 0 && cellHeight > 30) {
+                        labelGroup.append('text')
                             .attr('x', centerX)
-                            .attr('y', centerY - 3)
-                            .text(d.data.ticker)
-                            .style('font-size', cellWidth > 60 ? '12px' : '10px');
-
-                        // Change percent
-                        if (cellHeight > 40) {
-                            g.append('text')
-                                .attr('class', 'treemap-label treemap-label-change')
-                                .attr('x', centerX)
-                                .attr('y', centerY + 12)
-                                .text(`${isPositive ? '+' : ''}${changePercent.toFixed(2)}%`)
-                                .style('font-size', cellWidth > 60 ? '10px' : '9px');
-                        }
+                            .attr('y', centerY + tickerSize - 2)
+                            .attr('text-anchor', 'middle')
+                            .attr('dominant-baseline', 'middle')
+                            .style('font-size', changeSize + 'px')
+                            .style('font-weight', '500')
+                            .style('fill', '#ffffff')
+                            .style('text-shadow', '1px 1px 2px rgba(0,0,0,0.7)')
+                            .style('pointer-events', 'none')
+                            .text(`${isPositive ? '+' : ''}${changePercent.toFixed(2)}%`);
                     }
                 });
         });
