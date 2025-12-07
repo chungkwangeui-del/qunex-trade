@@ -758,7 +758,7 @@
                 window.location.href = `/stocks/${d.data.ticker}`;
             });
 
-        // Add stock labels
+        // Add stock labels - Finviz style with dynamic sizing
         svg.selectAll('g.stock-label')
             .data(allStocks)
             .join('g')
@@ -772,43 +772,67 @@
                 const isPositive = changePercent >= 0;
                 const labelGroup = d3.select(this);
 
-                // Finviz-style font scaling based on cell area
+                // Aggressive Finviz-style font scaling
                 const area = cellWidth * cellHeight;
-                let tickerSize, changeSize;
+                const minDim = Math.min(cellWidth, cellHeight);
+                let tickerSize, changeSize, spacing;
 
-                if (area >= 8000) {
-                    tickerSize = 15;
+                // Scale based on both area and minimum dimension for better fit
+                if (area >= 25000 && minDim >= 100) {
+                    tickerSize = 28;
+                    changeSize = 20;
+                    spacing = 28;
+                } else if (area >= 15000 && minDim >= 80) {
+                    tickerSize = 24;
+                    changeSize = 17;
+                    spacing = 24;
+                } else if (area >= 8000 && minDim >= 60) {
+                    tickerSize = 20;
+                    changeSize = 14;
+                    spacing = 20;
+                } else if (area >= 5000 && minDim >= 50) {
+                    tickerSize = 16;
                     changeSize = 12;
-                } else if (area >= 4000) {
-                    tickerSize = 13;
+                    spacing = 16;
+                } else if (area >= 3000 && minDim >= 40) {
+                    tickerSize = 14;
                     changeSize = 10;
-                } else if (area >= 2000) {
-                    tickerSize = 11;
+                    spacing = 14;
+                } else if (area >= 1500 && minDim >= 30) {
+                    tickerSize = 12;
                     changeSize = 9;
-                } else if (area >= 1000) {
-                    tickerSize = 9;
+                    spacing = 12;
+                } else if (area >= 800 && minDim >= 25) {
+                    tickerSize = 10;
                     changeSize = 7;
-                } else if (area >= 500) {
+                    spacing = 10;
+                } else if (area >= 400 && minDim >= 18) {
+                    tickerSize = 9;
+                    changeSize = 0;
+                    spacing = 0;
+                } else if (cellWidth >= 25 && cellHeight >= 15) {
                     tickerSize = 8;
                     changeSize = 0;
-                } else if (cellWidth >= 20 && cellHeight >= 15) {
+                    spacing = 0;
+                } else if (cellWidth >= 18 && cellHeight >= 12) {
                     tickerSize = 7;
                     changeSize = 0;
+                    spacing = 0;
                 } else {
-                    return; // Too small
+                    return; // Too small for any label
                 }
 
                 // Ticker symbol
                 labelGroup.append('text')
                     .attr('x', centerX)
-                    .attr('y', changeSize > 0 ? centerY - 4 : centerY + 2)
+                    .attr('y', changeSize > 0 ? centerY - spacing/2 : centerY)
                     .attr('text-anchor', 'middle')
                     .attr('dominant-baseline', 'middle')
-                    .style('font-family', 'Arial, sans-serif')
+                    .style('font-family', 'Arial Black, Arial, sans-serif')
                     .style('font-size', tickerSize + 'px')
-                    .style('font-weight', 'bold')
+                    .style('font-weight', '900')
                     .style('fill', '#ffffff')
-                    .style('text-shadow', '0 0 3px #000, 0 0 3px #000')
+                    .style('text-shadow', '1px 1px 2px #000, -1px -1px 2px #000, 1px -1px 2px #000, -1px 1px 2px #000')
                     .style('pointer-events', 'none')
                     .text(d.data.ticker);
 
@@ -816,14 +840,14 @@
                 if (changeSize > 0) {
                     labelGroup.append('text')
                         .attr('x', centerX)
-                        .attr('y', centerY + tickerSize - 1)
+                        .attr('y', centerY + spacing/2 + 2)
                         .attr('text-anchor', 'middle')
                         .attr('dominant-baseline', 'middle')
                         .style('font-family', 'Arial, sans-serif')
                         .style('font-size', changeSize + 'px')
                         .style('font-weight', 'bold')
                         .style('fill', '#ffffff')
-                        .style('text-shadow', '0 0 3px #000, 0 0 3px #000')
+                        .style('text-shadow', '1px 1px 2px #000, -1px -1px 2px #000, 1px -1px 2px #000, -1px 1px 2px #000')
                         .style('pointer-events', 'none')
                         .text(`${isPositive ? '+' : ''}${changePercent.toFixed(2)}%`);
                 }
@@ -837,10 +861,10 @@
             .attr('x', d => d.x0 + 4)
             .attr('y', d => d.y0 + 12)
             .style('font-family', 'Arial, sans-serif')
-            .style('font-size', '11px')
+            .style('font-size', '10px')
             .style('font-weight', 'bold')
             .style('fill', '#ffffff')
-            .style('text-shadow', '0 0 4px #000, 0 0 4px #000, 0 0 4px #000')
+            .style('text-shadow', '1px 1px 2px #000, -1px -1px 2px #000, 1px -1px 2px #000, -1px 1px 2px #000')
             .style('pointer-events', 'none')
             .text(d => d.data.name);
     }
