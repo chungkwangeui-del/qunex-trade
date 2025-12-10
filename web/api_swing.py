@@ -199,12 +199,16 @@ def fetch_polygon_candles(ticker: str, timeframe: str = "4H", limit: int = 100) 
 
     tf_config = timeframe_map.get(timeframe, {"multiplier": 4, "timespan": "hour"})
 
-    # Calculate date range
+    # Calculate date range - need more days for hourly timeframes
     end_date = datetime.now()
-    if timeframe in ["1D", "1W"]:
-        start_date = end_date - timedelta(days=limit * 7)
-    else:
-        start_date = end_date - timedelta(days=limit)
+    if timeframe == "1W":
+        start_date = end_date - timedelta(days=limit * 14)
+    elif timeframe == "1D":
+        start_date = end_date - timedelta(days=limit * 2)
+    elif timeframe == "4H":
+        start_date = end_date - timedelta(days=limit)  # 100 days for ~600 4H candles
+    else:  # 1H
+        start_date = end_date - timedelta(days=limit // 2)  # 50 days for ~400 1H candles
 
     try:
         bars = polygon.get_aggregates(
