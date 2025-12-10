@@ -108,6 +108,11 @@ def fetch_polygon_candles(ticker: str, timeframe: str = "4H", limit: int = 100) 
     """
     polygon = PolygonService()
 
+    # Check if API key is available
+    if not polygon.api_key:
+        logger.error("Polygon API key not configured")
+        return []
+
     # Map timeframe to Polygon parameters
     timeframe_map = {
         "1H": {"multiplier": 1, "timespan": "hour"},
@@ -136,6 +141,7 @@ def fetch_polygon_candles(ticker: str, timeframe: str = "4H", limit: int = 100) 
         )
 
         if not bars:
+            logger.warning(f"No bars returned from Polygon for {ticker}")
             return []
 
         candles = []
@@ -149,9 +155,10 @@ def fetch_polygon_candles(ticker: str, timeframe: str = "4H", limit: int = 100) 
                 "v": bar.get("volume"),
             })
 
+        logger.info(f"Fetched {len(candles)} candles for {ticker} ({timeframe})")
         return candles
     except Exception as e:
-        logger.error(f"Polygon API error for {ticker}: {e}")
+        logger.error(f"Polygon API error for {ticker}: {e}", exc_info=True)
         return []
 
 

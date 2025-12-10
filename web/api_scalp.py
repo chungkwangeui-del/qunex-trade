@@ -1309,6 +1309,10 @@ class ScalpAnalyzer:
 
     def fetch_bars_polygon(self, ticker: str, interval: str = "5", limit: int = 100) -> List[Dict]:
         """Fetch candlestick data from Polygon (for US stocks)"""
+        if not self.polygon_key:
+            logger.error("Polygon API key not configured")
+            return []
+
         try:
             timespan_map = {"1": "minute", "5": "minute", "15": "minute"}
             multiplier_map = {"1": 1, "5": 5, "15": 15}
@@ -1322,14 +1326,24 @@ class ScalpAnalyzer:
             url = f"https://api.polygon.io/v2/aggs/ticker/{ticker}/range/{multiplier}/{timespan}/{start_date.strftime('%Y-%m-%d')}/{end_date.strftime('%Y-%m-%d')}"
             params = {"apiKey": self.polygon_key, "limit": limit, "sort": "desc"}
 
-            response = requests.get(url, params=params, timeout=10)
+            response = requests.get(url, params=params, timeout=15)
             response.raise_for_status()
             data = response.json()
 
             if data.get("resultsCount", 0) > 0:
-                return list(reversed(data.get("results", [])))
+                bars = list(reversed(data.get("results", [])))
+                logger.info(f"Fetched {len(bars)} bars for {ticker} ({interval}m)")
+                return bars
+
+            logger.warning(f"No bars returned from Polygon for {ticker}")
             return []
 
+        except requests.exceptions.Timeout:
+            logger.error(f"Polygon API timeout for {ticker}")
+            return []
+        except requests.exceptions.HTTPError as e:
+            logger.error(f"Polygon API HTTP error for {ticker}: {e}")
+            return []
         except Exception as e:
             logger.error(f"Failed to fetch Polygon bars for {ticker}: {e}")
             return []
