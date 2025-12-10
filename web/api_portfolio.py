@@ -249,6 +249,60 @@ def delete_holding(ticker):
         }), 404
 
 
+@api_portfolio.route("/api/portfolio/transactions", methods=['GET'])
+@login_required
+def get_transactions():
+    """Get all transactions (trade journal)"""
+    # Optional filters
+    ticker = request.args.get('ticker', '').upper().strip()
+    transaction_type = request.args.get('type', '').lower()
+    limit = request.args.get('limit', 50, type=int)
+
+    query = Transaction.query.filter_by(user_id=current_user.id)
+
+    if ticker:
+        query = query.filter_by(ticker=ticker)
+
+    if transaction_type in ['buy', 'sell']:
+        query = query.filter_by(transaction_type=transaction_type)
+
+    transactions = query.order_by(Transaction.transaction_date.desc()).limit(limit).all()
+
+    # Calculate stats
+    total_buys = sum(float(t.shares * t.price) for t in transactions if t.transaction_type == 'buy')
+    total_sells = sum(float(t.shares * t.price) for t in transactions if t.transaction_type == 'sell')
+
+    return jsonify({
+        'success': True,
+        'transactions': [t.to_dict() for t in transactions],
+        'stats': {
+            'total_transactions': len(transactions),
+            'total_buys': total_buys,
+            'total_sells': total_sells,
+            'net_invested': total_buys - total_sells
+        }
+    })
+
+
+@api_portfolio.route("/api/portfolio/transaction/<int:transaction_id>", methods=['DELETE'])
+@login_required
+def delete_transaction(transaction_id):
+    """Delete a specific transaction"""
+    transaction = Transaction.query.filter_by(id=transaction_id, user_id=current_user.id).first()
+
+    if not transaction:
+        return jsonify({'success': False, 'message': 'Transaction not found'}), 404
+
+    ticker = transaction.ticker
+    db.session.delete(transaction)
+    db.session.commit()
+
+    return jsonify({
+        'success': True,
+        'message': f'Transaction for {ticker} deleted successfully'
+    })
+
+
 def get_user_shares(user_id, ticker):
     """Calculate current shares owned by user for a ticker"""
     transactions = Transaction.query.filter_by(user_id=user_id, ticker=ticker.upper()).all()
