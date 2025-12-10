@@ -20,9 +20,10 @@ from flask_login import login_required
 import os
 import logging
 from datetime import datetime, timedelta
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
 import requests
 import re
+import pytz
 from web.polygon_service import PolygonService
 from web.finnhub_service import get_finnhub_service
 from web.swing_service import generate_swing_signal
@@ -30,6 +31,37 @@ from web.swing_service import generate_swing_signal
 logger = logging.getLogger(__name__)
 
 api_swing = Blueprint("api_swing", __name__)
+
+
+# =============================================================================
+# MARKET HOURS CHECK
+# =============================================================================
+
+def get_market_status() -> Tuple[bool, str]:
+    """
+    Check if US stock market is open.
+    Returns (is_open, status_message)
+    """
+    try:
+        est = pytz.timezone('US/Eastern')
+        now = datetime.now(est)
+
+        # Check weekend
+        if now.weekday() >= 5:
+            return False, "Market closed (Weekend)"
+
+        # Market hours: 9:30 AM - 4:00 PM EST
+        market_open = now.replace(hour=9, minute=30, second=0, microsecond=0)
+        market_close = now.replace(hour=16, minute=0, second=0, microsecond=0)
+
+        if now < market_open:
+            return False, f"Market closed (Pre-market). Opens at 9:30 AM EST"
+        elif now > market_close:
+            return False, f"Market closed (After-hours). Opens tomorrow 9:30 AM EST"
+        else:
+            return True, "Market open"
+    except Exception:
+        return True, "Unknown"  # Assume open if check fails
 
 
 # =============================================================================
@@ -233,6 +265,9 @@ def analyze_swing(ticker: str):
         timeframe = "4H"
 
     try:
+        # Check market status for stocks
+        market_open, market_status = get_market_status()
+
         # Fetch candle data
         if is_crypto_ticker(ticker):
             candles = fetch_binance_candles(ticker, timeframe, limit=100)
@@ -242,11 +277,18 @@ def analyze_swing(ticker: str):
             market_type = "stock"
 
         if not candles or len(candles) < 50:
+            # Better error message for stocks when market is closed
+            if market_type == "stock" and not market_open:
+                error_msg = f"{market_status}. Stock data unavailable. Try crypto (e.g., BTCUSDT) or wait for market to open."
+            else:
+                error_msg = f"Insufficient data for {ticker}. Need at least 50 candles."
+
             return jsonify({
                 "success": False,
-                "error": f"Insufficient data for {ticker}. Need at least 50 candles.",
+                "error": error_msg,
                 "ticker": ticker,
                 "timeframe": timeframe,
+                "market_status": market_status if market_type == "stock" else "24/7",
             }), 400
 
         # Generate ICT/SMC signal

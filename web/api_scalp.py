@@ -31,6 +31,7 @@ from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Tuple
 import requests
 import re
+import pytz
 from web.polygon_service import PolygonService
 from web.finnhub_service import get_finnhub_service
 from web.scalp_service import generate_scalp_signal
@@ -1402,8 +1403,23 @@ class ScalpAnalyzer:
             bars = self.fetch_bars(ticker, interval)
 
             if not bars or len(bars) < 30:
-                market_type = "crypto" if is_crypto else "stock"
-                return {"error": f"Insufficient data for {ticker}. Ensure {market_type} market is open."}
+                # Check market status for stocks
+                if not is_crypto:
+                    try:
+                        est = pytz.timezone('US/Eastern')
+                        now = datetime.now(est)
+                        if now.weekday() >= 5:
+                            market_msg = "Market closed (Weekend)"
+                        elif now.hour < 9 or (now.hour == 9 and now.minute < 30):
+                            market_msg = "Market closed (Pre-market). Opens 9:30 AM EST"
+                        elif now.hour >= 16:
+                            market_msg = "Market closed (After-hours). Opens tomorrow 9:30 AM EST"
+                        else:
+                            market_msg = "Market open but no data available"
+                        return {"error": f"{market_msg}. Try crypto (e.g., BTCUSDT) or wait for market to open."}
+                    except:
+                        pass
+                return {"error": f"Insufficient data for {ticker}. Try crypto pairs like BTCUSDT which trade 24/7."}
 
             closes = [bar.get("c", 0) for bar in bars]
             current_price = closes[-1]
