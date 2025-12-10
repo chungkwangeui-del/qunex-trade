@@ -6,6 +6,7 @@ from flask import Blueprint, jsonify, request
 from flask_login import login_required, current_user
 from web.database import db, Transaction, Watchlist
 from web.polygon_service import get_polygon_service
+from web.extensions import cache
 from datetime import datetime, timedelta
 from decimal import Decimal
 from collections import defaultdict
@@ -104,6 +105,7 @@ def get_market_status():
 
 @api_market_features.route("/api/market/sector-heatmap")
 @login_required
+@cache.cached(timeout=60, key_prefix='sector_heatmap')  # Cache for 1 minute
 def get_sector_heatmap():
     """
     Get sector performance data for heatmap visualization.
@@ -164,6 +166,7 @@ def get_sector_heatmap():
 
 @api_market_features.route("/api/market/treemap")
 @login_required
+@cache.cached(timeout=60, key_prefix='treemap_data')  # Cache for 1 minute
 def get_treemap_data():
     """
     Get stock data for Finviz-style treemap visualization.

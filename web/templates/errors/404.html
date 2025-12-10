@@ -1,0 +1,182 @@
+{% extends "base_layout.html" %}
+
+{% block title %}404 - Page Not Found{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .error-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 60vh;
+        text-align: center;
+        padding: 40px 20px;
+    }
+
+    .error-code {
+        font-size: 8rem;
+        font-weight: 800;
+        font-family: 'JetBrains Mono', monospace;
+        background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        line-height: 1;
+        margin-bottom: 16px;
+    }
+
+    .error-title {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 12px;
+    }
+
+    .error-message {
+        font-size: 1rem;
+        color: var(--text-secondary);
+        max-width: 400px;
+        margin-bottom: 32px;
+        line-height: 1.6;
+    }
+
+    .error-actions {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .error-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 24px;
+        border-radius: var(--radius-lg);
+        font-size: 0.875rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+    .error-btn-primary {
+        background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+        color: #000;
+    }
+
+    .error-btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 217, 255, 0.3);
+    }
+
+    .error-btn-secondary {
+        background: var(--bg-hover);
+        border: 1px solid var(--border-subtle);
+        color: var(--text-primary);
+    }
+
+    .error-btn-secondary:hover {
+        border-color: var(--accent-cyan);
+        background: var(--bg-active);
+    }
+
+    .error-illustration {
+        width: 200px;
+        height: 200px;
+        margin-bottom: 24px;
+        opacity: 0.8;
+    }
+
+    .error-suggestions {
+        margin-top: 48px;
+        padding: 24px;
+        background: var(--bg-card);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-xl);
+        max-width: 500px;
+    }
+
+    .error-suggestions h3 {
+        font-size: 0.875rem;
+        color: var(--text-tertiary);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 16px;
+    }
+
+    .suggestion-links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .suggestion-link {
+        padding: 8px 16px;
+        background: var(--bg-hover);
+        border-radius: var(--radius-md);
+        color: var(--text-secondary);
+        text-decoration: none;
+        font-size: 0.875rem;
+        transition: all 0.2s ease;
+    }
+
+    .suggestion-link:hover {
+        background: var(--bg-active);
+        color: var(--accent-cyan);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="error-container">
+    <svg class="error-illustration" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="100" cy="100" r="80" stroke="url(#gradient)" stroke-width="2" stroke-dasharray="8 8" opacity="0.3"/>
+        <circle cx="100" cy="100" r="60" stroke="url(#gradient)" stroke-width="1" opacity="0.2"/>
+        <path d="M70 80 L100 110 L130 80" stroke="var(--accent-cyan)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <path d="M70 100 L100 130 L130 100" stroke="var(--accent-purple)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity="0.5"/>
+        <circle cx="100" cy="100" r="8" fill="var(--accent-cyan)"/>
+        <defs>
+            <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="var(--accent-cyan)"/>
+                <stop offset="100%" stop-color="var(--accent-purple)"/>
+            </linearGradient>
+        </defs>
+    </svg>
+
+    <div class="error-code">404</div>
+    <h1 class="error-title">Page Not Found</h1>
+    <p class="error-message">
+        The page you're looking for doesn't exist or has been moved.
+        Let's get you back on track.
+    </p>
+
+    <div class="error-actions">
+        <a href="{{ url_for('main.dashboard') }}" class="error-btn error-btn-primary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                <polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+            Go to Dashboard
+        </a>
+        <a href="javascript:history.back()" class="error-btn error-btn-secondary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="19" y1="12" x2="5" y2="12"/>
+                <polyline points="12 19 5 12 12 5"/>
+            </svg>
+            Go Back
+        </a>
+    </div>
+
+    <div class="error-suggestions">
+        <h3>Popular Pages</h3>
+        <div class="suggestion-links">
+            <a href="{{ url_for('main.scalping') }}" class="suggestion-link">Scalping</a>
+            <a href="{{ url_for('main.swing') }}" class="suggestion-link">Swing Trading</a>
+            <a href="{{ url_for('main.screener') }}" class="suggestion-link">Screener</a>
+            <a href="{{ url_for('main.market_heatmap') }}" class="suggestion-link">Market Map</a>
+            <a href="{{ url_for('main.portfolio') }}" class="suggestion-link">Portfolio</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

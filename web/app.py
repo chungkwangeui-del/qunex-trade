@@ -163,7 +163,7 @@ def not_found(error):
     payload = {"error": "Not Found", "message": getattr(error, "description", ""), "request_id": getattr(g, "request_id", None)}
     if _wants_json():
         return payload, 404
-    return render_template("404.html", **payload), 404
+    return render_template("errors/404.html", **payload), 404
 
 
 @app.errorhandler(500)
@@ -171,7 +171,7 @@ def internal_error(error):
     payload = {"error": "Server Error", "message": "An unexpected error occurred.", "request_id": getattr(g, "request_id", None)}
     if _wants_json():
         return payload, 500
-    return render_template("500.html", **payload), 500
+    return render_template("errors/500.html", **payload), 500
 
 
 if __name__ == "__main__":
