@@ -33,7 +33,8 @@
       "Bash(tasklist:*)",
       "Bash(set \"PYTHONPATH=c:\\Users\\chung\\OneDrive\\바탕 화면\\PENNY STOCK TRADE\")",
       "Bash(cd:*)",
-      "Bash(xargs cat:*)"
+      "Bash(xargs cat:*)",
+      "WebSearch"
     ],
     "deny": [],
     "ask": []
