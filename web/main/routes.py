@@ -354,3 +354,10 @@ def sector_heatmap():
 def analytics():
     """Performance Analytics Dashboard"""
     return render_template("analytics.html", user=current_user)
+
+
+@main.route("/paper-trading")
+@login_required
+def paper_trading():
+    """Paper Trading - Practice with virtual money"""
+    return render_template("paper_trading.html", user=current_user)
