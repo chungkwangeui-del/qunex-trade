@@ -8,6 +8,71 @@ from typing import Dict, Any, List, Optional
 from statistics import mean
 
 
+def _find_swings(values: List[float], lookback: int = 3) -> Dict[str, List[Dict[str, float]]]:
+    """Find swing highs/lows indices with simple lookback window."""
+    highs = []
+    lows = []
+    for i in range(lookback, len(values) - lookback):
+        window_prev = values[i - lookback : i]
+        window_next = values[i + 1 : i + 1 + lookback]
+        val = values[i]
+        if val > max(window_prev) and val > max(window_next):
+            highs.append({"price": val, "idx": i})
+        if val < min(window_prev) and val < min(window_next):
+            lows.append({"price": val, "idx": i})
+    return {"highs": highs, "lows": lows}
+
+
+def _cluster_levels(levels: List[Dict[str, float]], pct: float = 0.005) -> List[Dict[str, float]]:
+    """Cluster nearby price levels within pct band; returns averaged levels with strength."""
+    if not levels:
+        return []
+    levels = sorted(levels, key=lambda x: x["price"])
+    clusters: List[List[Dict[str, float]]] = []
+    current = [levels[0]]
+    for lvl in levels[1:]:
+        if abs(lvl["price"] - current[-1]["price"]) / current[-1]["price"] <= pct:
+            current.append(lvl)
+        else:
+            clusters.append(current)
+            current = [lvl]
+    clusters.append(current)
+
+    result = []
+    for cl in clusters:
+        avg_price = sum(l["price"] for l in cl) / len(cl)
+        strength = len(cl)
+        result.append({"price": avg_price, "touches": strength, "strength": min(5, strength)})
+    return result
+
+
+def _swing_sr(highs: List[float], lows: List[float], closes: List[float]) -> Dict[str, Optional[Dict[str, float]]]:
+    """Compute nearest support/resistance from swing clusters."""
+    swings = _find_swings(closes, lookback=3)
+    swing_highs = _cluster_levels(swings["highs"], pct=0.005)
+    swing_lows = _cluster_levels(swings["lows"], pct=0.005)
+
+    current = closes[-1]
+    nearest_res = None
+    for sh in swing_highs:
+        if sh["price"] > current:
+            if nearest_res is None or sh["price"] < nearest_res["price"]:
+                nearest_res = sh
+
+    nearest_sup = None
+    for sl in swing_lows:
+        if sl["price"] < current:
+            if nearest_sup is None or sl["price"] > nearest_sup["price"]:
+                nearest_sup = sl
+
+    return {
+        "support": nearest_sup,
+        "resistance": nearest_res,
+        "swing_highs": swing_highs[-5:],
+        "swing_lows": swing_lows[-5:],
+    }
+
+
 def _ema(values: List[float], period: int) -> Optional[float]:
     if not values or len(values) < period:
         return None
@@ -114,9 +179,26 @@ def generate_scalp_signal(
     risk = entry - stop
     if risk <= 0:
         return None
+    # Support / Resistance context (swing-based)
+    sr = _swing_sr(highs, lows, closes)
+    support = sr.get("support")
+    resistance = sr.get("resistance")
+
     tp1 = entry + risk * risk_reward
     tp2 = entry + risk * (risk_reward + 1)  # e.g., 3R if risk_reward=2
     tp3 = entry + risk * (risk_reward + 2)  # e.g., 4R if risk_reward=2
+
+    # Snap TP to nearest resistance if closer (for longs)
+    rr_to_resistance = None
+    if resistance and resistance.get("price"):
+        rr_to_resistance = (resistance["price"] - entry) / risk if risk > 0 else None
+        snapped_tp = min(tp1, resistance["price"])
+        if snapped_tp > entry:
+            tp1 = snapped_tp
+
+    # Enforce minimum R:R to nearest resistance (avoid weak setups)
+    if rr_to_resistance is not None and rr_to_resistance < 1.2:
+        return None
 
     reason = [
         f"Trend: EMA20 ({ema20:.2f}) > EMA50 ({ema50:.2f})",
@@ -126,7 +208,14 @@ def generate_scalp_signal(
         f"Risk/Reward: {risk_reward:.1f}R, stop at prior low {prior_low:.2f}",
     ]
 
+    if resistance and resistance.get("price"):
+        reason.append(f"Nearest resistance {resistance['price']:.2f} (touches {resistance.get('touches', 1)})")
+    if support and support.get("price"):
+        reason.append(f"Nearest support {support['price']:.2f} (touches {support.get('touches', 1)})")
+
     confidence = _confidence_score(ema20, ema50, rsi, vol_ratio)
+    if rr_to_resistance:
+        confidence = int(min(100, confidence + max(0, (rr_to_resistance - 1.2) * 15)))
 
     return {
         "entry": round(entry, 4),
@@ -144,6 +233,9 @@ def generate_scalp_signal(
             "prior_high": round(prior_high, 4),
             "prior_low": round(prior_low, 4),
             "vol_ratio": round(vol_ratio, 2),
+            "support": support["price"] if support else None,
+            "resistance": resistance["price"] if resistance else None,
+            "rr_to_resistance": round(rr_to_resistance, 2) if rr_to_resistance else None,
         },
         "generated_at": datetime.now(timezone.utc).isoformat(),
     }

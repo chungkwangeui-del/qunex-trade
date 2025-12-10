@@ -4,6 +4,104 @@
 
 {% block extra_styles %}
 <style>
+    /* Top Bar - Market Status & Auto-refresh */
+    .top-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+        padding: 12px 16px;
+        background: var(--bg-card);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-lg);
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .market-status {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: var(--text-sm);
+    }
+
+    .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        animation: pulse 2s infinite;
+    }
+
+    .status-dot.open { background: var(--success); }
+    .status-dot.closed { background: var(--danger); }
+    .status-dot.premarket { background: #f59e0b; }
+
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+    }
+
+    .auto-refresh-toggle {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: var(--text-sm);
+        color: var(--text-secondary);
+    }
+
+    .toggle-switch {
+        position: relative;
+        width: 44px;
+        height: 24px;
+        background: var(--bg-hover);
+        border-radius: 12px;
+        cursor: pointer;
+        transition: background var(--transition-fast);
+    }
+
+    .toggle-switch.active {
+        background: var(--accent-cyan);
+    }
+
+    .toggle-switch::after {
+        content: '';
+        position: absolute;
+        width: 18px;
+        height: 18px;
+        background: white;
+        border-radius: 50%;
+        top: 3px;
+        left: 3px;
+        transition: transform var(--transition-fast);
+    }
+
+    .toggle-switch.active::after {
+        transform: translateX(20px);
+    }
+
+    .refresh-countdown {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: var(--text-xs);
+        color: var(--text-tertiary);
+        min-width: 30px;
+    }
+
+    .keyboard-hint {
+        font-size: var(--text-xs);
+        color: var(--text-tertiary);
+        display: flex;
+        gap: 12px;
+    }
+
+    .kbd {
+        padding: 2px 6px;
+        background: var(--bg-hover);
+        border: 1px solid var(--border-subtle);
+        border-radius: 4px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 10px;
+    }
+
     /* Search Section */
     .search-section {
         background: var(--bg-card);
@@ -13,10 +111,18 @@
         margin-bottom: 24px;
     }
 
+    .search-row {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
     .search-form {
         display: flex;
         gap: 12px;
         align-items: center;
+        flex: 1;
     }
 
     .search-input {
@@ -54,6 +160,12 @@
         box-shadow: 0 4px 20px rgba(0, 217, 255, 0.3);
     }
 
+    .search-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+    }
+
     .timeframe-tabs {
         display: flex;
         gap: 8px;
@@ -82,6 +194,302 @@
         background: rgba(0, 217, 255, 0.1);
         color: var(--accent-cyan);
         border-color: var(--accent-cyan);
+    }
+
+    /* Recent Searches & Watchlist */
+    .quick-access {
+        display: flex;
+        gap: 16px;
+        margin-top: 16px;
+        flex-wrap: wrap;
+    }
+
+    .quick-access-section {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .quick-access-label {
+        font-size: var(--text-xs);
+        color: var(--text-tertiary);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .quick-ticker {
+        padding: 4px 10px;
+        background: var(--bg-hover);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-sm);
+        font-size: var(--text-xs);
+        font-family: 'JetBrains Mono', monospace;
+        color: var(--text-secondary);
+        cursor: pointer;
+        transition: all var(--transition-fast);
+    }
+
+    .quick-ticker:hover {
+        background: rgba(0, 217, 255, 0.1);
+        border-color: var(--accent-cyan);
+        color: var(--accent-cyan);
+    }
+
+    .quick-ticker.watchlist {
+        border-color: rgba(234, 179, 8, 0.3);
+    }
+
+    .quick-ticker.watchlist:hover {
+        background: rgba(234, 179, 8, 0.1);
+        border-color: #eab308;
+        color: #eab308;
+    }
+
+    .watchlist-btn {
+        padding: 4px 8px;
+        background: transparent;
+        border: 1px dashed var(--border-subtle);
+        border-radius: var(--radius-sm);
+        font-size: var(--text-xs);
+        color: var(--text-tertiary);
+        cursor: pointer;
+        transition: all var(--transition-fast);
+    }
+
+    .watchlist-btn:hover {
+        border-color: #eab308;
+        color: #eab308;
+    }
+
+    .watchlist-btn.added {
+        background: rgba(234, 179, 8, 0.1);
+        border-style: solid;
+        border-color: #eab308;
+        color: #eab308;
+    }
+
+    /* Position Size Calculator */
+    .position-calc {
+        background: var(--bg-card);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-xl);
+        padding: 20px;
+        margin-top: 16px;
+    }
+
+    .position-calc-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+    }
+
+    .position-calc-title {
+        font-size: var(--text-sm);
+        font-weight: var(--font-semibold);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--text-secondary);
+    }
+
+    .calc-toggle {
+        font-size: var(--text-xs);
+        color: var(--accent-cyan);
+        cursor: pointer;
+    }
+
+    .calc-inputs {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        margin-bottom: 16px;
+    }
+
+    .calc-input-group {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .calc-label {
+        font-size: var(--text-xs);
+        color: var(--text-tertiary);
+    }
+
+    .calc-input {
+        padding: 8px 12px;
+        background: var(--bg-hover);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-md);
+        color: var(--text-primary);
+        font-family: 'JetBrains Mono', monospace;
+        font-size: var(--text-sm);
+    }
+
+    .calc-input:focus {
+        outline: none;
+        border-color: var(--accent-cyan);
+    }
+
+    .calc-results {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+        padding-top: 16px;
+        border-top: 1px solid var(--border-subtle);
+    }
+
+    .calc-result-item {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .calc-result-label {
+        font-size: var(--text-xs);
+        color: var(--text-tertiary);
+    }
+
+    .calc-result-value {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: var(--text-sm);
+        font-weight: var(--font-semibold);
+        color: var(--accent-cyan);
+    }
+
+    .calc-result-value.shares {
+        color: var(--success);
+        font-size: 1.1rem;
+    }
+
+    /* Copy Buttons */
+    .copy-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        height: 24px;
+        background: transparent;
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-sm);
+        color: var(--text-tertiary);
+        cursor: pointer;
+        transition: all var(--transition-fast);
+        margin-left: 8px;
+        font-size: 12px;
+    }
+
+    .copy-btn:hover {
+        background: var(--bg-hover);
+        border-color: var(--accent-cyan);
+        color: var(--accent-cyan);
+    }
+
+    .copy-btn.copied {
+        background: rgba(34, 197, 94, 0.1);
+        border-color: var(--success);
+        color: var(--success);
+    }
+
+    .entry-exit-value-wrapper {
+        display: flex;
+        align-items: center;
+    }
+
+    /* Toast Notification */
+    .toast-container {
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        z-index: 9999;
+    }
+
+    .toast {
+        padding: 12px 20px;
+        background: var(--bg-card);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-lg);
+        color: var(--text-primary);
+        font-size: var(--text-sm);
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        display: none;
+        animation: slideIn 0.3s ease;
+    }
+
+    .toast.show {
+        display: block;
+    }
+
+    .toast.success {
+        border-color: var(--success);
+        background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), var(--bg-card));
+    }
+
+    .toast.warning {
+        border-color: #eab308;
+        background: linear-gradient(135deg, rgba(234, 179, 8, 0.1), var(--bg-card));
+    }
+
+    .toast.error {
+        border-color: var(--danger);
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), var(--bg-card));
+    }
+
+    @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+
+    /* Last Updated Timestamp */
+    .last-updated {
+        font-size: var(--text-xs);
+        color: var(--text-tertiary);
+        text-align: right;
+        margin-top: 8px;
+    }
+
+    /* Mobile Improvements */
+    @media (max-width: 768px) {
+        .top-bar {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .keyboard-hint {
+            display: none;
+        }
+
+        .search-row {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .search-form {
+            flex-direction: column;
+        }
+
+        .search-input {
+            max-width: 100%;
+        }
+
+        .timeframe-tabs {
+            margin-left: 0;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .calc-inputs {
+            grid-template-columns: 1fr;
+        }
+
+        .calc-results {
+            grid-template-columns: 1fr;
+        }
+
+        .quick-access {
+            flex-direction: column;
+        }
     }
 
     /* Main Grid */
@@ -840,6 +1248,26 @@
     </div>
 </div>
 
+<!-- Top Bar - Market Status & Controls -->
+<div class="top-bar">
+    <div class="market-status">
+        <span class="status-dot" id="marketStatusDot"></span>
+        <span id="marketStatusText">Checking market...</span>
+        <span id="marketTime" style="margin-left: 8px; font-family: 'JetBrains Mono', monospace; color: var(--text-tertiary);"></span>
+    </div>
+    <div class="auto-refresh-toggle">
+        <span>Auto-refresh</span>
+        <div class="toggle-switch" id="autoRefreshToggle" onclick="toggleAutoRefresh()"></div>
+        <span class="refresh-countdown" id="refreshCountdown">--</span>
+    </div>
+    <div class="keyboard-hint">
+        <span><span class="kbd">R</span> Refresh</span>
+        <span><span class="kbd">F</span> Focus search</span>
+        <span><span class="kbd">1-5</span> Timeframe</span>
+        <span><span class="kbd">W</span> Watchlist</span>
+    </div>
+</div>
+
 <!-- Strategy Info - 쉽알 Strategy -->
 <div class="strategy-info">
     <strong>Strategy:</strong> 쉽알 Trading Method - Confluence-based scalping with minimum 2 reasons required for entry
@@ -858,15 +1286,30 @@
 
 <!-- Search Section -->
 <div class="search-section">
-    <form class="search-form" id="searchForm" onsubmit="return analyzeStock(event)">
-        <input type="text" class="search-input" id="tickerInput" placeholder="AAPL or BTCUSDT" maxlength="12" required>
-        <button type="submit" class="search-btn" id="analyzeBtn">Analyze</button>
+    <div class="search-row">
+        <form class="search-form" id="searchForm" onsubmit="return analyzeStock(event)">
+            <input type="text" class="search-input" id="tickerInput" placeholder="AAPL or BTCUSDT" maxlength="12" required>
+            <button type="submit" class="search-btn" id="analyzeBtn">Analyze</button>
+            <button type="button" class="watchlist-btn" id="watchlistBtn" onclick="toggleWatchlist()" title="Add to Watchlist">+ Watch</button>
+        </form>
         <div class="timeframe-tabs">
             <button type="button" class="timeframe-tab" data-interval="1" onclick="setTimeframe('1')">1m</button>
             <button type="button" class="timeframe-tab active" data-interval="5" onclick="setTimeframe('5')">5m</button>
             <button type="button" class="timeframe-tab" data-interval="15" onclick="setTimeframe('15')">15m</button>
+            <button type="button" class="timeframe-tab" data-interval="30" onclick="setTimeframe('30')">30m</button>
+            <button type="button" class="timeframe-tab" data-interval="60" onclick="setTimeframe('60')">1h</button>
         </div>
-    </form>
+    </div>
+    <div class="quick-access">
+        <div class="quick-access-section" id="recentSearches">
+            <span class="quick-access-label">Recent:</span>
+            <!-- Populated by JS -->
+        </div>
+        <div class="quick-access-section" id="watchlistSection">
+            <span class="quick-access-label">Watchlist:</span>
+            <!-- Populated by JS -->
+        </div>
+    </div>
 </div>
 
 <!-- Main Content -->
@@ -1050,38 +1493,101 @@
                 </div>
                 <div class="entry-exit-row">
                     <span class="entry-exit-label">Entry Price</span>
-                    <span class="entry-exit-value green" id="entryPrice">--</span>
+                    <div class="entry-exit-value-wrapper">
+                        <span class="entry-exit-value green" id="entryPrice">--</span>
+                        <button class="copy-btn" onclick="copyValue('entryPrice')" title="Copy">📋</button>
+                    </div>
                 </div>
                 <div class="reasoning-text" id="entryReasoning"></div>
                 <div class="entry-exit-row">
                     <span class="entry-exit-label">Stop Loss</span>
-                    <span class="entry-exit-value red" id="stopLoss">--</span>
+                    <div class="entry-exit-value-wrapper">
+                        <span class="entry-exit-value red" id="stopLoss">--</span>
+                        <button class="copy-btn" onclick="copyValue('stopLoss')" title="Copy">📋</button>
+                    </div>
                 </div>
                 <div class="reasoning-text" id="stopReasoning"></div>
                 <div class="entry-exit-row">
-                    <span class="entry-exit-label">Take Profit</span>
-                    <span class="entry-exit-value green" id="takeProfit">--</span>
+                    <span class="entry-exit-label">Take Profit 1</span>
+                    <div class="entry-exit-value-wrapper">
+                        <span class="entry-exit-value green" id="takeProfit">--</span>
+                        <button class="copy-btn" onclick="copyValue('takeProfit')" title="Copy">📋</button>
+                    </div>
                 </div>
                 <div class="entry-exit-row">
                     <span class="entry-exit-label">Take Profit 2</span>
-                    <span class="entry-exit-value green" id="takeProfit2">--</span>
+                    <div class="entry-exit-value-wrapper">
+                        <span class="entry-exit-value green" id="takeProfit2">--</span>
+                        <button class="copy-btn" onclick="copyValue('takeProfit2')" title="Copy">📋</button>
+                    </div>
                 </div>
                 <div class="entry-exit-row">
                     <span class="entry-exit-label">Take Profit 3</span>
-                    <span class="entry-exit-value green" id="takeProfit3">--</span>
+                    <div class="entry-exit-value-wrapper">
+                        <span class="entry-exit-value green" id="takeProfit3">--</span>
+                        <button class="copy-btn" onclick="copyValue('takeProfit3')" title="Copy">📋</button>
+                    </div>
                 </div>
                 <div class="reasoning-text" id="targetReasoning"></div>
                 <!-- R:R Warning -->
                 <div class="exit-warning" id="rrWarning" style="display: none;">
                     <span id="rrWarningText"></span>
                 </div>
+                <button class="copy-btn" style="width: 100%; height: auto; padding: 8px; margin-top: 12px;" onclick="copyAllLevels()" title="Copy All">
+                    📋 Copy All Levels
+                </button>
+            </div>
+
+            <!-- Position Size Calculator -->
+            <div class="position-calc" id="positionCalc">
+                <div class="position-calc-header">
+                    <span class="position-calc-title">Position Size Calculator</span>
+                    <span class="calc-toggle" onclick="toggleCalcCollapse()">▼</span>
+                </div>
+                <div id="calcBody">
+                    <div class="calc-inputs">
+                        <div class="calc-input-group">
+                            <label class="calc-label">Account Size ($)</label>
+                            <input type="number" class="calc-input" id="accountSize" value="10000" min="100" step="100" onchange="calculatePosition()">
+                        </div>
+                        <div class="calc-input-group">
+                            <label class="calc-label">Risk Per Trade (%)</label>
+                            <input type="number" class="calc-input" id="riskPercent" value="1" min="0.1" max="5" step="0.1" onchange="calculatePosition()">
+                        </div>
+                    </div>
+                    <div class="calc-results">
+                        <div class="calc-result-item">
+                            <span class="calc-result-label">Risk Amount ($)</span>
+                            <span class="calc-result-value" id="riskAmount">$100</span>
+                        </div>
+                        <div class="calc-result-item">
+                            <span class="calc-result-label">Position Size</span>
+                            <span class="calc-result-value shares" id="positionSize">-- shares</span>
+                        </div>
+                        <div class="calc-result-item">
+                            <span class="calc-result-label">Total Investment</span>
+                            <span class="calc-result-value" id="totalInvestment">$--</span>
+                        </div>
+                        <div class="calc-result-item">
+                            <span class="calc-result-label">Potential Profit (TP1)</span>
+                            <span class="calc-result-value" id="potentialProfit" style="color: var(--success);">$--</span>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="risk-warning">
                 <strong>Risk Warning:</strong> Scalp trading is high-risk. Never risk more than 1-2% of your account per trade. Minimum R:R of 1:2 recommended. Past performance does not guarantee future results.
             </div>
+
+            <div class="last-updated" id="lastUpdated"></div>
         </div>
     </div>
+</div>
+
+<!-- Toast Notification -->
+<div class="toast-container">
+    <div class="toast" id="toast"></div>
 </div>
 {% endblock %}
 
@@ -1093,6 +1599,8 @@
     let currentAssetType = 'stock';
     let tvWidget = null;
     let signalShapes = [];
+    let chartReady = false;
+    let pendingSignal = null;
 
     // Detect if ticker is crypto
     function isCryptoTicker(ticker) {
@@ -1157,6 +1665,9 @@
         const tvSymbol = getTVSymbol(ticker);
         const timezone = isCryptoTicker(ticker) ? "Etc/UTC" : "America/New_York";
 
+        chartReady = false;
+        pendingSignal = null;
+
         tvWidget = new TradingView.widget({
             "autosize": true,
             "symbol": tvSymbol,
@@ -1177,6 +1688,14 @@
             "backgroundColor": "#000000",
             "gridColor": "#1a1a1a"
         });
+
+        tvWidget.onChartReady(() => {
+            chartReady = true;
+            if (pendingSignal) {
+                drawSignalOnChart(pendingSignal);
+                pendingSignal = null;
+            }
+        });
     }
 
     function clearSignalShapes() {
@@ -1190,31 +1709,34 @@
 
     function drawSignalOnChart(signal) {
         if (!tvWidget) return;
-        tvWidget.onChartReady(() => {
-            const chart = tvWidget.chart();
-            clearSignalShapes();
-            const addLine = (price, color, text) => {
-                if (!price) return;
-                const id = chart.createShape(
-                    { price },
-                    {
-                        shape: 'horizontal_line',
-                        lock: true,
-                        disableSelection: true,
-                        disableSave: true,
-                        text,
-                        color,
-                        textColor: color,
-                    }
-                );
-                if (id) signalShapes.push(id);
-            };
-            addLine(signal.entry, '#22c55e', 'Entry');
-            addLine(signal.stop, '#ef4444', 'Stop');
-            addLine(signal.tp1, '#22d3ee', 'TP1');
-            addLine(signal.tp2, '#a855f7', 'TP2');
-            addLine(signal.tp3, '#f59e0b', 'TP3');
-        });
+        if (!chartReady) {
+            pendingSignal = signal;
+            return;
+        }
+        const chart = tvWidget.activeChart ? tvWidget.activeChart() : tvWidget.chart();
+        if (!chart) return;
+        clearSignalShapes();
+        const addLine = (price, color, text) => {
+            if (price === null || price === undefined) return;
+            const id = chart.createShape(
+                { price },
+                {
+                    shape: 'horizontal_line',
+                    lock: true,
+                    disableSelection: true,
+                    disableSave: true,
+                    text,
+                    color,
+                    textColor: color,
+                }
+            );
+            if (id) signalShapes.push(id);
+        };
+        addLine(signal.entry, '#22c55e', 'Entry');
+        addLine(signal.stop, '#ef4444', 'Stop');
+        addLine(signal.tp1, '#22d3ee', 'TP1');
+        addLine(signal.tp2, '#a855f7', 'TP2');
+        addLine(signal.tp3, '#f59e0b', 'TP3');
     }
 
     async function fetchSignalAndOverlay(ticker) {
@@ -1259,6 +1781,18 @@
             // Confidence badge (ML-lite)
             if (sig.confidence !== undefined) {
                 document.getElementById('signalConfidence').textContent = `Confidence: ${sig.confidence}% (hybrid)`;
+            }
+
+            // Update key levels with S/R from signal if present
+            if (sig.levels) {
+                const supportEl = document.getElementById('supportLevel');
+                const resistanceEl = document.getElementById('resistanceLevel');
+                if (supportEl && sig.levels.support) {
+                    supportEl.textContent = sig.levels.support.toFixed(2);
+                }
+                if (resistanceEl && sig.levels.resistance) {
+                    resistanceEl.textContent = sig.levels.resistance.toFixed(2);
+                }
             }
 
             drawSignalOnChart(sig);
@@ -1669,6 +2203,390 @@
             trapDetail.innerHTML = '';
         }
     }
+
+    // ==========================================
+    // NEW FEATURES
+    // ==========================================
+
+    // State variables
+    let autoRefreshEnabled = false;
+    let autoRefreshInterval = null;
+    let refreshCountdown = 30;
+    let watchlist = JSON.parse(localStorage.getItem('scalp_watchlist') || '[]');
+    let recentSearches = JSON.parse(localStorage.getItem('scalp_recent') || '[]');
+    let currentEntryPrice = null;
+    let currentStopPrice = null;
+    let currentTP1Price = null;
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        updateMarketStatus();
+        setInterval(updateMarketStatus, 60000); // Update every minute
+        renderWatchlist();
+        renderRecentSearches();
+        loadCalcSettings();
+        document.getElementById('tickerInput').focus();
+    });
+
+    // ==========================================
+    // MARKET STATUS
+    // ==========================================
+    function updateMarketStatus() {
+        const now = new Date();
+        const nyTime = new Date(now.toLocaleString("en-US", {timeZone: "America/New_York"}));
+        const day = nyTime.getDay();
+        const hour = nyTime.getHours();
+        const minute = nyTime.getMinutes();
+        const timeStr = nyTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+
+        const dot = document.getElementById('marketStatusDot');
+        const text = document.getElementById('marketStatusText');
+        const timeEl = document.getElementById('marketTime');
+
+        timeEl.textContent = `(NY: ${timeStr})`;
+
+        // Weekend
+        if (day === 0 || day === 6) {
+            dot.className = 'status-dot closed';
+            text.textContent = 'Market Closed (Weekend)';
+            return;
+        }
+
+        // Pre-market: 4:00 AM - 9:30 AM
+        if ((hour >= 4 && hour < 9) || (hour === 9 && minute < 30)) {
+            dot.className = 'status-dot premarket';
+            text.textContent = 'Pre-Market';
+            return;
+        }
+
+        // Regular hours: 9:30 AM - 4:00 PM
+        if ((hour === 9 && minute >= 30) || (hour >= 10 && hour < 16)) {
+            dot.className = 'status-dot open';
+            text.textContent = 'Market Open';
+            return;
+        }
+
+        // After-hours: 4:00 PM - 8:00 PM
+        if (hour >= 16 && hour < 20) {
+            dot.className = 'status-dot premarket';
+            text.textContent = 'After-Hours';
+            return;
+        }
+
+        // Closed
+        dot.className = 'status-dot closed';
+        text.textContent = 'Market Closed';
+    }
+
+    // ==========================================
+    // AUTO-REFRESH
+    // ==========================================
+    function toggleAutoRefresh() {
+        autoRefreshEnabled = !autoRefreshEnabled;
+        const toggle = document.getElementById('autoRefreshToggle');
+        const countdown = document.getElementById('refreshCountdown');
+
+        if (autoRefreshEnabled) {
+            toggle.classList.add('active');
+            refreshCountdown = 30;
+            countdown.textContent = `${refreshCountdown}s`;
+            autoRefreshInterval = setInterval(() => {
+                refreshCountdown--;
+                countdown.textContent = `${refreshCountdown}s`;
+                if (refreshCountdown <= 0) {
+                    refreshCountdown = 30;
+                    if (currentTicker) {
+                        fetchAnalysis(currentTicker);
+                    }
+                }
+            }, 1000);
+        } else {
+            toggle.classList.remove('active');
+            countdown.textContent = '--';
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+                autoRefreshInterval = null;
+            }
+        }
+    }
+
+    // ==========================================
+    // WATCHLIST
+    // ==========================================
+    function toggleWatchlist() {
+        if (!currentTicker) {
+            showToast('Enter a ticker first', 'warning');
+            return;
+        }
+
+        const btn = document.getElementById('watchlistBtn');
+        const idx = watchlist.indexOf(currentTicker);
+
+        if (idx >= 0) {
+            watchlist.splice(idx, 1);
+            btn.classList.remove('added');
+            btn.textContent = '+ Watch';
+            showToast(`${currentTicker} removed from watchlist`, 'info');
+        } else {
+            if (watchlist.length >= 10) {
+                watchlist.shift(); // Remove oldest
+            }
+            watchlist.push(currentTicker);
+            btn.classList.add('added');
+            btn.textContent = '★ Watching';
+            showToast(`${currentTicker} added to watchlist`, 'success');
+        }
+
+        localStorage.setItem('scalp_watchlist', JSON.stringify(watchlist));
+        renderWatchlist();
+    }
+
+    function renderWatchlist() {
+        const container = document.getElementById('watchlistSection');
+        let html = '<span class="quick-access-label">Watchlist:</span>';
+
+        if (watchlist.length === 0) {
+            html += '<span style="color: var(--text-tertiary); font-size: var(--text-xs);">Empty</span>';
+        } else {
+            watchlist.forEach(ticker => {
+                html += `<span class="quick-ticker watchlist" onclick="quickAnalyze('${ticker}')">${ticker}</span>`;
+            });
+        }
+
+        container.innerHTML = html;
+
+        // Update watchlist button state if current ticker is in watchlist
+        if (currentTicker) {
+            const btn = document.getElementById('watchlistBtn');
+            if (watchlist.includes(currentTicker)) {
+                btn.classList.add('added');
+                btn.textContent = '★ Watching';
+            } else {
+                btn.classList.remove('added');
+                btn.textContent = '+ Watch';
+            }
+        }
+    }
+
+    // ==========================================
+    // RECENT SEARCHES
+    // ==========================================
+    function addToRecent(ticker) {
+        // Remove if already exists
+        recentSearches = recentSearches.filter(t => t !== ticker);
+        // Add to front
+        recentSearches.unshift(ticker);
+        // Keep only last 5
+        recentSearches = recentSearches.slice(0, 5);
+        localStorage.setItem('scalp_recent', JSON.stringify(recentSearches));
+        renderRecentSearches();
+    }
+
+    function renderRecentSearches() {
+        const container = document.getElementById('recentSearches');
+        let html = '<span class="quick-access-label">Recent:</span>';
+
+        if (recentSearches.length === 0) {
+            html += '<span style="color: var(--text-tertiary); font-size: var(--text-xs);">None</span>';
+        } else {
+            recentSearches.forEach(ticker => {
+                html += `<span class="quick-ticker" onclick="quickAnalyze('${ticker}')">${ticker}</span>`;
+            });
+        }
+
+        container.innerHTML = html;
+    }
+
+    function quickAnalyze(ticker) {
+        document.getElementById('tickerInput').value = ticker;
+        document.getElementById('searchForm').dispatchEvent(new Event('submit', { cancelable: true }));
+    }
+
+    // ==========================================
+    // POSITION SIZE CALCULATOR
+    // ==========================================
+    function calculatePosition() {
+        const accountSize = parseFloat(document.getElementById('accountSize').value) || 10000;
+        const riskPercent = parseFloat(document.getElementById('riskPercent').value) || 1;
+
+        // Save settings
+        localStorage.setItem('scalp_account', accountSize);
+        localStorage.setItem('scalp_risk', riskPercent);
+
+        const riskAmount = accountSize * (riskPercent / 100);
+        document.getElementById('riskAmount').textContent = `$${riskAmount.toFixed(2)}`;
+
+        // Calculate shares based on entry/stop prices
+        if (currentEntryPrice && currentStopPrice && currentEntryPrice !== currentStopPrice) {
+            const riskPerShare = Math.abs(currentEntryPrice - currentStopPrice);
+            const shares = Math.floor(riskAmount / riskPerShare);
+            const totalInvestment = shares * currentEntryPrice;
+            const potentialProfit = currentTP1Price ? shares * (currentTP1Price - currentEntryPrice) : riskAmount * 2;
+
+            document.getElementById('positionSize').textContent = `${shares} shares`;
+            document.getElementById('totalInvestment').textContent = `$${totalInvestment.toFixed(2)}`;
+            document.getElementById('potentialProfit').textContent = `$${potentialProfit.toFixed(2)}`;
+        } else {
+            document.getElementById('positionSize').textContent = '-- shares';
+            document.getElementById('totalInvestment').textContent = '$--';
+            document.getElementById('potentialProfit').textContent = '$--';
+        }
+    }
+
+    function loadCalcSettings() {
+        const savedAccount = localStorage.getItem('scalp_account');
+        const savedRisk = localStorage.getItem('scalp_risk');
+        if (savedAccount) document.getElementById('accountSize').value = savedAccount;
+        if (savedRisk) document.getElementById('riskPercent').value = savedRisk;
+        calculatePosition();
+    }
+
+    function toggleCalcCollapse() {
+        const body = document.getElementById('calcBody');
+        const toggle = document.querySelector('.calc-toggle');
+        if (body.style.display === 'none') {
+            body.style.display = 'block';
+            toggle.textContent = '▼';
+        } else {
+            body.style.display = 'none';
+            toggle.textContent = '▶';
+        }
+    }
+
+    // ==========================================
+    // COPY FUNCTIONS
+    // ==========================================
+    function copyValue(elementId) {
+        const el = document.getElementById(elementId);
+        const text = el.textContent.replace('$', '').trim();
+        navigator.clipboard.writeText(text).then(() => {
+            // Visual feedback
+            const btn = el.nextElementSibling || el.parentElement.querySelector('.copy-btn');
+            if (btn) {
+                btn.classList.add('copied');
+                btn.textContent = '✓';
+                setTimeout(() => {
+                    btn.classList.remove('copied');
+                    btn.textContent = '📋';
+                }, 1500);
+            }
+            showToast(`Copied: ${text}`, 'success');
+        }).catch(() => {
+            showToast('Failed to copy', 'error');
+        });
+    }
+
+    function copyAllLevels() {
+        const entry = document.getElementById('entryPrice').textContent;
+        const stop = document.getElementById('stopLoss').textContent;
+        const tp1 = document.getElementById('takeProfit').textContent;
+        const tp2 = document.getElementById('takeProfit2').textContent;
+        const tp3 = document.getElementById('takeProfit3').textContent;
+
+        const text = `${currentTicker} Trade Setup\nEntry: ${entry}\nStop: ${stop}\nTP1: ${tp1}\nTP2: ${tp2}\nTP3: ${tp3}`;
+
+        navigator.clipboard.writeText(text).then(() => {
+            showToast('All levels copied!', 'success');
+        }).catch(() => {
+            showToast('Failed to copy', 'error');
+        });
+    }
+
+    // ==========================================
+    // TOAST NOTIFICATIONS
+    // ==========================================
+    function showToast(message, variant = 'info') {
+        const toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.className = `toast show ${variant}`;
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, 3000);
+    }
+
+    // ==========================================
+    // KEYBOARD SHORTCUTS
+    // ==========================================
+    document.addEventListener('keydown', function(e) {
+        // Don't trigger shortcuts when typing in input
+        if (e.target.tagName === 'INPUT') {
+            if (e.key === 'Escape') {
+                e.target.blur();
+            }
+            return;
+        }
+
+        switch(e.key.toLowerCase()) {
+            case 'r':
+                if (currentTicker) {
+                    fetchAnalysis(currentTicker);
+                    showToast('Refreshing...', 'info');
+                }
+                break;
+            case 'f':
+                document.getElementById('tickerInput').focus();
+                e.preventDefault();
+                break;
+            case 'w':
+                toggleWatchlist();
+                break;
+            case '1':
+                setTimeframe('1');
+                break;
+            case '2':
+                setTimeframe('5');
+                break;
+            case '3':
+                setTimeframe('15');
+                break;
+            case '4':
+                setTimeframe('30');
+                break;
+            case '5':
+                setTimeframe('60');
+                break;
+            case 'a':
+                toggleAutoRefresh();
+                break;
+        }
+    });
+
+    // ==========================================
+    // OVERRIDE ANALYZE STOCK TO ADD FEATURES
+    // ==========================================
+    const originalAnalyzeStock = analyzeStock;
+    analyzeStock = function(event) {
+        const result = originalAnalyzeStock(event);
+        if (currentTicker) {
+            addToRecent(currentTicker);
+            renderWatchlist(); // Update watchlist button
+        }
+        return result;
+    };
+
+    // Update position calculator when prices change
+    const originalUpdateDisplay = updateDisplay;
+    updateDisplay = function(data) {
+        originalUpdateDisplay(data);
+
+        // Update last updated timestamp
+        const now = new Date();
+        document.getElementById('lastUpdated').textContent = `Last updated: ${now.toLocaleTimeString()}`;
+
+        // Store prices for calculator
+        if (data.trade_setup && data.trade_setup.entry_price) {
+            currentEntryPrice = data.trade_setup.entry_price;
+            currentStopPrice = data.trade_setup.stop_loss;
+            currentTP1Price = data.trade_setup.take_profit;
+            calculatePosition();
+        } else if (data.price) {
+            // Use current price as entry estimate
+            currentEntryPrice = data.price;
+            currentStopPrice = data.levels?.nearest_support || data.price * 0.98;
+            currentTP1Price = data.levels?.nearest_resistance || data.price * 1.04;
+            calculatePosition();
+        }
+    };
 
     // Auto-focus on input
     document.getElementById('tickerInput').focus();
