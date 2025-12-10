@@ -1,5 +1,5 @@
 """
-쉽알 Strategy - Day Trading Signal Service
+쉽알 Strategy - Day Trading Signal Service (Fixed Version)
 
 Based on Korean trader "쉽알" methodology:
 1. Order Blocks (장악형) - Engulfing patterns create S/R zones
@@ -14,7 +14,7 @@ Key Rules:
 - 이중 장악형 = Very strong signal
 - Entry at Order Block or FVG zone
 - Stop below/above the zone
-- TP at opposite zone or 2R
+- TP at ACTUAL S/R levels (not fixed R:R) ← FIXED!
 """
 
 from datetime import datetime, timezone
@@ -42,6 +42,64 @@ def _get_candle_info(bar: Dict) -> Dict:
         "body_percent": (body / total_range * 100) if total_range else 0,
         "is_bullish": c > o,
         "is_bearish": c < o,
+    }
+
+
+def _detect_swing_levels(bars: List[Dict], lookback: int = 5) -> Dict:
+    """
+    Detect Swing Highs and Swing Lows
+
+    Swing High: Candle high is higher than N candles on both sides
+    Swing Low: Candle low is lower than N candles on both sides
+
+    These are key S/R levels for TP targeting!
+    """
+    if len(bars) < lookback * 2 + 1:
+        return {"swing_highs": [], "swing_lows": []}
+
+    swing_highs = []
+    swing_lows = []
+
+    for i in range(lookback, len(bars) - lookback):
+        candle = _get_candle_info(bars[i])
+
+        # Check for Swing High
+        is_swing_high = True
+        for j in range(i - lookback, i + lookback + 1):
+            if j != i:
+                other = _get_candle_info(bars[j])
+                if other["high"] >= candle["high"]:
+                    is_swing_high = False
+                    break
+
+        if is_swing_high:
+            swing_highs.append({
+                "price": candle["high"],
+                "index": i,
+                "type": "resistance",
+                "strength": 70 + min(30, lookback * 5)  # More lookback = stronger
+            })
+
+        # Check for Swing Low
+        is_swing_low = True
+        for j in range(i - lookback, i + lookback + 1):
+            if j != i:
+                other = _get_candle_info(bars[j])
+                if other["low"] <= candle["low"]:
+                    is_swing_low = False
+                    break
+
+        if is_swing_low:
+            swing_lows.append({
+                "price": candle["low"],
+                "index": i,
+                "type": "support",
+                "strength": 70 + min(30, lookback * 5)
+            })
+
+    return {
+        "swing_highs": swing_highs,
+        "swing_lows": swing_lows
     }
 
 
@@ -76,6 +134,7 @@ def _detect_order_blocks(bars: List[Dict], lookback: int = 30) -> Dict:
                         "zone_mid": (prev["body_top"] + prev["body_bottom"]) / 2,
                         "strength": 70 + min(30, int(curr["body"] / prev["body"] * 10)),
                         "candle_idx": len(bars) - lookback + i if len(bars) > lookback else i,
+                        "type": "support"
                     }
                     bullish_obs.append(ob)
 
@@ -89,6 +148,7 @@ def _detect_order_blocks(bars: List[Dict], lookback: int = 30) -> Dict:
                         "zone_mid": (prev["body_top"] + prev["body_bottom"]) / 2,
                         "strength": 70 + min(30, int(curr["body"] / prev["body"] * 10)),
                         "candle_idx": len(bars) - lookback + i if len(bars) > lookback else i,
+                        "type": "resistance"
                     }
                     bearish_obs.append(ob)
 
@@ -162,6 +222,7 @@ def _detect_fvg(bars: List[Dict], min_gap_percent: float = 0.15) -> Dict:
                     "zone_mid": (c3["low"] + c1["high"]) / 2,
                     "size_percent": round(gap_percent, 2),
                     "strength": min(100, 60 + int(gap_percent * 20)),
+                    "type": "support"
                 }
                 bullish_fvgs.append(fvg)
 
@@ -176,6 +237,7 @@ def _detect_fvg(bars: List[Dict], min_gap_percent: float = 0.15) -> Dict:
                     "zone_mid": (c1["low"] + c3["high"]) / 2,
                     "size_percent": round(gap_percent, 2),
                     "strength": min(100, 60 + int(gap_percent * 20)),
+                    "type": "resistance"
                 }
                 bearish_fvgs.append(fvg)
 
@@ -287,6 +349,123 @@ def _analyze_volume(bars: List[Dict]) -> Dict:
         "ratio": round(ratio, 2),
         "spike": spike,
         "exit_warning": exit_warning
+    }
+
+
+def _build_sr_levels(
+    current_price: float,
+    order_blocks: Dict,
+    fvgs: Dict,
+    swing_levels: Dict
+) -> Dict:
+    """
+    Build comprehensive S/R level list from all sources
+
+    Returns:
+        - supports: List of support levels BELOW current price (sorted descending - nearest first)
+        - resistances: List of resistance levels ABOVE current price (sorted ascending - nearest first)
+    """
+    supports = []
+    resistances = []
+
+    # Add Swing Lows as support
+    for sl in swing_levels["swing_lows"]:
+        if sl["price"] < current_price:
+            supports.append({
+                "price": sl["price"],
+                "type": "swing_low",
+                "strength": sl["strength"]
+            })
+
+    # Add Swing Highs as resistance
+    for sh in swing_levels["swing_highs"]:
+        if sh["price"] > current_price:
+            resistances.append({
+                "price": sh["price"],
+                "type": "swing_high",
+                "strength": sh["strength"]
+            })
+
+    # Add Bullish Order Blocks as support (below price)
+    for ob in order_blocks["bullish"]:
+        if ob["zone_mid"] < current_price:
+            supports.append({
+                "price": ob["zone_mid"],
+                "zone_top": ob["zone_top"],
+                "zone_bottom": ob["zone_bottom"],
+                "type": "order_block",
+                "strength": ob["strength"]
+            })
+
+    # Add Bearish Order Blocks as resistance (above price)
+    for ob in order_blocks["bearish"]:
+        if ob["zone_mid"] > current_price:
+            resistances.append({
+                "price": ob["zone_mid"],
+                "zone_top": ob["zone_top"],
+                "zone_bottom": ob["zone_bottom"],
+                "type": "order_block",
+                "strength": ob["strength"]
+            })
+
+    # Add Bullish FVGs as support
+    for fvg in fvgs["bullish"]:
+        if fvg["zone_mid"] < current_price:
+            supports.append({
+                "price": fvg["zone_mid"],
+                "zone_top": fvg["zone_top"],
+                "zone_bottom": fvg["zone_bottom"],
+                "type": "fvg",
+                "strength": fvg["strength"]
+            })
+
+    # Add Bearish FVGs as resistance
+    for fvg in fvgs["bearish"]:
+        if fvg["zone_mid"] > current_price:
+            resistances.append({
+                "price": fvg["zone_mid"],
+                "zone_top": fvg["zone_top"],
+                "zone_bottom": fvg["zone_bottom"],
+                "type": "fvg",
+                "strength": fvg["strength"]
+            })
+
+    # Double OB is very strong
+    if order_blocks["double_ob"]:
+        dob = order_blocks["double_ob"]
+        level = {
+            "price": dob["zone_mid"],
+            "zone_top": dob["zone_top"],
+            "zone_bottom": dob["zone_bottom"],
+            "type": "double_order_block",
+            "strength": dob["strength"]
+        }
+        if dob["type"] == "bullish" and dob["zone_mid"] < current_price:
+            supports.append(level)
+        elif dob["type"] == "bearish" and dob["zone_mid"] > current_price:
+            resistances.append(level)
+
+    # Sort: supports descending (nearest first), resistances ascending (nearest first)
+    supports = sorted(supports, key=lambda x: x["price"], reverse=True)
+    resistances = sorted(resistances, key=lambda x: x["price"])
+
+    # Remove duplicates (levels within 0.2% of each other)
+    def remove_duplicates(levels):
+        if not levels:
+            return []
+        result = [levels[0]]
+        for level in levels[1:]:
+            last_price = result[-1]["price"]
+            if abs(level["price"] - last_price) / last_price > 0.002:  # 0.2% threshold
+                result.append(level)
+        return result
+
+    supports = remove_duplicates(supports)
+    resistances = remove_duplicates(resistances)
+
+    return {
+        "supports": supports,
+        "resistances": resistances
     }
 
 
@@ -431,15 +610,16 @@ def _calculate_confluence(
 
 def generate_scalp_signal(
     candles: List[Dict[str, Any]],
-    risk_reward: float = 2.0
+    risk_reward: float = 2.0  # Minimum R:R requirement (not for TP calc)
 ) -> Optional[Dict[str, Any]]:
     """
-    Generate scalp signal using 쉽알 Strategy
+    Generate scalp signal using 쉽알 Strategy (FIXED)
 
     Requirements:
     - Minimum 2 confluences for entry
     - Entry at Order Block or FVG zone
     - Clear stop loss below/above zone
+    - TP at ACTUAL S/R levels (not fixed R:R!)
     """
     if not candles or len(candles) < 30:
         return None
@@ -459,12 +639,16 @@ def generate_scalp_signal(
     current_candle = _get_candle_info(candles[-1])
     current_price = current_candle["close"]
 
-    # Detect zones
+    # Detect all zones
     order_blocks = _detect_order_blocks(candles)
     fvgs = _detect_fvg(candles)
+    swing_levels = _detect_swing_levels(candles, lookback=5)
     fakeout = _detect_fakeout(candles)
     vwap = _get_vwap(candles)
     volume_info = _analyze_volume(candles)
+
+    # Build S/R levels from all sources
+    sr_levels = _build_sr_levels(current_price, order_blocks, fvgs, swing_levels)
 
     # Calculate confluence
     confluence = _calculate_confluence(
@@ -480,6 +664,7 @@ def generate_scalp_signal(
             "reason": ["최소 2개 근거 필요 - 현재 조건 미충족"],
             "volume": volume_info,
             "vwap": round(vwap, 4) if vwap else None,
+            "sr_levels": sr_levels,
             "generated_at": datetime.now(timezone.utc).isoformat(),
         }
 
@@ -487,54 +672,115 @@ def generate_scalp_signal(
     direction = confluence["direction"]
     reasons = confluence["bullish_reasons"] if direction == "bullish" else confluence["bearish_reasons"]
 
-    # Find best zone for entry/stop
+    # Find entry and stop based on zone
     entry = current_price
     stop = None
     zone_used = None
 
     if direction == "bullish":
-        # Find the zone we're at for stop placement
+        # LONG: Stop below nearest support
         for reason in reasons:
             if "zone" in reason:
                 zone_used = reason["zone"]
-                stop = zone_used["zone_bottom"] * 0.998  # Stop below zone
+                stop = zone_used.get("zone_bottom", zone_used.get("zone_mid", current_price)) * 0.998
                 break
             elif "fakeout" in reason:
                 stop = reason["fakeout"]["stop_loss"]
                 break
 
         if stop is None:
-            # Default: use recent swing low
-            recent_lows = [_get_candle_info(c)["low"] for c in candles[-10:]]
-            stop = min(recent_lows) * 0.998
+            # Use nearest support level
+            if sr_levels["supports"]:
+                stop = sr_levels["supports"][0]["price"] * 0.998
+            else:
+                # Fallback: recent swing low
+                recent_lows = [_get_candle_info(c)["low"] for c in candles[-10:]]
+                stop = min(recent_lows) * 0.998
 
-    else:  # bearish
+        # TP at resistance levels (actual S/R, not fixed R:R!)
+        risk = abs(entry - stop)
+
+        if sr_levels["resistances"]:
+            # Use actual resistance levels as TP targets
+            tp1 = sr_levels["resistances"][0]["price"] if len(sr_levels["resistances"]) > 0 else None
+            tp2 = sr_levels["resistances"][1]["price"] if len(sr_levels["resistances"]) > 1 else None
+            tp3 = sr_levels["resistances"][2]["price"] if len(sr_levels["resistances"]) > 2 else None
+
+            # Ensure minimum R:R is met for TP1
+            min_tp1 = entry + risk * risk_reward
+            if tp1 and tp1 < min_tp1:
+                # If first resistance doesn't meet R:R, use calculated value
+                tp1 = min_tp1
+        else:
+            # Fallback: calculated R:R targets
+            tp1 = entry + risk * risk_reward
+            tp2 = entry + risk * (risk_reward + 1)
+            tp3 = entry + risk * (risk_reward + 2)
+
+        # Fill in missing TPs
+        if tp1 and not tp2:
+            tp2 = tp1 * 1.015  # 1.5% above TP1
+        if tp2 and not tp3:
+            tp3 = tp2 * 1.015  # 1.5% above TP2
+
+    else:  # bearish / SHORT
+        # SHORT: Stop above nearest resistance
         for reason in reasons:
             if "zone" in reason:
                 zone_used = reason["zone"]
-                stop = zone_used["zone_top"] * 1.002  # Stop above zone
+                stop = zone_used.get("zone_top", zone_used.get("zone_mid", current_price)) * 1.002
                 break
             elif "fakeout" in reason:
                 stop = reason["fakeout"]["stop_loss"]
                 break
 
         if stop is None:
-            recent_highs = [_get_candle_info(c)["high"] for c in candles[-10:]]
-            stop = max(recent_highs) * 1.002
+            # Use nearest resistance level
+            if sr_levels["resistances"]:
+                stop = sr_levels["resistances"][0]["price"] * 1.002
+            else:
+                # Fallback: recent swing high
+                recent_highs = [_get_candle_info(c)["high"] for c in candles[-10:]]
+                stop = max(recent_highs) * 1.002
 
-    # Calculate risk and targets
+        # TP at support levels (actual S/R, not fixed R:R!)
+        risk = abs(entry - stop)
+
+        if sr_levels["supports"]:
+            # Use actual support levels as TP targets
+            tp1 = sr_levels["supports"][0]["price"] if len(sr_levels["supports"]) > 0 else None
+            tp2 = sr_levels["supports"][1]["price"] if len(sr_levels["supports"]) > 1 else None
+            tp3 = sr_levels["supports"][2]["price"] if len(sr_levels["supports"]) > 2 else None
+
+            # Ensure minimum R:R is met for TP1
+            max_tp1 = entry - risk * risk_reward
+            if tp1 and tp1 > max_tp1:
+                # If first support doesn't meet R:R, use calculated value
+                tp1 = max_tp1
+        else:
+            # Fallback: calculated R:R targets
+            tp1 = entry - risk * risk_reward
+            tp2 = entry - risk * (risk_reward + 1)
+            tp3 = entry - risk * (risk_reward + 2)
+
+        # Fill in missing TPs
+        if tp1 and not tp2:
+            tp2 = tp1 * 0.985  # 1.5% below TP1
+        if tp2 and not tp3:
+            tp3 = tp2 * 0.985  # 1.5% below TP2
+
+    # Validate we have valid levels
+    if stop is None or tp1 is None:
+        return None
+
     risk = abs(entry - stop)
     if risk <= 0:
         return None
 
-    if direction == "bullish":
-        tp1 = entry + risk * risk_reward
-        tp2 = entry + risk * (risk_reward + 1)
-        tp3 = entry + risk * (risk_reward + 2)
-    else:
-        tp1 = entry - risk * risk_reward
-        tp2 = entry - risk * (risk_reward + 1)
-        tp3 = entry - risk * (risk_reward + 2)
+    # Calculate actual R:R for each TP
+    actual_rr1 = abs(tp1 - entry) / risk if risk > 0 else 0
+    actual_rr2 = abs(tp2 - entry) / risk if tp2 and risk > 0 else 0
+    actual_rr3 = abs(tp3 - entry) / risk if tp3 and risk > 0 else 0
 
     # Build reason strings
     reason_strs = [r["reason"] for r in reasons]
@@ -547,20 +793,35 @@ def generate_scalp_signal(
     if volume_info["exit_warning"]:
         reason_strs.append(f"⚠️ {volume_info['exit_warning']}")
 
+    # Add TP level info to reasons
+    if sr_levels["resistances"] if direction == "bullish" else sr_levels["supports"]:
+        target_levels = sr_levels["resistances"] if direction == "bullish" else sr_levels["supports"]
+        if target_levels:
+            tp_type = target_levels[0].get("type", "level")
+            reason_strs.append(f"TP targets at actual {tp_type} levels")
+
     return {
         "signal": "LONG" if direction == "bullish" else "SHORT",
         "direction": direction,
         "entry": round(entry, 4),
         "stop": round(stop, 4),
-        "tp1": round(tp1, 4),
-        "tp2": round(tp2, 4),
-        "tp3": round(tp3, 4),
-        "r_multiple": risk_reward,
+        "tp1": round(tp1, 4) if tp1 else None,
+        "tp2": round(tp2, 4) if tp2 else None,
+        "tp3": round(tp3, 4) if tp3 else None,
+        "r_multiple": {
+            "tp1": round(actual_rr1, 2),
+            "tp2": round(actual_rr2, 2),
+            "tp3": round(actual_rr3, 2),
+        },
         "confidence": confidence,
         "reason": reason_strs,
         "confluence": confluence,
         "volume": volume_info,
         "vwap": round(vwap, 4) if vwap else None,
+        "sr_levels": {
+            "supports": [{"price": round(s["price"], 4), "type": s["type"]} for s in sr_levels["supports"][:5]],
+            "resistances": [{"price": round(r["price"], 4), "type": r["type"]} for r in sr_levels["resistances"][:5]],
+        },
         "order_blocks": {
             "bullish_count": len(order_blocks["bullish"]),
             "bearish_count": len(order_blocks["bearish"]),
@@ -573,8 +834,8 @@ def generate_scalp_signal(
         "fakeout": fakeout,
         "levels": {
             "vwap": round(vwap, 4) if vwap else None,
-            "support": zone_used["zone_bottom"] if zone_used else None,
-            "resistance": zone_used["zone_top"] if zone_used else None,
+            "nearest_support": sr_levels["supports"][0]["price"] if sr_levels["supports"] else None,
+            "nearest_resistance": sr_levels["resistances"][0]["price"] if sr_levels["resistances"] else None,
         },
         "generated_at": datetime.now(timezone.utc).isoformat(),
     }
