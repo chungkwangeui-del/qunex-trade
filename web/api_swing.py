@@ -186,15 +186,9 @@ def fetch_polygon_candles(ticker: str, timeframe: str = "4H", limit: int = 100) 
 
 def fetch_stock_candles(ticker: str, timeframe: str = "4H", limit: int = 100) -> List[Dict]:
     """
-    Fetch stock candles - Finnhub primary, Polygon fallback.
+    Fetch stock candles from Polygon.
+    (Finnhub free tier doesn't support historical candles)
     """
-    # Try Finnhub first (60 calls/min)
-    candles = fetch_finnhub_candles(ticker, timeframe, limit)
-    if candles:
-        return candles
-
-    # Fallback to Polygon
-    logger.info(f"Finnhub failed, trying Polygon for {ticker}")
     return fetch_polygon_candles(ticker, timeframe, limit)
 
 

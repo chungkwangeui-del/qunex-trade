@@ -861,8 +861,8 @@ def _calculate_confluence(
         "bearish_score": bearish_score,
         "bullish_reasons": bullish_reasons,
         "bearish_reasons": bearish_reasons,
-        "min_confluence_met": (direction == "bullish" and len(bullish_reasons) >= 3) or \
-                             (direction == "bearish" and len(bearish_reasons) >= 3),
+        "min_confluence_met": (direction == "bullish" and len(bullish_reasons) >= 2) or \
+                             (direction == "bearish" and len(bearish_reasons) >= 2),
     }
 
 
@@ -879,7 +879,7 @@ def generate_swing_signal(
 
     Requirements for entry:
     1. Clear market structure (trend identified)
-    2. Minimum 3 confluences
+    2. Minimum 2 confluences
     3. Preferably in Kill Zone
     4. Entry at OB, FVG, or OTE zone
 
@@ -924,7 +924,7 @@ def generate_swing_signal(
             "direction": confluence["direction"],
             "timeframe": timeframe,
             "confluence": confluence,
-            "reason": ["Minimum 3 confluences required - conditions not met"],
+            "reason": ["Minimum 2 confluences required - conditions not met"],
             "market_structure": {
                 "trend": market_structure["trend"],
                 "bos": market_structure["bos"],
