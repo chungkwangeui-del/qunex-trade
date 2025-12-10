@@ -55,6 +55,20 @@ def verify_recaptcha(token: Optional[str]) -> bool:
         logger.warning("reCAPTCHA token missing")
         return False
 
+    # Handle client-side bypass tokens (when reCAPTCHA fails to load)
+    # This allows users to login even if Google's reCAPTCHA service is blocked
+    bypass_tokens = [
+        'RECAPTCHA_BYPASS_CLIENT_LOAD_FAILED',
+        'RECAPTCHA_BYPASS_EXECUTE_FAILED',
+        'RECAPTCHA_BYPASS_TIMEOUT',
+        'RECAPTCHA_BYPASS_ERROR',
+        'RECAPTCHA_BYPASS_NO_TOKEN',
+    ]
+    if token in bypass_tokens:
+        logger.warning(f"reCAPTCHA client-side bypass: {token}")
+        # Allow bypass but log for monitoring
+        return True
+
     try:
         resp = requests.post(
             RECAPTCHA_VERIFY_URL,
@@ -69,7 +83,8 @@ def verify_recaptcha(token: Optional[str]) -> bool:
         return bool(success and score >= 0.5)
     except Exception as e:
         logger.error(f"reCAPTCHA verification error: {e}")
-        return False
+        # Allow login if reCAPTCHA verification service fails
+        return True
 
 
 # Google OAuth configuration (only if credentials are set)

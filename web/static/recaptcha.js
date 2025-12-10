@@ -5,6 +5,11 @@
 
 // Configuration
 const RECAPTCHA_SITE_KEY = '6LfGavErAAAAAON0YoDr5u_h7ueMDZcNyLMlOH69'; // Qunex Trade reCAPTCHA v3
+const RECAPTCHA_TIMEOUT_MS = 5000; // 5 second timeout for reCAPTCHA
+
+// Track if reCAPTCHA loaded successfully
+let recaptchaLoaded = false;
+let recaptchaLoadFailed = false;
 
 // Initialize reCAPTCHA on page load
 function initRecaptcha() {
@@ -14,35 +19,71 @@ function initRecaptcha() {
         script.src = `https://www.google.com/recaptcha/api.js?render=${RECAPTCHA_SITE_KEY}`;
         script.async = true;
         script.defer = true;
+
+        // Mark as loaded when script loads successfully
+        script.onload = () => {
+            recaptchaLoaded = true;
+        };
+
+        // Mark as failed if script fails to load
+        script.onerror = () => {
+            recaptchaLoadFailed = true;
+            console.warn('reCAPTCHA failed to load - forms will submit without verification');
+        };
+
         document.head.appendChild(script);
+
+        // Set a timeout - if reCAPTCHA doesn't load in time, allow forms to work
+        setTimeout(() => {
+            if (!recaptchaLoaded && !recaptchaLoadFailed) {
+                recaptchaLoadFailed = true;
+                console.warn('reCAPTCHA load timeout - forms will submit without verification');
+            }
+        }, RECAPTCHA_TIMEOUT_MS);
     }
 }
 
 // Execute reCAPTCHA for a specific action
 async function executeRecaptcha(action) {
+    // If reCAPTCHA failed to load, return special token to indicate bypass
+    if (recaptchaLoadFailed) {
+        return 'RECAPTCHA_BYPASS_CLIENT_LOAD_FAILED';
+    }
+
     try {
-        await new Promise((resolve) => {
-            // Wait for grecaptcha to be ready
+        // Wait for grecaptcha with timeout
+        await new Promise((resolve, reject) => {
+            const startTime = Date.now();
             const checkRecaptcha = setInterval(() => {
                 if (window.grecaptcha && window.grecaptcha.ready) {
                     clearInterval(checkRecaptcha);
                     resolve();
+                } else if (Date.now() - startTime > RECAPTCHA_TIMEOUT_MS) {
+                    clearInterval(checkRecaptcha);
+                    reject(new Error('reCAPTCHA timeout'));
                 }
             }, 100);
         });
 
-        // Execute reCAPTCHA
-        const token = await new Promise((resolve) => {
-            grecaptcha.ready(() => {
-                grecaptcha.execute(RECAPTCHA_SITE_KEY, { action: action })
-                    .then(resolve);
-            });
-        });
+        // Execute reCAPTCHA with timeout
+        const token = await Promise.race([
+            new Promise((resolve) => {
+                grecaptcha.ready(() => {
+                    grecaptcha.execute(RECAPTCHA_SITE_KEY, { action: action })
+                        .then(resolve)
+                        .catch(() => resolve('RECAPTCHA_BYPASS_EXECUTE_FAILED'));
+                });
+            }),
+            new Promise((resolve) => {
+                setTimeout(() => resolve('RECAPTCHA_BYPASS_TIMEOUT'), RECAPTCHA_TIMEOUT_MS);
+            })
+        ]);
 
         return token;
     } catch (error) {
-        // reCAPTCHA error - failed to execute
-        return null;
+        // reCAPTCHA error - return bypass token
+        console.warn('reCAPTCHA error:', error.message);
+        return 'RECAPTCHA_BYPASS_ERROR';
     }
 }
 
@@ -58,37 +99,23 @@ function protectLoginForm() {
         const submitBtn = this.querySelector('button[type="submit"]');
         const originalText = submitBtn.textContent;
         submitBtn.disabled = true;
-        submitBtn.innerHTML = '<span class="spinner"></span> Verifying...';
+        submitBtn.innerHTML = '<span class="spinner"></span> Signing in...';
 
-        try {
-            // Get reCAPTCHA token
-            const token = await executeRecaptcha('login');
+        // Get reCAPTCHA token (will return bypass token if reCAPTCHA unavailable)
+        const token = await executeRecaptcha('login');
 
-            if (!token) {
-                throw new Error('reCAPTCHA verification failed');
-            }
-
-            // Add token to form
-            let tokenInput = this.querySelector('input[name="recaptcha_token"]');
-            if (!tokenInput) {
-                tokenInput = document.createElement('input');
-                tokenInput.type = 'hidden';
-                tokenInput.name = 'recaptcha_token';
-                this.appendChild(tokenInput);
-            }
-            tokenInput.value = token;
-
-            // Submit form
-            this.submit();
-        } catch (error) {
-            if (window.showToast) {
-                showToast('Security verification failed. Please try again.', 'error');
-            } else {
-                alert('Security verification failed. Please try again.');
-            }
-            submitBtn.disabled = false;
-            submitBtn.textContent = originalText;
+        // Add token to form (always - even bypass tokens)
+        let tokenInput = this.querySelector('input[name="recaptcha_token"]');
+        if (!tokenInput) {
+            tokenInput = document.createElement('input');
+            tokenInput.type = 'hidden';
+            tokenInput.name = 'recaptcha_token';
+            this.appendChild(tokenInput);
         }
+        tokenInput.value = token || 'RECAPTCHA_BYPASS_NO_TOKEN';
+
+        // Submit form
+        this.submit();
     });
 }
 
@@ -100,41 +127,41 @@ function protectSignupForm() {
     signupForm.addEventListener('submit', async function(e) {
         e.preventDefault();
 
+        // Client-side validation first
+        const password = this.querySelector('#password')?.value;
+        const confirmPassword = this.querySelector('#confirm_password')?.value;
+
+        if (password && confirmPassword && password !== confirmPassword) {
+            alert('Passwords do not match!');
+            return;
+        }
+
+        if (password && password.length < 8) {
+            alert('Password must be at least 8 characters long!');
+            return;
+        }
+
         // Show loading state
         const submitBtn = this.querySelector('button[type="submit"]');
         const originalText = submitBtn.textContent;
         submitBtn.disabled = true;
-        submitBtn.innerHTML = '<span class="spinner"></span> Verifying...';
+        submitBtn.innerHTML = '<span class="spinner"></span> Creating account...';
 
-        try {
-            // Get reCAPTCHA token
-            const token = await executeRecaptcha('signup');
+        // Get reCAPTCHA token (will return bypass token if reCAPTCHA unavailable)
+        const token = await executeRecaptcha('signup');
 
-            if (!token) {
-                throw new Error('reCAPTCHA verification failed');
-            }
-
-            // Add token to form
-            let tokenInput = this.querySelector('input[name="recaptcha_token"]');
-            if (!tokenInput) {
-                tokenInput = document.createElement('input');
-                tokenInput.type = 'hidden';
-                tokenInput.name = 'recaptcha_token';
-                this.appendChild(tokenInput);
-            }
-            tokenInput.value = token;
-
-            // Submit form
-            this.submit();
-        } catch (error) {
-            if (window.showToast) {
-                showToast('Security verification failed. Please try again.', 'error');
-            } else {
-                alert('Security verification failed. Please try again.');
-            }
-            submitBtn.disabled = false;
-            submitBtn.textContent = originalText;
+        // Add token to form (always - even bypass tokens)
+        let tokenInput = this.querySelector('input[name="recaptcha_token"]');
+        if (!tokenInput) {
+            tokenInput = document.createElement('input');
+            tokenInput.type = 'hidden';
+            tokenInput.name = 'recaptcha_token';
+            this.appendChild(tokenInput);
         }
+        tokenInput.value = token || 'RECAPTCHA_BYPASS_NO_TOKEN';
+
+        // Submit form
+        this.submit();
     });
 }
 
@@ -149,34 +176,23 @@ function protectForgotPasswordForm() {
         const submitBtn = this.querySelector('button[type="submit"]');
         const originalText = submitBtn.textContent;
         submitBtn.disabled = true;
-        submitBtn.innerHTML = '<span class="spinner"></span> Verifying...';
+        submitBtn.innerHTML = '<span class="spinner"></span> Sending...';
 
-        try {
-            const token = await executeRecaptcha('forgot_password');
+        // Get reCAPTCHA token (will return bypass token if reCAPTCHA unavailable)
+        const token = await executeRecaptcha('forgot_password');
 
-            if (!token) {
-                throw new Error('reCAPTCHA verification failed');
-            }
-
-            let tokenInput = this.querySelector('input[name="recaptcha_token"]');
-            if (!tokenInput) {
-                tokenInput = document.createElement('input');
-                tokenInput.type = 'hidden';
-                tokenInput.name = 'recaptcha_token';
-                this.appendChild(tokenInput);
-            }
-            tokenInput.value = token;
-
-            this.submit();
-        } catch (error) {
-            if (window.showToast) {
-                showToast('Security verification failed. Please try again.', 'error');
-            } else {
-                alert('Security verification failed. Please try again.');
-            }
-            submitBtn.disabled = false;
-            submitBtn.textContent = originalText;
+        // Add token to form (always - even bypass tokens)
+        let tokenInput = this.querySelector('input[name="recaptcha_token"]');
+        if (!tokenInput) {
+            tokenInput = document.createElement('input');
+            tokenInput.type = 'hidden';
+            tokenInput.name = 'recaptcha_token';
+            this.appendChild(tokenInput);
         }
+        tokenInput.value = token || 'RECAPTCHA_BYPASS_NO_TOKEN';
+
+        // Submit form
+        this.submit();
     });
 }
 
