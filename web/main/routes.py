@@ -328,6 +328,13 @@ def scalping():
     return render_template("scalping.html", user=current_user)
 
 
+@main.route("/swing")
+@login_required
+def swing():
+    """ICT/SMC Swing trading analysis page"""
+    return render_template("swing.html", user=current_user)
+
+
 @main.route("/day-trading")
 @login_required
 def day_trading():
