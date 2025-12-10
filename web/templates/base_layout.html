@@ -6,6 +6,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Qunex Trade{% endblock %}</title>
 
+    <!-- Theme initialization (prevent flash) -->
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('qunex-theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        })();
+    </script>
+
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
 
@@ -347,20 +355,18 @@
 
     <!-- Theme Toggle Script -->
     <script>
-        // Initialize theme from localStorage
-        (function() {
-            const savedTheme = localStorage.getItem('theme') || 'dark';
-            document.documentElement.setAttribute('data-theme', savedTheme);
-        })();
-
-        function toggleTheme() {
+        // Toggle theme function - must be global
+        window.toggleTheme = function() {
             const html = document.documentElement;
             const currentTheme = html.getAttribute('data-theme') || 'dark';
             const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
 
             html.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-        }
+            localStorage.setItem('qunex-theme', newTheme);
+
+            // Debug log
+            console.log('Theme toggled to:', newTheme);
+        };
     </script>
 </body>
 

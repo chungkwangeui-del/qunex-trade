@@ -865,6 +865,9 @@
     let currentTicker = '';
     let currentTimeframe = '4H';
     let tvWidget = null;
+    let signalShapes = [];
+    let chartReady = false;
+    let pendingSignal = null;
 
     // Initialize
     document.addEventListener('DOMContentLoaded', function() {
@@ -1000,6 +1003,79 @@
             width: '100%',
             height: '100%',
         });
+
+        tvWidget.onChartReady(() => {
+            chartReady = true;
+            if (pendingSignal) {
+                drawSignalOnChart(pendingSignal);
+                pendingSignal = null;
+            }
+        });
+    }
+
+    // Clear existing signal shapes from chart
+    function clearSignalShapes() {
+        if (!tvWidget || !tvWidget.chart) return;
+        try {
+            const chart = tvWidget.chart();
+            signalShapes.forEach(id => {
+                try { chart.removeEntity(id); } catch (e) {}
+            });
+        } catch (e) {}
+        signalShapes = [];
+    }
+
+    // Draw Entry/SL/TP lines on chart
+    function drawSignalOnChart(signal) {
+        if (!tvWidget) return;
+        if (!chartReady) {
+            pendingSignal = signal;
+            return;
+        }
+        try {
+            const chart = tvWidget.activeChart ? tvWidget.activeChart() : tvWidget.chart();
+            if (!chart) return;
+            clearSignalShapes();
+
+            const addLine = (price, color, text) => {
+                if (price === null || price === undefined || isNaN(price)) return;
+                try {
+                    const id = chart.createShape(
+                        { price },
+                        {
+                            shape: 'horizontal_line',
+                            lock: true,
+                            disableSelection: true,
+                            disableSave: true,
+                            text,
+                            overrides: {
+                                linecolor: color,
+                                linestyle: 0,
+                                linewidth: 2,
+                                showLabel: true,
+                                textcolor: color,
+                                horzLabelsAlign: 'right',
+                                fontsize: 12
+                            }
+                        }
+                    );
+                    if (id) signalShapes.push(id);
+                } catch (e) {
+                    console.warn('Failed to add line:', text, e);
+                }
+            };
+
+            // Entry - Green
+            addLine(signal.entry, '#22c55e', 'ENTRY');
+            // Stop Loss - Red
+            addLine(signal.stop, '#ef4444', 'STOP');
+            // Take Profit levels - Cyan/Purple/Orange
+            addLine(signal.tp1, '#22d3ee', 'TP1');
+            addLine(signal.tp2, '#a855f7', 'TP2');
+            addLine(signal.tp3, '#f59e0b', 'TP3');
+        } catch (e) {
+            console.warn('drawSignalOnChart error:', e);
+        }
     }
 
     // Update display with signal data
