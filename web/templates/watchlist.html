@@ -126,6 +126,62 @@
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     }
 
+    /* Price flash animations */
+    .price-value.flash-green {
+        animation: flashGreen 0.5s ease;
+    }
+
+    .price-value.flash-red {
+        animation: flashRed 0.5s ease;
+    }
+
+    @keyframes flashGreen {
+        0%, 100% { background: transparent; }
+        50% { background: rgba(34, 197, 94, 0.3); border-radius: 4px; }
+    }
+
+    @keyframes flashRed {
+        0%, 100% { background: transparent; }
+        50% { background: rgba(239, 68, 68, 0.3); border-radius: 4px; }
+    }
+
+    /* Live indicator */
+    .live-indicator {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        background: rgba(34, 197, 94, 0.1);
+        border: 1px solid rgba(34, 197, 94, 0.3);
+        border-radius: 20px;
+        font-size: 0.75rem;
+        color: #22c55e;
+        font-weight: 600;
+    }
+
+    .live-dot {
+        width: 8px;
+        height: 8px;
+        background: #22c55e;
+        border-radius: 50%;
+        animation: livePulse 2s infinite;
+    }
+
+    .live-indicator.pulse .live-dot {
+        animation: livePulseQuick 0.5s ease;
+    }
+
+    @keyframes livePulse {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.5; transform: scale(0.8); }
+    }
+
+    @keyframes livePulseQuick {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.5); box-shadow: 0 0 10px #22c55e; }
+        100% { transform: scale(1); }
+    }
+
     .stock-card-header {
         display: flex;
         justify-content: space-between;
@@ -484,7 +540,13 @@
 <div class="watchlist-section">
     <div class="section-header">
         <h2 class="section-title">Your Stocks</h2>
-        <span id="last-updated" style="font-size: 0.75rem; color: rgba(255,255,255,0.4);"></span>
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <div class="live-indicator" id="live-indicator">
+                <span class="live-dot"></span>
+                LIVE
+            </div>
+            <span id="last-updated" style="font-size: 0.75rem; color: rgba(255,255,255,0.4);"></span>
+        </div>
     </div>
     <div id="watchlist-container">
         <div class="loading-state">
@@ -619,6 +681,7 @@
 
             const card = document.createElement('div');
             card.className = 'stock-card';
+            card.setAttribute('data-ticker', stock.ticker);
             card.innerHTML = `
                 <div class="stock-card-header">
                     <div>
@@ -770,7 +833,53 @@
     // Load on page load
     loadWatchlist();
 
-    // Auto-refresh every 30 seconds
-    setInterval(loadWatchlist, 30000);
+    // Auto-refresh prices every 15 seconds
+    let priceRefreshInterval = setInterval(loadWatchlist, 15000);
+
+    // Live price update indicator
+    function showLiveIndicator() {
+        const indicator = document.getElementById('live-indicator');
+        if (indicator) {
+            indicator.classList.add('pulse');
+            setTimeout(() => indicator.classList.remove('pulse'), 1000);
+        }
+    }
+
+    // Price change flash animation
+    function flashPriceChange(ticker, newPrice, oldPrice) {
+        const card = document.querySelector(`[data-ticker="${ticker}"]`);
+        if (!card) return;
+
+        const priceEl = card.querySelector('.price-value');
+        if (!priceEl) return;
+
+        if (newPrice > oldPrice) {
+            priceEl.classList.add('flash-green');
+            setTimeout(() => priceEl.classList.remove('flash-green'), 500);
+        } else if (newPrice < oldPrice) {
+            priceEl.classList.add('flash-red');
+            setTimeout(() => priceEl.classList.remove('flash-red'), 500);
+        }
+    }
+
+    // Track previous prices for flash animation
+    let previousPrices = {};
+
+    // Enhanced loadWatchlist with price flash
+    const originalLoad = loadWatchlist;
+    loadWatchlist = async function() {
+        const oldPrices = {...previousPrices};
+        await originalLoad();
+
+        // Flash changed prices
+        watchlistData.forEach(stock => {
+            if (oldPrices[stock.ticker] && oldPrices[stock.ticker] !== stock.price) {
+                flashPriceChange(stock.ticker, stock.price, oldPrices[stock.ticker]);
+            }
+            previousPrices[stock.ticker] = stock.price;
+        });
+
+        showLiveIndicator();
+    };
 </script>
 {% endblock %}
