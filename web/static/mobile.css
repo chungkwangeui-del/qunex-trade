@@ -251,3 +251,96 @@ button, .btn, a.btn {
         transition-duration: 0.01ms !important;
     }
 }
+
+/* Sidebar improvements for mobile */
+@media (max-width: 768px) {
+    .sidebar {
+        position: fixed;
+        left: -280px;
+        top: 0;
+        width: 280px;
+        height: 100vh;
+        z-index: 1001;
+        transition: left 0.3s ease;
+        padding-top: 72px;
+    }
+
+    .sidebar.active {
+        left: 0;
+    }
+
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+    }
+
+    .sidebar-overlay.active {
+        display: block;
+    }
+
+    .main-content-wrapper {
+        margin-left: 0 !important;
+        width: 100% !important;
+    }
+
+    /* Theme toggle on mobile */
+    .theme-toggle {
+        width: 40px;
+        height: 40px;
+        margin-right: 8px;
+    }
+
+    /* Stock cards grid for mobile */
+    .watchlist-grid,
+    .stock-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .stock-card {
+        padding: 16px;
+    }
+
+    /* Charts responsive */
+    #chartContainer,
+    .chart-container {
+        min-height: 300px !important;
+        height: 300px !important;
+    }
+
+    /* Signal hero compact */
+    .signal-hero {
+        padding: 16px;
+    }
+
+    /* Modals full-width on mobile */
+    .modal-container {
+        width: 95% !important;
+        max-width: 95% !important;
+        margin: 10px;
+    }
+
+    /* Action buttons stack vertically */
+    .stock-actions {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .stock-actions .action-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* Stats row compact */
+    .stats-row {
+        grid-template-columns: 1fr 1fr !important;
+    }
+
+    /* Alert banner compact */
+    .alert-banner {
+        font-size: 0.75rem;
+        padding: 8px 12px;
+    }
+}
