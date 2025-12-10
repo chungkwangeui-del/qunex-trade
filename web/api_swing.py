@@ -56,6 +56,7 @@ def is_crypto_ticker(ticker: str) -> bool:
 def fetch_binance_candles(symbol: str, interval: str = "4h", limit: int = 100) -> List[Dict]:
     """
     Fetch candle data from Binance API for crypto.
+    Uses multiple endpoints with fallback for geo-restrictions.
 
     Intervals: 1h, 4h, 1d, 1w
     """
@@ -72,33 +73,54 @@ def fetch_binance_candles(symbol: str, interval: str = "4h", limit: int = 100) -
 
     binance_interval = interval_map.get(interval, "4h")
 
-    url = "https://api.binance.com/api/v3/klines"
+    # Multiple Binance endpoints for geo-restriction fallback
+    endpoints = [
+        "https://api.binance.com/api/v3/klines",
+        "https://api1.binance.com/api/v3/klines",
+        "https://api2.binance.com/api/v3/klines",
+        "https://api3.binance.com/api/v3/klines",
+        "https://api4.binance.com/api/v3/klines",
+        "https://data-api.binance.vision/api/v3/klines",
+    ]
+
     params = {
         "symbol": symbol.upper(),
         "interval": binance_interval,
         "limit": limit
     }
 
-    try:
-        response = requests.get(url, params=params, timeout=10)
-        response.raise_for_status()
-        data = response.json()
+    for url in endpoints:
+        try:
+            response = requests.get(url, params=params, timeout=10)
+            response.raise_for_status()
+            data = response.json()
 
-        candles = []
-        for kline in data:
-            candles.append({
-                "t": int(kline[0]),
-                "o": float(kline[1]),
-                "h": float(kline[2]),
-                "l": float(kline[3]),
-                "c": float(kline[4]),
-                "v": float(kline[5]),
-            })
+            candles = []
+            for kline in data:
+                candles.append({
+                    "t": int(kline[0]),
+                    "o": float(kline[1]),
+                    "h": float(kline[2]),
+                    "l": float(kline[3]),
+                    "c": float(kline[4]),
+                    "v": float(kline[5]),
+                })
 
-        return candles
-    except Exception as e:
-        logger.error(f"Binance API error for {symbol}: {e}")
-        return []
+            if candles:
+                logger.info(f"Binance: Fetched {len(candles)} candles for {symbol} via {url.split('/')[2]}")
+                return candles
+
+        except requests.exceptions.HTTPError as e:
+            if e.response.status_code == 451:
+                # Geo-restricted, try next endpoint
+                continue
+            logger.warning(f"Binance HTTP error for {symbol} at {url}: {e}")
+        except Exception as e:
+            logger.warning(f"Binance error for {symbol} at {url}: {e}")
+            continue
+
+    logger.error(f"All Binance endpoints failed for {symbol}")
+    return []
 
 
 def fetch_finnhub_candles(ticker: str, timeframe: str = "4H", limit: int = 100) -> List[Dict]:
