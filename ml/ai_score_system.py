@@ -149,25 +149,36 @@ class FeatureEngineer:
     def _calculate_macd(
         prices: np.ndarray, fast: int = 12, slow: int = 26, signal: int = 9
     ) -> Tuple[float, float]:
-        """Calculate MACD and Signal line"""
-        ema_fast = FeatureEngineer._ema(prices, fast)
-        ema_slow = FeatureEngineer._ema(prices, slow)
-        macd_line = ema_fast - ema_slow
+        """Calculate MACD and Signal line using EMA series."""
+        if len(prices) < slow + signal:
+            return 0.0, 0.0
 
-        # Calculate signal line (EMA of MACD)
-        # For simplicity, use SMA instead of EMA for signal
-        signal_line = np.mean([macd_line] * min(signal, len(prices)))
+        ema_fast_series = FeatureEngineer._ema_series(prices, fast)
+        ema_slow_series = FeatureEngineer._ema_series(prices, slow)
+        macd_series = ema_fast_series - ema_slow_series
+        signal_series = FeatureEngineer._ema_series(macd_series, signal)
 
-        return macd_line, signal_line
+        return macd_series[-1], signal_series[-1]
 
     @staticmethod
     def _ema(prices: np.ndarray, period: int) -> float:
-        """Calculate Exponential Moving Average"""
+        """Calculate Exponential Moving Average (last value)."""
         multiplier = 2 / (period + 1)
         ema = prices[0]
         for price in prices[1:]:
             ema = (price - ema) * multiplier + ema
         return ema
+
+    @staticmethod
+    def _ema_series(prices: np.ndarray, period: int) -> np.ndarray:
+        """Calculate full EMA series for a price array."""
+        if len(prices) == 0:
+            return np.array([])
+        multiplier = 2 / (period + 1)
+        ema_values = [prices[0]]
+        for price in prices[1:]:
+            ema_values.append((price - ema_values[-1]) * multiplier + ema_values[-1])
+        return np.array(ema_values)
 
     @staticmethod
     def _calculate_bollinger_bands(

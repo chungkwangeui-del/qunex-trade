@@ -1,0 +1,13 @@
+{% extends "base_layout.html" %}
+{% block title %}Server Error - Qunex Trade{% endblock %}
+{% block content %}
+<div class="card">
+  <h1>500 - Server Error</h1>
+  <p>{{ message or "Something went wrong. Please try again later." }}</p>
+  {% if request_id %}
+    <p class="muted">Request ID: {{ request_id }}</p>
+  {% endif %}
+  <a href="/" class="btn btn-primary">Go Home</a>
+</div>
+{% endblock %}
+

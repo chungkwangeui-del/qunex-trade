@@ -1062,6 +1062,14 @@
                     <span class="entry-exit-label">Take Profit</span>
                     <span class="entry-exit-value green" id="takeProfit">--</span>
                 </div>
+                <div class="entry-exit-row">
+                    <span class="entry-exit-label">Take Profit 2</span>
+                    <span class="entry-exit-value green" id="takeProfit2">--</span>
+                </div>
+                <div class="entry-exit-row">
+                    <span class="entry-exit-label">Take Profit 3</span>
+                    <span class="entry-exit-value green" id="takeProfit3">--</span>
+                </div>
                 <div class="reasoning-text" id="targetReasoning"></div>
                 <!-- R:R Warning -->
                 <div class="exit-warning" id="rrWarning" style="display: none;">
@@ -1084,6 +1092,7 @@
     let currentInterval = '5';
     let currentAssetType = 'stock';
     let tvWidget = null;
+    let signalShapes = [];
 
     // Detect if ticker is crypto
     function isCryptoTicker(ticker) {
@@ -1170,6 +1179,104 @@
         });
     }
 
+    function clearSignalShapes() {
+        if (!tvWidget || !tvWidget.chart) return;
+        const chart = tvWidget.chart();
+        signalShapes.forEach(id => {
+            try { chart.removeEntity(id); } catch (e) {}
+        });
+        signalShapes = [];
+    }
+
+    function drawSignalOnChart(signal) {
+        if (!tvWidget) return;
+        tvWidget.onChartReady(() => {
+            const chart = tvWidget.chart();
+            clearSignalShapes();
+            const addLine = (price, color, text) => {
+                if (!price) return;
+                const id = chart.createShape(
+                    { price },
+                    {
+                        shape: 'horizontal_line',
+                        lock: true,
+                        disableSelection: true,
+                        disableSave: true,
+                        text,
+                        color,
+                        textColor: color,
+                    }
+                );
+                if (id) signalShapes.push(id);
+            };
+            addLine(signal.entry, '#22c55e', 'Entry');
+            addLine(signal.stop, '#ef4444', 'Stop');
+            addLine(signal.tp1, '#22d3ee', 'TP1');
+            addLine(signal.tp2, '#a855f7', 'TP2');
+            addLine(signal.tp3, '#f59e0b', 'TP3');
+        });
+    }
+
+    async function fetchSignalAndOverlay(ticker) {
+        // Map chart interval to API timeframe
+        const tfMap = {
+            '1': '1m',
+            '5': '5m',
+            '15': '15m',
+            '30': '30m',
+            '60': '1h'
+        };
+        const timeframe = tfMap[currentInterval] || '15m';
+
+        try {
+            const resp = await fetch('/api/scalp/signal', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ticker, timeframe, risk_reward: 2.0 })
+            });
+            const sig = await resp.json();
+            if (!resp.ok || sig.error) {
+                console.warn('No scalp signal:', sig.error || resp.status);
+                showToast(sig.error || 'No signal available', 'warning');
+                return;
+            }
+
+            // Update trade setup box with signal
+            document.getElementById('tradeSetupBox').style.display = 'block';
+            document.getElementById('entryPrice').textContent = sig.entry?.toFixed(4) || '--';
+            document.getElementById('stopLoss').textContent = sig.stop?.toFixed(4) || '--';
+            document.getElementById('takeProfit').textContent = sig.tp1?.toFixed(4) || '--';
+            document.getElementById('takeProfit2').textContent = sig.tp2?.toFixed(4) || '--';
+            document.getElementById('takeProfit3').textContent = sig.tp3?.toFixed(4) || '--';
+            document.getElementById('riskReward').textContent = `1:${(sig.r_multiple || 2).toFixed(1)}`;
+            document.getElementById('entryReasoning').textContent = (sig.reason && sig.reason.length)
+                ? sig.reason.join(' | ')
+                : 'Rule-based breakout signal';
+            document.getElementById('stopReasoning').textContent = 'Stop at recent swing low';
+            document.getElementById('targetReasoning').textContent = 'TP1/TP2/TP3 plotted on chart (2R/3R/4R)';
+            document.getElementById('rrWarning').style.display = 'none';
+
+            // Confidence badge (ML-lite)
+            if (sig.confidence !== undefined) {
+                document.getElementById('signalConfidence').textContent = `Confidence: ${sig.confidence}% (hybrid)`;
+            }
+
+            drawSignalOnChart(sig);
+        } catch (e) {
+            console.warn('Signal fetch failed', e);
+            showToast('Signal fetch failed', 'error');
+        }
+    }
+
+    function showToast(message, variant = 'info') {
+        const toast = document.getElementById('toast');
+        if (!toast) return;
+        toast.textContent = message;
+        toast.className = `toast ${variant}`;
+        toast.style.display = 'block';
+        setTimeout(() => { toast.style.display = 'none'; }, 3000);
+    }
+
     async function fetchAnalysis(ticker) {
         // Show loading state
         document.getElementById('signalIcon').className = 'signal-icon loading';
@@ -1196,6 +1303,7 @@
             }
 
             updateDisplay(data);
+            await fetchSignalAndOverlay(ticker);
         } catch (error) {
             console.error('Analysis error:', error);
             document.getElementById('signalIcon').className = 'signal-icon bearish';

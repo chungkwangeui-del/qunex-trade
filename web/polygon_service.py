@@ -7,12 +7,10 @@ import requests
 import os
 import logging
 from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Any
-
-# Configure logging
-logger = logging.getLogger(__name__)
+from typing import Dict, List, Optional
 import time
 
+# Configure logging
 logger = logging.getLogger(__name__)
 
 
@@ -81,36 +79,39 @@ class PolygonService:
         Returns:
             API response data or None if request fails
         """
-        try:
-            if not self.api_key:
-                logger.error("Polygon API key not set! Check POLYGON_API_KEY environment variable")
-                return None
+        if not self.api_key:
+            logger.error("Polygon API key not set! Check POLYGON_API_KEY environment variable")
+            return None
 
-            url = f"{self.base_url}{endpoint}"
-            if params is None:
-                params = {}
-            params["apiKey"] = self.api_key
+        url = f"{self.base_url}{endpoint}"
+        params = params or {}
+        params["apiKey"] = self.api_key
 
-            response = self.session.get(url, params=params, timeout=10)
-            response.raise_for_status()
-            data = response.json()
+        for attempt in range(2):
+            try:
+                response = self.session.get(url, params=params, timeout=10)
+                response.raise_for_status()
+                data = response.json()
 
-            if data.get("status") == "ERROR":
-                logger.error(
-                    f"Polygon API error for {endpoint}: {data.get('error', 'Unknown error')}"
-                )
+                if data.get("status") == "ERROR":
+                    logger.error(
+                        f"Polygon API error for {endpoint}: {data.get('error', 'Unknown error')}"
+                    )
 
-            return data
-        except requests.exceptions.HTTPError as e:
-            # Handle 403 quietly (common for OTC stocks on free tier)
-            if e.response is not None and e.response.status_code == 403:
-                logger.debug(f"Polygon API 403 for {endpoint} (OTC/unsupported ticker)")
-            else:
+                return data
+            except requests.exceptions.HTTPError as e:
+                # Handle 403 quietly (common for OTC stocks on free tier)
+                if e.response is not None and e.response.status_code == 403:
+                    logger.debug(f"Polygon API 403 for {endpoint} (OTC/unsupported ticker)")
+                    return None
                 logger.warning(f"Polygon API HTTP error for {endpoint}: {e}")
-            return None
-        except requests.exceptions.RequestException as e:
-            logger.error(f"Polygon API request failed for {endpoint}: {e}")
-            return None
+                return None
+            except requests.exceptions.RequestException as e:
+                logger.error(f"Polygon API request failed for {endpoint}: {e}")
+                if attempt == 0:
+                    time.sleep(0.5)
+                    continue
+                return None
 
     def get_stock_quote(self, ticker: str) -> Optional[Dict]:
         """Get latest quote for a stock (15-min delayed on Starter plan)"""

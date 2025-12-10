@@ -11,16 +11,14 @@ from flask import (
     request,
     jsonify,
     session,
-    current_app,
 )
 from flask_login import login_user, logout_user, login_required, current_user
 from flask_mail import Message
 from flask_wtf.csrf import generate_csrf
 from datetime import datetime, timedelta, timezone
 from authlib.integrations.flask_client import OAuth
-from typing import Dict, Any, Optional, Tuple, Union
+from typing import Any, Optional, Union
 import os
-import random
 import secrets
 import requests
 import logging
@@ -38,24 +36,40 @@ oauth = OAuth()
 
 # reCAPTCHA Secret Key (from environment variable)
 RECAPTCHA_SECRET_KEY = os.getenv("RECAPTCHA_SECRET_KEY")
+RECAPTCHA_VERIFY_URL = "https://www.google.com/recaptcha/api/siteverify"
 
 
 def verify_recaptcha(token: Optional[str]) -> bool:
     """
-    Verify reCAPTCHA v3 token - TEMPORARILY DISABLED.
+    Verify reCAPTCHA v3 token when configured.
 
-    Args:
-        token: reCAPTCHA token from client
-
-    Returns:
-        True (always, as verification is disabled)
-
-    Note:
-        reCAPTCHA v3 is currently disabled due to infinite loading issue.
-        TODO: Fix recaptcha.js form submission before re-enabling
+    Returns True when verification passes or when reCAPTCHA is not configured
+    (to avoid blocking local/dev). Returns False on explicit verification
+    failure.
     """
-    logger.info("reCAPTCHA verification temporarily disabled")
-    return True
+    if not RECAPTCHA_SECRET_KEY:
+        logger.info("reCAPTCHA disabled: RECAPTCHA_SECRET_KEY not set")
+        return True
+
+    if not token:
+        logger.warning("reCAPTCHA token missing")
+        return False
+
+    try:
+        resp = requests.post(
+            RECAPTCHA_VERIFY_URL,
+            data={"secret": RECAPTCHA_SECRET_KEY, "response": token},
+            timeout=5,
+        )
+        result = resp.json()
+        success = result.get("success", False)
+        score = result.get("score", 0)
+        if not success or score < 0.5:
+            logger.warning(f"reCAPTCHA failed: success={success}, score={score}")
+        return bool(success and score >= 0.5)
+    except Exception as e:
+        logger.error(f"reCAPTCHA verification error: {e}")
+        return False
 
 
 # Google OAuth configuration (only if credentials are set)
@@ -87,18 +101,6 @@ def login() -> Union[str, Any]:
     if current_user.is_authenticated:
         return redirect(url_for("main.index"))
 
-    # DEBUG: Print DB info
-    import os
-    logger.info(f"DEBUG: DB URI: {current_app.config['SQLALCHEMY_DATABASE_URI']}")
-    logger.info(f"DEBUG: CWD: {os.getcwd()}")
-    logger.info(f"DEBUG: DB File Exists (root): {os.path.exists('qunextrade.db')}")
-    logger.info(f"DEBUG: DB File Exists (instance): {os.path.exists('instance/qunextrade.db')}")
-    try:
-        all_users = db.session.execute(db.select(User)).scalars().all()
-        logger.info(f"DEBUG: All users in DB: {[u.email for u in all_users]}")
-    except Exception as e:
-        logger.error(f"DEBUG: Error querying users: {e}")
-
     if request.method == "POST":
         recaptcha_token = request.form.get("recaptcha_token")
         if not verify_recaptcha(recaptcha_token):
@@ -109,23 +111,12 @@ def login() -> Union[str, Any]:
         password = request.form.get("password")
         remember = True if request.form.get("remember") else False
 
-        print(f"DEBUG: Login attempt for {email}")
-        
         user = db.session.execute(db.select(User).filter_by(email=email)).scalar_one_or_none()
-        
-        if user:
-            print(f"DEBUG: User found: {user.username}, ID: {user.id}")
-            print(f"DEBUG: Hash in DB: {user.password_hash}")
-            is_valid = user.check_password(password)
-            print(f"DEBUG: Password valid? {is_valid}")
-        else:
-            print("DEBUG: User NOT found")
 
         if not user or not user.check_password(password):
             flash("Invalid email or password", "error")
             return redirect(url_for("auth.login"))
 
-        print(f"DEBUG: User logged in: {user.username}")
         login_user(user, remember=remember)
         next_page = request.args.get("next")
         return redirect(next_page) if next_page else redirect(url_for("main.index"))
@@ -253,7 +244,6 @@ def admin_upgrade_user(email, tier):
     """Admin endpoint to upgrade users (use with caution!)"""
     # Security: Require admin password in POST body, NOT query string
     # Query strings are logged in server logs, browser history, and proxy logs
-    import os
 
     # Security: Verify that current user is a developer/admin
     if current_user.subscription_tier != "developer":
@@ -262,7 +252,13 @@ def admin_upgrade_user(email, tier):
         )
         return jsonify({"error": "Unauthorized - developer tier required"}), 403
 
-    admin_password = os.getenv("ADMIN_PASSWORD", "change-me-in-production")
+    admin_password = os.getenv("ADMIN_PASSWORD")
+    if not admin_password:
+        logger.error("ADMIN_PASSWORD not set; refusing to process upgrade request")
+        return jsonify({"error": "Server not configured for admin actions"}), 503
+    if admin_password == "change-me-in-production":
+        logger.error("ADMIN_PASSWORD uses insecure default value")
+        return jsonify({"error": "Admin password is not configured securely"}), 503
 
     # Get password from POST body (JSON or form data)
     data = request.get_json() or {}

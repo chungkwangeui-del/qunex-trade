@@ -3,11 +3,12 @@ Flask Web Application - Qunex Trade
 Professional trading tools with real-time market data
 """
 
-from flask import Flask, Response
+from flask import Flask, Response, request, g, render_template
 from werkzeug.middleware.proxy_fix import ProxyFix
 import os
 import sys
 import logging
+from uuid import uuid4
 from web.config import Config
 from web.database import db, User
 from web.extensions import mail, csrf, cache, limiter, login_manager
@@ -105,6 +106,10 @@ def create_app(config_class=Config):
     except ImportError as e:
         logger.warning(f"Failed to import admin_views: {e}. Admin interface will not be available.")
 
+    @app.before_request
+    def set_request_context():
+        g.request_id = str(uuid4())
+
     # Security headers middleware
     @app.after_request
     def set_security_headers(response: Response) -> Response:
@@ -115,18 +120,57 @@ def create_app(config_class=Config):
         response.headers["Content-Security-Policy"] = (
             "default-src 'self'; script-src 'self' 'unsafe-inline' https://accounts.google.com https://cdn.jsdelivr.net https://fonts.googleapis.com https://unpkg.com https://s3.tradingview.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://accounts.google.com; frame-src 'self' https://accounts.google.com https://www.tradingview.com https://s.tradingview.com;"
         )
+        if hasattr(g, "request_id"):
+            response.headers["X-Request-ID"] = g.request_id
         return response
 
-    # Create tables
-    with app.app_context():
-        try:
-            db.create_all()
-        except Exception as e:
-            logger.warning(f"Failed to create database tables: {e}")
+    # Create tables (configurable to avoid unintended schema changes in prod)
+    auto_create_tables = os.getenv("AUTO_CREATE_TABLES", "true").lower() == "true"
+    if auto_create_tables:
+        with app.app_context():
+            try:
+                db.create_all()
+            except Exception as e:
+                logger.warning(f"Failed to create database tables: {e}")
+    else:
+        logger.info("AUTO_CREATE_TABLES disabled; skipping db.create_all()")
 
     return app
 
 app = create_app()
+
+
+def _wants_json() -> bool:
+    if request.path.startswith("/api"):
+        return True
+    accept = request.accept_mimetypes
+    return accept["application/json"] >= accept["text/html"]
+
+
+# Global error handlers with content negotiation
+@app.errorhandler(400)
+def bad_request(error):
+    payload = {"error": "Bad Request", "message": getattr(error, "description", ""), "request_id": getattr(g, "request_id", None)}
+    if _wants_json():
+        return payload, 400
+    return render_template("400.html", **payload), 400
+
+
+@app.errorhandler(404)
+def not_found(error):
+    payload = {"error": "Not Found", "message": getattr(error, "description", ""), "request_id": getattr(g, "request_id", None)}
+    if _wants_json():
+        return payload, 404
+    return render_template("404.html", **payload), 404
+
+
+@app.errorhandler(500)
+def internal_error(error):
+    payload = {"error": "Server Error", "message": "An unexpected error occurred.", "request_id": getattr(g, "request_id", None)}
+    if _wants_json():
+        return payload, 500
+    return render_template("500.html", **payload), 500
+
 
 if __name__ == "__main__":
     app.run(debug=True)

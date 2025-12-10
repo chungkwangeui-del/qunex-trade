@@ -31,6 +31,8 @@ from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Tuple
 import requests
 import re
+from web.polygon_service import PolygonService
+from web.scalp_service import generate_scalp_signal
 
 logger = logging.getLogger(__name__)
 
@@ -2031,6 +2033,51 @@ def quick_analysis(ticker: str):
         "primary_pattern": result.get("candlestick", {}).get("primary_pattern", {}).get("name") if result.get("candlestick", {}).get("primary_pattern") else None,
         "message": "Login for full analysis with entry/exit levels and reasoning",
     })
+
+
+@api_scalp.route("/api/scalp/signal", methods=["POST"])
+def scalp_signal():
+    """
+    Lightweight scalp signal: entry/stop/tp1 with clear reasons.
+    Uses Polygon aggregates and rule-based signal (EMA/RSI/volume breakout).
+    """
+    data = request.get_json() or {}
+    ticker = (data.get("ticker") or "").upper().strip()
+    timeframe = data.get("timeframe", "15m")
+    risk_reward = float(data.get("risk_reward", 2.0))
+
+    if not ticker or len(ticker) > 5 or not ticker.isalpha():
+        return jsonify({"error": "Invalid ticker"}), 400
+    if timeframe not in ["1m", "5m", "15m", "30m", "1h"]:
+        return jsonify({"error": "Invalid timeframe"}), 400
+
+    # Map timeframe to Polygon params
+    tf_map = {
+        "1m": (1, "minute"),
+        "5m": (5, "minute"),
+        "15m": (15, "minute"),
+        "30m": (30, "minute"),
+        "1h": (1, "hour"),
+    }
+    multiplier, span = tf_map[timeframe]
+
+    polygon = PolygonService()
+    now = datetime.utcnow()
+    start_date = (now - timedelta(days=3)).strftime("%Y-%m-%d")
+    end_date = now.strftime("%Y-%m-%d")
+
+    agg = polygon.get_aggregates(ticker, multiplier, span, start_date, end_date, limit=500)
+    if not agg:
+        return jsonify({"error": "No data"}), 404
+
+    signal = generate_scalp_signal(agg, risk_reward=risk_reward)
+    if not signal:
+        return jsonify({"error": "No signal"}), 404
+
+    signal["ticker"] = ticker
+    signal["timeframe"] = timeframe
+
+    return jsonify(signal)
 
 
 @api_scalp.route("/api/scalp/full/<ticker>")

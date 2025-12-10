@@ -1,0 +1,13 @@
+{% extends "base_layout.html" %}
+{% block title %}Bad Request - Qunex Trade{% endblock %}
+{% block content %}
+<div class="card">
+  <h1>400 - Bad Request</h1>
+  <p>{{ message or "Your request could not be understood." }}</p>
+  {% if request_id %}
+    <p class="muted">Request ID: {{ request_id }}</p>
+  {% endif %}
+  <a href="/" class="btn btn-primary">Go Home</a>
+</div>
+{% endblock %}
+

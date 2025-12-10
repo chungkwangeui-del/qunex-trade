@@ -2,7 +2,6 @@ from flask import render_template, jsonify, current_app, request, redirect, url_
 from flask_login import login_required, current_user
 from web.database import db, NewsArticle, Watchlist, AIScore, Transaction
 from web.polygon_service import PolygonService, get_polygon_service
-from web.utils import calculate_statistics, filter_signals_by_subscription
 from . import main
 import logging
 from decimal import Decimal

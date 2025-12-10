@@ -277,20 +277,18 @@ def _refresh_calendar_fallback():
 @api_main.route("/api/stock/<ticker>/chart")
 def get_stock_chart(ticker):
     """Get stock chart data"""
+    ticker = ticker.upper()
+    if not ticker.isalpha() or len(ticker) > 5:
+        return jsonify({"error": "Invalid ticker format. Must be 1-5 letters."}), 400
+
     timeframe = request.args.get("timeframe", "1D")
-    # Map timeframe to Polygon parameters if needed
-    # For now, just use PolygonService
     polygon = get_polygon_service()
-    # This is a placeholder implementation, assuming PolygonService has a method or we use get_aggregates
-    # The test expects "candles" in response
-    
-    # Example implementation using get_aggregates
+
     end_date = datetime.now().strftime("%Y-%m-%d")
-    start_date = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d") # Default 30 days
-    
+    start_date = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")  # Default 30 days
+
     data = polygon.get_aggregates(ticker, 1, "day", start_date, end_date)
-    
-    # Transform to expected format if needed, or just return
+
     return jsonify({"candles": data if data else []})
 
 @api_main.route("/api/stock/<ticker>/news")

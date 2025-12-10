@@ -85,6 +85,10 @@ def get_history(ticker):
       - days: Number of days (default 30)
       - timespan: minute/hour/day/week/month (default day)
     """
+    ticker = ticker.upper()
+    if not validate_ticker(ticker):
+        return jsonify({"error": "Invalid ticker format. Must be 1-5 uppercase letters."}), 400
+
     try:
         days = int(request.args.get("days", 30))
         if days < 1 or days > 365:
@@ -101,7 +105,7 @@ def get_history(ticker):
 
     polygon = get_polygon_service()
     data = polygon.get_aggregates(
-        ticker.upper(),
+        ticker,
         multiplier=1,
         timespan=timespan,
         from_date=from_date,
@@ -231,8 +235,12 @@ def get_ticker_details(ticker):
     Returns:
         flask.Response: JSON ticker details or error with 404 status
     """
+    ticker = ticker.upper()
+    if not validate_ticker(ticker):
+        return jsonify({"error": "Invalid ticker format. Must be 1-5 uppercase letters."}), 400
+
     polygon = get_polygon_service()
-    details = polygon.get_ticker_details(ticker.upper())
+    details = polygon.get_ticker_details(ticker)
 
     if not details:
         return jsonify({"error": "Ticker not found"}), 404
@@ -257,10 +265,14 @@ def get_technicals(ticker):
     Returns:
         flask.Response: JSON technical indicators or error with 404 status
     """
+    ticker = ticker.upper()
+    if not validate_ticker(ticker):
+        return jsonify({"error": "Invalid ticker format. Must be 1-5 uppercase letters."}), 400
+
     days = int(request.args.get("days", 50))
 
     polygon = get_polygon_service()
-    technicals = polygon.get_technical_indicators(ticker.upper(), days)
+    technicals = polygon.get_technical_indicators(ticker, days)
 
     if not technicals:
         return jsonify({"error": "Data not available"}), 404
