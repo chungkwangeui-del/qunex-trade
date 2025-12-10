@@ -128,6 +128,19 @@ def get_watchlist() -> Tuple[Any, int]:
                             }
                         )
 
+            # Check if alerts are triggered
+            price = stock_data.get("price", 0)
+            if price > 0:
+                alert_above = item.alert_price_above
+                alert_below = item.alert_price_below
+
+                if alert_above and price >= alert_above:
+                    stock_data["alert_triggered"] = "above"
+                    stock_data["alert_message"] = f"{item.ticker} reached ${price:.2f} (target: ${alert_above:.2f})"
+                elif alert_below and price <= alert_below:
+                    stock_data["alert_triggered"] = "below"
+                    stock_data["alert_message"] = f"{item.ticker} dropped to ${price:.2f} (target: ${alert_below:.2f})"
+
             results.append(stock_data)
 
         return jsonify(results)
