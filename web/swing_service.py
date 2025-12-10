@@ -899,6 +899,14 @@ def generate_swing_signal(
     current_candle = _get_candle_info(candles[-1])
     current_price = current_candle["close"]
 
+    # Check if price data is valid
+    if current_price == 0 or current_price is None:
+        return {
+            "signal": "ERROR",
+            "error": "Price data unavailable. The market may be closed or API quota exceeded.",
+            "generated_at": datetime.now(timezone.utc).isoformat(),
+        }
+
     # Analyze all ICT concepts
     market_structure = _detect_market_structure(candles, lookback=5)
     liquidity = _detect_liquidity_zones(candles, lookback=30)

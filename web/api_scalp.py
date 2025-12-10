@@ -1425,6 +1425,10 @@ class ScalpAnalyzer:
             current_price = closes[-1]
             prev_price = closes[-2] if len(closes) > 1 else current_price
 
+            # Check if price data is valid
+            if current_price == 0 or current_price is None:
+                return {"error": f"Price data unavailable for {ticker}. The market may be closed or API quota exceeded. Try crypto (BTCUSDT) for 24/7 data."}
+
             # Core Analysis (Candlestick + Volume based)
             candle_analysis = CandlestickPatterns.analyze_patterns(bars)
             volume_analysis = VolumeAnalyzer.analyze_volume(bars)
