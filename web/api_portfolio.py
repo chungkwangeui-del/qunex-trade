@@ -6,11 +6,13 @@ from flask import Blueprint, jsonify, request
 from flask_login import login_required, current_user
 from web.database import db, Transaction
 from web.polygon_service import get_polygon_service
+from web.extensions import csrf
 from datetime import datetime
 from sqlalchemy import func
 from decimal import Decimal
 
 api_portfolio = Blueprint('api_portfolio', __name__)
+csrf.exempt(api_portfolio)
 
 
 def get_current_price(ticker):
