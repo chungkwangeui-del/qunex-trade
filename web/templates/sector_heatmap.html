@@ -5,6 +5,103 @@
 {% block extra_styles %}
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
+    /* Filter Controls Bar - Finviz Style */
+    .filter-bar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 20px;
+        padding: 16px 20px;
+        background: var(--bg-card);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-lg);
+        align-items: center;
+    }
+
+    .filter-group {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .filter-label {
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--text-tertiary);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .filter-buttons {
+        display: flex;
+        gap: 4px;
+    }
+
+    .filter-btn {
+        padding: 6px 12px;
+        background: var(--bg-hover);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-sm);
+        color: var(--text-secondary);
+        font-size: 11px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        font-family: 'JetBrains Mono', monospace;
+    }
+
+    .filter-btn:hover {
+        background: var(--bg-active);
+        color: var(--text-primary);
+        border-color: rgba(0, 217, 255, 0.3);
+    }
+
+    .filter-btn.active {
+        background: linear-gradient(135deg, rgba(0, 217, 255, 0.25), rgba(168, 85, 247, 0.2));
+        border-color: var(--accent-cyan);
+        color: var(--accent-cyan);
+    }
+
+    .filter-divider {
+        width: 1px;
+        height: 24px;
+        background: var(--border-subtle);
+        margin: 0 8px;
+    }
+
+    /* Quick Stats in Filter Bar */
+    .quick-stats {
+        display: flex;
+        gap: 16px;
+        margin-left: auto;
+    }
+
+    .quick-stat {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 4px 12px;
+        background: rgba(255,255,255,0.02);
+        border-radius: var(--radius-sm);
+    }
+
+    .quick-stat-value {
+        font-size: 14px;
+        font-weight: 700;
+        font-family: 'JetBrains Mono', monospace;
+    }
+
+    .quick-stat-value.up { color: #22c55e; }
+    .quick-stat-value.down { color: #ef4444; }
+    .quick-stat-value.neutral { color: var(--text-secondary); }
+
+    .quick-stat-label {
+        font-size: 9px;
+        color: var(--text-tertiary);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
     /* View Toggle */
     .view-toggle {
         display: flex;
@@ -227,9 +324,9 @@
         width: 200px;
         height: 12px;
         background: linear-gradient(to right,
-            #7f1d1d, #b91c1c, #dc2626, #ef4444, #f87171,
-            #374151,
-            #4ade80, #22c55e, #16a34a, #15803d, #166534
+            #7c0a02, #a61208, #cc1a0d, #e03424, #d65749,
+            #414554,
+            #3d8c3d, #2d7c2d, #1d6c1d, #0d5c0d, #004d00
         );
         border-radius: 4px;
     }
@@ -498,6 +595,67 @@
     </div>
 </div>
 
+<!-- Filter Bar - Finviz Style -->
+<div class="filter-bar">
+    <div class="filter-group">
+        <span class="filter-label">Cap</span>
+        <div class="filter-buttons">
+            <button class="filter-btn active" onclick="setCapFilter('all')" data-cap="all">All</button>
+            <button class="filter-btn" onclick="setCapFilter('mega')" data-cap="mega">Mega</button>
+            <button class="filter-btn" onclick="setCapFilter('large')" data-cap="large">Large</button>
+            <button class="filter-btn" onclick="setCapFilter('mid')" data-cap="mid">Mid</button>
+        </div>
+    </div>
+
+    <div class="filter-divider"></div>
+
+    <div class="filter-group">
+        <span class="filter-label">Show</span>
+        <div class="filter-buttons">
+            <button class="filter-btn active" onclick="setPerformanceFilter('all')" data-perf="all">All</button>
+            <button class="filter-btn" onclick="setPerformanceFilter('gainers')" data-perf="gainers">Gainers</button>
+            <button class="filter-btn" onclick="setPerformanceFilter('losers')" data-perf="losers">Losers</button>
+        </div>
+    </div>
+
+    <div class="filter-divider"></div>
+
+    <div class="filter-group">
+        <span class="filter-label">Sector</span>
+        <div class="filter-buttons">
+            <select id="sectorFilter" class="filter-btn" style="min-width: 120px; padding-right: 24px;" onchange="setSectorFilter(this.value)">
+                <option value="all">All Sectors</option>
+                <option value="Technology">Technology</option>
+                <option value="Healthcare">Healthcare</option>
+                <option value="Financial">Financial</option>
+                <option value="Consumer Cyclical">Consumer Cyclical</option>
+                <option value="Communication">Communication</option>
+                <option value="Industrials">Industrials</option>
+                <option value="Consumer Defensive">Consumer Defensive</option>
+                <option value="Energy">Energy</option>
+                <option value="Utilities">Utilities</option>
+                <option value="Real Estate">Real Estate</option>
+                <option value="Materials">Materials</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="quick-stats">
+        <div class="quick-stat">
+            <span class="quick-stat-value up" id="quickGainers">--</span>
+            <span class="quick-stat-label">Gainers</span>
+        </div>
+        <div class="quick-stat">
+            <span class="quick-stat-value down" id="quickLosers">--</span>
+            <span class="quick-stat-label">Losers</span>
+        </div>
+        <div class="quick-stat">
+            <span class="quick-stat-value neutral" id="quickChange">--</span>
+            <span class="quick-stat-label">Avg Chg</span>
+        </div>
+    </div>
+</div>
+
 <!-- View Toggle -->
 <div class="view-toggle">
     <button class="view-btn active" onclick="showView('treemap')" id="treemapBtn">
@@ -607,45 +765,130 @@
 <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
 <script>
     let treemapData = null;
+    let originalTreemapData = null;
     let sectorData = [];
     let currentView = 'treemap';
 
-    // Color scale for performance (-3% to +3%)
+    // Filter state
+    let currentCapFilter = 'all';
+    let currentPerfFilter = 'all';
+    let currentSectorFilter = 'all';
+
+    // Market cap thresholds (in billions)
+    const CAP_THRESHOLDS = {
+        mega: 200,    // $200B+
+        large: 50,    // $50B - $200B
+        mid: 10,      // $10B - $50B
+        small: 0      // < $10B
+    };
+
+    // Finviz-exact color scale
     function getColor(changePercent) {
-        // Finviz-style colors: vivid red-to-green scale
-        const clampedChange = Math.max(-4, Math.min(4, changePercent || 0));
+        const change = changePercent || 0;
 
-        if (Math.abs(clampedChange) < 0.1) {
-            return '#363636'; // Neutral dark gray
-        }
+        // Exact Finviz color mapping
+        if (change <= -3) return '#7c0a02';      // Deep red
+        if (change <= -2) return '#a61208';      // Dark red
+        if (change <= -1) return '#cc1a0d';      // Red
+        if (change <= -0.5) return '#e03424';    // Light red
+        if (change < 0) return '#d65749';        // Very light red
+        if (change === 0 || Math.abs(change) < 0.1) return '#414554';  // Neutral gray
+        if (change < 0.5) return '#3d8c3d';      // Very light green
+        if (change < 1) return '#2d7c2d';        // Light green
+        if (change < 2) return '#1d6c1d';        // Green
+        if (change < 3) return '#0d5c0d';        // Dark green
+        return '#004d00';                         // Deep green
+    }
 
-        if (clampedChange > 0) {
-            // Green scale (Finviz uses bright greens)
-            const t = Math.min(clampedChange / 3, 1);
-            if (t < 0.33) {
-                // Dark green
-                return `rgb(${Math.round(30 - t * 30)}, ${Math.round(80 + t * 60)}, ${Math.round(40 - t * 20)})`;
-            } else if (t < 0.66) {
-                // Medium green
-                return `rgb(${Math.round(20)}, ${Math.round(120 + (t - 0.33) * 80)}, ${Math.round(30)})`;
-            } else {
-                // Bright green
-                return `rgb(${Math.round(15)}, ${Math.round(150 + (t - 0.66) * 50)}, ${Math.round(25)})`;
+    // Filter functions
+    function setCapFilter(cap) {
+        currentCapFilter = cap;
+        updateFilterButtons('cap', cap);
+        applyFilters();
+    }
+
+    function setPerformanceFilter(perf) {
+        currentPerfFilter = perf;
+        updateFilterButtons('perf', perf);
+        applyFilters();
+    }
+
+    function setSectorFilter(sector) {
+        currentSectorFilter = sector;
+        applyFilters();
+    }
+
+    function updateFilterButtons(type, value) {
+        const attr = type === 'cap' ? 'data-cap' : 'data-perf';
+        document.querySelectorAll(`[${attr}]`).forEach(btn => {
+            btn.classList.toggle('active', btn.getAttribute(attr) === value);
+        });
+    }
+
+    function applyFilters() {
+        if (!originalTreemapData) return;
+
+        // Deep clone the original data
+        const filteredData = JSON.parse(JSON.stringify(originalTreemapData));
+
+        // Filter each sector's children
+        filteredData.children = filteredData.children.map(sector => {
+            // Apply sector filter
+            if (currentSectorFilter !== 'all' && sector.name !== currentSectorFilter) {
+                return null;
             }
-        } else {
-            // Red scale (Finviz uses deep reds)
-            const t = Math.min(Math.abs(clampedChange) / 3, 1);
-            if (t < 0.33) {
-                // Dark red
-                return `rgb(${Math.round(100 + t * 60)}, ${Math.round(40 - t * 20)}, ${Math.round(40 - t * 20)})`;
-            } else if (t < 0.66) {
-                // Medium red
-                return `rgb(${Math.round(160 + (t - 0.33) * 40)}, ${Math.round(30 - (t - 0.33) * 15)}, ${Math.round(30 - (t - 0.33) * 15)})`;
-            } else {
-                // Bright/deep red
-                return `rgb(${Math.round(200 + (t - 0.66) * 30)}, ${Math.round(20)}, ${Math.round(20)})`;
-            }
-        }
+
+            let children = sector.children.filter(stock => {
+                const marketCapB = (stock.market_cap || 0) / 1_000_000_000;
+                const change = stock.change_percent || 0;
+
+                // Market cap filter
+                if (currentCapFilter === 'mega' && marketCapB < CAP_THRESHOLDS.mega) return false;
+                if (currentCapFilter === 'large' && (marketCapB < CAP_THRESHOLDS.large || marketCapB >= CAP_THRESHOLDS.mega)) return false;
+                if (currentCapFilter === 'mid' && (marketCapB < CAP_THRESHOLDS.mid || marketCapB >= CAP_THRESHOLDS.large)) return false;
+
+                // Performance filter
+                if (currentPerfFilter === 'gainers' && change <= 0) return false;
+                if (currentPerfFilter === 'losers' && change >= 0) return false;
+
+                return true;
+            });
+
+            if (children.length === 0) return null;
+
+            return {
+                ...sector,
+                children: children
+            };
+        }).filter(s => s !== null);
+
+        // Update treemap with filtered data
+        treemapData = filteredData;
+        renderTreemap(filteredData);
+        updateQuickStats(filteredData);
+    }
+
+    function updateQuickStats(data) {
+        let gainers = 0, losers = 0, totalChange = 0, count = 0;
+
+        data.children.forEach(sector => {
+            sector.children.forEach(stock => {
+                const change = stock.change_percent || 0;
+                if (change > 0) gainers++;
+                if (change < 0) losers++;
+                totalChange += change;
+                count++;
+            });
+        });
+
+        const avgChange = count > 0 ? totalChange / count : 0;
+
+        document.getElementById('quickGainers').textContent = gainers;
+        document.getElementById('quickLosers').textContent = losers;
+
+        const avgEl = document.getElementById('quickChange');
+        avgEl.textContent = `${avgChange >= 0 ? '+' : ''}${avgChange.toFixed(2)}%`;
+        avgEl.className = `quick-stat-value ${avgChange >= 0 ? 'up' : 'down'}`;
     }
 
     function showView(view) {
@@ -666,9 +909,12 @@
             const result = await response.json();
 
             if (result.success) {
+                // Store original data for filtering
+                originalTreemapData = result.data;
                 treemapData = result.data;
                 renderTreemap(result.data);
                 updateSummaryFromTreemap(result.summary);
+                updateQuickStats(result.data);
             } else {
                 showTreemapError(result.error || 'Failed to load treemap data');
             }
