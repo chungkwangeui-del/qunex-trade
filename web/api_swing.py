@@ -141,12 +141,12 @@ def fetch_polygon_candles(ticker: str, timeframe: str = "4H", limit: int = 100) 
         candles = []
         for bar in bars:
             candles.append({
-                "t": bar.get("t"),
-                "o": bar.get("o"),
-                "h": bar.get("h"),
-                "l": bar.get("l"),
-                "c": bar.get("c"),
-                "v": bar.get("v"),
+                "t": bar.get("timestamp"),
+                "o": bar.get("open"),
+                "h": bar.get("high"),
+                "l": bar.get("low"),
+                "c": bar.get("close"),
+                "v": bar.get("volume"),
             })
 
         return candles
