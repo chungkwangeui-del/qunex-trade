@@ -315,3 +315,146 @@ def get_user_shares(user_id, ticker):
             total_shares -= float(t.shares)
 
     return max(0, total_shares)
+
+
+@api_portfolio.route("/api/portfolio/analysis", methods=['GET'])
+@login_required
+def portfolio_analysis():
+    """
+    Get comprehensive portfolio analysis including:
+    - Sector allocation
+    - Performance metrics
+    - Risk indicators
+    - Top performers/losers
+    """
+    from web.polygon_service import get_polygon_service
+    from collections import defaultdict
+    from decimal import Decimal
+
+    transactions = Transaction.query.filter_by(user_id=current_user.id).all()
+
+    if not transactions:
+        return jsonify({
+            'success': True,
+            'message': 'No transactions found',
+            'analysis': None
+        })
+
+    # Calculate holdings
+    holdings = defaultdict(lambda: {"shares": Decimal("0"), "cost_basis": Decimal("0")})
+
+    for txn in transactions:
+        ticker = txn.ticker
+        shares = Decimal(str(txn.shares))
+        price = Decimal(str(txn.price))
+
+        if txn.transaction_type == "buy":
+            holdings[ticker]["shares"] += shares
+            holdings[ticker]["cost_basis"] += shares * price
+        elif txn.transaction_type == "sell":
+            holdings[ticker]["shares"] -= shares
+            if holdings[ticker]["shares"] > 0:
+                avg_cost = holdings[ticker]["cost_basis"] / (holdings[ticker]["shares"] + shares)
+                holdings[ticker]["cost_basis"] -= shares * avg_cost
+
+    current_holdings = {ticker: data for ticker, data in holdings.items() if data["shares"] > 0}
+
+    if not current_holdings:
+        return jsonify({
+            'success': True,
+            'message': 'No current holdings',
+            'analysis': None
+        })
+
+    # Get current prices and company details
+    polygon = get_polygon_service()
+    tickers = list(current_holdings.keys())
+    snapshots = polygon.get_market_snapshot(tickers)
+
+    # Build portfolio analysis
+    positions = []
+    total_value = Decimal("0")
+    total_cost = Decimal("0")
+    sector_allocation = defaultdict(lambda: Decimal("0"))
+    daily_pnl = Decimal("0")
+
+    for ticker, holding in current_holdings.items():
+        snapshot = snapshots.get(ticker, {})
+        current_price = Decimal(str(snapshot.get("price", 0) or 0))
+
+        shares = holding["shares"]
+        cost_basis = holding["cost_basis"]
+        current_value = shares * current_price
+        pnl = current_value - cost_basis
+        pnl_pct = float(pnl / cost_basis * 100) if cost_basis > 0 else 0
+
+        # Get ticker details for sector
+        details = polygon.get_ticker_details(ticker)
+        sector = details.get("sector", "Unknown") if details else "Unknown"
+
+        positions.append({
+            "ticker": ticker,
+            "shares": float(shares),
+            "avg_cost": float(cost_basis / shares) if shares > 0 else 0,
+            "current_price": float(current_price),
+            "current_value": float(current_value),
+            "cost_basis": float(cost_basis),
+            "pnl": float(pnl),
+            "pnl_pct": pnl_pct,
+            "sector": sector,
+            "weight": 0,  # Will calculate after total
+            "daily_change": snapshot.get("change_percent", 0),
+        })
+
+        total_value += current_value
+        total_cost += cost_basis
+        sector_allocation[sector] += current_value
+
+        # Daily P&L
+        daily_change = Decimal(str(snapshot.get("todaysChange", 0) or 0))
+        daily_pnl += shares * daily_change
+
+    # Calculate weights and sort
+    for pos in positions:
+        pos["weight"] = float(Decimal(str(pos["current_value"])) / total_value * 100) if total_value > 0 else 0
+
+    # Sort by weight
+    positions.sort(key=lambda x: x["weight"], reverse=True)
+
+    # Top performers and losers
+    sorted_by_pnl = sorted(positions, key=lambda x: x["pnl_pct"], reverse=True)
+    top_performers = sorted_by_pnl[:3]
+    worst_performers = sorted_by_pnl[-3:] if len(sorted_by_pnl) >= 3 else sorted_by_pnl
+
+    # Sector breakdown
+    sector_breakdown = [
+        {"sector": sector, "value": float(value), "weight": float(value / total_value * 100) if total_value > 0 else 0}
+        for sector, value in sorted(sector_allocation.items(), key=lambda x: x[1], reverse=True)
+    ]
+
+    # Portfolio metrics
+    total_pnl = total_value - total_cost
+    total_pnl_pct = float(total_pnl / total_cost * 100) if total_cost > 0 else 0
+
+    # Diversity score (1 - Herfindahl Index)
+    herfindahl = sum((pos["weight"] / 100) ** 2 for pos in positions)
+    diversity_score = round((1 - herfindahl) * 100, 1)
+
+    return jsonify({
+        'success': True,
+        'analysis': {
+            'summary': {
+                'total_value': float(total_value),
+                'total_cost': float(total_cost),
+                'total_pnl': float(total_pnl),
+                'total_pnl_pct': total_pnl_pct,
+                'daily_pnl': float(daily_pnl),
+                'num_positions': len(positions),
+                'diversity_score': diversity_score,
+            },
+            'positions': positions,
+            'sector_allocation': sector_breakdown,
+            'top_performers': top_performers,
+            'worst_performers': worst_performers,
+        }
+    })

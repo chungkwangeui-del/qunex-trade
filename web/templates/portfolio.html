@@ -409,6 +409,114 @@
         .holdings-table th, .holdings-table td { padding: 12px; }
         .action-buttons { flex-direction: column; }
     }
+
+    /* Portfolio Analysis */
+    .analysis-section {
+        background: var(--bg-card);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-xl);
+        overflow: hidden;
+        margin-bottom: 32px;
+    }
+
+    .analysis-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        padding: 20px;
+    }
+
+    @media (max-width: 768px) {
+        .analysis-grid { grid-template-columns: 1fr; }
+    }
+
+    .analysis-card {
+        background: var(--bg-hover);
+        border-radius: var(--radius-lg);
+        padding: 20px;
+    }
+
+    .analysis-card .card-title {
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin-bottom: 16px;
+        color: var(--text-primary);
+    }
+
+    .sector-bars .sector-item {
+        margin-bottom: 12px;
+    }
+
+    .sector-bars .sector-label {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.8rem;
+        margin-bottom: 4px;
+    }
+
+    .sector-bars .sector-bar {
+        height: 8px;
+        background: var(--bg-card);
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+    .sector-bars .sector-fill {
+        height: 100%;
+        border-radius: 4px;
+        transition: width 0.5s ease;
+    }
+
+    .perf-metrics {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin-bottom: 16px;
+    }
+
+    .perf-item {
+        text-align: center;
+        padding: 12px;
+        background: var(--bg-card);
+        border-radius: 8px;
+    }
+
+    .perf-label {
+        display: block;
+        font-size: 0.7rem;
+        color: var(--text-tertiary);
+        text-transform: uppercase;
+        margin-bottom: 4px;
+    }
+
+    .perf-value {
+        font-size: 1.1rem;
+        font-weight: 600;
+        font-family: 'JetBrains Mono', monospace;
+    }
+
+    .perf-value.positive { color: var(--success); }
+    .perf-value.negative { color: var(--danger); }
+
+    .performers-list .performer-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px solid var(--border-subtle);
+        font-size: 0.85rem;
+    }
+
+    .performers-list .performer-item:last-child {
+        border-bottom: none;
+    }
+
+    .performer-ticker {
+        font-weight: 600;
+        color: var(--accent-cyan);
+    }
+
+    .performer-pnl.positive { color: var(--success); }
+    .performer-pnl.negative { color: var(--danger); }
 </style>
 {% endblock %}
 
@@ -451,6 +559,41 @@
     <div id="holdingsContent">
         <div class="loading-spinner">
             <div class="spinner"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Portfolio Analysis -->
+<div class="analysis-section" id="analysisSection" style="display: none;">
+    <div class="section-header">
+        <h2 class="section-title">Portfolio Analysis</h2>
+        <button class="btn-refresh" onclick="loadAnalysis()" style="background: transparent; border: 1px solid var(--border); border-radius: 8px; padding: 6px 12px; color: var(--text-secondary); cursor: pointer;">
+            Refresh
+        </button>
+    </div>
+    <div class="analysis-grid">
+        <!-- Sector Allocation -->
+        <div class="analysis-card">
+            <h3 class="card-title">Sector Allocation</h3>
+            <div id="sectorChart" class="sector-bars"></div>
+        </div>
+        <!-- Performance Summary -->
+        <div class="analysis-card">
+            <h3 class="card-title">Performance</h3>
+            <div class="perf-metrics">
+                <div class="perf-item">
+                    <span class="perf-label">Daily P&L</span>
+                    <span class="perf-value" id="dailyPnl">$0.00</span>
+                </div>
+                <div class="perf-item">
+                    <span class="perf-label">Diversity Score</span>
+                    <span class="perf-value" id="diversityScore">0%</span>
+                </div>
+            </div>
+            <h4 style="margin: 16px 0 8px; font-size: 0.85rem; color: var(--text-secondary);">Top Performers</h4>
+            <div id="topPerformers" class="performers-list"></div>
+            <h4 style="margin: 16px 0 8px; font-size: 0.85rem; color: var(--text-secondary);">Bottom Performers</h4>
+            <div id="worstPerformers" class="performers-list"></div>
         </div>
     </div>
 </div>
@@ -836,6 +979,7 @@
     // Initialize
     document.addEventListener('DOMContentLoaded', () => {
         loadPortfolio();
+        loadAnalysis();
 
         // Close modals on overlay click
         document.getElementById('transactionModal').addEventListener('click', function(e) {
@@ -846,5 +990,78 @@
             if (e.target === this) hideDeleteModal();
         });
     });
+
+    // Portfolio Analysis
+    async function loadAnalysis() {
+        try {
+            const response = await fetch('/api/portfolio/analysis');
+            const data = await response.json();
+
+            if (!data.success || !data.analysis) {
+                document.getElementById('analysisSection').style.display = 'none';
+                return;
+            }
+
+            document.getElementById('analysisSection').style.display = 'block';
+            const analysis = data.analysis;
+
+            // Update daily P&L
+            const dailyPnlEl = document.getElementById('dailyPnl');
+            dailyPnlEl.textContent = formatPrice(analysis.summary.daily_pnl);
+            dailyPnlEl.className = `perf-value ${analysis.summary.daily_pnl >= 0 ? 'positive' : 'negative'}`;
+
+            // Update diversity score
+            document.getElementById('diversityScore').textContent = analysis.summary.diversity_score + '%';
+
+            // Render sector chart
+            renderSectorChart(analysis.sector_allocation);
+
+            // Render top/worst performers
+            renderPerformers(analysis.top_performers, 'topPerformers');
+            renderPerformers(analysis.worst_performers, 'worstPerformers');
+
+        } catch (error) {
+            console.error('Error loading analysis:', error);
+        }
+    }
+
+    function renderSectorChart(sectors) {
+        const container = document.getElementById('sectorChart');
+        if (!sectors || sectors.length === 0) {
+            container.innerHTML = '<p style="color: var(--text-tertiary); font-size: 0.85rem;">No sector data available</p>';
+            return;
+        }
+
+        const colors = ['#00d9ff', '#a855f7', '#22c55e', '#f97316', '#ef4444', '#eab308', '#6366f1'];
+
+        container.innerHTML = sectors.map((s, i) => `
+            <div class="sector-item">
+                <div class="sector-label">
+                    <span>${s.sector}</span>
+                    <span>${s.weight.toFixed(1)}%</span>
+                </div>
+                <div class="sector-bar">
+                    <div class="sector-fill" style="width: ${s.weight}%; background: ${colors[i % colors.length]};"></div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function renderPerformers(performers, containerId) {
+        const container = document.getElementById(containerId);
+        if (!performers || performers.length === 0) {
+            container.innerHTML = '<p style="color: var(--text-tertiary); font-size: 0.8rem;">No data</p>';
+            return;
+        }
+
+        container.innerHTML = performers.map(p => `
+            <div class="performer-item">
+                <span class="performer-ticker">${p.ticker}</span>
+                <span class="performer-pnl ${p.pnl_pct >= 0 ? 'positive' : 'negative'}">
+                    ${p.pnl_pct >= 0 ? '+' : ''}${p.pnl_pct.toFixed(2)}%
+                </span>
+            </div>
+        `).join('');
+    }
 </script>
 {% endblock %}
