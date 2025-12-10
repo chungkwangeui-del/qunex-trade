@@ -671,6 +671,331 @@
     .rr-stat-value.risk { color: #ef4444; }
     .rr-stat-value.reward { color: #22c55e; }
 
+    /* ============================================
+       NEW SIGNAL DISPLAY - Clean & Professional
+       ============================================ */
+
+    /* Main Signal Hero */
+    .signal-hero {
+        background: var(--bg-card);
+        border: 2px solid var(--border-subtle);
+        border-radius: var(--radius-xl);
+        padding: 24px;
+        text-align: center;
+        margin-bottom: 16px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .signal-hero.long {
+        border-color: var(--success);
+        background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), var(--bg-card));
+    }
+
+    .signal-hero.short {
+        border-color: var(--danger);
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), var(--bg-card));
+    }
+
+    .signal-hero.wait {
+        border-color: #f59e0b;
+        background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), var(--bg-card));
+    }
+
+    .signal-hero-badge {
+        display: inline-block;
+        padding: 8px 24px;
+        border-radius: var(--radius-lg);
+        font-size: 2rem;
+        font-weight: var(--font-black);
+        font-family: 'JetBrains Mono', monospace;
+        letter-spacing: 2px;
+        margin-bottom: 12px;
+    }
+
+    .signal-hero.long .signal-hero-badge {
+        background: var(--success);
+        color: #000;
+    }
+
+    .signal-hero.short .signal-hero-badge {
+        background: var(--danger);
+        color: #fff;
+    }
+
+    .signal-hero.wait .signal-hero-badge {
+        background: #f59e0b;
+        color: #000;
+    }
+
+    .signal-hero-subtitle {
+        font-size: var(--text-sm);
+        color: var(--text-secondary);
+        margin-bottom: 16px;
+    }
+
+    /* Setup Grade */
+    .setup-grade {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 12px;
+        margin-top: 16px;
+        padding-top: 16px;
+        border-top: 1px solid var(--border-subtle);
+    }
+
+    .grade-circle {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        font-weight: var(--font-black);
+        font-family: 'JetBrains Mono', monospace;
+    }
+
+    .grade-circle.grade-a {
+        background: linear-gradient(135deg, #22c55e, #16a34a);
+        color: #fff;
+        box-shadow: 0 4px 20px rgba(34, 197, 94, 0.4);
+    }
+
+    .grade-circle.grade-b {
+        background: linear-gradient(135deg, #3b82f6, #2563eb);
+        color: #fff;
+        box-shadow: 0 4px 20px rgba(59, 130, 246, 0.4);
+    }
+
+    .grade-circle.grade-c {
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        color: #000;
+        box-shadow: 0 4px 20px rgba(245, 158, 11, 0.4);
+    }
+
+    .grade-circle.grade-f {
+        background: linear-gradient(135deg, #6b7280, #4b5563);
+        color: #fff;
+    }
+
+    .grade-info {
+        text-align: left;
+    }
+
+    .grade-label {
+        font-size: var(--text-xs);
+        color: var(--text-tertiary);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .grade-description {
+        font-size: var(--text-sm);
+        color: var(--text-secondary);
+        font-weight: var(--font-medium);
+    }
+
+    /* Trade Levels Card */
+    .trade-levels-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-xl);
+        padding: 20px;
+        margin-bottom: 16px;
+    }
+
+    .trade-levels-title {
+        font-size: var(--text-sm);
+        font-weight: var(--font-semibold);
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .trade-level-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 16px;
+        background: var(--bg-hover);
+        border-radius: var(--radius-md);
+        margin-bottom: 8px;
+        transition: all var(--transition-fast);
+    }
+
+    .trade-level-row:hover {
+        background: rgba(0, 217, 255, 0.05);
+    }
+
+    .trade-level-row:last-child {
+        margin-bottom: 0;
+    }
+
+    .trade-level-row.entry {
+        border-left: 4px solid var(--success);
+    }
+
+    .trade-level-row.stop {
+        border-left: 4px solid var(--danger);
+    }
+
+    .trade-level-row.tp {
+        border-left: 4px solid var(--accent-cyan);
+    }
+
+    .trade-level-label {
+        font-size: var(--text-sm);
+        font-weight: var(--font-medium);
+        color: var(--text-secondary);
+    }
+
+    .trade-level-value {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .trade-level-price {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 1.1rem;
+        font-weight: var(--font-bold);
+    }
+
+    .trade-level-row.entry .trade-level-price { color: var(--success); }
+    .trade-level-row.stop .trade-level-price { color: var(--danger); }
+    .trade-level-row.tp .trade-level-price { color: var(--accent-cyan); }
+
+    .trade-level-percent {
+        font-size: var(--text-xs);
+        padding: 2px 6px;
+        border-radius: var(--radius-sm);
+        font-family: 'JetBrains Mono', monospace;
+    }
+
+    .trade-level-row.entry .trade-level-percent { background: rgba(34, 197, 94, 0.15); color: var(--success); }
+    .trade-level-row.stop .trade-level-percent { background: rgba(239, 68, 68, 0.15); color: var(--danger); }
+    .trade-level-row.tp .trade-level-percent { background: rgba(0, 217, 255, 0.15); color: var(--accent-cyan); }
+
+    .copy-level-btn {
+        padding: 6px 10px;
+        background: transparent;
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-sm);
+        color: var(--text-tertiary);
+        font-size: var(--text-xs);
+        cursor: pointer;
+        transition: all var(--transition-fast);
+    }
+
+    .copy-level-btn:hover {
+        background: var(--bg-hover);
+        border-color: var(--accent-cyan);
+        color: var(--accent-cyan);
+    }
+
+    /* Key Reasons Card */
+    .key-reasons-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-xl);
+        padding: 20px;
+        margin-bottom: 16px;
+    }
+
+    .key-reasons-title {
+        font-size: var(--text-sm);
+        font-weight: var(--font-semibold);
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 12px;
+    }
+
+    .reason-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 14px;
+        background: var(--bg-hover);
+        border: 1px solid var(--border-subtle);
+        border-radius: 20px;
+        font-size: var(--text-sm);
+        margin: 4px;
+        transition: all var(--transition-fast);
+    }
+
+    .reason-chip.bullish {
+        border-color: rgba(34, 197, 94, 0.3);
+        background: rgba(34, 197, 94, 0.1);
+    }
+
+    .reason-chip.bearish {
+        border-color: rgba(239, 68, 68, 0.3);
+        background: rgba(239, 68, 68, 0.1);
+    }
+
+    .reason-chip-icon {
+        font-size: 14px;
+    }
+
+    /* Warning Banner */
+    .warning-banner {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 16px;
+        background: rgba(245, 158, 11, 0.1);
+        border: 1px solid rgba(245, 158, 11, 0.3);
+        border-radius: var(--radius-lg);
+        margin-bottom: 16px;
+    }
+
+    .warning-banner-icon {
+        font-size: 1.5rem;
+    }
+
+    .warning-banner-text {
+        font-size: var(--text-sm);
+        color: #f59e0b;
+    }
+
+    /* Collapsible Advanced Section */
+    .advanced-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 12px;
+        background: var(--bg-hover);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-lg);
+        cursor: pointer;
+        font-size: var(--text-sm);
+        color: var(--text-tertiary);
+        margin-bottom: 16px;
+        transition: all var(--transition-fast);
+    }
+
+    .advanced-toggle:hover {
+        background: rgba(0, 217, 255, 0.05);
+        border-color: var(--accent-cyan);
+        color: var(--accent-cyan);
+    }
+
+    .advanced-section {
+        display: none;
+    }
+
+    .advanced-section.show {
+        display: block;
+    }
+
     /* Mobile Improvements */
     @media (max-width: 768px) {
         .top-bar {
@@ -1621,72 +1946,146 @@
         </div>
     </div>
 
-    <!-- Analysis Panel -->
+    <!-- Analysis Panel - NEW CLEAN DESIGN -->
     <div class="analysis-panel" id="analysisPanel" style="display: none;">
-        <!-- Signal Card -->
-        <div class="signal-card" id="signalCard">
-            <div class="signal-icon loading" id="signalIcon"></div>
-            <div class="signal-text" id="signalText">Analyzing...</div>
-            <div class="signal-confidence" id="signalConfidence">--</div>
-            <div class="reasoning-list" id="reasoningList"></div>
-        </div>
 
-        <!-- Confluence Analysis (쉽알 Strategy) -->
-        <div class="confluence-card" id="confluenceCard">
-            <div class="card-title">
-                Confluence Analysis
-                <span class="card-badge">쉽알</span>
-            </div>
-            <div class="confluence-status not-met" id="confluenceStatus">
-                <span id="confluenceStatusIcon">⏳</span>
-                <span id="confluenceStatusText">Analyzing confluences...</span>
-            </div>
-            <div class="confluence-reasons" id="confluenceReasons">
-                <!-- Dynamically populated -->
+        <!-- 1. MAIN SIGNAL HERO -->
+        <div class="signal-hero wait" id="signalHero">
+            <div class="signal-hero-badge" id="signalBadge">WAIT</div>
+            <div class="signal-hero-subtitle" id="signalSubtitle">Analyzing market conditions...</div>
+
+            <div class="setup-grade">
+                <div class="grade-circle grade-f" id="gradeCircle">-</div>
+                <div class="grade-info">
+                    <div class="grade-label">Setup Quality</div>
+                    <div class="grade-description" id="gradeDescription">Waiting for signal</div>
+                </div>
             </div>
         </div>
 
-        <!-- FVG & Order Blocks -->
-        <div class="advanced-card">
-            <div class="card-title">
-                FVG & Order Blocks
-                <span class="card-badge">S/R Zones</span>
+        <!-- Warning Banner (if applicable) -->
+        <div class="warning-banner" id="warningBanner" style="display: none;">
+            <span class="warning-banner-icon">⚠️</span>
+            <span class="warning-banner-text" id="warningText"></span>
+        </div>
+
+        <!-- 2. TRADE LEVELS - Entry/Stop/TP -->
+        <div class="trade-levels-card" id="tradeLevelsCard" style="display: none;">
+            <div class="trade-levels-title">
+                <span>Trade Levels</span>
+                <button class="copy-level-btn" onclick="copyAllLevels()">Copy All</button>
             </div>
-            <div id="fvgSection">
-                <div class="indicator-row">
-                    <span class="indicator-name">At FVG Zone</span>
-                    <span class="indicator-value" id="atFvg">--</span>
-                </div>
-                <div class="indicator-row">
-                    <span class="indicator-name">FVG Count</span>
-                    <span class="indicator-value" id="fvgCount">--</span>
+
+            <div class="trade-level-row entry">
+                <span class="trade-level-label">Entry</span>
+                <div class="trade-level-value">
+                    <span class="trade-level-price" id="lvlEntry">$--</span>
+                    <span class="trade-level-percent" id="lvlEntryPct">--%</span>
+                    <button class="copy-level-btn" onclick="copyLevel('lvlEntry')">Copy</button>
                 </div>
             </div>
-            <div id="orderBlockSection" style="margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border-subtle);">
-                <div class="indicator-row">
-                    <span class="indicator-name">At Order Block</span>
-                    <span class="indicator-value" id="atOb">--</span>
+
+            <div class="trade-level-row stop">
+                <span class="trade-level-label">Stop Loss</span>
+                <div class="trade-level-value">
+                    <span class="trade-level-price" id="lvlStop">$--</span>
+                    <span class="trade-level-percent" id="lvlStopPct">--%</span>
+                    <button class="copy-level-btn" onclick="copyLevel('lvlStop')">Copy</button>
                 </div>
-                <div id="doubleObSection"></div>
+            </div>
+
+            <div class="trade-level-row tp">
+                <span class="trade-level-label">Take Profit 1</span>
+                <div class="trade-level-value">
+                    <span class="trade-level-price" id="lvlTp1">$--</span>
+                    <span class="trade-level-percent" id="lvlTp1Pct">--%</span>
+                    <button class="copy-level-btn" onclick="copyLevel('lvlTp1')">Copy</button>
+                </div>
+            </div>
+
+            <div class="trade-level-row tp">
+                <span class="trade-level-label">Take Profit 2</span>
+                <div class="trade-level-value">
+                    <span class="trade-level-price" id="lvlTp2">$--</span>
+                    <span class="trade-level-percent" id="lvlTp2Pct">--%</span>
+                    <button class="copy-level-btn" onclick="copyLevel('lvlTp2')">Copy</button>
+                </div>
             </div>
         </div>
 
-        <!-- Fakeout/Trap Detection -->
-        <div class="advanced-card">
-            <div class="card-title">
-                Fakeout & Trap
-                <span class="card-badge">Entry Signal</span>
+        <!-- 3. KEY REASONS -->
+        <div class="key-reasons-card">
+            <div class="key-reasons-title">Why This Signal?</div>
+            <div id="keyReasons">
+                <span class="reason-chip"><span class="reason-chip-icon">⏳</span> Analyzing...</span>
             </div>
-            <div id="fakeoutSection">
-                <div class="indicator-row">
-                    <span class="indicator-name">Fakeout</span>
-                    <span class="indicator-value" id="fakeoutStatus">--</span>
+        </div>
+
+        <!-- 4. TOGGLE FOR ADVANCED DETAILS -->
+        <div class="advanced-toggle" onclick="toggleAdvanced()">
+            <span id="advancedToggleIcon">▼</span>
+            <span>Show Advanced Analysis</span>
+        </div>
+
+        <!-- 5. ADVANCED SECTION (Hidden by default) -->
+        <div class="advanced-section" id="advancedSection">
+            <!-- Confluence Analysis (쉽알 Strategy) -->
+            <div class="confluence-card" id="confluenceCard">
+                <div class="card-title">
+                    Confluence Analysis
+                    <span class="card-badge">쉽알</span>
                 </div>
-                <div class="indicator-row">
-                    <span class="indicator-name">Trap (Double Bottom/Top)</span>
-                    <span class="indicator-value" id="trapStatus">--</span>
+                <div class="confluence-status not-met" id="confluenceStatus">
+                    <span id="confluenceStatusIcon">⏳</span>
+                    <span id="confluenceStatusText">Analyzing confluences...</span>
                 </div>
-                <div id="trapDetail"></div>
+                <div class="confluence-reasons" id="confluenceReasons">
+                    <!-- Dynamically populated -->
+                </div>
+            </div>
+
+            <!-- FVG & Order Blocks -->
+            <div class="advanced-card">
+                <div class="card-title">
+                    FVG & Order Blocks
+                    <span class="card-badge">S/R Zones</span>
+                </div>
+                <div id="fvgSection">
+                    <div class="indicator-row">
+                        <span class="indicator-name">At FVG Zone</span>
+                        <span class="indicator-value" id="atFvg">--</span>
+                    </div>
+                    <div class="indicator-row">
+                        <span class="indicator-name">FVG Count</span>
+                        <span class="indicator-value" id="fvgCount">--</span>
+                    </div>
+                </div>
+                <div id="orderBlockSection" style="margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border-subtle);">
+                    <div class="indicator-row">
+                        <span class="indicator-name">At Order Block</span>
+                        <span class="indicator-value" id="atOb">--</span>
+                    </div>
+                    <div id="doubleObSection"></div>
+                </div>
+            </div>
+
+            <!-- Fakeout/Trap Detection -->
+            <div class="advanced-card">
+                <div class="card-title">
+                    Fakeout & Trap
+                    <span class="card-badge">Entry Signal</span>
+                </div>
+                <div id="fakeoutSection">
+                    <div class="indicator-row">
+                        <span class="indicator-name">Fakeout</span>
+                        <span class="indicator-value" id="fakeoutStatus">--</span>
+                    </div>
+                    <div class="indicator-row">
+                        <span class="indicator-name">Trap (Double Bottom/Top)</span>
+                        <span class="indicator-value" id="trapStatus">--</span>
+                    </div>
+                    <div id="trapDetail"></div>
+                </div>
             </div>
         </div>
 
@@ -2037,7 +2436,7 @@
             '30': '30m',
             '60': '1h'
         };
-        const timeframe = tfMap[currentInterval] || '15m';
+        const timeframe = tfMap[currentInterval] || '5m';
 
         try {
             const resp = await fetch('/api/scalp/signal', {
@@ -2046,47 +2445,71 @@
                 body: JSON.stringify({ ticker, timeframe, risk_reward: 2.0 })
             });
             const sig = await resp.json();
-            if (!resp.ok || sig.error) {
-                console.warn('No scalp signal:', sig.error || resp.status);
-                showToast(sig.error || 'No signal available', 'warning');
-                return;
+
+            // Get current price from display
+            const priceEl = document.getElementById('displayPrice');
+            const currentPrice = priceEl ? parseFloat(priceEl.textContent.replace(/[$,]/g, '')) : sig.entry;
+
+            // ==========================================
+            // UPDATE NEW SIGNAL UI
+            // ==========================================
+            const signalType = sig.signal || 'WAIT';
+            const direction = sig.direction || 'neutral';
+            const confidence = sig.confidence || 0;
+            const reasons = sig.reason || [];
+
+            // Update Signal Hero (main signal display)
+            updateSignalHero(signalType, direction, confidence, reasons);
+
+            // Update Trade Levels if we have entry/stop
+            if (sig.entry && sig.stop) {
+                updateTradeLevels(sig.entry, sig.stop, sig.tp1, sig.tp2, currentPrice);
+
+                // Also update the old trade setup box for compatibility
+                document.getElementById('tradeSetupBox').style.display = 'block';
+                document.getElementById('entryPrice').textContent = `$${sig.entry.toFixed(4)}`;
+                document.getElementById('stopLoss').textContent = `$${sig.stop.toFixed(4)}`;
+                document.getElementById('takeProfit').textContent = `$${sig.tp1?.toFixed(4) || '--'}`;
+                document.getElementById('takeProfit2').textContent = `$${sig.tp2?.toFixed(4) || '--'}`;
+                document.getElementById('takeProfit3').textContent = `$${sig.tp3?.toFixed(4) || '--'}`;
+                document.getElementById('riskReward').textContent = `1:${(sig.r_multiple || 2).toFixed(1)}`;
+            } else {
+                document.getElementById('tradeSetupBox').style.display = 'none';
             }
 
-            // Update trade setup box with signal
-            document.getElementById('tradeSetupBox').style.display = 'block';
-            document.getElementById('entryPrice').textContent = sig.entry?.toFixed(4) || '--';
-            document.getElementById('stopLoss').textContent = sig.stop?.toFixed(4) || '--';
-            document.getElementById('takeProfit').textContent = sig.tp1?.toFixed(4) || '--';
-            document.getElementById('takeProfit2').textContent = sig.tp2?.toFixed(4) || '--';
-            document.getElementById('takeProfit3').textContent = sig.tp3?.toFixed(4) || '--';
-            document.getElementById('riskReward').textContent = `1:${(sig.r_multiple || 2).toFixed(1)}`;
-            document.getElementById('entryReasoning').textContent = (sig.reason && sig.reason.length)
-                ? sig.reason.join(' | ')
-                : 'Rule-based breakout signal';
-            document.getElementById('stopReasoning').textContent = 'Stop at recent swing low';
-            document.getElementById('targetReasoning').textContent = 'TP1/TP2/TP3 plotted on chart (2R/3R/4R)';
+            // Update reasoning
+            document.getElementById('entryReasoning').textContent = (reasons && reasons.length)
+                ? reasons.slice(0, 3).join(' | ')
+                : signalType === 'WAIT' ? '최소 2개 근거 필요' : 'Signal detected';
+            document.getElementById('stopReasoning').textContent = 'Stop at zone boundary';
+            document.getElementById('targetReasoning').textContent = 'TP1=2R, TP2=3R (Risk multiple targets)';
             document.getElementById('rrWarning').style.display = 'none';
-
-            // Confidence badge (ML-lite)
-            if (sig.confidence !== undefined) {
-                document.getElementById('signalConfidence').textContent = `Confidence: ${sig.confidence}% (hybrid)`;
-            }
 
             // Update key levels with S/R from signal if present
             if (sig.levels) {
                 const supportEl = document.getElementById('supportLevel');
                 const resistanceEl = document.getElementById('resistanceLevel');
                 if (supportEl && sig.levels.support) {
-                    supportEl.textContent = sig.levels.support.toFixed(2);
+                    supportEl.textContent = `$${sig.levels.support.toFixed(2)}`;
                 }
                 if (resistanceEl && sig.levels.resistance) {
-                    resistanceEl.textContent = sig.levels.resistance.toFixed(2);
+                    resistanceEl.textContent = `$${sig.levels.resistance.toFixed(2)}`;
                 }
             }
 
-            drawSignalOnChart(sig);
+            // Update Price Levels Visualization
+            if (currentPrice && sig.entry) {
+                updatePriceLevelsVisual(currentPrice, sig.entry, sig.stop, sig.tp1, sig.tp2, sig.tp3);
+            }
+
+            // Draw on chart (if supported)
+            if (sig.entry) {
+                drawSignalOnChart(sig);
+            }
+
         } catch (e) {
             console.warn('Signal fetch failed', e);
+            updateSignalHero('WAIT', 'neutral', 0, ['Error fetching signal']);
             showToast('Signal fetch failed', 'error');
         }
     }
@@ -2740,6 +3163,140 @@
             body.style.display = 'none';
             toggle.textContent = '▶';
         }
+    }
+
+    // ==========================================
+    // NEW SIGNAL UI FUNCTIONS
+    // ==========================================
+
+    function toggleAdvanced() {
+        const section = document.getElementById('advancedSection');
+        const icon = document.getElementById('advancedToggleIcon');
+        if (section.classList.contains('show')) {
+            section.classList.remove('show');
+            icon.textContent = '▼';
+        } else {
+            section.classList.add('show');
+            icon.textContent = '▲';
+        }
+    }
+
+    function copyLevel(elementId) {
+        const el = document.getElementById(elementId);
+        const text = el.textContent.replace('$', '').trim();
+        navigator.clipboard.writeText(text).then(() => {
+            showToast(`Copied: $${text}`, 'success');
+        }).catch(() => {
+            showToast('Failed to copy', 'error');
+        });
+    }
+
+    function updateSignalHero(signal, direction, confidence, reasons) {
+        const hero = document.getElementById('signalHero');
+        const badge = document.getElementById('signalBadge');
+        const subtitle = document.getElementById('signalSubtitle');
+        const gradeCircle = document.getElementById('gradeCircle');
+        const gradeDesc = document.getElementById('gradeDescription');
+        const levelsCard = document.getElementById('tradeLevelsCard');
+        const warningBanner = document.getElementById('warningBanner');
+        const keyReasonsEl = document.getElementById('keyReasons');
+
+        // Reset classes
+        hero.className = 'signal-hero';
+        gradeCircle.className = 'grade-circle';
+
+        // Determine grade based on confidence
+        let grade = 'F';
+        let gradeText = 'No setup';
+        if (confidence >= 80) {
+            grade = 'A';
+            gradeText = 'Excellent setup - High confidence';
+        } else if (confidence >= 65) {
+            grade = 'B';
+            gradeText = 'Good setup - Solid confluence';
+        } else if (confidence >= 50) {
+            grade = 'C';
+            gradeText = 'Fair setup - Proceed with caution';
+        }
+
+        if (signal === 'LONG') {
+            hero.classList.add('long');
+            badge.textContent = 'LONG';
+            subtitle.textContent = 'Bullish signal detected';
+            levelsCard.style.display = 'block';
+        } else if (signal === 'SHORT') {
+            hero.classList.add('short');
+            badge.textContent = 'SHORT';
+            subtitle.textContent = 'Bearish signal detected';
+            levelsCard.style.display = 'block';
+        } else {
+            hero.classList.add('wait');
+            badge.textContent = 'WAIT';
+            subtitle.textContent = '최소 2개 근거 필요 - Do not enter';
+            levelsCard.style.display = 'none';
+            grade = 'F';
+            gradeText = 'Conditions not met - Wait for better setup';
+        }
+
+        // Update grade
+        gradeCircle.classList.add(`grade-${grade.toLowerCase()}`);
+        gradeCircle.textContent = grade;
+        gradeDesc.textContent = gradeText;
+
+        // Update key reasons
+        if (reasons && reasons.length > 0) {
+            const chipClass = direction === 'bullish' ? 'bullish' : (direction === 'bearish' ? 'bearish' : '');
+            const icon = direction === 'bullish' ? '🟢' : (direction === 'bearish' ? '🔴' : '⚪');
+            keyReasonsEl.innerHTML = reasons.map(r =>
+                `<span class="reason-chip ${chipClass}"><span class="reason-chip-icon">${icon}</span> ${r}</span>`
+            ).join('');
+        } else {
+            keyReasonsEl.innerHTML = '<span class="reason-chip"><span class="reason-chip-icon">⏳</span> No confluences found</span>';
+        }
+
+        // Check for warnings (volume spike)
+        const hasVolumeWarning = reasons && reasons.some(r => r.includes('Volume spike') || r.includes('⚠️'));
+        if (hasVolumeWarning) {
+            warningBanner.style.display = 'flex';
+            document.getElementById('warningText').textContent = 'Volume Spike Detected - Consider taking profits if already in position';
+        } else {
+            warningBanner.style.display = 'none';
+        }
+    }
+
+    function updateTradeLevels(entry, stop, tp1, tp2, currentPrice) {
+        if (!entry || !stop) return;
+
+        const decimals = entry < 1 ? 4 : 2;
+
+        // Entry
+        document.getElementById('lvlEntry').textContent = `$${entry.toFixed(decimals)}`;
+        const entryPct = ((entry - currentPrice) / currentPrice * 100);
+        document.getElementById('lvlEntryPct').textContent = `${entryPct >= 0 ? '+' : ''}${entryPct.toFixed(2)}%`;
+
+        // Stop
+        document.getElementById('lvlStop').textContent = `$${stop.toFixed(decimals)}`;
+        const stopPct = ((stop - entry) / entry * 100);
+        document.getElementById('lvlStopPct').textContent = `${stopPct.toFixed(2)}%`;
+
+        // TP1
+        if (tp1) {
+            document.getElementById('lvlTp1').textContent = `$${tp1.toFixed(decimals)}`;
+            const tp1Pct = ((tp1 - entry) / entry * 100);
+            document.getElementById('lvlTp1Pct').textContent = `+${tp1Pct.toFixed(2)}%`;
+        }
+
+        // TP2
+        if (tp2) {
+            document.getElementById('lvlTp2').textContent = `$${tp2.toFixed(decimals)}`;
+            const tp2Pct = ((tp2 - entry) / entry * 100);
+            document.getElementById('lvlTp2Pct').textContent = `+${tp2Pct.toFixed(2)}%`;
+        }
+
+        // Store for other calculations
+        currentEntryPrice = entry;
+        currentStopPrice = stop;
+        currentTP1Price = tp1;
     }
 
     // ==========================================
