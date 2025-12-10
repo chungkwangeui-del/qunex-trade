@@ -269,100 +269,6 @@
         color: #eab308;
     }
 
-    /* Position Size Calculator */
-    .position-calc {
-        background: var(--bg-card);
-        border: 1px solid var(--border-subtle);
-        border-radius: var(--radius-xl);
-        padding: 20px;
-        margin-top: 16px;
-    }
-
-    .position-calc-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 16px;
-    }
-
-    .position-calc-title {
-        font-size: var(--text-sm);
-        font-weight: var(--font-semibold);
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        color: var(--text-secondary);
-    }
-
-    .calc-toggle {
-        font-size: var(--text-xs);
-        color: var(--accent-cyan);
-        cursor: pointer;
-    }
-
-    .calc-inputs {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 12px;
-        margin-bottom: 16px;
-    }
-
-    .calc-input-group {
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-    }
-
-    .calc-label {
-        font-size: var(--text-xs);
-        color: var(--text-tertiary);
-    }
-
-    .calc-input {
-        padding: 8px 12px;
-        background: var(--bg-hover);
-        border: 1px solid var(--border-subtle);
-        border-radius: var(--radius-md);
-        color: var(--text-primary);
-        font-family: 'JetBrains Mono', monospace;
-        font-size: var(--text-sm);
-    }
-
-    .calc-input:focus {
-        outline: none;
-        border-color: var(--accent-cyan);
-    }
-
-    .calc-results {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 8px;
-        padding-top: 16px;
-        border-top: 1px solid var(--border-subtle);
-    }
-
-    .calc-result-item {
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
-    }
-
-    .calc-result-label {
-        font-size: var(--text-xs);
-        color: var(--text-tertiary);
-    }
-
-    .calc-result-value {
-        font-family: 'JetBrains Mono', monospace;
-        font-size: var(--text-sm);
-        font-weight: var(--font-semibold);
-        color: var(--accent-cyan);
-    }
-
-    .calc-result-value.shares {
-        color: var(--success);
-        font-size: 1.1rem;
-    }
-
     /* Copy Buttons */
     .copy-btn {
         display: inline-flex;
@@ -2226,44 +2132,6 @@
                 </button>
             </div>
 
-            <!-- Position Size Calculator -->
-            <div class="position-calc" id="positionCalc">
-                <div class="position-calc-header">
-                    <span class="position-calc-title">Position Size Calculator</span>
-                    <span class="calc-toggle" onclick="toggleCalcCollapse()">▼</span>
-                </div>
-                <div id="calcBody">
-                    <div class="calc-inputs">
-                        <div class="calc-input-group">
-                            <label class="calc-label">Account Size ($)</label>
-                            <input type="number" class="calc-input" id="accountSize" value="10000" min="100" step="100" onchange="calculatePosition()">
-                        </div>
-                        <div class="calc-input-group">
-                            <label class="calc-label">Risk Per Trade (%)</label>
-                            <input type="number" class="calc-input" id="riskPercent" value="1" min="0.1" max="5" step="0.1" onchange="calculatePosition()">
-                        </div>
-                    </div>
-                    <div class="calc-results">
-                        <div class="calc-result-item">
-                            <span class="calc-result-label">Risk Amount ($)</span>
-                            <span class="calc-result-value" id="riskAmount">$100</span>
-                        </div>
-                        <div class="calc-result-item">
-                            <span class="calc-result-label">Position Size</span>
-                            <span class="calc-result-value shares" id="positionSize">-- shares</span>
-                        </div>
-                        <div class="calc-result-item">
-                            <span class="calc-result-label">Total Investment</span>
-                            <span class="calc-result-value" id="totalInvestment">$--</span>
-                        </div>
-                        <div class="calc-result-item">
-                            <span class="calc-result-label">Potential Profit (TP1)</span>
-                            <span class="calc-result-value" id="potentialProfit" style="color: var(--success);">$--</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             <div class="risk-warning">
                 <strong>Risk Warning:</strong> Scalp trading is high-risk. Never risk more than 1-2% of your account per trade. Minimum R:R of 1:2 recommended. Past performance does not guarantee future results.
             </div>
@@ -2936,7 +2804,6 @@
         setInterval(updateMarketStatus, 60000); // Update every minute
         renderWatchlist();
         renderRecentSearches();
-        loadCalcSettings();
         document.getElementById('tickerInput').focus();
     });
 
@@ -3112,57 +2979,6 @@
     function quickAnalyze(ticker) {
         document.getElementById('tickerInput').value = ticker;
         document.getElementById('searchForm').dispatchEvent(new Event('submit', { cancelable: true }));
-    }
-
-    // ==========================================
-    // POSITION SIZE CALCULATOR
-    // ==========================================
-    function calculatePosition() {
-        const accountSize = parseFloat(document.getElementById('accountSize').value) || 10000;
-        const riskPercent = parseFloat(document.getElementById('riskPercent').value) || 1;
-
-        // Save settings
-        localStorage.setItem('scalp_account', accountSize);
-        localStorage.setItem('scalp_risk', riskPercent);
-
-        const riskAmount = accountSize * (riskPercent / 100);
-        document.getElementById('riskAmount').textContent = `$${riskAmount.toFixed(2)}`;
-
-        // Calculate shares based on entry/stop prices
-        if (currentEntryPrice && currentStopPrice && currentEntryPrice !== currentStopPrice) {
-            const riskPerShare = Math.abs(currentEntryPrice - currentStopPrice);
-            const shares = Math.floor(riskAmount / riskPerShare);
-            const totalInvestment = shares * currentEntryPrice;
-            const potentialProfit = currentTP1Price ? shares * (currentTP1Price - currentEntryPrice) : riskAmount * 2;
-
-            document.getElementById('positionSize').textContent = `${shares} shares`;
-            document.getElementById('totalInvestment').textContent = `$${totalInvestment.toFixed(2)}`;
-            document.getElementById('potentialProfit').textContent = `$${potentialProfit.toFixed(2)}`;
-        } else {
-            document.getElementById('positionSize').textContent = '-- shares';
-            document.getElementById('totalInvestment').textContent = '$--';
-            document.getElementById('potentialProfit').textContent = '$--';
-        }
-    }
-
-    function loadCalcSettings() {
-        const savedAccount = localStorage.getItem('scalp_account');
-        const savedRisk = localStorage.getItem('scalp_risk');
-        if (savedAccount) document.getElementById('accountSize').value = savedAccount;
-        if (savedRisk) document.getElementById('riskPercent').value = savedRisk;
-        calculatePosition();
-    }
-
-    function toggleCalcCollapse() {
-        const body = document.getElementById('calcBody');
-        const toggle = document.querySelector('.calc-toggle');
-        if (body.style.display === 'none') {
-            body.style.display = 'block';
-            toggle.textContent = '▼';
-        } else {
-            body.style.display = 'none';
-            toggle.textContent = '▶';
-        }
     }
 
     // ==========================================
@@ -3506,7 +3322,6 @@
             currentTP1Price = tp1 = data.trade_setup.take_profit;
             tp2 = data.trade_setup.take_profit_2;
             tp3 = data.trade_setup.take_profit_3;
-            calculatePosition();
         } else if (data.price) {
             // Use current price as entry estimate
             currentEntryPrice = entry = data.price;
@@ -3514,7 +3329,6 @@
             currentTP1Price = tp1 = data.levels?.nearest_resistance || data.price * 1.04;
             tp2 = tp1 ? tp1 * 1.015 : null;
             tp3 = tp1 ? tp1 * 1.03 : null;
-            calculatePosition();
         }
 
         // Update price levels visualization
