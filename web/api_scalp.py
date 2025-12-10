@@ -32,6 +32,7 @@ from typing import Dict, List, Optional, Tuple
 import requests
 import re
 from web.polygon_service import PolygonService
+from web.finnhub_service import get_finnhub_service
 from web.scalp_service import generate_scalp_signal
 
 logger = logging.getLogger(__name__)
@@ -1353,7 +1354,7 @@ class ScalpAnalyzer:
         Fetch candlestick data - automatically routes to correct API
 
         - Crypto pairs (BTCUSDT, etc.) -> Binance API
-        - US Stocks -> Polygon API
+        - US Stocks -> Finnhub API (primary), Polygon API (fallback)
         """
         ticker = ticker.upper().strip()
 
@@ -1361,8 +1362,32 @@ class ScalpAnalyzer:
             logger.info(f"Fetching {ticker} from Binance (crypto detected)")
             return self.fetch_bars_binance(ticker, interval, limit)
         else:
-            logger.info(f"Fetching {ticker} from Polygon (stock)")
+            # Try Finnhub first (60 calls/min free), then Polygon as fallback
+            logger.info(f"Fetching {ticker} from Finnhub (stock)")
+            bars = self.fetch_bars_finnhub(ticker, interval, limit)
+            if bars:
+                return bars
+
+            # Fallback to Polygon
+            logger.info(f"Finnhub failed, trying Polygon for {ticker}")
             return self.fetch_bars_polygon(ticker, interval, limit)
+
+    def fetch_bars_finnhub(self, ticker: str, interval: str = "5", limit: int = 100) -> List[Dict]:
+        """Fetch candlestick data from Finnhub (for US stocks)"""
+        try:
+            finnhub = get_finnhub_service()
+            candles = finnhub.get_candles_for_scalping(ticker, interval, limit)
+
+            if not candles:
+                logger.warning(f"No Finnhub data for {ticker}")
+                return []
+
+            logger.info(f"Finnhub: Got {len(candles)} candles for {ticker} ({interval}m)")
+            return candles
+
+        except Exception as e:
+            logger.error(f"Finnhub API error for {ticker}: {e}")
+            return []
 
     def calculate_vwap(self, bars: List[Dict]) -> float:
         """Calculate VWAP (used as institutional S/R level, not indicator)"""

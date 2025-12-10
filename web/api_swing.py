@@ -24,6 +24,7 @@ from typing import Dict, List, Optional
 import requests
 import re
 from web.polygon_service import PolygonService
+from web.finnhub_service import get_finnhub_service
 from web.swing_service import generate_swing_signal
 
 logger = logging.getLogger(__name__)
@@ -100,9 +101,30 @@ def fetch_binance_candles(symbol: str, interval: str = "4h", limit: int = 100) -
         return []
 
 
+def fetch_finnhub_candles(ticker: str, timeframe: str = "4H", limit: int = 100) -> List[Dict]:
+    """
+    Fetch candle data from Finnhub for stocks (primary).
+
+    Timeframes: 1H, 4H, 1D, 1W
+    """
+    try:
+        finnhub = get_finnhub_service()
+        candles = finnhub.get_candles_for_swing(ticker, timeframe, limit)
+
+        if candles:
+            logger.info(f"Finnhub: Fetched {len(candles)} candles for {ticker} ({timeframe})")
+            return candles
+
+        logger.warning(f"No Finnhub data for {ticker}")
+        return []
+    except Exception as e:
+        logger.error(f"Finnhub API error for {ticker}: {e}")
+        return []
+
+
 def fetch_polygon_candles(ticker: str, timeframe: str = "4H", limit: int = 100) -> List[Dict]:
     """
-    Fetch candle data from Polygon.io for stocks.
+    Fetch candle data from Polygon.io for stocks (fallback).
 
     Timeframes: 1H, 4H, 1D
     """
@@ -155,11 +177,25 @@ def fetch_polygon_candles(ticker: str, timeframe: str = "4H", limit: int = 100) 
                 "v": bar.get("volume"),
             })
 
-        logger.info(f"Fetched {len(candles)} candles for {ticker} ({timeframe})")
+        logger.info(f"Polygon: Fetched {len(candles)} candles for {ticker} ({timeframe})")
         return candles
     except Exception as e:
         logger.error(f"Polygon API error for {ticker}: {e}", exc_info=True)
         return []
+
+
+def fetch_stock_candles(ticker: str, timeframe: str = "4H", limit: int = 100) -> List[Dict]:
+    """
+    Fetch stock candles - Finnhub primary, Polygon fallback.
+    """
+    # Try Finnhub first (60 calls/min)
+    candles = fetch_finnhub_candles(ticker, timeframe, limit)
+    if candles:
+        return candles
+
+    # Fallback to Polygon
+    logger.info(f"Finnhub failed, trying Polygon for {ticker}")
+    return fetch_polygon_candles(ticker, timeframe, limit)
 
 
 # =============================================================================
@@ -186,7 +222,7 @@ def analyze_swing(ticker: str):
             candles = fetch_binance_candles(ticker, timeframe, limit=100)
             market_type = "crypto"
         else:
-            candles = fetch_polygon_candles(ticker, timeframe, limit=100)
+            candles = fetch_stock_candles(ticker, timeframe, limit=100)
             market_type = "stock"
 
         if not candles or len(candles) < 50:
@@ -259,7 +295,7 @@ def get_swing_signal():
         if is_crypto_ticker(ticker):
             candles = fetch_binance_candles(ticker, timeframe, limit=100)
         else:
-            candles = fetch_polygon_candles(ticker, timeframe, limit=100)
+            candles = fetch_stock_candles(ticker, timeframe, limit=100)
 
         if not candles or len(candles) < 50:
             return jsonify({
@@ -326,7 +362,7 @@ def multi_timeframe_analysis(ticker: str):
             if is_crypto_ticker(ticker):
                 candles = fetch_binance_candles(ticker, tf, limit=100)
             else:
-                candles = fetch_polygon_candles(ticker, tf, limit=100)
+                candles = fetch_stock_candles(ticker, tf, limit=100)
 
             if candles and len(candles) >= 50:
                 signal = generate_swing_signal(candles, timeframe=tf)
