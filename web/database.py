@@ -558,3 +558,77 @@ class Announcement(db.Model):
             "is_active": self.is_active,
             "created_at": self.created_at.isoformat() if self.created_at else None,
         }
+
+
+class PaperAccount(db.Model):
+    """
+    Paper trading account for practice trading with virtual money.
+    Each user has one paper account with a starting balance.
+    """
+
+    __tablename__ = "paper_accounts"
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False, unique=True, index=True)
+    balance = db.Column(db.Numeric(precision=12, scale=2), default=100000)  # Starting $100k
+    initial_balance = db.Column(db.Numeric(precision=12, scale=2), default=100000)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    last_reset = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+
+    user = db.relationship("User", backref=db.backref("paper_account", uselist=False))
+
+    def __repr__(self):
+        return f"<PaperAccount {self.user_id} ${self.balance}>"
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "balance": float(self.balance),
+            "initial_balance": float(self.initial_balance),
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "last_reset": self.last_reset.isoformat() if self.last_reset else None,
+        }
+
+
+class PaperTrade(db.Model):
+    """
+    Paper trade records - buy/sell with virtual money.
+    """
+
+    __tablename__ = "paper_trades"
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False, index=True)
+    ticker = db.Column(db.String(10), nullable=False, index=True)
+    shares = db.Column(db.Numeric(precision=10, scale=4), nullable=False)
+    price = db.Column(db.Numeric(precision=10, scale=2), nullable=False)
+    trade_type = db.Column(db.String(10), nullable=False, index=True)  # 'buy' or 'sell'
+    trade_date = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), index=True)
+    notes = db.Column(db.Text, nullable=True)
+
+    # For closed positions - track P&L
+    is_closed = db.Column(db.Boolean, default=False, index=True)
+    close_price = db.Column(db.Numeric(precision=10, scale=2), nullable=True)
+    close_date = db.Column(db.DateTime, nullable=True)
+    realized_pnl = db.Column(db.Numeric(precision=12, scale=2), nullable=True)
+
+    user = db.relationship("User", backref=db.backref("paper_trades", lazy=True))
+
+    def __repr__(self):
+        return f"<PaperTrade {self.trade_type.upper()} {self.shares} {self.ticker} @ ${self.price}>"
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "ticker": self.ticker,
+            "shares": float(self.shares),
+            "price": float(self.price),
+            "trade_type": self.trade_type,
+            "trade_date": self.trade_date.isoformat() if self.trade_date else None,
+            "notes": self.notes,
+            "is_closed": self.is_closed,
+            "close_price": float(self.close_price) if self.close_price else None,
+            "close_date": self.close_date.isoformat() if self.close_date else None,
+            "realized_pnl": float(self.realized_pnl) if self.realized_pnl else None,
+            "total_value": float(self.shares * self.price),
+        }
