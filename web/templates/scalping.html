@@ -2409,7 +2409,15 @@
         `;
 
         try {
-            const response = await fetch(`/api/scalp/analyze/${ticker}?interval=${currentInterval}`);
+            // Add timeout to prevent hanging
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+
+            const response = await fetch(`/api/scalp/analyze/${ticker}?interval=${currentInterval}`, {
+                signal: controller.signal
+            });
+            clearTimeout(timeoutId);
+
             const data = await response.json();
 
             if (data.error) {
@@ -2419,6 +2427,10 @@
             updateDisplay(data);
             await fetchSignalAndOverlay(ticker);
         } catch (error) {
+            // Handle abort/timeout specifically
+            if (error.name === 'AbortError') {
+                error.message = 'Request timed out. The server is taking too long to respond.';
+            }
             console.error('Analysis error:', error);
             document.getElementById('signalIcon').className = 'signal-icon bearish';
             document.getElementById('signalCard').className = 'signal-card bearish';

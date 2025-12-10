@@ -932,8 +932,15 @@
             // Load chart
             loadChart(ticker);
 
-            // Fetch analysis
-            const response = await fetch(`/api/swing/analyze/${ticker}?timeframe=${currentTimeframe}`);
+            // Fetch analysis with timeout
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+
+            const response = await fetch(`/api/swing/analyze/${ticker}?timeframe=${currentTimeframe}`, {
+                signal: controller.signal
+            });
+            clearTimeout(timeoutId);
+
             const data = await response.json();
 
             if (data.success && data.signal) {
@@ -943,7 +950,11 @@
             }
         } catch (e) {
             console.error('Error:', e);
-            showError('Failed to analyze ticker');
+            if (e.name === 'AbortError') {
+                showError('Request timed out. Server is taking too long.');
+            } else {
+                showError('Failed to analyze ticker');
+            }
         } finally {
             btn.disabled = false;
             btn.textContent = 'Analyze';
