@@ -57,6 +57,35 @@ def get_quote(ticker):
     return jsonify(quote)
 
 
+@api_polygon.route("/api/polygon/quote/<ticker>")
+def get_polygon_quote(ticker):
+    """
+    Get snapshot quote for a stock (used by Paper Trading).
+
+    Args:
+        ticker (str): Stock ticker symbol
+
+    Returns:
+        flask.Response: JSON quote data with price, change, changePercent
+    """
+    ticker = ticker.upper()
+    if not validate_ticker(ticker):
+        return jsonify({"error": "Invalid ticker format. Must be 1-5 uppercase letters."}), 400
+
+    polygon = get_polygon_service()
+    snapshot = polygon.get_snapshot(ticker)
+
+    if not snapshot or not snapshot.get("price"):
+        return jsonify({"error": "Quote not found", "price": None}), 404
+
+    return jsonify({
+        "ticker": ticker,
+        "price": snapshot.get("price", 0),
+        "change": snapshot.get("todaysChange", 0),
+        "changePercent": snapshot.get("todaysChangePerc", 0),
+    })
+
+
 @api_polygon.route("/api/market/previous-close/<ticker>")
 def get_prev_close(ticker):
     """
