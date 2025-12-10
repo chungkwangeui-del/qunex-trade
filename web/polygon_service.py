@@ -279,9 +279,13 @@ class PolygonService:
                 prev_day = ticker_data.get("prevDay", {})
                 last_trade = ticker_data.get("lastTrade", {})
 
+                # Use prev_close as fallback for pre/after market hours
+                prev_close = prev_day.get("c", 0)
+                current_price = last_trade.get("p") or day.get("c") or prev_close
+
                 snapshot[ticker] = {
                     "ticker": ticker,
-                    "price": last_trade.get("p"),
+                    "price": current_price,
                     "size": last_trade.get("s"),
                     "timestamp": last_trade.get("t"),
                     "day_open": day.get("o"),
@@ -290,19 +294,19 @@ class PolygonService:
                     "day_close": day.get("c"),
                     "day_volume": day.get("v"),
                     "day_vwap": day.get("vw"),
-                    "prev_close": prev_day.get("c"),
+                    "prev_close": prev_close,
                     "prev_open": prev_day.get("o"),
                     "prev_high": prev_day.get("h"),
                     "prev_low": prev_day.get("l"),
                     "prev_volume": prev_day.get("v"),
                     "change": (
-                        day.get("c", 0) - prev_day.get("c", 0)
-                        if day.get("c") and prev_day.get("c")
+                        current_price - prev_close
+                        if current_price and prev_close
                         else 0
                     ),
                     "change_percent": (
-                        ((day.get("c", 0) - prev_day.get("c", 0)) / prev_day.get("c", 1)) * 100
-                        if day.get("c") and prev_day.get("c")
+                        ((current_price - prev_close) / prev_close) * 100
+                        if current_price and prev_close
                         else 0
                     ),
                 }
@@ -326,9 +330,9 @@ class PolygonService:
         prev_day = ticker_data.get("prevDay", {})
         last_trade = ticker_data.get("lastTrade", {})
 
-        # Calculate change values
-        current_price = last_trade.get("p") or day.get("c") or 0
+        # Calculate change values - use prev_close as fallback for pre/after market
         prev_close = prev_day.get("c", 0)
+        current_price = last_trade.get("p") or day.get("c") or prev_close or 0
         change = current_price - prev_close if current_price and prev_close else 0
         change_percent = (change / prev_close * 100) if prev_close else 0
 
