@@ -449,6 +449,228 @@
         margin-top: 8px;
     }
 
+    /* Price Levels Visual Panel */
+    .price-levels-panel {
+        background: var(--bg-card);
+        border: 1px solid var(--border-subtle);
+        border-top: none;
+        padding: 16px 20px;
+        display: none;
+    }
+
+    .price-levels-panel.show {
+        display: block;
+    }
+
+    .price-levels-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+    }
+
+    .price-levels-title {
+        font-size: var(--text-xs);
+        font-weight: var(--font-semibold);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--text-tertiary);
+    }
+
+    .current-price-tag {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: var(--text-sm);
+        font-weight: var(--font-bold);
+        padding: 4px 10px;
+        background: rgba(0, 217, 255, 0.15);
+        border: 1px solid var(--accent-cyan);
+        border-radius: var(--radius-sm);
+        color: var(--accent-cyan);
+    }
+
+    .price-levels-visual {
+        position: relative;
+        height: 140px;
+        background: linear-gradient(180deg, rgba(239, 68, 68, 0.05) 0%, rgba(34, 197, 94, 0.05) 100%);
+        border-radius: var(--radius-md);
+        overflow: hidden;
+        margin-bottom: 12px;
+    }
+
+    .price-level-line {
+        position: absolute;
+        left: 0;
+        right: 0;
+        height: 2px;
+        display: flex;
+        align-items: center;
+        transition: top 0.3s ease;
+    }
+
+    .price-level-line::before {
+        content: '';
+        flex: 1;
+        height: 2px;
+        background: currentColor;
+    }
+
+    .price-level-line.entry {
+        color: #22c55e;
+        z-index: 5;
+    }
+
+    .price-level-line.stop {
+        color: #ef4444;
+        z-index: 4;
+    }
+
+    .price-level-line.tp1 {
+        color: #22d3ee;
+        z-index: 3;
+    }
+
+    .price-level-line.tp2 {
+        color: #a855f7;
+        z-index: 2;
+    }
+
+    .price-level-line.tp3 {
+        color: #f59e0b;
+        z-index: 1;
+    }
+
+    .price-level-line.current {
+        color: var(--accent-cyan);
+        z-index: 10;
+        height: 3px;
+    }
+
+    .price-level-line.current::before {
+        height: 3px;
+        background: repeating-linear-gradient(
+            90deg,
+            var(--accent-cyan),
+            var(--accent-cyan) 8px,
+            transparent 8px,
+            transparent 12px
+        );
+    }
+
+    .price-level-label {
+        position: absolute;
+        right: 8px;
+        transform: translateY(-50%);
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 11px;
+        font-weight: var(--font-semibold);
+        padding: 2px 8px;
+        border-radius: 3px;
+        white-space: nowrap;
+        background: var(--bg-card);
+        border: 1px solid currentColor;
+    }
+
+    .price-level-name {
+        position: absolute;
+        left: 8px;
+        transform: translateY(-50%);
+        font-size: 10px;
+        font-weight: var(--font-bold);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 2px 6px;
+        border-radius: 3px;
+        background: currentColor;
+        color: #000;
+    }
+
+    .price-levels-legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        justify-content: center;
+    }
+
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: var(--text-xs);
+        color: var(--text-secondary);
+    }
+
+    .legend-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 2px;
+    }
+
+    .legend-dot.entry { background: #22c55e; }
+    .legend-dot.stop { background: #ef4444; }
+    .legend-dot.tp1 { background: #22d3ee; }
+    .legend-dot.tp2 { background: #a855f7; }
+    .legend-dot.tp3 { background: #f59e0b; }
+    .legend-dot.current { background: var(--accent-cyan); }
+
+    /* Risk/Reward Visual Bar */
+    .rr-visual {
+        margin-top: 12px;
+        padding-top: 12px;
+        border-top: 1px solid var(--border-subtle);
+    }
+
+    .rr-bar-container {
+        display: flex;
+        height: 24px;
+        border-radius: var(--radius-sm);
+        overflow: hidden;
+        margin-top: 8px;
+    }
+
+    .rr-bar-risk {
+        background: linear-gradient(90deg, #ef4444, #dc2626);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        font-weight: var(--font-bold);
+        color: white;
+    }
+
+    .rr-bar-reward {
+        background: linear-gradient(90deg, #22c55e, #16a34a);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        font-weight: var(--font-bold);
+        color: white;
+        flex: 1;
+    }
+
+    .rr-stats {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 8px;
+        font-size: var(--text-xs);
+        color: var(--text-tertiary);
+    }
+
+    .rr-stat {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+    }
+
+    .rr-stat-value {
+        font-family: 'JetBrains Mono', monospace;
+        font-weight: var(--font-semibold);
+    }
+
+    .rr-stat-value.risk { color: #ef4444; }
+    .rr-stat-value.reward { color: #22c55e; }
+
     /* Mobile Improvements */
     @media (max-width: 768px) {
         .top-bar {
@@ -1328,6 +1550,73 @@
                 <div class="empty-icon"></div>
                 <div class="empty-title">Enter a Ticker Symbol</div>
                 <div class="empty-desc">Search for US stocks (AAPL, TSLA) or crypto pairs (BTCUSDT, ETHUSDT) for candlestick pattern analysis</div>
+            </div>
+        </div>
+
+        <!-- Price Levels Visual Panel -->
+        <div class="price-levels-panel" id="priceLevelsPanel">
+            <div class="price-levels-header">
+                <span class="price-levels-title">Trade Levels Visualization</span>
+                <span class="current-price-tag" id="currentPriceTag">$--</span>
+            </div>
+
+            <div class="price-levels-visual" id="priceLevelsVisual">
+                <!-- Lines will be dynamically added -->
+                <div class="price-level-line tp3" id="levelTp3" style="top: 5%;">
+                    <span class="price-level-name">TP3</span>
+                    <span class="price-level-label" id="labelTp3">$--</span>
+                </div>
+                <div class="price-level-line tp2" id="levelTp2" style="top: 20%;">
+                    <span class="price-level-name">TP2</span>
+                    <span class="price-level-label" id="labelTp2">$--</span>
+                </div>
+                <div class="price-level-line tp1" id="levelTp1" style="top: 35%;">
+                    <span class="price-level-name">TP1</span>
+                    <span class="price-level-label" id="labelTp1">$--</span>
+                </div>
+                <div class="price-level-line entry" id="levelEntry" style="top: 50%;">
+                    <span class="price-level-name">ENTRY</span>
+                    <span class="price-level-label" id="labelEntry">$--</span>
+                </div>
+                <div class="price-level-line current" id="levelCurrent" style="top: 55%;">
+                    <span class="price-level-label" id="labelCurrent">NOW</span>
+                </div>
+                <div class="price-level-line stop" id="levelStop" style="top: 85%;">
+                    <span class="price-level-name">STOP</span>
+                    <span class="price-level-label" id="labelStop">$--</span>
+                </div>
+            </div>
+
+            <div class="price-levels-legend">
+                <div class="legend-item"><span class="legend-dot current"></span> Current Price</div>
+                <div class="legend-item"><span class="legend-dot entry"></span> Entry</div>
+                <div class="legend-item"><span class="legend-dot stop"></span> Stop Loss</div>
+                <div class="legend-item"><span class="legend-dot tp1"></span> TP1</div>
+                <div class="legend-item"><span class="legend-dot tp2"></span> TP2</div>
+                <div class="legend-item"><span class="legend-dot tp3"></span> TP3</div>
+            </div>
+
+            <!-- Risk/Reward Visual -->
+            <div class="rr-visual">
+                <div class="price-levels-title">Risk / Reward Ratio</div>
+                <div class="rr-bar-container">
+                    <div class="rr-bar-risk" id="rrBarRisk" style="width: 33%;">RISK</div>
+                    <div class="rr-bar-reward" id="rrBarReward">REWARD</div>
+                </div>
+                <div class="rr-stats">
+                    <div class="rr-stat">
+                        <span class="rr-stat-value risk" id="rrRiskPercent">--%</span>
+                        <span>Risk</span>
+                    </div>
+                    <div class="rr-stat">
+                        <span class="rr-stat-value" id="rrRatio">1:2</span>
+                        <span>R:R Ratio</span>
+                    </div>
+                    <div class="rr-stat">
+                        <span class="rr-stat-value reward" id="rrRewardPercent">--%</span>
+                        <span>Reward (TP1)</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -2454,6 +2743,84 @@
     }
 
     // ==========================================
+    // PRICE LEVELS VISUALIZATION
+    // ==========================================
+    function updatePriceLevelsVisual(currentPrice, entry, stop, tp1, tp2, tp3) {
+        const panel = document.getElementById('priceLevelsPanel');
+
+        // Show panel if we have data
+        if (currentPrice && (entry || stop || tp1)) {
+            panel.classList.add('show');
+        } else {
+            panel.classList.remove('show');
+            return;
+        }
+
+        // Update current price tag
+        document.getElementById('currentPriceTag').textContent = `$${currentPrice.toFixed(2)}`;
+
+        // Determine price range for visualization
+        const prices = [currentPrice, entry, stop, tp1, tp2, tp3].filter(p => p && p > 0);
+        if (prices.length < 2) return;
+
+        const minPrice = Math.min(...prices) * 0.998;
+        const maxPrice = Math.max(...prices) * 1.002;
+        const priceRange = maxPrice - minPrice;
+
+        // Helper function to calculate position (inverted: high prices at top)
+        const calcPosition = (price) => {
+            if (!price || price <= 0) return -100; // Hide off-screen
+            const position = ((maxPrice - price) / priceRange) * 100;
+            return Math.max(2, Math.min(98, position)); // Clamp between 2-98%
+        };
+
+        // Update line positions and labels
+        const updateLevel = (id, labelId, price, decimals = 2) => {
+            const line = document.getElementById(id);
+            const label = document.getElementById(labelId);
+            if (price && price > 0) {
+                line.style.top = `${calcPosition(price)}%`;
+                line.style.display = 'flex';
+                label.textContent = `$${price.toFixed(decimals)}`;
+            } else {
+                line.style.display = 'none';
+            }
+        };
+
+        const decimals = currentPrice < 1 ? 4 : 2;
+        updateLevel('levelCurrent', 'labelCurrent', currentPrice, decimals);
+        updateLevel('levelEntry', 'labelEntry', entry, decimals);
+        updateLevel('levelStop', 'labelStop', stop, decimals);
+        updateLevel('levelTp1', 'labelTp1', tp1, decimals);
+        updateLevel('levelTp2', 'labelTp2', tp2, decimals);
+        updateLevel('levelTp3', 'labelTp3', tp3, decimals);
+
+        // Update "NOW" label with actual price
+        document.getElementById('labelCurrent').textContent = `$${currentPrice.toFixed(decimals)}`;
+
+        // Update Risk/Reward visualization
+        if (entry && stop && tp1) {
+            const risk = Math.abs(entry - stop);
+            const reward = Math.abs(tp1 - entry);
+            const rrRatio = risk > 0 ? (reward / risk).toFixed(1) : 0;
+
+            // Calculate percentages
+            const riskPercent = ((risk / entry) * 100).toFixed(1);
+            const rewardPercent = ((reward / entry) * 100).toFixed(1);
+
+            // Update R:R bar widths
+            const totalRR = 1 + parseFloat(rrRatio);
+            const riskWidth = (1 / totalRR) * 100;
+            document.getElementById('rrBarRisk').style.width = `${Math.max(15, riskWidth)}%`;
+
+            // Update stats
+            document.getElementById('rrRiskPercent').textContent = `-${riskPercent}%`;
+            document.getElementById('rrRewardPercent').textContent = `+${rewardPercent}%`;
+            document.getElementById('rrRatio').textContent = `1:${rrRatio}`;
+        }
+    }
+
+    // ==========================================
     // COPY FUNCTIONS
     // ==========================================
     function copyValue(elementId) {
@@ -2564,7 +2931,7 @@
         return result;
     };
 
-    // Update position calculator when prices change
+    // Update position calculator and price levels visual when prices change
     const originalUpdateDisplay = updateDisplay;
     updateDisplay = function(data) {
         originalUpdateDisplay(data);
@@ -2573,18 +2940,61 @@
         const now = new Date();
         document.getElementById('lastUpdated').textContent = `Last updated: ${now.toLocaleTimeString()}`;
 
-        // Store prices for calculator
+        // Store prices for calculator and update visuals
+        let entry = null, stop = null, tp1 = null, tp2 = null, tp3 = null;
+
         if (data.trade_setup && data.trade_setup.entry_price) {
-            currentEntryPrice = data.trade_setup.entry_price;
-            currentStopPrice = data.trade_setup.stop_loss;
-            currentTP1Price = data.trade_setup.take_profit;
+            currentEntryPrice = entry = data.trade_setup.entry_price;
+            currentStopPrice = stop = data.trade_setup.stop_loss;
+            currentTP1Price = tp1 = data.trade_setup.take_profit;
+            tp2 = data.trade_setup.take_profit_2;
+            tp3 = data.trade_setup.take_profit_3;
             calculatePosition();
         } else if (data.price) {
             // Use current price as entry estimate
-            currentEntryPrice = data.price;
-            currentStopPrice = data.levels?.nearest_support || data.price * 0.98;
-            currentTP1Price = data.levels?.nearest_resistance || data.price * 1.04;
+            currentEntryPrice = entry = data.price;
+            currentStopPrice = stop = data.levels?.nearest_support || data.price * 0.98;
+            currentTP1Price = tp1 = data.levels?.nearest_resistance || data.price * 1.04;
+            tp2 = tp1 ? tp1 * 1.015 : null;
+            tp3 = tp1 ? tp1 * 1.03 : null;
             calculatePosition();
+        }
+
+        // Update price levels visualization
+        if (data.price) {
+            updatePriceLevelsVisual(data.price, entry, stop, tp1, tp2, tp3);
+        }
+    };
+
+    // Also update from signal overlay
+    const originalFetchSignalAndOverlay = fetchSignalAndOverlay;
+    fetchSignalAndOverlay = async function(ticker) {
+        await originalFetchSignalAndOverlay(ticker);
+
+        // Get signal data from the DOM elements that were just updated
+        const entryEl = document.getElementById('entryPrice');
+        const stopEl = document.getElementById('stopLoss');
+        const tp1El = document.getElementById('takeProfit');
+        const tp2El = document.getElementById('takeProfit2');
+        const tp3El = document.getElementById('takeProfit3');
+        const priceEl = document.getElementById('displayPrice');
+
+        const parsePrice = (el) => {
+            if (!el) return null;
+            const text = el.textContent.replace(/[$,\s]/g, '');
+            const val = parseFloat(text);
+            return isNaN(val) ? null : val;
+        };
+
+        const currentPrice = parsePrice(priceEl);
+        const entry = parsePrice(entryEl);
+        const stop = parsePrice(stopEl);
+        const tp1 = parsePrice(tp1El);
+        const tp2 = parsePrice(tp2El);
+        const tp3 = parsePrice(tp3El);
+
+        if (currentPrice) {
+            updatePriceLevelsVisual(currentPrice, entry, stop, tp1, tp2, tp3);
         }
     };
 
