@@ -2391,15 +2391,6 @@
     }
 
     async function fetchAnalysis(ticker) {
-        // Show loading state for signal card
-        document.getElementById('signalIcon').className = 'signal-icon loading';
-        document.getElementById('signalText').textContent = 'Loading...';
-        document.getElementById('signalText').className = 'signal-text';
-        document.getElementById('signalCard').className = 'signal-card';
-        document.getElementById('signalConfidence').textContent = 'Detecting candlestick patterns...';
-        document.getElementById('tradeSetupBox').style.display = 'none';
-        document.getElementById('reasoningList').innerHTML = '';
-
         // Reset signal hero section to loading state
         document.getElementById('signalHero').className = 'signal-hero wait';
         document.getElementById('signalBadge').textContent = '...';
@@ -2410,6 +2401,8 @@
         document.getElementById('keyReasons').innerHTML = '<span class="reason-chip"><span class="reason-chip-icon">⏳</span> Loading...</span>';
         document.getElementById('confluenceStatusText').textContent = 'Loading confluence data...';
         document.getElementById('tradeLevelsCard').style.display = 'none';
+        document.getElementById('tradeSetupBox').style.display = 'none';
+        document.getElementById('reasoningList').innerHTML = '';
 
         document.getElementById('aiAnalysis').innerHTML = `
             <div class="loading-overlay">
@@ -2442,11 +2435,6 @@
                 error.message = 'Request timed out. The server is taking too long to respond.';
             }
             console.error('Analysis error:', error);
-            document.getElementById('signalIcon').className = 'signal-icon bearish';
-            document.getElementById('signalCard').className = 'signal-card bearish';
-            document.getElementById('signalText').textContent = 'Error';
-            document.getElementById('signalText').className = 'signal-text bearish';
-            document.getElementById('signalConfidence').textContent = error.message || 'Failed to analyze';
 
             // Update signal hero on error
             document.getElementById('signalHero').className = 'signal-hero wait';
@@ -2484,31 +2472,6 @@
             document.getElementById('displayChange').className = `ticker-change ${changeClass}`;
             document.getElementById('displayChange').textContent = `${changeSign}${data.change_percent.toFixed(2)}%`;
         }
-
-        // Update signal card
-        const signal = data.signal || 'WAIT';
-        const signalCard = document.getElementById('signalCard');
-        const signalIcon = document.getElementById('signalIcon');
-        const signalText = document.getElementById('signalText');
-
-        if (signal === 'LONG') {
-            signalCard.className = 'signal-card bullish';
-            signalIcon.className = 'signal-icon bullish';
-            signalText.textContent = 'LONG SIGNAL';
-            signalText.className = 'signal-text bullish';
-        } else if (signal === 'SHORT') {
-            signalCard.className = 'signal-card bearish';
-            signalIcon.className = 'signal-icon bearish';
-            signalText.textContent = 'SHORT SIGNAL';
-            signalText.className = 'signal-text bearish';
-        } else {
-            signalCard.className = 'signal-card neutral';
-            signalIcon.className = 'signal-icon neutral';
-            signalText.textContent = 'WAIT';
-            signalText.className = 'signal-text neutral';
-        }
-
-        document.getElementById('signalConfidence').textContent = `Confidence: ${data.confidence || '--'}%`;
 
         // Update reasoning list
         const reasoningList = document.getElementById('reasoningList');
