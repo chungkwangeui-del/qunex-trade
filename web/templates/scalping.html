@@ -2402,7 +2402,6 @@
         document.getElementById('confluenceStatusText').textContent = 'Loading confluence data...';
         document.getElementById('tradeLevelsCard').style.display = 'none';
         document.getElementById('tradeSetupBox').style.display = 'none';
-        document.getElementById('reasoningList').innerHTML = '';
 
         document.getElementById('aiAnalysis').innerHTML = `
             <div class="loading-overlay">
@@ -2471,16 +2470,6 @@
             const changeSign = data.change_percent >= 0 ? '+' : '';
             document.getElementById('displayChange').className = `ticker-change ${changeClass}`;
             document.getElementById('displayChange').textContent = `${changeSign}${data.change_percent.toFixed(2)}%`;
-        }
-
-        // Update reasoning list
-        const reasoningList = document.getElementById('reasoningList');
-        if (data.signal_reasoning && data.signal_reasoning.length > 0) {
-            reasoningList.innerHTML = data.signal_reasoning.map(r =>
-                `<div class="reasoning-item">${r}</div>`
-            ).join('');
-        } else {
-            reasoningList.innerHTML = '';
         }
 
         // Update candlestick patterns
