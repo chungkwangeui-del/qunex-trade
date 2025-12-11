@@ -1857,14 +1857,14 @@
 
         <!-- 1. MAIN SIGNAL HERO -->
         <div class="signal-hero wait" id="signalHero">
-            <div class="signal-hero-badge" id="signalBadge">-</div>
-            <div class="signal-hero-subtitle" id="signalSubtitle">Enter a ticker to analyze</div>
+            <div class="signal-hero-badge" id="signalBadge">WAIT</div>
+            <div class="signal-hero-subtitle" id="signalSubtitle">Analyzing market conditions...</div>
 
             <div class="setup-grade">
                 <div class="grade-circle grade-f" id="gradeCircle">-</div>
                 <div class="grade-info">
                     <div class="grade-label">Setup Quality</div>
-                    <div class="grade-description" id="gradeDescription">No ticker selected</div>
+                    <div class="grade-description" id="gradeDescription">Waiting for signal</div>
                 </div>
             </div>
         </div>
@@ -1923,7 +1923,7 @@
         <div class="key-reasons-card">
             <div class="key-reasons-title">Why This Signal?</div>
             <div id="keyReasons">
-                <span class="reason-chip"><span class="reason-chip-icon">⏳</span> Waiting for analysis...</span>
+                <span class="reason-chip"><span class="reason-chip-icon">⏳</span> Analyzing...</span>
             </div>
         </div>
 
@@ -1943,7 +1943,7 @@
                 </div>
                 <div class="confluence-status not-met" id="confluenceStatus">
                     <span id="confluenceStatusIcon">⏳</span>
-                    <span id="confluenceStatusText">Waiting for data...</span>
+                    <span id="confluenceStatusText">Analyzing confluences...</span>
                 </div>
                 <div class="confluence-reasons" id="confluenceReasons">
                     <!-- Dynamically populated -->
@@ -2073,8 +2073,9 @@
         <div class="ai-analysis-card">
             <div class="card-title">Analysis</div>
             <div class="ai-analysis-content" id="aiAnalysis">
-                <div style="color: var(--text-tertiary); text-align: center; padding: 20px;">
-                    Enter a ticker symbol to see analysis
+                <div class="loading-overlay">
+                    <div class="spinner"></div>
+                    <span>Waiting for analysis...</span>
                 </div>
             </div>
 
@@ -2391,17 +2392,14 @@
     }
 
     async function fetchAnalysis(ticker) {
-        // Reset signal hero section to loading state
-        document.getElementById('signalHero').className = 'signal-hero wait';
-        document.getElementById('signalBadge').textContent = '...';
-        document.getElementById('signalSubtitle').textContent = 'Loading signal data...';
-        document.getElementById('gradeCircle').textContent = '-';
-        document.getElementById('gradeCircle').className = 'grade-circle grade-f';
-        document.getElementById('gradeDescription').textContent = 'Fetching analysis...';
-        document.getElementById('keyReasons').innerHTML = '<span class="reason-chip"><span class="reason-chip-icon">⏳</span> Loading...</span>';
-        document.getElementById('confluenceStatusText').textContent = 'Loading confluence data...';
-        document.getElementById('tradeLevelsCard').style.display = 'none';
+        // Show loading state
+        document.getElementById('signalIcon').className = 'signal-icon loading';
+        document.getElementById('signalText').textContent = 'Analyzing...';
+        document.getElementById('signalText').className = 'signal-text';
+        document.getElementById('signalCard').className = 'signal-card';
+        document.getElementById('signalConfidence').textContent = 'Detecting candlestick patterns...';
         document.getElementById('tradeSetupBox').style.display = 'none';
+        document.getElementById('reasoningList').innerHTML = '';
 
         document.getElementById('aiAnalysis').innerHTML = `
             <div class="loading-overlay">
@@ -2434,17 +2432,11 @@
                 error.message = 'Request timed out. The server is taking too long to respond.';
             }
             console.error('Analysis error:', error);
-
-            // Update signal hero on error
-            document.getElementById('signalHero').className = 'signal-hero wait';
-            document.getElementById('signalBadge').textContent = 'ERROR';
-            document.getElementById('signalSubtitle').textContent = error.message || 'Analysis failed';
-            document.getElementById('gradeCircle').textContent = '!';
-            document.getElementById('gradeCircle').className = 'grade-circle grade-f';
-            document.getElementById('gradeDescription').textContent = 'Unable to complete analysis';
-            document.getElementById('keyReasons').innerHTML = '<span class="reason-chip"><span class="reason-chip-icon">❌</span> ' + (error.message || 'Error') + '</span>';
-            document.getElementById('confluenceStatusText').textContent = 'Analysis failed';
-
+            document.getElementById('signalIcon').className = 'signal-icon bearish';
+            document.getElementById('signalCard').className = 'signal-card bearish';
+            document.getElementById('signalText').textContent = 'Error';
+            document.getElementById('signalText').className = 'signal-text bearish';
+            document.getElementById('signalConfidence').textContent = error.message || 'Failed to analyze';
             const assetHint = isCryptoTicker(ticker)
                 ? 'Crypto pairs use Binance data (e.g., BTCUSDT, ETHUSDT)'
                 : 'Stocks use Polygon data. Ensure market is open.';
@@ -2470,6 +2462,41 @@
             const changeSign = data.change_percent >= 0 ? '+' : '';
             document.getElementById('displayChange').className = `ticker-change ${changeClass}`;
             document.getElementById('displayChange').textContent = `${changeSign}${data.change_percent.toFixed(2)}%`;
+        }
+
+        // Update signal card
+        const signal = data.signal || 'WAIT';
+        const signalCard = document.getElementById('signalCard');
+        const signalIcon = document.getElementById('signalIcon');
+        const signalText = document.getElementById('signalText');
+
+        if (signal === 'LONG') {
+            signalCard.className = 'signal-card bullish';
+            signalIcon.className = 'signal-icon bullish';
+            signalText.textContent = 'LONG SIGNAL';
+            signalText.className = 'signal-text bullish';
+        } else if (signal === 'SHORT') {
+            signalCard.className = 'signal-card bearish';
+            signalIcon.className = 'signal-icon bearish';
+            signalText.textContent = 'SHORT SIGNAL';
+            signalText.className = 'signal-text bearish';
+        } else {
+            signalCard.className = 'signal-card neutral';
+            signalIcon.className = 'signal-icon neutral';
+            signalText.textContent = 'WAIT';
+            signalText.className = 'signal-text neutral';
+        }
+
+        document.getElementById('signalConfidence').textContent = `Confidence: ${data.confidence || '--'}%`;
+
+        // Update reasoning list
+        const reasoningList = document.getElementById('reasoningList');
+        if (data.signal_reasoning && data.signal_reasoning.length > 0) {
+            reasoningList.innerHTML = data.signal_reasoning.map(r =>
+                `<div class="reasoning-item">${r}</div>`
+            ).join('');
+        } else {
+            reasoningList.innerHTML = '';
         }
 
         // Update candlestick patterns
