@@ -360,26 +360,3 @@ if __name__ == "__main__":
         print("1. Get API key from: https://makersuite.google.com/app/apikey")
         print("2. Set environment variable: GEMINI_API_KEY=your_key_here")
         print("3. Or add to .env file: GEMINI_API_KEY=your_key_here")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
