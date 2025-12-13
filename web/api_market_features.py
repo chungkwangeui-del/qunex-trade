@@ -259,11 +259,16 @@ def get_treemap_data():
                         snapshot.get("prev_close") or
                         0
                     )
-                    change_percent = snapshot.get("change_percent", 0) or 0
+                    price = float(price) if price is not None else 0
+                    change_percent = float(snapshot.get("change_percent", 0) or 0)
                     volume = snapshot.get("day_volume") or snapshot.get("prev_volume") or 0
 
-                    # Market cap in dollars (default_cap_b is in billions)
-                    market_cap = default_cap_b * 1_000_000_000
+                    # Prefer live market cap for accurate sizing, fall back to defaults (billions)
+                    market_cap = snapshot.get("market_cap")
+                    if market_cap is None or market_cap <= 0:
+                        market_cap = default_cap_b * 1_000_000_000
+                    else:
+                        market_cap = float(market_cap)
 
                     sector_data["children"].append({
                         "name": ticker,

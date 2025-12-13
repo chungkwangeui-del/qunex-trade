@@ -2446,6 +2446,7 @@
                     <small style="color: var(--text-tertiary);">${assetHint}</small>
                 </div>
             `;
+            updateSignalHero('WAIT', 'neutral', 0, [error.message || 'Analysis failed - check market status or try crypto pair']);
         }
     }
 
@@ -3036,6 +3037,7 @@
         // Determine grade based on confidence
         let grade = 'F';
         let gradeText = 'No setup';
+        let subtitleText = '';
         if (confidence >= 80) {
             grade = 'A';
             gradeText = 'Excellent setup - High confidence';
@@ -3050,21 +3052,24 @@
         if (signal === 'LONG') {
             hero.classList.add('long');
             badge.textContent = 'LONG';
-            subtitle.textContent = 'Bullish signal detected';
+            subtitleText = 'Bullish signal detected';
             levelsCard.style.display = 'block';
         } else if (signal === 'SHORT') {
             hero.classList.add('short');
             badge.textContent = 'SHORT';
-            subtitle.textContent = 'Bearish signal detected';
+            subtitleText = 'Bearish signal detected';
             levelsCard.style.display = 'block';
         } else {
             hero.classList.add('wait');
             badge.textContent = 'WAIT';
-            subtitle.textContent = '최소 2개 근거 필요 - Do not enter';
+            subtitleText = (reasons && reasons.length)
+                ? reasons[0]
+                : 'Conditions not met - Wait for cleaner setup';
             levelsCard.style.display = 'none';
             grade = 'F';
             gradeText = 'Conditions not met - Wait for better setup';
         }
+        subtitle.textContent = subtitleText;
 
         // Update grade
         gradeCircle.classList.add(`grade-${grade.toLowerCase()}`);

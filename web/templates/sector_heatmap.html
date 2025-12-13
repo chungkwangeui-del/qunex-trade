@@ -266,6 +266,18 @@
         text-shadow: 0 1px 3px rgba(0,0,0,0.9);
     }
 
+    .sector-outline {
+        fill: rgba(255, 255, 255, 0.015);
+        stroke: rgba(255, 255, 255, 0.12);
+        stroke-width: 1.25px;
+        pointer-events: none;
+    }
+
+    .sector-label-bar {
+        fill: rgba(0, 0, 0, 0.35);
+        pointer-events: none;
+    }
+
     /* Tooltip */
     .treemap-tooltip {
         position: fixed;
@@ -928,8 +940,9 @@
         const container = document.getElementById('treemap');
         container.innerHTML = '';
 
-        const width = container.clientWidth;
-        const height = container.clientHeight;
+        const bounds = container.getBoundingClientRect();
+        const width = Math.max(bounds.width || container.clientWidth || 0, 640);
+        const height = Math.max(bounds.height || container.clientHeight || 0, 520);
 
         const svg = d3.select('#treemap')
             .append('svg')
@@ -946,8 +959,8 @@
             .tile(d3.treemapSquarify.ratio(1.2))
             .size([width, height])
             .paddingOuter(1)     // Thin outer border
-            .paddingTop(15)      // Space for sector label
-            .paddingInner(1)     // Minimal gap between cells (just for border)
+            .paddingTop(18)      // Space for sector label bar
+            .paddingInner(1.2)   // Minimal gap between cells (just for border)
             .round(true)
             (root);
 
@@ -955,6 +968,40 @@
 
         // Draw all cells first (flat structure like Finviz)
         const allStocks = root.leaves();
+
+        // Sector blocks to mimic Finviz sectioning
+        const sectorGroups = svg.selectAll('g.sector-block')
+            .data(root.children || [])
+            .join(enter => {
+                const g = enter.append('g').attr('class', 'sector-block');
+                g.append('rect').attr('class', 'sector-outline');
+                g.append('rect').attr('class', 'sector-label-bar');
+                g.append('text').attr('class', 'sector-label');
+                return g;
+            });
+
+        sectorGroups.select('rect.sector-outline')
+            .attr('x', d => d.x0 + 0.5)
+            .attr('y', d => d.y0 + 0.5)
+            .attr('width', d => Math.max(0, d.x1 - d.x0) - 1)
+            .attr('height', d => Math.max(0, d.y1 - d.y0) - 1);
+
+        sectorGroups.select('rect.sector-label-bar')
+            .attr('x', d => d.x0 + 1)
+            .attr('y', d => d.y0 + 1)
+            .attr('width', d => Math.max(0, d.x1 - d.x0 - 2))
+            .attr('height', 14);
+
+        sectorGroups.select('text.sector-label')
+            .attr('x', d => d.x0 + 6)
+            .attr('y', d => d.y0 + 12)
+            .style('font-family', 'Arial, sans-serif')
+            .style('font-size', '10px')
+            .style('font-weight', 'bold')
+            .style('fill', '#ffffff')
+            .style('text-shadow', '1px 1px 2px #000, -1px -1px 2px #000, 1px -1px 2px #000, -1px 1px 2px #000')
+            .style('pointer-events', 'none')
+            .text(d => d.data.name);
 
         // Draw stock cells
         svg.selectAll('rect.treemap-cell')
@@ -1098,21 +1145,6 @@
                         .text(`${isPositive ? '+' : ''}${changePercent.toFixed(2)}%`);
                 }
             });
-
-        // Draw sector labels on top (overlaid like Finviz)
-        svg.selectAll('text.sector-label')
-            .data(root.children)
-            .join('text')
-            .attr('class', 'sector-label')
-            .attr('x', d => d.x0 + 4)
-            .attr('y', d => d.y0 + 12)
-            .style('font-family', 'Arial, sans-serif')
-            .style('font-size', '10px')
-            .style('font-weight', 'bold')
-            .style('fill', '#ffffff')
-            .style('text-shadow', '1px 1px 2px #000, -1px -1px 2px #000, 1px -1px 2px #000, -1px 1px 2px #000')
-            .style('pointer-events', 'none')
-            .text(d => d.data.name);
     }
 
     function updateSummaryFromTreemap(summary) {

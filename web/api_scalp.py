@@ -2081,7 +2081,7 @@ def scalp_signal():
     timeframe = data.get("timeframe", "15m")
     risk_reward = float(data.get("risk_reward", 2.0))
 
-    if not ticker or len(ticker) > 5 or not ticker.isalpha():
+    if not ticker or len(ticker) > 12 or not re.match(r"^[A-Z0-9]+$", ticker):
         return jsonify({"error": "Invalid ticker"}), 400
     if timeframe not in ["1m", "5m", "15m", "30m", "1h"]:
         return jsonify({"error": "Invalid timeframe"}), 400
