@@ -266,9 +266,15 @@ def get_treemap_data():
                     # Prefer live market cap for accurate sizing, fall back to defaults (billions)
                     market_cap = snapshot.get("market_cap")
                     if market_cap is None or market_cap <= 0:
+                        # Fall back to static sizing (billions) if live cap unavailable
                         market_cap = default_cap_b * 1_000_000_000
                     else:
                         market_cap = float(market_cap)
+
+                    # Skip if we still don't have a positive cap
+                    if market_cap <= 0:
+                        logger.debug(f"Skipping {ticker} due to missing market cap")
+                        continue
 
                     sector_data["children"].append({
                         "name": ticker,

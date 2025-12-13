@@ -272,20 +272,20 @@ def analyze_swing(ticker: str):
         # Check market status for stocks
         market_open, market_status = get_market_status()
 
-        # Fetch candle data
+        # Fetch candle data (retry with larger history if needed)
         if is_crypto_ticker(ticker):
-            candles = fetch_binance_candles(ticker, timeframe, limit=100)
+            candles = fetch_binance_candles(ticker, timeframe, limit=200)
             market_type = "crypto"
         else:
-            candles = fetch_stock_candles(ticker, timeframe, limit=100)
+            candles = fetch_stock_candles(ticker, timeframe, limit=200)
             market_type = "stock"
 
-        if not candles or len(candles) < 50:
+        if not candles or len(candles) < 30:
             # Better error message for stocks when market is closed
             if market_type == "stock" and not market_open:
                 error_msg = f"{market_status}. Stock data unavailable. Try crypto (e.g., BTCUSDT) or wait for market to open."
             else:
-                error_msg = f"Insufficient data for {ticker}. Need at least 50 candles."
+                error_msg = f"Insufficient data for {ticker}. Need at least 30 candles."
 
             return jsonify({
                 "success": False,
@@ -355,15 +355,15 @@ def get_swing_signal():
     try:
         # Fetch candle data
         if is_crypto_ticker(ticker):
-            candles = fetch_binance_candles(ticker, timeframe, limit=100)
+            candles = fetch_binance_candles(ticker, timeframe, limit=200)
         else:
-            candles = fetch_stock_candles(ticker, timeframe, limit=100)
+            candles = fetch_stock_candles(ticker, timeframe, limit=200)
 
-        if not candles or len(candles) < 50:
+        if not candles or len(candles) < 30:
             return jsonify({
                 "success": False,
                 "signal": "WAIT",
-                "reason": ["Insufficient data - need 50+ candles"],
+                "reason": ["Insufficient data - need 30+ candles"],
                 "ticker": ticker,
             })
 
