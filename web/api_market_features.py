@@ -257,7 +257,7 @@ def get_sector_heatmap():
 
 
 @api_market_features.route("/api/market/treemap")
-@login_required
+# Note: Removed @login_required - market map should be publicly accessible
 @cache.cached(timeout=60, key_prefix='treemap_data')  # Cache for 1 minute
 def get_treemap_data():
     """

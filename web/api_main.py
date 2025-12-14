@@ -61,16 +61,25 @@ def refresh_news():
         gemini_key = os.environ.get("GEMINI_API_KEY")
         analyzer = None
         analyzer_available = False
+        analyzer_error = None
+        
         if gemini_key:
+            logger.info(f"GEMINI_API_KEY found (starts with: {gemini_key[:8]}...)")
             try:
                 analyzer = NewsAnalyzer()
                 analyzer_available = True
+                logger.info("NewsAnalyzer initialized successfully")
             except Exception as e:
-                logger.warning(f"AI analysis unavailable - check GEMINI_API_KEY. ({e})")
+                analyzer_error = str(e)
+                logger.error(f"Failed to initialize NewsAnalyzer: {e}")
         else:
+            analyzer_error = "GEMINI_API_KEY not set in environment"
             logger.warning("GEMINI_API_KEY not configured; saving news without AI analysis")
 
         saved_count = 0
+        analyzed_count = 0
+        filtered_count = 0
+        
         for item in news_items:
             try:
                 # Check if article already exists
@@ -93,13 +102,25 @@ def refresh_news():
                 if analyzer_available and analyzer:
                     try:
                         analysis = analyzer.analyze_single_news(item)
+                        if analysis:
+                            analyzed_count += 1
+                        else:
+                            # News was filtered (importance < 4 or credibility < 3)
+                            filtered_count += 1
                     except Exception as e:
-                        logger.warning(f"AI analysis failed, saving without analysis: {e}")
+                        logger.warning(f"AI analysis failed for '{item.get('title', '')[:50]}': {e}")
 
+                # Set default analysis if not analyzed
                 if not analysis:
+                    # Determine the reason for no analysis
+                    if not analyzer_available:
+                        reason = f"Gemini API error: {analyzer_error}"
+                    else:
+                        reason = "Filtered: Low importance or credibility"
+                    
                     analysis = {
                         "importance": 3,
-                        "impact_summary": "AI analysis unavailable - check API key",
+                        "impact_summary": reason,
                         "sentiment": "neutral"
                     }
 
@@ -122,10 +143,16 @@ def refresh_news():
                 continue
 
         db.session.commit()
-        logger.info(f"Saved {saved_count} new articles to database")
+        logger.info(f"Saved {saved_count} new articles (AI analyzed: {analyzed_count}, filtered: {filtered_count})")
 
         return jsonify({
             "success": True,
+            "ai_status": {
+                "enabled": analyzer_available,
+                "analyzed": analyzed_count,
+                "filtered": filtered_count,
+                "error": analyzer_error
+            },
             "count": saved_count,
             "total_collected": len(news_items),
             "message": f"Collected {len(news_items)} articles, saved {saved_count} new"
