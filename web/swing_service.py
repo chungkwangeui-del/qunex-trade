@@ -932,16 +932,49 @@ def generate_swing_signal(
 
     # No signal if minimum confluence not met
     if not confluence["min_confluence_met"]:
+        # Calculate a low confidence score for WAIT signals
+        total_score = max(confluence["bullish_score"], confluence["bearish_score"])
+        confluence_count = max(confluence["bullish_count"], confluence["bearish_count"])
+        wait_confidence = min(40, (total_score // 4) + (confluence_count * 3))
+        
         return {
             "signal": "WAIT",
             "direction": confluence["direction"],
             "timeframe": timeframe,
-            "confluence": confluence,
+            "confidence": wait_confidence,  # Include confidence for WAIT signals
+            "entry": None,
+            "stop": None,
+            "tp1": None,
+            "tp2": None,
+            "tp3": None,
+            "confluence": {
+                "count": confluence_count,
+                "score": total_score,
+                "details": confluence,
+            },
             "reason": ["Minimum 2 confluences required - conditions not met"],
             "market_structure": {
                 "trend": market_structure["trend"],
                 "bos": market_structure["bos"],
                 "choch": market_structure["choch"],
+                "hh_count": market_structure.get("hh_count", 0),
+                "hl_count": market_structure.get("hl_count", 0),
+                "lh_count": market_structure.get("lh_count", 0),
+                "ll_count": market_structure.get("ll_count", 0),
+            },
+            "liquidity": {
+                "bsl_count": len(liquidity["bsl"]),
+                "ssl_count": len(liquidity["ssl"]),
+                "sweeps": liquidity["sweeps"],
+            },
+            "order_blocks": {
+                "bullish_count": len(order_blocks["bullish"]),
+                "bearish_count": len(order_blocks["bearish"]),
+                "breaker_count": len(order_blocks["breakers"]),
+            },
+            "fvg": {
+                "bullish_count": len(fvgs["bullish"]),
+                "bearish_count": len(fvgs["bearish"]),
             },
             "premium_discount": premium_discount,
             "kill_zone": kill_zone,

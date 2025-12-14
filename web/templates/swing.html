@@ -926,10 +926,13 @@
         document.getElementById('chartTicker').textContent = ticker;
         document.getElementById('chartTimeframe').textContent = currentTimeframe;
 
-        // Show loading
+        // Show loading state immediately
         const btn = document.getElementById('analyzeBtn');
         btn.disabled = true;
         btn.textContent = 'Analyzing...';
+        
+        // Update signal direction to show loading
+        document.getElementById('signalDirection').textContent = 'Fetching data...';
 
         try {
             // Load chart
@@ -939,24 +942,64 @@
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
 
+            console.log(`[Swing] Analyzing ${ticker} on ${currentTimeframe} timeframe...`);
+
             const response = await fetch(`/api/swing/analyze/${ticker}?timeframe=${currentTimeframe}`, {
                 signal: controller.signal
             });
             clearTimeout(timeoutId);
 
+            console.log(`[Swing] Response status: ${response.status}`);
+
+            if (!response.ok) {
+                let message = 'Failed to analyze ticker';
+                try {
+                    const errData = await response.json();
+                    console.log('[Swing] Error response:', errData);
+                    message = errData.error || message;
+                    
+                    // Provide more helpful error messages
+                    if (response.status === 400) {
+                        if (message.includes('Insufficient data')) {
+                            message = `${ticker}: Not enough historical data. Try a different timeframe or ticker.`;
+                        } else if (message.includes('Market closed')) {
+                            message = `${ticker}: ${message}`;
+                        }
+                    } else if (response.status === 500) {
+                        message = `Server error analyzing ${ticker}. Please try again.`;
+                    } else if (response.status === 401 || response.status === 403) {
+                        message = 'Please log in to use the swing trading analyzer.';
+                    }
+                } catch (parseErr) {
+                    console.error('[Swing] Error parsing response:', parseErr);
+                    message = `${message} (status ${response.status})`;
+                }
+                showError(message);
+                return false;
+            }
+
             const data = await response.json();
+            console.log('[Swing] Success response:', data);
 
             if (data.success && data.signal) {
                 updateDisplay(data.signal);
+                // Draw signal lines on chart if available
+                if (data.signal.signal !== 'WAIT' && data.signal.entry) {
+                    drawSignalOnChart(data.signal);
+                }
             } else {
-                showError(data.error || 'Analysis failed');
+                const errorMsg = data.error || 'Analysis failed - no signal data returned';
+                console.error('[Swing] No signal in response:', data);
+                showError(errorMsg);
             }
         } catch (e) {
-            console.error('Error:', e);
+            console.error('[Swing] Exception:', e);
             if (e.name === 'AbortError') {
-                showError('Request timed out. Server is taking too long.');
+                showError('Request timed out. Server is taking too long to respond.');
+            } else if (e.message && e.message.includes('Failed to fetch')) {
+                showError('Network error. Please check your connection and try again.');
             } else {
-                showError('Failed to analyze ticker');
+                showError(`Failed to analyze ${ticker}: ${e.message || 'Unknown error'}`);
             }
         } finally {
             btn.disabled = false;
@@ -1080,32 +1123,46 @@
 
     // Update display with signal data
     function updateDisplay(signal) {
+        // Validate signal object
+        if (!signal || typeof signal !== 'object') {
+            console.error('[Swing] Invalid signal object:', signal);
+            showError('Invalid signal data received');
+            return;
+        }
+
+        const signalType = signal.signal || 'WAIT';
+        
         // Signal Hero
         const hero = document.getElementById('signalHero');
         const badge = document.getElementById('signalBadge');
         const direction = document.getElementById('signalDirection');
 
-        hero.className = `signal-hero ${signal.signal.toLowerCase()}`;
-        badge.className = `signal-badge ${signal.signal.toLowerCase()}`;
-        badge.textContent = signal.signal;
+        hero.className = `signal-hero ${signalType.toLowerCase()}`;
+        badge.className = `signal-badge ${signalType.toLowerCase()}`;
+        badge.textContent = signalType;
 
-        if (signal.signal === 'LONG') {
+        if (signalType === 'LONG') {
             direction.textContent = 'Bullish setup detected - Look for long entries';
-        } else if (signal.signal === 'SHORT') {
+        } else if (signalType === 'SHORT') {
             direction.textContent = 'Bearish setup detected - Look for short entries';
+        } else if (signalType === 'ERROR') {
+            direction.textContent = signal.error || 'An error occurred';
         } else {
             direction.textContent = 'No clear setup - Wait for better conditions';
         }
 
         // Confidence
-        const confidence = signal.confidence || 0;
+        const confidence = typeof signal.confidence === 'number' ? signal.confidence : 0;
         const fill = document.getElementById('confidenceFill');
         fill.style.width = `${confidence}%`;
         fill.className = `confidence-fill ${confidence >= 70 ? 'high' : confidence >= 50 ? 'medium' : 'low'}`;
         document.getElementById('confidenceValue').textContent = `${confidence}%`;
 
+        console.log(`[Swing] Signal: ${signalType}, Confidence: ${confidence}%`);
+
         // Confluence dots
-        const count = signal.confluence?.count || 0;
+        const confluenceData = signal.confluence || {};
+        const count = confluenceData.count || 0;
         const dots = document.querySelectorAll('.confluence-dot');
         dots.forEach((dot, i) => {
             dot.className = `confluence-dot ${i < count ? 'filled' : ''}`;
@@ -1210,13 +1267,49 @@
         }
     }
 
-    // Show error
+    // Show error - reset all UI elements to error state
     function showError(message) {
         const hero = document.getElementById('signalHero');
         hero.className = 'signal-hero wait';
         document.getElementById('signalBadge').className = 'signal-badge wait';
         document.getElementById('signalBadge').textContent = 'ERROR';
         document.getElementById('signalDirection').textContent = message;
+        
+        // Reset confidence meter
+        document.getElementById('confidenceFill').style.width = '0%';
+        document.getElementById('confidenceFill').className = 'confidence-fill low';
+        document.getElementById('confidenceValue').textContent = '0%';
+        
+        // Reset confluence dots
+        document.querySelectorAll('.confluence-dot').forEach(dot => {
+            dot.className = 'confluence-dot';
+        });
+        
+        // Hide trade levels
+        document.getElementById('tradeLevels').classList.add('hidden');
+        
+        // Reset market structure
+        document.getElementById('structureBadge').textContent = '--';
+        document.getElementById('structureBadge').className = 'card-badge neutral';
+        document.getElementById('hhCount').textContent = '-';
+        document.getElementById('hlCount').textContent = '-';
+        document.getElementById('lhCount').textContent = '-';
+        document.getElementById('llCount').textContent = '-';
+        document.getElementById('bosChochInfo').innerHTML = '';
+        
+        // Reset reasons
+        document.getElementById('reasonsList').innerHTML = `
+            <div style="color: var(--danger); font-size: var(--text-sm);">
+                ${message}
+            </div>
+        `;
+        
+        // Reset liquidity
+        document.getElementById('bslCount').textContent = '-';
+        document.getElementById('sslCount').textContent = '-';
+        document.getElementById('sweepAlert').classList.add('hidden');
+        
+        console.error('Swing Analysis Error:', message);
     }
 </script>
 {% endblock %}
