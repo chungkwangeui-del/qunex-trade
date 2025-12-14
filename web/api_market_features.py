@@ -15,70 +15,76 @@ import concurrent.futures
 
 logger = logging.getLogger(__name__)
 
-# Cache for Yahoo Finance market cap data (refreshed every 6 hours)
-_yfinance_cache = {}
-_yfinance_cache_time = None
-_YFINANCE_CACHE_HOURS = 6  # Market cap doesn't change much intraday
+# Cache for real-time market data
+_market_cap_cache = {}
+_market_cap_cache_time = None
+_CACHE_MINUTES = 5  # Refresh every 5 minutes for real-time data
 
 
-def get_yahoo_market_caps(tickers: list) -> dict:
+def get_fmp_market_data(tickers: list) -> dict:
     """
-    Fetch market cap data from Yahoo Finance for multiple tickers.
-    Uses fast_info for efficiency and to avoid rate limiting.
-    Returns: {ticker: market_cap_in_dollars, ...}
-    """
-    global _yfinance_cache, _yfinance_cache_time
+    Fetch real-time market data from Financial Modeling Prep API.
+    Free tier: 250 calls/day - supports bulk quotes!
     
-    # Return cached data if less than 6 hours old
-    if _yfinance_cache_time:
-        cache_age_hours = (datetime.now() - _yfinance_cache_time).total_seconds() / 3600
-        if cache_age_hours < _YFINANCE_CACHE_HOURS:
-            cached_results = {t: _yfinance_cache.get(t) for t in tickers if t in _yfinance_cache}
-            if len(cached_results) > len(tickers) * 0.8:  # If we have 80%+ cached
-                logger.info(f"Yahoo Finance: Using cached data ({len(cached_results)} tickers, {cache_age_hours:.1f}h old)")
-                return cached_results
+    Returns: {ticker: {"market_cap": X, "price": Y, "change_percent": Z}, ...}
+    """
+    global _market_cap_cache, _market_cap_cache_time
+    import os
+    import requests
+    
+    # Check cache first (5 minute TTL for real-time data)
+    if _market_cap_cache_time:
+        cache_age_minutes = (datetime.now() - _market_cap_cache_time).total_seconds() / 60
+        if cache_age_minutes < _CACHE_MINUTES and len(_market_cap_cache) > 0:
+            cached = {t: _market_cap_cache.get(t) for t in tickers if t in _market_cap_cache}
+            if len(cached) >= len(tickers) * 0.8:
+                logger.info(f"FMP: Using cached data ({len(cached)} tickers, {cache_age_minutes:.1f}m old)")
+                return cached
+    
+    # Get FMP API key from environment
+    fmp_key = os.getenv("FMP_API_KEY", "")
+    
+    if not fmp_key:
+        logger.warning("FMP_API_KEY not set - cannot fetch real-time market caps")
+        return {}
     
     try:
-        import yfinance as yf
-        
-        logger.info(f"Fetching market caps from Yahoo Finance for {len(tickers)} tickers...")
-        
         result = {}
         
-        # Process in smaller batches to avoid rate limits
-        batch_size = 20
-        for i in range(0, len(tickers), batch_size):
-            batch = tickers[i:i + batch_size]
-            try:
-                # Use download with minimal data to get market cap quickly
-                tickers_str = " ".join(batch)
-                data = yf.Tickers(tickers_str)
-                
-                for ticker in batch:
-                    try:
-                        # Use fast_info which is much faster and less likely to hit rate limits
-                        fast_info = data.tickers[ticker].fast_info
-                        market_cap = getattr(fast_info, 'market_cap', None)
-                        if market_cap and market_cap > 0:
-                            result[ticker] = float(market_cap)
-                            _yfinance_cache[ticker] = float(market_cap)
-                    except Exception as e:
-                        logger.debug(f"Could not get Yahoo fast_info for {ticker}: {e}")
-                        continue
-                        
-            except Exception as batch_err:
-                logger.warning(f"Yahoo Finance batch error: {batch_err}")
-                continue
+        # FMP allows bulk quote requests (up to 500 tickers at once!)
+        tickers_str = ",".join(tickers)
+        url = f"https://financialmodelingprep.com/api/v3/quote/{tickers_str}"
         
-        _yfinance_cache_time = datetime.now()
-        logger.info(f"Yahoo Finance: Got market cap for {len(result)}/{len(tickers)} tickers")
+        response = requests.get(url, params={"apikey": fmp_key}, timeout=15)
+        response.raise_for_status()
+        data = response.json()
+        
+        if isinstance(data, list):
+            for stock in data:
+                ticker = stock.get("symbol")
+                if ticker:
+                    market_cap = stock.get("marketCap", 0)
+                    if market_cap and market_cap > 0:
+                        result[ticker] = {
+                            "market_cap": float(market_cap),
+                            "price": float(stock.get("price", 0)),
+                            "change_percent": float(stock.get("changesPercentage", 0)),
+                            "volume": int(stock.get("volume", 0)),
+                        }
+                        _market_cap_cache[ticker] = result[ticker]
+        
+        _market_cap_cache_time = datetime.now()
+        logger.info(f"FMP: Got real-time data for {len(result)}/{len(tickers)} tickers")
         return result
         
-    except ImportError:
-        logger.warning("yfinance not installed - cannot fetch Yahoo Finance data")
+    except requests.exceptions.HTTPError as e:
+        if e.response and e.response.status_code == 401:
+            logger.error("FMP API key invalid or expired")
+        else:
+            logger.error(f"FMP API HTTP error: {e}")
         return {}
     except Exception as e:
-        logger.error(f"Error fetching Yahoo Finance data: {e}")
+        logger.error(f"FMP API error: {e}")
         return {}
 
 api_market_features = Blueprint('api_market_features', __name__)
@@ -309,20 +315,14 @@ def get_treemap_data():
         for sector_tickers in sector_stocks.values():
             all_tickers.extend(sector_tickers.keys())
 
-        # Fetch bulk snapshot data from Polygon (single API call) for prices
+        # Fetch bulk snapshot data from Polygon (for prices/changes)
         bulk_data = polygon.get_market_snapshot(all_tickers)
+        logger.info(f"Treemap: Polygon returned data for {len(bulk_data)} tickers")
         
-        # Log how many tickers have data from Polygon
-        tickers_with_polygon_cap = sum(1 for t in all_tickers if bulk_data.get(t, {}).get("market_cap"))
-        logger.info(f"Treemap: Polygon returned {len(bulk_data)} tickers, {tickers_with_polygon_cap} have market_cap")
-        
-        # Try Yahoo Finance only if we have cached data (to avoid rate limits)
-        yahoo_market_caps = {}
-        if _yfinance_cache and len(_yfinance_cache) > 0:
-            # Use cached Yahoo data if available
-            yahoo_market_caps = {t: _yfinance_cache.get(t) for t in all_tickers if t in _yfinance_cache}
-            if yahoo_market_caps:
-                logger.info(f"Using cached Yahoo Finance data for {len(yahoo_market_caps)} tickers")
+        # Fetch REAL-TIME market data from Financial Modeling Prep (free API!)
+        # FMP provides accurate market cap, price, change %, volume in bulk
+        fmp_data = get_fmp_market_data(all_tickers)
+        logger.info(f"Treemap: FMP returned real-time data for {len(fmp_data)} tickers")
 
         treemap_data = {"name": "Market", "children": []}
 
@@ -344,17 +344,32 @@ def get_treemap_data():
                     change_percent = float(snapshot.get("change_percent", 0) or 0)
                     volume = snapshot.get("day_volume") or snapshot.get("prev_volume") or 0
 
-                    # Prefer live market cap for accurate sizing
-                    # Priority: 1) Polygon snapshot, 2) Yahoo Finance, 3) Static defaults
-                    market_cap = snapshot.get("market_cap")
-                    market_cap_source = "polygon" if market_cap else None
+                    # Priority for real-time data:
+                    # 1) FMP (best - has accurate market cap, price, change)
+                    # 2) Polygon snapshot
+                    # 3) Static defaults (last resort)
+                    
+                    fmp_stock = fmp_data.get(ticker, {})
+                    
+                    # Use FMP data if available (most accurate and real-time)
+                    if fmp_stock:
+                        market_cap = fmp_stock.get("market_cap", 0)
+                        market_cap_source = "fmp_realtime"
+                        # Override price/change with FMP real-time data
+                        if fmp_stock.get("price"):
+                            price = fmp_stock["price"]
+                        if fmp_stock.get("change_percent") is not None:
+                            change_percent = fmp_stock["change_percent"]
+                        if fmp_stock.get("volume"):
+                            volume = fmp_stock["volume"]
+                    elif snapshot.get("market_cap"):
+                        market_cap = snapshot.get("market_cap")
+                        market_cap_source = "polygon"
+                    else:
+                        market_cap = None
+                        market_cap_source = None
 
-                    # Try Yahoo Finance if Polygon doesn't have market cap
-                    if not market_cap and ticker in yahoo_market_caps:
-                        market_cap = yahoo_market_caps[ticker]
-                        market_cap_source = "yahoo"
-
-                    # Fall back to static defaults (billions) only if both APIs unavailable
+                    # Fall back to static defaults only if no API data
                     if market_cap is None or market_cap <= 0:
                         market_cap = default_cap_b * 1_000_000_000
                         market_cap_source = "static_default"
@@ -399,13 +414,13 @@ def get_treemap_data():
         # Count data sources for debugging
         all_stocks = [stock for sector in treemap_data["children"] for stock in sector["children"]]
         source_counts = {
+            "fmp_realtime": sum(1 for s in all_stocks if s.get("market_cap_source") == "fmp_realtime"),
             "polygon": sum(1 for s in all_stocks if s.get("market_cap_source") == "polygon"),
-            "yahoo": sum(1 for s in all_stocks if s.get("market_cap_source") == "yahoo"),
             "static_default": sum(1 for s in all_stocks if s.get("market_cap_source") == "static_default"),
         }
         
-        real_data_pct = ((source_counts["polygon"] + source_counts["yahoo"]) / len(all_stocks) * 100) if all_stocks else 0
-        logger.info(f"Treemap data sources: {source_counts} ({real_data_pct:.0f}% real data)")
+        real_data_pct = ((source_counts["fmp_realtime"] + source_counts["polygon"]) / len(all_stocks) * 100) if all_stocks else 0
+        logger.info(f"Treemap data sources: {source_counts} ({real_data_pct:.0f}% real-time data)")
 
         return jsonify({
             "success": True,
