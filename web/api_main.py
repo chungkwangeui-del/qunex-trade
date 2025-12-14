@@ -780,6 +780,65 @@ def test_ticker_data():
     else:
         results["sources"]["finnhub"] = {"available": False, "error": "API key not set"}
     
+    # Test Binance API (for crypto) - No API key required!
+    # Detect if ticker looks like crypto (ends with USDT, BTC, ETH, etc.)
+    crypto_suffixes = ['USDT', 'USD', 'BTC', 'ETH', 'BUSD', 'USDC']
+    is_crypto = any(ticker.endswith(suffix) for suffix in crypto_suffixes) or ticker in ['BTC', 'ETH', 'SOL', 'XRP', 'DOGE']
+    
+    # Try Binance for all tickers (crypto pairs work, stocks won't)
+    binance_endpoints = [
+        ("https://api.binance.com/api/v3/ticker/24hr", "Binance.com"),
+        ("https://api.binance.us/api/v3/ticker/24hr", "Binance.US"),
+    ]
+    
+    binance_data = {
+        "available": False,
+        "price": 0,
+        "change_percent": 0,
+        "volume": 0,
+        "is_crypto": is_crypto,
+        "raw_response": None
+    }
+    
+    for endpoint_url, endpoint_name in binance_endpoints:
+        try:
+            resp = requests.get(
+                endpoint_url,
+                params={"symbol": ticker},
+                timeout=5
+            )
+            
+            if resp.status_code == 200:
+                data = resp.json()
+                if data and float(data.get("lastPrice", 0)) > 0:
+                    binance_data["available"] = True
+                    binance_data["price"] = float(data.get("lastPrice", 0))
+                    binance_data["change_percent"] = float(data.get("priceChangePercent", 0))
+                    binance_data["volume"] = float(data.get("volume", 0))
+                    binance_data["quote_volume"] = float(data.get("quoteVolume", 0))
+                    binance_data["high_24h"] = float(data.get("highPrice", 0))
+                    binance_data["low_24h"] = float(data.get("lowPrice", 0))
+                    binance_data["trades_24h"] = int(data.get("count", 0))
+                    binance_data["source"] = endpoint_name
+                    binance_data["raw_response"] = data
+                    break  # Found data, stop trying other endpoints
+            elif resp.status_code == 400:
+                # Invalid symbol - not a crypto pair
+                binance_data["error"] = "Not a valid crypto pair"
+            elif resp.status_code == 451:
+                binance_data["error"] = f"{endpoint_name} geo-blocked"
+                continue  # Try next endpoint
+            else:
+                binance_data["error"] = f"HTTP {resp.status_code}"
+        except requests.exceptions.Timeout:
+            binance_data["error"] = f"{endpoint_name} timeout"
+            continue
+        except Exception as e:
+            binance_data["error"] = str(e)[:50]
+            continue
+    
+    results["sources"]["binance"] = binance_data
+    
     # Summary: which source has the best data
     best_source = None
     best_price = 0

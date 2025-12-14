@@ -983,7 +983,7 @@
             `;
             
             // Show each source
-            const sourceOrder = ['polygon', 'fmp', 'finnhub'];
+            const sourceOrder = ['polygon', 'fmp', 'finnhub', 'binance'];
             sourceOrder.forEach(sourceName => {
                 const source = data.sources[sourceName];
                 if (!source) return;
@@ -1026,6 +1026,26 @@
                             <div>
                                 <div style="color: var(--text-tertiary);">Source Type</div>
                                 <div style="font-family: 'JetBrains Mono', monospace;">${source.source_type}</div>
+                            </div>` : ''}
+                            ${source.high_24h ? `
+                            <div>
+                                <div style="color: var(--text-tertiary);">24h High</div>
+                                <div style="font-family: 'JetBrains Mono', monospace;">$${source.high_24h.toFixed(4)}</div>
+                            </div>` : ''}
+                            ${source.low_24h ? `
+                            <div>
+                                <div style="color: var(--text-tertiary);">24h Low</div>
+                                <div style="font-family: 'JetBrains Mono', monospace;">$${source.low_24h.toFixed(4)}</div>
+                            </div>` : ''}
+                            ${source.trades_24h ? `
+                            <div>
+                                <div style="color: var(--text-tertiary);">24h Trades</div>
+                                <div style="font-family: 'JetBrains Mono', monospace;">${source.trades_24h.toLocaleString()}</div>
+                            </div>` : ''}
+                            ${source.source ? `
+                            <div>
+                                <div style="color: var(--text-tertiary);">Exchange</div>
+                                <div style="font-family: 'JetBrains Mono', monospace;">${source.source}</div>
                             </div>` : ''}
                         </div>
                     `;
