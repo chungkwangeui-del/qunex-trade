@@ -56,21 +56,27 @@ const marketCaps = {
 // Global variable to store fetched data
 let globalStockData = null;
 
-// Fetch real-time stock data from backend
+// Fetch real-time stock data from backend using the treemap API
 async function fetchRealTimeData() {
     try {
-        const response = await fetch('/api/sector-stocks-v2');
+        const response = await fetch('/api/market/treemap');
 
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
 
-        const data = await response.json();
-        globalStockData = data;
-        return data;
+        const result = await response.json();
+        
+        if (!result.success || !result.data) {
+            throw new Error('API returned unsuccessful response');
+        }
+        
+        globalStockData = result.data;
+        console.log('[MarketMap] Loaded real-time data for', result.summary?.stocks_count || 0, 'stocks');
+        return result.data;
 
     } catch (error) {
-        console.error('Error fetching real-time data:', error);
+        console.error('[MarketMap] Error fetching real-time data:', error);
         // Show user-friendly error toast
         if (typeof showToast === 'function') {
             showToast('실시간 데이터를 불러오는 데 실패했습니다. 기본 데이터를 사용합니다.', 'warning');
@@ -81,39 +87,47 @@ async function fetchRealTimeData() {
 
 // Generate Finviz data structure with real-time data
 async function generateFinvizData() {
-    // Fetch real-time data
+    // Fetch real-time data from treemap API
     const realtimeData = await fetchRealTimeData();
 
-    if (!realtimeData || Object.keys(realtimeData).length === 0) {
+    if (!realtimeData || !realtimeData.children || realtimeData.children.length === 0) {
         // Using fallback data due to API error
+        console.warn('[MarketMap] No real-time data available, using fallback');
         return generateFallbackData();
     }
 
-    // Build D3 hierarchy structure from API data
+    // The treemap API already returns data in the correct D3 hierarchy format
+    // Just need to transform it slightly for the finviz visualization
     const children = [];
 
-    for (const [sectorName, subcategories] of Object.entries(realtimeData)) {
+    for (const sector of realtimeData.children) {
+        // Each sector has stocks as children directly
         const sectorChildren = [];
-
-        for (const [subcategoryName, stocks] of Object.entries(subcategories)) {
-            const subcategoryChildren = stocks.map(stock => ({
-                name: stock.symbol,
-                value: marketCaps[stock.symbol] || 100, // Use market cap for sizing
-                change: stock.changePercent.toFixed(2)
+        
+        if (sector.children && sector.children.length > 0) {
+            // Group stocks by subcategory (we'll create a single subcategory per sector for simplicity)
+            const stockChildren = sector.children.map(stock => ({
+                name: stock.name || stock.ticker,
+                value: marketCaps[stock.ticker || stock.name] || (stock.market_cap / 1_000_000_000) || 100,
+                change: (stock.change_percent !== undefined ? stock.change_percent : 0).toFixed(2),
+                price: stock.price,
+                volume: stock.volume
             }));
-
+            
             sectorChildren.push({
-                name: subcategoryName,
-                children: subcategoryChildren
+                name: sector.name,
+                children: stockChildren
             });
         }
 
         children.push({
-            name: sectorName,
+            name: sector.name,
             children: sectorChildren
         });
     }
 
+    console.log('[MarketMap] Generated finviz data with', children.length, 'sectors');
+    
     return {
         name: "S&P 500",
         children: children
