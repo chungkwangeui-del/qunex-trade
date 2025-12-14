@@ -11,8 +11,60 @@ from datetime import datetime, timedelta
 from decimal import Decimal
 from collections import defaultdict
 import logging
+import concurrent.futures
 
 logger = logging.getLogger(__name__)
+
+# Cache for Yahoo Finance market cap data (refreshed every hour)
+_yfinance_cache = {}
+_yfinance_cache_time = None
+
+
+def get_yahoo_market_caps(tickers: list) -> dict:
+    """
+    Fetch market cap data from Yahoo Finance for multiple tickers.
+    Uses batch fetching for efficiency.
+    Returns: {ticker: market_cap_in_dollars, ...}
+    """
+    global _yfinance_cache, _yfinance_cache_time
+    
+    # Return cached data if less than 1 hour old
+    if _yfinance_cache_time and (datetime.now() - _yfinance_cache_time).seconds < 3600:
+        # Return cached values for requested tickers
+        return {t: _yfinance_cache.get(t) for t in tickers if t in _yfinance_cache}
+    
+    try:
+        import yfinance as yf
+        
+        # Batch download for efficiency (much faster than individual calls)
+        logger.info(f"Fetching market caps from Yahoo Finance for {len(tickers)} tickers...")
+        
+        # yfinance can fetch multiple tickers at once
+        tickers_str = " ".join(tickers)
+        data = yf.Tickers(tickers_str)
+        
+        result = {}
+        for ticker in tickers:
+            try:
+                info = data.tickers[ticker].info
+                market_cap = info.get("marketCap")
+                if market_cap and market_cap > 0:
+                    result[ticker] = float(market_cap)
+                    _yfinance_cache[ticker] = float(market_cap)
+            except Exception as e:
+                logger.debug(f"Could not get Yahoo data for {ticker}: {e}")
+                continue
+        
+        _yfinance_cache_time = datetime.now()
+        logger.info(f"Yahoo Finance: Got market cap for {len(result)}/{len(tickers)} tickers")
+        return result
+        
+    except ImportError:
+        logger.warning("yfinance not installed - cannot fetch Yahoo Finance data")
+        return {}
+    except Exception as e:
+        logger.error(f"Error fetching Yahoo Finance data: {e}")
+        return {}
 
 api_market_features = Blueprint('api_market_features', __name__)
 
@@ -241,12 +293,19 @@ def get_treemap_data():
         for sector_tickers in sector_stocks.values():
             all_tickers.extend(sector_tickers.keys())
 
-        # Fetch bulk snapshot data (single API call)
+        # Fetch bulk snapshot data from Polygon (single API call)
         bulk_data = polygon.get_market_snapshot(all_tickers)
         
-        # Log how many tickers have market cap from snapshot
-        tickers_with_cap = sum(1 for t in all_tickers if bulk_data.get(t, {}).get("market_cap"))
-        logger.info(f"Treemap: {len(bulk_data)} tickers returned, {tickers_with_cap} have market_cap from snapshot")
+        # Log how many tickers have market cap from Polygon snapshot
+        tickers_with_polygon_cap = sum(1 for t in all_tickers if bulk_data.get(t, {}).get("market_cap"))
+        logger.info(f"Treemap: Polygon returned {len(bulk_data)} tickers, {tickers_with_polygon_cap} have market_cap")
+        
+        # Fetch market cap from Yahoo Finance as fallback (free, accurate)
+        yahoo_market_caps = {}
+        if tickers_with_polygon_cap < len(all_tickers) * 0.5:
+            # If Polygon has less than 50% market cap data, use Yahoo Finance
+            logger.info("Polygon missing market cap data - fetching from Yahoo Finance...")
+            yahoo_market_caps = get_yahoo_market_caps(all_tickers)
 
         treemap_data = {"name": "Market", "children": []}
 
@@ -269,28 +328,21 @@ def get_treemap_data():
                     volume = snapshot.get("day_volume") or snapshot.get("prev_volume") or 0
 
                     # Prefer live market cap for accurate sizing
+                    # Priority: 1) Polygon snapshot, 2) Yahoo Finance, 3) Static defaults
                     market_cap = snapshot.get("market_cap")
-                    market_cap_source = "snapshot" if market_cap else None
+                    market_cap_source = "polygon" if market_cap else None
 
-                    # If snapshot lacks cap, try ticker details API
-                    if not market_cap:
-                        try:
-                            details = polygon.get_ticker_details(ticker)
-                            if details and details.get("market_cap"):
-                                market_cap = details["market_cap"]
-                                market_cap_source = "details"
-                        except Exception as detail_err:
-                            logger.debug(f"Could not get details for {ticker}: {detail_err}")
+                    # Try Yahoo Finance if Polygon doesn't have market cap
+                    if not market_cap and ticker in yahoo_market_caps:
+                        market_cap = yahoo_market_caps[ticker]
+                        market_cap_source = "yahoo"
 
-                    # Fall back to static defaults (billions) only if API data unavailable
+                    # Fall back to static defaults (billions) only if both APIs unavailable
                     if market_cap is None or market_cap <= 0:
                         market_cap = default_cap_b * 1_000_000_000
                         market_cap_source = "static_default"
-                        logger.debug(f"{ticker}: Using static default market cap ${default_cap_b}B")
                     else:
                         market_cap = float(market_cap)
-                        if market_cap_source == "snapshot":
-                            logger.debug(f"{ticker}: Got market cap from Polygon snapshot: ${market_cap/1e9:.1f}B")
 
                     # Skip if we still don't have a positive cap
                     if market_cap <= 0:
@@ -330,12 +382,13 @@ def get_treemap_data():
         # Count data sources for debugging
         all_stocks = [stock for sector in treemap_data["children"] for stock in sector["children"]]
         source_counts = {
-            "snapshot": sum(1 for s in all_stocks if s.get("market_cap_source") == "snapshot"),
-            "details": sum(1 for s in all_stocks if s.get("market_cap_source") == "details"),
+            "polygon": sum(1 for s in all_stocks if s.get("market_cap_source") == "polygon"),
+            "yahoo": sum(1 for s in all_stocks if s.get("market_cap_source") == "yahoo"),
             "static_default": sum(1 for s in all_stocks if s.get("market_cap_source") == "static_default"),
         }
         
-        logger.info(f"Treemap data sources: {source_counts}")
+        real_data_pct = ((source_counts["polygon"] + source_counts["yahoo"]) / len(all_stocks) * 100) if all_stocks else 0
+        logger.info(f"Treemap data sources: {source_counts} ({real_data_pct:.0f}% real data)")
 
         return jsonify({
             "success": True,
