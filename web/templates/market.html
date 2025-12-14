@@ -605,15 +605,16 @@
 
         try {
             let data;
+            let response;
 
             if (currentTab === 'gainers') {
                 const response = await fetch('/api/market/gainers');
                 data = await response.json();
-                allStocksData = data || [];
+                allStocksData = data.data || data || [];
             } else if (currentTab === 'losers') {
                 const response = await fetch('/api/market/losers');
                 data = await response.json();
-                allStocksData = data || [];
+                allStocksData = data.data || data || [];
             } else if (currentTab === 'pennystocks') {
                 const response = await fetch('/api/market/screener?max_price=5&min_volume=100000');
                 data = await response.json();
@@ -631,10 +632,14 @@
                 });
             }
 
+            console.log('Loaded stocks:', allStocksData.length, 'items');
             renderStocks(allStocksData);
         } catch (error) {
             console.error('Failed to load stocks:', error);
-            tbody.innerHTML = '<tr><td colspan="6" class="text-center" style="padding: 40px; color: var(--danger);">Failed to load stocks</td></tr>';
+            tbody.innerHTML = `<tr><td colspan="6" class="text-center" style="padding: 40px; color: var(--danger);">
+                Failed to load stocks: ${error.message || 'Unknown error'}<br>
+                <small style="color: var(--text-tertiary);">Market may be closed or API rate limited. Try again later.</small>
+            </td></tr>`;
         }
     }
 
