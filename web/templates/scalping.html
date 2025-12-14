@@ -2476,46 +2476,42 @@
             const priceDecimals = isCrypto ? (data.price < 1 ? 6 : 2) : 2;
             const priceSymbol = isCrypto ? '' : '$';
             const priceSuffix = isCrypto ? ' USDT' : '';
-            document.getElementById('displayPrice').textContent = `${priceSymbol}${data.price.toFixed(priceDecimals)}${priceSuffix}`;
+            setEl('displayPrice', 'textContent', `${priceSymbol}${data.price.toFixed(priceDecimals)}${priceSuffix}`);
             const changeClass = data.change_percent >= 0 ? 'positive' : 'negative';
             const changeSign = data.change_percent >= 0 ? '+' : '';
-            document.getElementById('displayChange').className = `ticker-change ${changeClass}`;
-            document.getElementById('displayChange').textContent = `${changeSign}${data.change_percent.toFixed(2)}%`;
+            setEl('displayChange', 'className', `ticker-change ${changeClass}`);
+            setEl('displayChange', 'textContent', `${changeSign}${data.change_percent.toFixed(2)}%`);
         }
 
         // Update signal card
         const signal = data.signal || 'WAIT';
-        const signalCard = document.getElementById('signalCard');
-        const signalIcon = document.getElementById('signalIcon');
-        const signalText = document.getElementById('signalText');
 
         if (signal === 'LONG') {
-            signalCard.className = 'signal-card bullish';
-            signalIcon.className = 'signal-icon bullish';
-            signalText.textContent = 'LONG SIGNAL';
-            signalText.className = 'signal-text bullish';
+            setEl('signalCard', 'className', 'signal-card bullish');
+            setEl('signalIcon', 'className', 'signal-icon bullish');
+            setEl('signalText', 'textContent', 'LONG SIGNAL');
+            setEl('signalText', 'className', 'signal-text bullish');
         } else if (signal === 'SHORT') {
-            signalCard.className = 'signal-card bearish';
-            signalIcon.className = 'signal-icon bearish';
-            signalText.textContent = 'SHORT SIGNAL';
-            signalText.className = 'signal-text bearish';
+            setEl('signalCard', 'className', 'signal-card bearish');
+            setEl('signalIcon', 'className', 'signal-icon bearish');
+            setEl('signalText', 'textContent', 'SHORT SIGNAL');
+            setEl('signalText', 'className', 'signal-text bearish');
         } else {
-            signalCard.className = 'signal-card neutral';
-            signalIcon.className = 'signal-icon neutral';
-            signalText.textContent = 'WAIT';
-            signalText.className = 'signal-text neutral';
+            setEl('signalCard', 'className', 'signal-card neutral');
+            setEl('signalIcon', 'className', 'signal-icon neutral');
+            setEl('signalText', 'textContent', 'WAIT');
+            setEl('signalText', 'className', 'signal-text neutral');
         }
 
-        document.getElementById('signalConfidence').textContent = `Confidence: ${data.confidence || '--'}%`;
+        setEl('signalConfidence', 'textContent', `Confidence: ${data.confidence || '--'}%`);
 
         // Update reasoning list
-        const reasoningList = document.getElementById('reasoningList');
         if (data.signal_reasoning && data.signal_reasoning.length > 0) {
-            reasoningList.innerHTML = data.signal_reasoning.map(r =>
+            setEl('reasoningList', 'innerHTML', data.signal_reasoning.map(r =>
                 `<div class="reasoning-item">${r}</div>`
-            ).join('');
+            ).join(''));
         } else {
-            reasoningList.innerHTML = '';
+            setEl('reasoningList', 'innerHTML', '');
         }
 
         // Update candlestick patterns
@@ -2524,69 +2520,68 @@
 
         if (primary) {
             const typeClass = primary.type === 'bullish' ? 'bullish' : (primary.type === 'bearish' ? 'bearish' : '');
-            document.getElementById('primaryPattern').innerHTML =
-                `<span class="${typeClass}">${primary.name}</span>`;
-            document.getElementById('patternStrength').textContent = `${primary.strength}/100`;
+            setEl('primaryPattern', 'innerHTML', `<span class="${typeClass}">${primary.name}</span>`);
+            setEl('patternStrength', 'textContent', `${primary.strength}/100`);
         } else {
-            document.getElementById('primaryPattern').textContent = 'None detected';
-            document.getElementById('patternStrength').textContent = '--';
+            setEl('primaryPattern', 'textContent', 'None detected');
+            setEl('patternStrength', 'textContent', '--');
         }
 
-        const patternBias = document.getElementById('patternBias');
         const bias = candle.bias || 'neutral';
-        patternBias.textContent = bias.charAt(0).toUpperCase() + bias.slice(1);
-        patternBias.className = `indicator-value ${bias === 'bullish' ? 'bullish' : (bias === 'bearish' ? 'bearish' : '')}`;
+        setEl('patternBias', 'textContent', bias.charAt(0).toUpperCase() + bias.slice(1));
+        setEl('patternBias', 'className', `indicator-value ${bias === 'bullish' ? 'bullish' : (bias === 'bearish' ? 'bearish' : '')}`);
 
         // Show all detected patterns
-        const allPatternsEl = document.getElementById('allPatterns');
         const patterns = candle.patterns || [];
         if (patterns.length > 0) {
-            allPatternsEl.innerHTML = patterns.map(p =>
+            setEl('allPatterns', 'innerHTML', patterns.map(p =>
                 `<span class="pattern-badge ${p.type}">${p.name}</span>`
-            ).join('');
+            ).join(''));
         } else {
-            allPatternsEl.innerHTML = '<span style="color: var(--text-tertiary); font-size: var(--text-xs);">No patterns detected in current candles</span>';
+            setEl('allPatterns', 'innerHTML', '<span style="color: var(--text-tertiary); font-size: var(--text-xs);">No patterns detected in current candles</span>');
         }
 
         // Update volume analysis
         const volume = data.volume || {};
         const volumeRatio = volume.ratio || 1;
-        document.getElementById('volumeRatio').textContent = `${volumeRatio.toFixed(1)}x avg`;
+        setEl('volumeRatio', 'textContent', `${volumeRatio.toFixed(1)}x avg`);
 
-        const volumeSpike = document.getElementById('volumeSpike');
         if (volume.spike_detected) {
-            volumeSpike.textContent = 'Yes';
-            volumeSpike.className = 'indicator-value bullish';
+            setEl('volumeSpike', 'textContent', 'Yes');
+            setEl('volumeSpike', 'className', 'indicator-value bullish');
         } else {
-            volumeSpike.textContent = 'No';
-            volumeSpike.className = 'indicator-value';
+            setEl('volumeSpike', 'textContent', 'No');
+            setEl('volumeSpike', 'className', 'indicator-value');
         }
 
-        const volumeTrend = document.getElementById('volumeTrend');
-        volumeTrend.textContent = (volume.trend || 'neutral').charAt(0).toUpperCase() + (volume.trend || 'neutral').slice(1);
-        volumeTrend.className = `indicator-value ${volume.trend === 'increasing' ? 'bullish' : ''}`;
+        setEl('volumeTrend', 'textContent', (volume.trend || 'neutral').charAt(0).toUpperCase() + (volume.trend || 'neutral').slice(1));
+        setEl('volumeTrend', 'className', `indicator-value ${volume.trend === 'increasing' ? 'bullish' : ''}`);
 
         // Update volume bar
         const volumeBar = document.getElementById('volumeBar');
-        const barWidth = Math.min(100, volumeRatio * 50);
-        volumeBar.style.width = `${barWidth}%`;
-        if (volumeRatio >= 2) {
-            volumeBar.className = 'volume-bar spike';
-        } else if (volumeRatio >= 1.5) {
-            volumeBar.className = 'volume-bar high';
-        } else if (volumeRatio >= 0.8) {
-            volumeBar.className = 'volume-bar normal';
-        } else {
-            volumeBar.className = 'volume-bar low';
+        if (volumeBar) {
+            const barWidth = Math.min(100, volumeRatio * 50);
+            volumeBar.style.width = `${barWidth}%`;
+            if (volumeRatio >= 2) {
+                volumeBar.className = 'volume-bar spike';
+            } else if (volumeRatio >= 1.5) {
+                volumeBar.className = 'volume-bar high';
+            } else if (volumeRatio >= 0.8) {
+                volumeBar.className = 'volume-bar normal';
+            } else {
+                volumeBar.className = 'volume-bar low';
+            }
         }
 
         // Volume Exit Warning (쉽알: 거래량 급증 = 익절 시그널)
         const volumeExitWarning = document.getElementById('volumeExitWarning');
-        if (volume.exit_warning) {
-            volumeExitWarning.style.display = 'flex';
-            document.getElementById('volumeExitText').textContent = volume.exit_warning;
-        } else {
-            volumeExitWarning.style.display = 'none';
+        if (volumeExitWarning) {
+            if (volume.exit_warning) {
+                volumeExitWarning.style.display = 'flex';
+                setEl('volumeExitText', 'textContent', volume.exit_warning);
+            } else {
+                volumeExitWarning.style.display = 'none';
+            }
         }
 
         // Update Confluence Analysis (쉽알 Strategy)
@@ -2600,21 +2595,20 @@
 
         // Update key levels
         const levels = data.levels || {};
-        document.getElementById('vwapLevel').textContent = levels.vwap ? `$${levels.vwap.toFixed(2)}` : '--';
+        setEl('vwapLevel', 'textContent', levels.vwap ? `$${levels.vwap.toFixed(2)}` : '--');
 
         if (data.price && levels.vwap) {
-            const priceVsVwap = document.getElementById('priceVsVwap');
             if (data.price > levels.vwap) {
-                priceVsVwap.textContent = 'Above (Bullish)';
-                priceVsVwap.className = 'indicator-value bullish';
+                setEl('priceVsVwap', 'textContent', 'Above (Bullish)');
+                setEl('priceVsVwap', 'className', 'indicator-value bullish');
             } else {
-                priceVsVwap.textContent = 'Below (Bearish)';
-                priceVsVwap.className = 'indicator-value bearish';
+                setEl('priceVsVwap', 'textContent', 'Below (Bearish)');
+                setEl('priceVsVwap', 'className', 'indicator-value bearish');
             }
         }
 
-        document.getElementById('supportLevel').textContent = levels.nearest_support ? `$${levels.nearest_support.toFixed(2)}` : 'N/A';
-        document.getElementById('resistanceLevel').textContent = levels.nearest_resistance ? `$${levels.nearest_resistance.toFixed(2)}` : 'N/A';
+        setEl('supportLevel', 'textContent', levels.nearest_support ? `$${levels.nearest_support.toFixed(2)}` : 'N/A');
+        setEl('resistanceLevel', 'textContent', levels.nearest_resistance ? `$${levels.nearest_resistance.toFixed(2)}` : 'N/A');
 
         // Update AI Analysis
         if (data.analysis) {
@@ -2658,15 +2652,12 @@
     // Confluence Card Update (쉽알 Strategy)
     function updateConfluenceCard(confluence) {
         if (!confluence) {
-            document.getElementById('confluenceStatusText').textContent = 'No data';
+            setEl('confluenceStatusText', 'textContent', 'No data');
             return;
         }
 
         const card = document.getElementById('confluenceCard');
         const status = document.getElementById('confluenceStatus');
-        const statusIcon = document.getElementById('confluenceStatusIcon');
-        const statusText = document.getElementById('confluenceStatusText');
-        const reasonsContainer = document.getElementById('confluenceReasons');
 
         const met = confluence.min_confluence_met;
         const direction = confluence.direction;
@@ -2674,19 +2665,19 @@
         const bearishCount = confluence.bearish_count || 0;
 
         // Update card style
-        card.className = met ? 'confluence-card met' : 'confluence-card not-met';
-        status.className = met ? 'confluence-status met' : 'confluence-status not-met';
+        if (card) card.className = met ? 'confluence-card met' : 'confluence-card not-met';
+        if (status) status.className = met ? 'confluence-status met' : 'confluence-status not-met';
 
         // Update status
         if (met) {
-            statusIcon.textContent = '✅';
-            statusText.textContent = `${Math.max(bullishCount, bearishCount)} confluences found - Entry signal!`;
+            setEl('confluenceStatusIcon', 'textContent', '✅');
+            setEl('confluenceStatusText', 'textContent', `${Math.max(bullishCount, bearishCount)} confluences found - Entry signal!`);
         } else if (bullishCount === 1 || bearishCount === 1) {
-            statusIcon.textContent = '⚠️';
-            statusText.textContent = `Only ${Math.max(bullishCount, bearishCount)} confluence - Need 2+ (근거 1개)`;
+            setEl('confluenceStatusIcon', 'textContent', '⚠️');
+            setEl('confluenceStatusText', 'textContent', `Only ${Math.max(bullishCount, bearishCount)} confluence - Need 2+ (근거 1개)`);
         } else {
-            statusIcon.textContent = '❌';
-            statusText.textContent = 'No confluences - Wait for setup';
+            setEl('confluenceStatusIcon', 'textContent', '❌');
+            setEl('confluenceStatusText', 'textContent', 'No confluences - Wait for setup');
         }
 
         // Build reasons HTML
@@ -2720,7 +2711,7 @@
             reasonsHtml = '<div style="text-align: center; color: var(--text-tertiary); font-size: var(--text-xs); padding: 12px;">No confluences detected in current setup</div>';
         }
 
-        reasonsContainer.innerHTML = reasonsHtml;
+        setEl('confluenceReasons', 'innerHTML', reasonsHtml);
     }
 
     // FVG & Order Blocks Update
