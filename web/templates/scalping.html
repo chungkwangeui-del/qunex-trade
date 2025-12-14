@@ -2398,22 +2398,33 @@
         setTimeout(() => { toast.style.display = 'none'; }, 3000);
     }
 
-    async function fetchAnalysis(ticker) {
-        // Show loading state
-        document.getElementById('signalIcon').className = 'signal-icon loading';
-        document.getElementById('signalText').textContent = 'Analyzing...';
-        document.getElementById('signalText').className = 'signal-text';
-        document.getElementById('signalCard').className = 'signal-card';
-        document.getElementById('signalConfidence').textContent = 'Detecting candlestick patterns...';
-        document.getElementById('tradeSetupBox').style.display = 'none';
-        document.getElementById('reasoningList').innerHTML = '';
+    // Safe element setter helper
+    function setEl(id, prop, value) {
+        const el = document.getElementById(id);
+        if (el) {
+            if (prop === 'className') el.className = value;
+            else if (prop === 'textContent') el.textContent = value;
+            else if (prop === 'innerHTML') el.innerHTML = value;
+            else if (prop === 'display') el.style.display = value;
+        }
+    }
 
-        document.getElementById('aiAnalysis').innerHTML = `
+    async function fetchAnalysis(ticker) {
+        // Show loading state - use safe setter
+        setEl('signalIcon', 'className', 'signal-icon loading');
+        setEl('signalText', 'textContent', 'Analyzing...');
+        setEl('signalText', 'className', 'signal-text');
+        setEl('signalCard', 'className', 'signal-card');
+        setEl('signalConfidence', 'textContent', 'Detecting candlestick patterns...');
+        setEl('tradeSetupBox', 'display', 'none');
+        setEl('reasoningList', 'innerHTML', '');
+
+        setEl('aiAnalysis', 'innerHTML', `
             <div class="loading-overlay">
                 <div class="spinner"></div>
                 <span>Analyzing candlestick patterns...</span>
             </div>
-        `;
+        `);
 
         try {
             // Add timeout to prevent hanging
@@ -2439,20 +2450,20 @@
                 error.message = 'Request timed out. The server is taking too long to respond.';
             }
             console.error('Analysis error:', error);
-            document.getElementById('signalIcon').className = 'signal-icon bearish';
-            document.getElementById('signalCard').className = 'signal-card bearish';
-            document.getElementById('signalText').textContent = 'Error';
-            document.getElementById('signalText').className = 'signal-text bearish';
-            document.getElementById('signalConfidence').textContent = error.message || 'Failed to analyze';
+            setEl('signalIcon', 'className', 'signal-icon bearish');
+            setEl('signalCard', 'className', 'signal-card bearish');
+            setEl('signalText', 'textContent', 'Error');
+            setEl('signalText', 'className', 'signal-text bearish');
+            setEl('signalConfidence', 'textContent', error.message || 'Failed to analyze');
             const assetHint = isCryptoTicker(ticker)
                 ? 'Crypto pairs use Binance data (e.g., BTCUSDT, ETHUSDT)'
                 : 'Stocks use Polygon data. Ensure market is open.';
-            document.getElementById('aiAnalysis').innerHTML = `
+            setEl('aiAnalysis', 'innerHTML', `
                 <div style="color: var(--danger); text-align: center; padding: 20px;">
                     Failed to analyze ${ticker}. Please try again.<br>
                     <small style="color: var(--text-tertiary);">${assetHint}</small>
                 </div>
-            `;
+            `);
             updateSignalHero('WAIT', 'neutral', 0, [error.message || 'Analysis failed - check market status or try crypto pair']);
         }
     }
@@ -2719,16 +2730,16 @@
         const fvgCountEl = document.getElementById('fvgCount');
 
         if (fvg) {
-            if (fvg.at_fvg) {
+            if (fvg.at_fvg && atFvgEl) {
                 const fvgType = fvg.at_fvg.type;
                 atFvgEl.innerHTML = `<span class="zone-badge ${fvgType}">${fvgType === 'bullish' ? '🟢 Support' : '🔴 Resistance'} Zone</span>`;
-            } else {
+            } else if (atFvgEl) {
                 atFvgEl.textContent = 'Not in FVG zone';
             }
-            fvgCountEl.textContent = `${fvg.bullish_count || 0} Bullish / ${fvg.bearish_count || 0} Bearish`;
+            if (fvgCountEl) fvgCountEl.textContent = `${fvg.bullish_count || 0} Bullish / ${fvg.bearish_count || 0} Bearish`;
         } else {
-            atFvgEl.textContent = '--';
-            fvgCountEl.textContent = '--';
+            if (atFvgEl) atFvgEl.textContent = '--';
+            if (fvgCountEl) fvgCountEl.textContent = '--';
         }
 
         // Order Block Section
@@ -2736,15 +2747,15 @@
         const doubleObSection = document.getElementById('doubleObSection');
 
         if (orderBlocks) {
-            if (orderBlocks.at_ob) {
+            if (orderBlocks.at_ob && atObEl) {
                 const obType = orderBlocks.at_ob.type;
                 atObEl.innerHTML = `<span class="zone-badge ${obType}">${obType === 'bullish' ? '🟢 Support' : '🔴 Resistance'}</span>`;
-            } else {
+            } else if (atObEl) {
                 atObEl.textContent = 'Not at Order Block';
             }
 
             // Double Engulfing (이중 장악형) - VERY STRONG!
-            if (orderBlocks.double_ob) {
+            if (orderBlocks.double_ob && doubleObSection) {
                 const doubleType = orderBlocks.double_ob.type;
                 doubleObSection.innerHTML = `
                     <div class="double-engulfing-badge">
@@ -2754,12 +2765,12 @@
                         </small>
                     </div>
                 `;
-            } else {
+            } else if (doubleObSection) {
                 doubleObSection.innerHTML = '';
             }
         } else {
-            atObEl.textContent = '--';
-            doubleObSection.innerHTML = '';
+            if (atObEl) atObEl.textContent = '--';
+            if (doubleObSection) doubleObSection.innerHTML = '';
         }
     }
 
@@ -2770,9 +2781,9 @@
         const trapDetail = document.getElementById('trapDetail');
 
         if (!fakeoutData) {
-            fakeoutStatus.textContent = '--';
-            trapStatus.textContent = '--';
-            trapDetail.innerHTML = '';
+            if (fakeoutStatus) fakeoutStatus.textContent = '--';
+            if (trapStatus) trapStatus.textContent = '--';
+            if (trapDetail) trapDetail.innerHTML = '';
             return;
         }
 
