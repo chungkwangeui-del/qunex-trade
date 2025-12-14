@@ -2224,34 +2224,41 @@
         chartReady = false;
         pendingSignal = null;
 
-        tvWidget = new TradingView.widget({
-            "autosize": true,
-            "symbol": tvSymbol,
-            "interval": currentInterval,
-            "timezone": timezone,
-            "theme": "dark",
-            "style": "1",
-            "locale": "en",
-            "toolbar_bg": "#000000",
-            "enable_publishing": false,
-            "hide_side_toolbar": false,
-            "allow_symbol_change": true,
-            "container_id": "tradingview_scalp",
-            "studies": [
-                {"id": "VWAP@tv-basicstudies"},
-                {"id": "Volume@tv-basicstudies"}
-            ],
-            "backgroundColor": "#000000",
-            "gridColor": "#1a1a1a"
-        });
-
-        tvWidget.onChartReady(() => {
-            chartReady = true;
-            if (pendingSignal) {
-                drawSignalOnChart(pendingSignal);
-                pendingSignal = null;
-            }
-        });
+        try {
+            tvWidget = new TradingView.widget({
+                "autosize": true,
+                "symbol": tvSymbol,
+                "interval": currentInterval,
+                "timezone": timezone,
+                "theme": "dark",
+                "style": "1",
+                "locale": "en",
+                "toolbar_bg": "#000000",
+                "enable_publishing": false,
+                "hide_side_toolbar": false,
+                "allow_symbol_change": true,
+                "container_id": "tradingview_scalp",
+                "studies": [
+                    {"id": "VWAP@tv-basicstudies"},
+                    {"id": "Volume@tv-basicstudies"}
+                ],
+                "backgroundColor": "#000000",
+                "gridColor": "#1a1a1a",
+                // onChartReady must be passed as an option, not called as a method
+                "onChartReady": function() {
+                    chartReady = true;
+                    console.log('[Scalp] Chart ready');
+                    if (pendingSignal) {
+                        drawSignalOnChart(pendingSignal);
+                        pendingSignal = null;
+                    }
+                }
+            });
+        } catch (e) {
+            console.error('[Scalp] Error initializing TradingView widget:', e);
+            // Chart creation failed, but we can still show analysis
+            chartReady = false;
+        }
     }
 
     function clearSignalShapes() {
