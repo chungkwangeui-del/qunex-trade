@@ -49,12 +49,26 @@ def refresh_news():
     """Collect fresh news from Polygon API and save to database"""
     try:
         from src.news_collector import NewsCollector
+        from src.news_analyzer import NewsAnalyzer
 
         collector = NewsCollector()
         news_items = collector.collect_all_news(limit=50)
 
         if not news_items:
             return jsonify({"success": False, "message": "No news collected from API"})
+
+        # Initialize AI analyzer if key is present
+        gemini_key = os.environ.get("GEMINI_API_KEY")
+        analyzer = None
+        analyzer_available = False
+        if gemini_key:
+            try:
+                analyzer = NewsAnalyzer()
+                analyzer_available = True
+            except Exception as e:
+                logger.warning(f"AI analysis unavailable - check GEMINI_API_KEY. ({e})")
+        else:
+            logger.warning("GEMINI_API_KEY not configured; saving news without AI analysis")
 
         saved_count = 0
         for item in news_items:
@@ -74,6 +88,21 @@ def refresh_news():
                 else:
                     published_at = datetime.now(timezone.utc)
 
+                # Run AI analysis when available
+                analysis = None
+                if analyzer_available and analyzer:
+                    try:
+                        analysis = analyzer.analyze_single_news(item)
+                    except Exception as e:
+                        logger.warning(f"AI analysis failed, saving without analysis: {e}")
+
+                if not analysis:
+                    analysis = {
+                        "importance": 3,
+                        "impact_summary": "AI analysis unavailable - check API key",
+                        "sentiment": "neutral"
+                    }
+
                 # Create new article
                 article = NewsArticle(
                     title=item["title"][:500],
@@ -81,9 +110,9 @@ def refresh_news():
                     url=item["url"][:1000],
                     source=item.get("source", "Unknown")[:100],
                     published_at=published_at,
-                    ai_rating=3,  # Default rating
-                    ai_analysis=item.get("description", "AI analysis unavailable - check API key"),
-                    sentiment="neutral"
+                    ai_rating=analysis.get("importance", 3),
+                    ai_analysis=analysis.get("impact_summary", ""),
+                    sentiment=analysis.get("sentiment", "neutral")
                 )
                 db.session.add(article)
                 saved_count += 1
@@ -314,12 +343,14 @@ def get_api_status():
     - Environment variable names when not configured
     - Key previews when keys are invalid
     - Specific error details for debugging
+    - REAL data tests to verify APIs return actual data
     """
     import os
     import requests
 
     status = {
-        "polygon": {"connected": False, "message": "ENV: POLYGON_API_KEY not set", "label": "Polygon.io", "env_var": "POLYGON_API_KEY"},
+        "polygon": {"connected": False, "message": "ENV: POLYGON_API_KEY not set", "label": "Polygon.io (Stocks)", "env_var": "POLYGON_API_KEY"},
+        "fmp": {"connected": False, "message": "ENV: FMP_API_KEY not set", "label": "FMP (Real-time Data)", "env_var": "FMP_API_KEY"},
         "binance": {"connected": False, "message": "Checking Binance API...", "label": "Binance (Crypto)", "env_var": None},
         "gemini": {"connected": False, "message": "ENV: GEMINI_API_KEY not set", "label": "Gemini AI", "env_var": "GEMINI_API_KEY"},
         "finnhub": {"connected": False, "message": "ENV: FINNHUB_API_KEY not set", "label": "Finnhub", "env_var": "FINNHUB_API_KEY"},
@@ -331,24 +362,79 @@ def get_api_status():
         "database": {"connected": False, "message": "Database connection failed", "label": "Database", "env_var": "DATABASE_URL"}
     }
 
-    # Check Polygon API - actual API call
+    # Check Polygon API - actual API call with REAL data verification
     polygon_key = os.environ.get("POLYGON_API_KEY", "")
     if polygon_key:
         try:
             polygon = get_polygon_service()
             result = polygon.get_previous_close("AAPL")
             if result:
-                status["polygon"] = {"connected": True, "message": f"OK: API working (key: {_mask_key(polygon_key)})", "label": "Polygon.io", "env_var": "POLYGON_API_KEY"}
+                # Get actual price to show REAL data
+                aapl_price = result.get("close") or result.get("c") or 0
+                if aapl_price > 0:
+                    status["polygon"] = {
+                        "connected": True, 
+                        "message": f"OK: AAPL=${aapl_price:.2f} (key: {_mask_key(polygon_key)})", 
+                        "label": "Polygon.io (Stocks)", 
+                        "env_var": "POLYGON_API_KEY",
+                        "data_sample": {"ticker": "AAPL", "price": aapl_price}
+                    }
+                else:
+                    status["polygon"] = {"connected": True, "message": f"PARTIAL: API responds but no price data (key: {_mask_key(polygon_key)})", "label": "Polygon.io (Stocks)", "env_var": "POLYGON_API_KEY"}
             else:
-                status["polygon"] = {"connected": False, "message": f"INVALID: Key {_mask_key(polygon_key)} rejected or rate limited", "label": "Polygon.io", "env_var": "POLYGON_API_KEY"}
+                status["polygon"] = {"connected": False, "message": f"NO_DATA: Key works but no AAPL data returned", "label": "Polygon.io (Stocks)", "env_var": "POLYGON_API_KEY"}
         except Exception as e:
             error_msg = str(e)
             if "401" in error_msg or "403" in error_msg or "unauthorized" in error_msg.lower():
-                status["polygon"] = {"connected": False, "message": f"AUTH_ERROR: Key {_mask_key(polygon_key)} unauthorized", "label": "Polygon.io", "env_var": "POLYGON_API_KEY"}
+                status["polygon"] = {"connected": False, "message": f"AUTH_ERROR: Key {_mask_key(polygon_key)} unauthorized", "label": "Polygon.io (Stocks)", "env_var": "POLYGON_API_KEY"}
             elif "timeout" in error_msg.lower() or "connection" in error_msg.lower():
-                status["polygon"] = {"connected": False, "message": f"NETWORK: Connection failed - {error_msg[:40]}", "label": "Polygon.io", "env_var": "POLYGON_API_KEY"}
+                status["polygon"] = {"connected": False, "message": f"NETWORK: Connection failed - {error_msg[:40]}", "label": "Polygon.io (Stocks)", "env_var": "POLYGON_API_KEY"}
             else:
-                status["polygon"] = {"connected": False, "message": f"ERROR: {error_msg[:50]}", "label": "Polygon.io", "env_var": "POLYGON_API_KEY"}
+                status["polygon"] = {"connected": False, "message": f"ERROR: {error_msg[:50]}", "label": "Polygon.io (Stocks)", "env_var": "POLYGON_API_KEY"}
+
+    # Check FMP (Financial Modeling Prep) API - REAL data verification
+    fmp_key = os.environ.get("FMP_API_KEY", "")
+    if fmp_key:
+        try:
+            # Test with a common stock to verify API works
+            resp = requests.get(
+                f"https://financialmodelingprep.com/api/v3/quote/AAPL",
+                params={"apikey": fmp_key},
+                timeout=10
+            )
+            if resp.status_code == 200:
+                data = resp.json()
+                if data and len(data) > 0:
+                    aapl_data = data[0]
+                    price = aapl_data.get("price", 0)
+                    market_cap = aapl_data.get("marketCap", 0)
+                    if price > 0 and market_cap > 0:
+                        market_cap_b = market_cap / 1e9
+                        status["fmp"] = {
+                            "connected": True, 
+                            "message": f"OK: AAPL=${price:.2f}, MCap=${market_cap_b:.0f}B (key: {_mask_key(fmp_key)})", 
+                            "label": "FMP (Real-time Data)", 
+                            "env_var": "FMP_API_KEY",
+                            "data_sample": {"ticker": "AAPL", "price": price, "market_cap": market_cap}
+                        }
+                    else:
+                        status["fmp"] = {"connected": True, "message": f"PARTIAL: API responds but data incomplete (price={price})", "label": "FMP (Real-time Data)", "env_var": "FMP_API_KEY"}
+                else:
+                    status["fmp"] = {"connected": False, "message": "NO_DATA: API returned empty response", "label": "FMP (Real-time Data)", "env_var": "FMP_API_KEY"}
+            elif resp.status_code == 401:
+                status["fmp"] = {"connected": False, "message": f"AUTH_ERROR: Key {_mask_key(fmp_key)} invalid (401)", "label": "FMP (Real-time Data)", "env_var": "FMP_API_KEY"}
+            elif resp.status_code == 403:
+                status["fmp"] = {"connected": False, "message": f"LIMIT: Daily limit exceeded or key restricted (403)", "label": "FMP (Real-time Data)", "env_var": "FMP_API_KEY"}
+            elif resp.status_code == 429:
+                status["fmp"] = {"connected": True, "message": f"RATE_LIMIT: API working but rate limited", "label": "FMP (Real-time Data)", "env_var": "FMP_API_KEY"}
+            else:
+                status["fmp"] = {"connected": False, "message": f"HTTP_{resp.status_code}: Unexpected response", "label": "FMP (Real-time Data)", "env_var": "FMP_API_KEY"}
+        except requests.exceptions.Timeout:
+            status["fmp"] = {"connected": False, "message": "TIMEOUT: FMP not responding (10s)", "label": "FMP (Real-time Data)", "env_var": "FMP_API_KEY"}
+        except requests.exceptions.ConnectionError:
+            status["fmp"] = {"connected": False, "message": "NETWORK: Cannot reach FMP API", "label": "FMP (Real-time Data)", "env_var": "FMP_API_KEY"}
+        except Exception as e:
+            status["fmp"] = {"connected": False, "message": f"ERROR: {str(e)[:50]}", "label": "FMP (Real-time Data)", "env_var": "FMP_API_KEY"}
 
     # Check Binance API - no API key required for public data
     # Try Binance.US first (for US users), then Binance.com
@@ -553,3 +639,160 @@ def get_api_status():
             status["database"] = {"connected": False, "message": f"ERROR: {error_msg[:50]}", "label": "Database", "env_var": "DATABASE_URL"}
 
     return jsonify(status)
+
+
+@api_main.route("/api/status/test-ticker")
+def test_ticker_data():
+    """
+    Test data quality for a specific ticker across all APIs.
+    Usage: /api/status/test-ticker?ticker=AAPL
+    
+    Returns what each data source returns for the ticker - helps debug
+    which APIs work and which don't for specific stocks.
+    """
+    import os
+    import requests
+    
+    ticker = request.args.get("ticker", "AAPL").upper().strip()
+    
+    results = {
+        "ticker": ticker,
+        "tested_at": datetime.now(timezone.utc).isoformat(),
+        "sources": {}
+    }
+    
+    # Test Polygon API
+    polygon_key = os.environ.get("POLYGON_API_KEY", "")
+    if polygon_key:
+        try:
+            polygon = get_polygon_service()
+            
+            # Try snapshot first (real-time)
+            snapshot = polygon.get_snapshot(ticker)
+            prev_close = polygon.get_previous_close(ticker)
+            
+            polygon_data = {
+                "available": False,
+                "price": 0,
+                "change_percent": 0,
+                "volume": 0,
+                "source_type": None,
+                "raw_response": None
+            }
+            
+            if snapshot:
+                polygon_data["available"] = True
+                polygon_data["price"] = snapshot.get("price") or snapshot.get("lastTrade", {}).get("p") or 0
+                polygon_data["change_percent"] = snapshot.get("todaysChangePerc") or 0
+                polygon_data["volume"] = snapshot.get("day", {}).get("v") or 0
+                polygon_data["source_type"] = "snapshot"
+                polygon_data["raw_response"] = snapshot
+            elif prev_close:
+                polygon_data["available"] = True
+                polygon_data["price"] = prev_close.get("close") or prev_close.get("c") or 0
+                polygon_data["volume"] = prev_close.get("volume") or prev_close.get("v") or 0
+                polygon_data["source_type"] = "prev_close"
+                polygon_data["raw_response"] = prev_close
+            
+            results["sources"]["polygon"] = polygon_data
+        except Exception as e:
+            results["sources"]["polygon"] = {"available": False, "error": str(e)[:100]}
+    else:
+        results["sources"]["polygon"] = {"available": False, "error": "API key not set"}
+    
+    # Test FMP API
+    fmp_key = os.environ.get("FMP_API_KEY", "")
+    if fmp_key:
+        try:
+            resp = requests.get(
+                f"https://financialmodelingprep.com/api/v3/quote/{ticker}",
+                params={"apikey": fmp_key},
+                timeout=10
+            )
+            
+            fmp_data = {
+                "available": False,
+                "price": 0,
+                "change_percent": 0,
+                "market_cap": 0,
+                "volume": 0,
+                "raw_response": None
+            }
+            
+            if resp.status_code == 200:
+                data = resp.json()
+                if data and len(data) > 0:
+                    item = data[0]
+                    fmp_data["available"] = True
+                    fmp_data["price"] = item.get("price", 0)
+                    fmp_data["change_percent"] = item.get("changesPercentage", 0)
+                    fmp_data["market_cap"] = item.get("marketCap", 0)
+                    fmp_data["volume"] = item.get("volume", 0)
+                    fmp_data["name"] = item.get("name", "")
+                    fmp_data["raw_response"] = item
+                else:
+                    fmp_data["error"] = "Empty response - ticker may not exist"
+            else:
+                fmp_data["error"] = f"HTTP {resp.status_code}"
+            
+            results["sources"]["fmp"] = fmp_data
+        except Exception as e:
+            results["sources"]["fmp"] = {"available": False, "error": str(e)[:100]}
+    else:
+        results["sources"]["fmp"] = {"available": False, "error": "API key not set"}
+    
+    # Test Finnhub API
+    finnhub_key = os.environ.get("FINNHUB_API_KEY", "")
+    if finnhub_key:
+        try:
+            resp = requests.get(
+                f"https://finnhub.io/api/v1/quote",
+                params={"symbol": ticker, "token": finnhub_key},
+                timeout=5
+            )
+            
+            finnhub_data = {
+                "available": False,
+                "price": 0,
+                "change_percent": 0,
+                "raw_response": None
+            }
+            
+            if resp.status_code == 200:
+                data = resp.json()
+                if data and data.get("c", 0) > 0:  # c = current price
+                    finnhub_data["available"] = True
+                    finnhub_data["price"] = data.get("c", 0)
+                    finnhub_data["change_percent"] = data.get("dp", 0)  # dp = percent change
+                    finnhub_data["high"] = data.get("h", 0)
+                    finnhub_data["low"] = data.get("l", 0)
+                    finnhub_data["open"] = data.get("o", 0)
+                    finnhub_data["prev_close"] = data.get("pc", 0)
+                    finnhub_data["raw_response"] = data
+                else:
+                    finnhub_data["error"] = "No price data - ticker may not be supported"
+            else:
+                finnhub_data["error"] = f"HTTP {resp.status_code}"
+            
+            results["sources"]["finnhub"] = finnhub_data
+        except Exception as e:
+            results["sources"]["finnhub"] = {"available": False, "error": str(e)[:100]}
+    else:
+        results["sources"]["finnhub"] = {"available": False, "error": "API key not set"}
+    
+    # Summary: which source has the best data
+    best_source = None
+    best_price = 0
+    for source_name, source_data in results["sources"].items():
+        if source_data.get("available") and source_data.get("price", 0) > best_price:
+            best_price = source_data.get("price", 0)
+            best_source = source_name
+    
+    results["summary"] = {
+        "best_source": best_source,
+        "best_price": best_price,
+        "sources_with_data": [s for s, d in results["sources"].items() if d.get("available")],
+        "sources_failed": [s for s, d in results["sources"].items() if not d.get("available")]
+    }
+    
+    return jsonify(results)

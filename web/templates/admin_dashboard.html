@@ -516,6 +516,15 @@
         0%, 100% { opacity: 1; }
         50% { opacity: 0.5; }
     }
+    
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+    
+    .spin {
+        animation: spin 1s linear infinite;
+    }
 
     @media (max-width: 1200px) {
         .stats-grid {
@@ -632,7 +641,7 @@
             API Status
         </div>
         <div class="section-actions">
-            <button onclick="loadApiStatus()" class="btn-admin">
+            <button onclick="loadApiStatus()" class="btn-admin" id="refresh-status-btn">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M23 4v6h-6M1 20v-6h6"/>
                     <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
@@ -664,6 +673,39 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Ticker Data Test Section -->
+<div class="section-card">
+    <div class="section-header">
+        <div class="section-title">
+            <div class="section-title-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+                </svg>
+            </div>
+            Test Ticker Data (Debug)
+        </div>
+    </div>
+    <div class="section-body">
+        <p style="color: var(--text-tertiary); font-size: var(--text-sm); margin-bottom: 16px;">
+            Test which APIs return data for any stock ticker. Enter a ticker to see what each API source provides.
+        </p>
+        <div style="display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; align-items: center;">
+            <input type="text" id="test-ticker-input" class="announcement-input" placeholder="Enter ticker (e.g., AAPL, BMNU)" style="max-width: 250px; text-transform: uppercase;">
+            <button onclick="testTickerData()" class="btn-admin primary" id="test-ticker-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+                    <circle cx="11" cy="11" r="8"/>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+                Test Ticker
+            </button>
+            <span id="test-ticker-status" style="font-size: var(--text-xs); color: var(--text-tertiary);"></span>
+        </div>
+        <div id="ticker-test-results" style="display: none;">
+            <!-- Results will be populated by JS -->
         </div>
     </div>
 </div>
@@ -839,6 +881,7 @@
 
     const serviceIcons = {
         polygon: '<path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>',
+        fmp: '<path d="M3 3v18h18"/><path d="M18 9l-5 5-4-4-4 4"/><circle cx="18" cy="9" r="2"/>',
         binance: '<circle cx="12" cy="12" r="10"/><path d="M12 6v2M12 16v2M6 12h2M16 12h2"/>',
         gemini: '<circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2"/>',
         finnhub: '<path d="M3 3v18h18"/><path d="M7 16l4-4 4 4 5-6"/>',
@@ -847,6 +890,10 @@
 
     async function loadApiStatus() {
         const container = document.getElementById('api-status-grid');
+        const refreshBtn = document.getElementById('refresh-status-btn');
+        
+        // Show loading state
+        refreshBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="spin" width="14" height="14"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> Checking...';
 
         try {
             const response = await fetch('/api/status');
@@ -856,6 +903,12 @@
                 const icon = serviceIcons[key] || serviceIcons.database;
                 const statusClass = data.connected ? 'connected' : 'disconnected';
                 const statusText = data.connected ? 'OK' : 'Error';
+                
+                // Show data sample if available (for APIs that return real data)
+                let dataSample = '';
+                if (data.data_sample) {
+                    dataSample = `<div style="font-size: 10px; color: var(--success); margin-top: 2px;">✓ Real data verified</div>`;
+                }
 
                 return `
                     <div class="api-card">
@@ -866,6 +919,7 @@
                             <div>
                                 <div class="api-name">${data.label || key}</div>
                                 <div class="api-message">${data.message}</div>
+                                ${dataSample}
                                 ${data.env_var ? `<div class="api-env">ENV: ${data.env_var}</div>` : ''}
                             </div>
                         </div>
@@ -879,9 +933,147 @@
 
             window.apiStatusData = status;
         } catch (error) {
-            container.innerHTML = `<div class="api-card"><div class="api-info"><div class="api-name">Error loading status</div></div></div>`;
+            container.innerHTML = `<div class="api-card"><div class="api-info"><div class="api-name">Error loading status: ${error.message}</div></div></div>`;
         }
+        
+        // Reset button
+        refreshBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> Refresh';
     }
+    
+    async function testTickerData() {
+        const ticker = document.getElementById('test-ticker-input').value.trim().toUpperCase();
+        const statusEl = document.getElementById('test-ticker-status');
+        const resultsEl = document.getElementById('ticker-test-results');
+        const btn = document.getElementById('test-ticker-btn');
+        
+        if (!ticker) {
+            statusEl.textContent = 'Please enter a ticker symbol';
+            statusEl.style.color = 'var(--danger)';
+            return;
+        }
+        
+        // Show loading state
+        btn.disabled = true;
+        btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="spin" width="14" height="14"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> Testing...';
+        statusEl.textContent = `Testing ${ticker}...`;
+        statusEl.style.color = 'var(--text-tertiary)';
+        
+        try {
+            const response = await fetch(`/api/status/test-ticker?ticker=${encodeURIComponent(ticker)}`);
+            const data = await response.json();
+            
+            resultsEl.style.display = 'block';
+            
+            // Build results HTML
+            let html = `
+                <div style="background: rgba(0,0,0,0.3); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                        <div>
+                            <h3 style="font-size: var(--text-lg); font-weight: var(--font-bold); margin: 0;">${data.ticker}</h3>
+                            <span style="font-size: var(--text-xs); color: var(--text-tertiary);">Tested at ${new Date(data.tested_at).toLocaleString()}</span>
+                        </div>
+                        <div style="text-align: right;">
+                            ${data.summary.best_source ? 
+                                `<div style="font-size: var(--text-sm); color: var(--success);">Best price: $${data.summary.best_price.toFixed(4)}</div>
+                                 <div style="font-size: var(--text-xs); color: var(--text-tertiary);">from ${data.summary.best_source}</div>` :
+                                `<div style="font-size: var(--text-sm); color: var(--danger);">No data found</div>`
+                            }
+                        </div>
+                    </div>
+            `;
+            
+            // Show each source
+            const sourceOrder = ['polygon', 'fmp', 'finnhub'];
+            sourceOrder.forEach(sourceName => {
+                const source = data.sources[sourceName];
+                if (!source) return;
+                
+                const available = source.available;
+                const statusColor = available ? 'var(--success)' : 'var(--danger)';
+                const statusIcon = available ? '✓' : '✗';
+                
+                html += `
+                    <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 16px; margin-bottom: 12px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <span style="font-weight: var(--font-semibold); text-transform: uppercase; font-size: var(--text-sm);">${sourceName}</span>
+                            <span style="color: ${statusColor}; font-size: var(--text-xs); font-weight: var(--font-bold);">${statusIcon} ${available ? 'Data Available' : 'No Data'}</span>
+                        </div>
+                `;
+                
+                if (available) {
+                    html += `
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px; font-size: var(--text-xs);">
+                            <div>
+                                <div style="color: var(--text-tertiary);">Price</div>
+                                <div style="font-family: 'JetBrains Mono', monospace; color: var(--accent-cyan);">$${(source.price || 0).toFixed(4)}</div>
+                            </div>
+                            ${source.change_percent !== undefined ? `
+                            <div>
+                                <div style="color: var(--text-tertiary);">Change</div>
+                                <div style="font-family: 'JetBrains Mono', monospace; color: ${source.change_percent >= 0 ? 'var(--success)' : 'var(--danger)'};">${source.change_percent >= 0 ? '+' : ''}${(source.change_percent || 0).toFixed(2)}%</div>
+                            </div>` : ''}
+                            ${source.market_cap ? `
+                            <div>
+                                <div style="color: var(--text-tertiary);">Market Cap</div>
+                                <div style="font-family: 'JetBrains Mono', monospace;">$${(source.market_cap / 1e9).toFixed(2)}B</div>
+                            </div>` : ''}
+                            ${source.volume ? `
+                            <div>
+                                <div style="color: var(--text-tertiary);">Volume</div>
+                                <div style="font-family: 'JetBrains Mono', monospace;">${(source.volume / 1e6).toFixed(2)}M</div>
+                            </div>` : ''}
+                            ${source.source_type ? `
+                            <div>
+                                <div style="color: var(--text-tertiary);">Source Type</div>
+                                <div style="font-family: 'JetBrains Mono', monospace;">${source.source_type}</div>
+                            </div>` : ''}
+                        </div>
+                    `;
+                } else {
+                    html += `<div style="font-size: var(--text-xs); color: var(--danger);">${source.error || 'Unknown error'}</div>`;
+                }
+                
+                html += `</div>`;
+            });
+            
+            html += `
+                    <div style="font-size: var(--text-xs); color: var(--text-tertiary); margin-top: 12px;">
+                        <strong>Summary:</strong> 
+                        ${data.summary.sources_with_data.length} sources have data 
+                        (${data.summary.sources_with_data.join(', ') || 'none'}), 
+                        ${data.summary.sources_failed.length} failed 
+                        (${data.summary.sources_failed.join(', ') || 'none'})
+                    </div>
+                </div>
+            `;
+            
+            resultsEl.innerHTML = html;
+            statusEl.textContent = `✓ Test complete for ${ticker}`;
+            statusEl.style.color = 'var(--success)';
+            
+        } catch (error) {
+            statusEl.textContent = `Error: ${error.message}`;
+            statusEl.style.color = 'var(--danger)';
+            resultsEl.innerHTML = `<div style="color: var(--danger);">Failed to test ticker: ${error.message}</div>`;
+            resultsEl.style.display = 'block';
+        }
+        
+        // Reset button
+        btn.disabled = false;
+        btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> Test Ticker';
+    }
+    
+    // Allow Enter key to trigger test
+    document.addEventListener('DOMContentLoaded', function() {
+        const input = document.getElementById('test-ticker-input');
+        if (input) {
+            input.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    testTickerData();
+                }
+            });
+        }
+    });
 
     function copyApiStatus() {
         if (!window.apiStatusData) return;
