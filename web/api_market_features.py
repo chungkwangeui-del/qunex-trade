@@ -21,12 +21,12 @@ _market_cap_cache_time = None
 _CACHE_MINUTES = 5  # Refresh every 5 minutes for real-time data
 
 
-def get_fmp_market_data(tickers: list) -> dict:
+def get_twelvedata_market_data(tickers: list) -> dict:
     """
-    Fetch real-time market data from Financial Modeling Prep API.
-    Free tier: 250 calls/day - supports bulk quotes!
+    Fetch real-time market data from Twelve Data API.
+    Free tier: 800 calls/day, 8 calls/min - need to batch carefully!
     
-    Returns: {ticker: {"market_cap": X, "price": Y, "change_percent": Z}, ...}
+    Returns: {ticker: {"price": Y, "change_percent": Z}, ...}
     """
     global _market_cap_cache, _market_cap_cache_time
     import os
@@ -38,53 +38,72 @@ def get_fmp_market_data(tickers: list) -> dict:
         if cache_age_minutes < _CACHE_MINUTES and len(_market_cap_cache) > 0:
             cached = {t: _market_cap_cache.get(t) for t in tickers if t in _market_cap_cache}
             if len(cached) >= len(tickers) * 0.8:
-                logger.info(f"FMP: Using cached data ({len(cached)} tickers, {cache_age_minutes:.1f}m old)")
+                logger.info(f"TwelveData: Using cached data ({len(cached)} tickers, {cache_age_minutes:.1f}m old)")
                 return cached
     
-    # Get FMP API key from environment
-    fmp_key = os.getenv("FMP_API_KEY", "")
+    # Get Twelve Data API key from environment
+    twelvedata_key = os.getenv("TWELVEDATA_API_KEY", "")
     
-    if not fmp_key:
-        logger.warning("FMP_API_KEY not set - cannot fetch real-time market caps")
+    if not twelvedata_key:
+        logger.warning("TWELVEDATA_API_KEY not set - cannot fetch real-time data")
         return {}
     
     try:
         result = {}
         
-        # FMP allows bulk quote requests (up to 500 tickers at once!)
-        tickers_str = ",".join(tickers)
-        url = f"https://financialmodelingprep.com/api/v3/quote/{tickers_str}"
-        
-        response = requests.get(url, params={"apikey": fmp_key}, timeout=15)
-        response.raise_for_status()
-        data = response.json()
-        
-        if isinstance(data, list):
-            for stock in data:
-                ticker = stock.get("symbol")
-                if ticker:
-                    market_cap = stock.get("marketCap", 0)
-                    if market_cap and market_cap > 0:
+        # Twelve Data supports batch requests with comma-separated symbols
+        # But free tier is 8 calls/min, so we batch in groups of 8
+        batch_size = 8
+        for i in range(0, len(tickers), batch_size):
+            batch = tickers[i:i + batch_size]
+            tickers_str = ",".join(batch)
+            url = "https://api.twelvedata.com/quote"
+            
+            response = requests.get(url, params={"symbol": tickers_str, "apikey": twelvedata_key}, timeout=15)
+            
+            if response.ok:
+                data = response.json()
+                
+                # Handle single ticker response (dict) vs multi (dict of dicts)
+                if len(batch) == 1:
+                    ticker = batch[0]
+                    if data and not data.get("code") and data.get("close"):
                         result[ticker] = {
-                            "market_cap": float(market_cap),
-                            "price": float(stock.get("price", 0)),
-                            "change_percent": float(stock.get("changesPercentage", 0)),
-                            "volume": int(stock.get("volume", 0)),
+                            "price": float(data.get("close", 0)),
+                            "change_percent": float(data.get("percent_change", 0)),
+                            "volume": int(data.get("volume", 0)) if data.get("volume") else 0,
                         }
                         _market_cap_cache[ticker] = result[ticker]
+                else:
+                    # Multi-ticker response
+                    for ticker, stock_data in data.items():
+                        if isinstance(stock_data, dict) and not stock_data.get("code") and stock_data.get("close"):
+                            result[ticker] = {
+                                "price": float(stock_data.get("close", 0)),
+                                "change_percent": float(stock_data.get("percent_change", 0)),
+                                "volume": int(stock_data.get("volume", 0)) if stock_data.get("volume") else 0,
+                            }
+                            _market_cap_cache[ticker] = result[ticker]
+            
+            # Rate limit: only 8 calls/min on free tier
+            if i + batch_size < len(tickers):
+                import time
+                time.sleep(0.5)  # Small delay between batches
         
         _market_cap_cache_time = datetime.now()
-        logger.info(f"FMP: Got real-time data for {len(result)}/{len(tickers)} tickers")
+        logger.info(f"TwelveData: Got real-time data for {len(result)}/{len(tickers)} tickers")
         return result
         
     except requests.exceptions.HTTPError as e:
         if e.response and e.response.status_code == 401:
-            logger.error("FMP API key invalid or expired")
+            logger.error("Twelve Data API key invalid")
+        elif e.response and e.response.status_code == 429:
+            logger.error("Twelve Data rate limit exceeded")
         else:
-            logger.error(f"FMP API HTTP error: {e}")
+            logger.error(f"Twelve Data API HTTP error: {e}")
         return {}
     except Exception as e:
-        logger.error(f"FMP API error: {e}")
+        logger.error(f"Twelve Data API error: {e}")
         return {}
 
 api_market_features = Blueprint('api_market_features', __name__)
@@ -319,10 +338,10 @@ def get_treemap_data():
         bulk_data = polygon.get_market_snapshot(all_tickers)
         logger.info(f"Treemap: Polygon returned data for {len(bulk_data)} tickers")
         
-        # Fetch REAL-TIME market data from Financial Modeling Prep (free API!)
-        # FMP provides accurate market cap, price, change %, volume in bulk
-        fmp_data = get_fmp_market_data(all_tickers)
-        logger.info(f"Treemap: FMP returned real-time data for {len(fmp_data)} tickers")
+        # Fetch REAL-TIME market data from Twelve Data (free API - 800 calls/day!)
+        # Twelve Data provides accurate price, change %, volume
+        twelvedata_result = get_twelvedata_market_data(all_tickers)
+        logger.info(f"Treemap: TwelveData returned real-time data for {len(twelvedata_result)} tickers")
 
         treemap_data = {"name": "Market", "children": []}
 
@@ -345,23 +364,24 @@ def get_treemap_data():
                     volume = snapshot.get("day_volume") or snapshot.get("prev_volume") or 0
 
                     # Priority for real-time data:
-                    # 1) FMP (best - has accurate market cap, price, change)
+                    # 1) Twelve Data (best - has accurate price, change)
                     # 2) Polygon snapshot
                     # 3) Static defaults (last resort)
                     
-                    fmp_stock = fmp_data.get(ticker, {})
+                    td_stock = twelvedata_result.get(ticker, {})
                     
-                    # Use FMP data if available (most accurate and real-time)
-                    if fmp_stock:
-                        market_cap = fmp_stock.get("market_cap", 0)
-                        market_cap_source = "fmp_realtime"
-                        # Override price/change with FMP real-time data
-                        if fmp_stock.get("price"):
-                            price = fmp_stock["price"]
-                        if fmp_stock.get("change_percent") is not None:
-                            change_percent = fmp_stock["change_percent"]
-                        if fmp_stock.get("volume"):
-                            volume = fmp_stock["volume"]
+                    # Use Twelve Data for price/change if available
+                    if td_stock:
+                        market_cap_source = "twelvedata"
+                        # Override price/change with Twelve Data real-time data
+                        if td_stock.get("price"):
+                            price = td_stock["price"]
+                        if td_stock.get("change_percent") is not None:
+                            change_percent = td_stock["change_percent"]
+                        if td_stock.get("volume"):
+                            volume = td_stock["volume"]
+                        # Use static market cap since Twelve Data doesn't provide it
+                        market_cap = default_cap_b * 1_000_000_000
                     elif snapshot.get("market_cap"):
                         market_cap = snapshot.get("market_cap")
                         market_cap_source = "polygon"
@@ -414,12 +434,12 @@ def get_treemap_data():
         # Count data sources for debugging
         all_stocks = [stock for sector in treemap_data["children"] for stock in sector["children"]]
         source_counts = {
-            "fmp_realtime": sum(1 for s in all_stocks if s.get("market_cap_source") == "fmp_realtime"),
+            "twelvedata": sum(1 for s in all_stocks if s.get("market_cap_source") == "twelvedata"),
             "polygon": sum(1 for s in all_stocks if s.get("market_cap_source") == "polygon"),
             "static_default": sum(1 for s in all_stocks if s.get("market_cap_source") == "static_default"),
         }
         
-        real_data_pct = ((source_counts["fmp_realtime"] + source_counts["polygon"]) / len(all_stocks) * 100) if all_stocks else 0
+        real_data_pct = ((source_counts["twelvedata"] + source_counts["polygon"]) / len(all_stocks) * 100) if all_stocks else 0
         logger.info(f"Treemap data sources: {source_counts} ({real_data_pct:.0f}% real-time data)")
 
         return jsonify({

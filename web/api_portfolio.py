@@ -18,7 +18,7 @@ csrf.exempt(api_portfolio)
 def get_current_price(ticker):
     """
     Get current price for a ticker.
-    Tries multiple sources: Polygon snapshot, Polygon previous close, FMP API
+    Tries multiple sources: Polygon snapshot, Polygon previous close, Twelve Data
     """
     import os
     import requests
@@ -41,18 +41,31 @@ def get_current_price(ticker):
     except Exception as e:
         print(f"Polygon prev_close error for {ticker}: {e}")
     
-    # Try Financial Modeling Prep (works for penny stocks too!)
+    # Try Twelve Data (800 calls/day free - best backup!)
     try:
-        fmp_key = os.getenv("FMP_API_KEY", "")
-        if fmp_key:
-            url = f"https://financialmodelingprep.com/api/v3/quote/{ticker}"
-            response = requests.get(url, params={"apikey": fmp_key}, timeout=10)
+        twelvedata_key = os.getenv("TWELVEDATA_API_KEY", "")
+        if twelvedata_key:
+            url = "https://api.twelvedata.com/quote"
+            response = requests.get(url, params={"symbol": ticker, "apikey": twelvedata_key}, timeout=10)
             if response.ok:
                 data = response.json()
-                if data and len(data) > 0 and data[0].get("price"):
-                    return float(data[0]["price"])
+                if data and not data.get("code") and data.get("close"):
+                    return float(data["close"])
     except Exception as e:
-        print(f"FMP API error for {ticker}: {e}")
+        print(f"Twelve Data API error for {ticker}: {e}")
+    
+    # Try Finnhub as last resort
+    try:
+        finnhub_key = os.getenv("FINNHUB_API_KEY", "")
+        if finnhub_key:
+            url = "https://finnhub.io/api/v1/quote"
+            response = requests.get(url, params={"symbol": ticker, "token": finnhub_key}, timeout=5)
+            if response.ok:
+                data = response.json()
+                if data and data.get("c", 0) > 0:
+                    return float(data["c"])
+    except Exception as e:
+        print(f"Finnhub API error for {ticker}: {e}")
     
     return 0.0
 

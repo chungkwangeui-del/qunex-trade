@@ -278,6 +278,7 @@ class PolygonService:
                 day = ticker_data.get("day", {})
                 prev_day = ticker_data.get("prevDay", {})
                 last_trade = ticker_data.get("lastTrade", {})
+                market_cap = ticker_data.get("marketCap")
 
                 # Use prev_close as fallback for pre/after market hours
                 prev_close = prev_day.get("c", 0)
@@ -294,6 +295,7 @@ class PolygonService:
                     "day_close": day.get("c"),
                     "day_volume": day.get("v"),
                     "day_vwap": day.get("vw"),
+                    "market_cap": market_cap,
                     "prev_close": prev_close,
                     "prev_open": prev_day.get("o"),
                     "prev_high": prev_day.get("h"),
@@ -384,6 +386,7 @@ class PolygonService:
             filtered.append(
                 {
                     "ticker": r.get("ticker"),
+                    "name": r.get("name"),
                     "price": price,
                     "change": r.get("todaysChange"),
                     "change_percent": r.get("todaysChangePerc"),
@@ -391,6 +394,7 @@ class PolygonService:
                     "day_high": r.get("day", {}).get("h"),
                     "day_low": r.get("day", {}).get("l"),
                     "day_open": r.get("day", {}).get("o"),
+                    "market_cap": r.get("marketCap"),
                 }
             )
 

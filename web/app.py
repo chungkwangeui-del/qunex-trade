@@ -3,7 +3,7 @@ Flask Web Application - Qunex Trade
 Professional trading tools with real-time market data
 """
 
-from flask import Flask, Response, request, g, render_template
+from flask import Flask, Response, request, g, render_template, jsonify, redirect, url_for
 from werkzeug.middleware.proxy_fix import ProxyFix
 import os
 import sys
@@ -46,6 +46,13 @@ def create_app(config_class=Config):
     @login_manager.user_loader
     def load_user(user_id: str):
         return db.session.get(User, int(user_id))
+
+    @login_manager.unauthorized_handler
+    def handle_unauthorized():
+        # Return JSON for API calls so fetch() can surface the real error
+        if request.path.startswith("/api/"):
+            return jsonify({"success": False, "error": "Authentication required"}), 401
+        return redirect(url_for("auth.login"))
 
     # Exempt email verification endpoints from CSRF protection
     csrf.exempt("web.auth.send_verification_code")

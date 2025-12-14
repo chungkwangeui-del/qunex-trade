@@ -881,7 +881,7 @@
 
     const serviceIcons = {
         polygon: '<path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>',
-        fmp: '<path d="M3 3v18h18"/><path d="M18 9l-5 5-4-4-4 4"/><circle cx="18" cy="9" r="2"/>',
+        twelvedata: '<path d="M3 3v18h18"/><path d="M7 14l3-3 3 3 5-6"/><circle cx="17" cy="8" r="2"/>',
         binance: '<circle cx="12" cy="12" r="10"/><path d="M12 6v2M12 16v2M6 12h2M16 12h2"/>',
         gemini: '<circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2"/>',
         finnhub: '<path d="M3 3v18h18"/><path d="M7 16l4-4 4 4 5-6"/>',
@@ -983,7 +983,7 @@
             `;
             
             // Show each source
-            const sourceOrder = ['polygon', 'fmp', 'finnhub', 'binance'];
+            const sourceOrder = ['polygon', 'twelvedata', 'finnhub', 'binance'];
             sourceOrder.forEach(sourceName => {
                 const source = data.sources[sourceName];
                 if (!source) return;

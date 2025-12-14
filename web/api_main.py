@@ -350,7 +350,7 @@ def get_api_status():
 
     status = {
         "polygon": {"connected": False, "message": "ENV: POLYGON_API_KEY not set", "label": "Polygon.io (Stocks)", "env_var": "POLYGON_API_KEY"},
-        "fmp": {"connected": False, "message": "ENV: FMP_API_KEY not set", "label": "FMP (Real-time Data)", "env_var": "FMP_API_KEY"},
+        "twelvedata": {"connected": False, "message": "ENV: TWELVEDATA_API_KEY not set", "label": "Twelve Data (800/day)", "env_var": "TWELVEDATA_API_KEY"},
         "binance": {"connected": False, "message": "Checking Binance API...", "label": "Binance (Crypto)", "env_var": None},
         "gemini": {"connected": False, "message": "ENV: GEMINI_API_KEY not set", "label": "Gemini AI", "env_var": "GEMINI_API_KEY"},
         "finnhub": {"connected": False, "message": "ENV: FINNHUB_API_KEY not set", "label": "Finnhub", "env_var": "FINNHUB_API_KEY"},
@@ -392,7 +392,42 @@ def get_api_status():
             else:
                 status["polygon"] = {"connected": False, "message": f"ERROR: {error_msg[:50]}", "label": "Polygon.io (Stocks)", "env_var": "POLYGON_API_KEY"}
 
-    # Check FMP (Financial Modeling Prep) API - REAL data verification
+    # Check Twelve Data API - 800 calls/day free (best free option!)
+    twelvedata_key = os.environ.get("TWELVEDATA_API_KEY", "")
+    if twelvedata_key:
+        try:
+            resp = requests.get(
+                "https://api.twelvedata.com/quote",
+                params={"symbol": "AAPL", "apikey": twelvedata_key},
+                timeout=10
+            )
+            if resp.status_code == 200:
+                data = resp.json()
+                if data and not data.get("code") and data.get("close"):
+                    price = float(data.get("close", 0))
+                    status["twelvedata"] = {
+                        "connected": True, 
+                        "message": f"OK: AAPL=${price:.2f} (key: {_mask_key(twelvedata_key)})", 
+                        "label": "Twelve Data (800/day)", 
+                        "env_var": "TWELVEDATA_API_KEY",
+                        "data_sample": {"ticker": "AAPL", "price": price}
+                    }
+                elif data.get("code"):
+                    status["twelvedata"] = {"connected": False, "message": f"API_ERROR: {data.get('message', 'Unknown')[:40]}", "label": "Twelve Data (800/day)", "env_var": "TWELVEDATA_API_KEY"}
+                else:
+                    status["twelvedata"] = {"connected": False, "message": "NO_DATA: API responded but no price", "label": "Twelve Data (800/day)", "env_var": "TWELVEDATA_API_KEY"}
+            elif resp.status_code == 401:
+                status["twelvedata"] = {"connected": False, "message": f"AUTH_ERROR: Key {_mask_key(twelvedata_key)} invalid", "label": "Twelve Data (800/day)", "env_var": "TWELVEDATA_API_KEY"}
+            elif resp.status_code == 429:
+                status["twelvedata"] = {"connected": True, "message": "RATE_LIMIT: Valid key but limit exceeded", "label": "Twelve Data (800/day)", "env_var": "TWELVEDATA_API_KEY"}
+            else:
+                status["twelvedata"] = {"connected": False, "message": f"HTTP_{resp.status_code}", "label": "Twelve Data (800/day)", "env_var": "TWELVEDATA_API_KEY"}
+        except requests.exceptions.Timeout:
+            status["twelvedata"] = {"connected": False, "message": "TIMEOUT: API not responding", "label": "Twelve Data (800/day)", "env_var": "TWELVEDATA_API_KEY"}
+        except Exception as e:
+            status["twelvedata"] = {"connected": False, "message": f"ERROR: {str(e)[:40]}", "label": "Twelve Data (800/day)", "env_var": "TWELVEDATA_API_KEY"}
+
+    # Check FMP (Financial Modeling Prep) API - REAL data verification (Legacy - may not work)
     fmp_key = os.environ.get("FMP_API_KEY", "")
     if fmp_key:
         try:
@@ -700,46 +735,54 @@ def test_ticker_data():
     else:
         results["sources"]["polygon"] = {"available": False, "error": "API key not set"}
     
-    # Test FMP API
-    fmp_key = os.environ.get("FMP_API_KEY", "")
-    if fmp_key:
+    # Test Twelve Data API (800 calls/day free - best free option!)
+    twelvedata_key = os.environ.get("TWELVEDATA_API_KEY", "")
+    if twelvedata_key:
         try:
             resp = requests.get(
-                f"https://financialmodelingprep.com/api/v3/quote/{ticker}",
-                params={"apikey": fmp_key},
+                f"https://api.twelvedata.com/quote",
+                params={"symbol": ticker, "apikey": twelvedata_key},
                 timeout=10
             )
             
-            fmp_data = {
+            twelvedata_data = {
                 "available": False,
                 "price": 0,
                 "change_percent": 0,
-                "market_cap": 0,
                 "volume": 0,
                 "raw_response": None
             }
             
             if resp.status_code == 200:
                 data = resp.json()
-                if data and len(data) > 0:
-                    item = data[0]
-                    fmp_data["available"] = True
-                    fmp_data["price"] = item.get("price", 0)
-                    fmp_data["change_percent"] = item.get("changesPercentage", 0)
-                    fmp_data["market_cap"] = item.get("marketCap", 0)
-                    fmp_data["volume"] = item.get("volume", 0)
-                    fmp_data["name"] = item.get("name", "")
-                    fmp_data["raw_response"] = item
+                if data and not data.get("code") and data.get("close"):
+                    twelvedata_data["available"] = True
+                    twelvedata_data["price"] = float(data.get("close", 0))
+                    twelvedata_data["open"] = float(data.get("open", 0))
+                    twelvedata_data["high"] = float(data.get("high", 0))
+                    twelvedata_data["low"] = float(data.get("low", 0))
+                    twelvedata_data["volume"] = int(data.get("volume", 0))
+                    twelvedata_data["change"] = float(data.get("change", 0))
+                    twelvedata_data["change_percent"] = float(data.get("percent_change", 0))
+                    twelvedata_data["name"] = data.get("name", "")
+                    twelvedata_data["exchange"] = data.get("exchange", "")
+                    twelvedata_data["raw_response"] = data
+                elif data.get("code"):
+                    twelvedata_data["error"] = data.get("message", "API error")[:50]
                 else:
-                    fmp_data["error"] = "Empty response - ticker may not exist"
+                    twelvedata_data["error"] = "No price data returned"
+            elif resp.status_code == 401:
+                twelvedata_data["error"] = "Invalid API key"
+            elif resp.status_code == 429:
+                twelvedata_data["error"] = "Rate limit exceeded (8/min or 800/day)"
             else:
-                fmp_data["error"] = f"HTTP {resp.status_code}"
+                twelvedata_data["error"] = f"HTTP {resp.status_code}"
             
-            results["sources"]["fmp"] = fmp_data
+            results["sources"]["twelvedata"] = twelvedata_data
         except Exception as e:
-            results["sources"]["fmp"] = {"available": False, "error": str(e)[:100]}
+            results["sources"]["twelvedata"] = {"available": False, "error": str(e)[:100]}
     else:
-        results["sources"]["fmp"] = {"available": False, "error": "API key not set"}
+        results["sources"]["twelvedata"] = {"available": False, "error": "API key not set (TWELVEDATA_API_KEY)"}
     
     # Test Finnhub API
     finnhub_key = os.environ.get("FINNHUB_API_KEY", "")
