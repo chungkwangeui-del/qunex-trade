@@ -15,44 +15,59 @@ import concurrent.futures
 
 logger = logging.getLogger(__name__)
 
-# Cache for Yahoo Finance market cap data (refreshed every hour)
+# Cache for Yahoo Finance market cap data (refreshed every 6 hours)
 _yfinance_cache = {}
 _yfinance_cache_time = None
+_YFINANCE_CACHE_HOURS = 6  # Market cap doesn't change much intraday
 
 
 def get_yahoo_market_caps(tickers: list) -> dict:
     """
     Fetch market cap data from Yahoo Finance for multiple tickers.
-    Uses batch fetching for efficiency.
+    Uses fast_info for efficiency and to avoid rate limiting.
     Returns: {ticker: market_cap_in_dollars, ...}
     """
     global _yfinance_cache, _yfinance_cache_time
     
-    # Return cached data if less than 1 hour old
-    if _yfinance_cache_time and (datetime.now() - _yfinance_cache_time).seconds < 3600:
-        # Return cached values for requested tickers
-        return {t: _yfinance_cache.get(t) for t in tickers if t in _yfinance_cache}
+    # Return cached data if less than 6 hours old
+    if _yfinance_cache_time:
+        cache_age_hours = (datetime.now() - _yfinance_cache_time).total_seconds() / 3600
+        if cache_age_hours < _YFINANCE_CACHE_HOURS:
+            cached_results = {t: _yfinance_cache.get(t) for t in tickers if t in _yfinance_cache}
+            if len(cached_results) > len(tickers) * 0.8:  # If we have 80%+ cached
+                logger.info(f"Yahoo Finance: Using cached data ({len(cached_results)} tickers, {cache_age_hours:.1f}h old)")
+                return cached_results
     
     try:
         import yfinance as yf
         
-        # Batch download for efficiency (much faster than individual calls)
         logger.info(f"Fetching market caps from Yahoo Finance for {len(tickers)} tickers...")
         
-        # yfinance can fetch multiple tickers at once
-        tickers_str = " ".join(tickers)
-        data = yf.Tickers(tickers_str)
-        
         result = {}
-        for ticker in tickers:
+        
+        # Process in smaller batches to avoid rate limits
+        batch_size = 20
+        for i in range(0, len(tickers), batch_size):
+            batch = tickers[i:i + batch_size]
             try:
-                info = data.tickers[ticker].info
-                market_cap = info.get("marketCap")
-                if market_cap and market_cap > 0:
-                    result[ticker] = float(market_cap)
-                    _yfinance_cache[ticker] = float(market_cap)
-            except Exception as e:
-                logger.debug(f"Could not get Yahoo data for {ticker}: {e}")
+                # Use download with minimal data to get market cap quickly
+                tickers_str = " ".join(batch)
+                data = yf.Tickers(tickers_str)
+                
+                for ticker in batch:
+                    try:
+                        # Use fast_info which is much faster and less likely to hit rate limits
+                        fast_info = data.tickers[ticker].fast_info
+                        market_cap = getattr(fast_info, 'market_cap', None)
+                        if market_cap and market_cap > 0:
+                            result[ticker] = float(market_cap)
+                            _yfinance_cache[ticker] = float(market_cap)
+                    except Exception as e:
+                        logger.debug(f"Could not get Yahoo fast_info for {ticker}: {e}")
+                        continue
+                        
+            except Exception as batch_err:
+                logger.warning(f"Yahoo Finance batch error: {batch_err}")
                 continue
         
         _yfinance_cache_time = datetime.now()
@@ -227,64 +242,65 @@ def get_treemap_data():
     try:
         polygon = get_polygon_service()
 
-        # Major stocks by sector with estimated market caps (in billions)
-        # Market caps are approximate and used for sizing when API data unavailable
+        # Major stocks by sector with market caps (in billions USD)
+        # Updated December 2024 - these are used for treemap sizing
+        # Source: Yahoo Finance / public market data
         sector_stocks = {
             "Technology": {
-                # Keep these updated so the treemap looks right when live caps are unavailable
-                "AAPL": 3000, "MSFT": 2800, "NVDA": 3500, "GOOGL": 1700, "META": 900,
-                "AVGO": 400, "ORCL": 300, "CRM": 250, "AMD": 200, "ADBE": 250,
-                "CSCO": 200, "INTC": 150, "IBM": 150, "QCOM": 180, "TXN": 160
+                # Updated Dec 2024 market caps
+                "AAPL": 3700, "MSFT": 3100, "NVDA": 3300, "GOOGL": 2300, "META": 1500,
+                "AVGO": 800, "ORCL": 450, "CRM": 330, "AMD": 200, "ADBE": 220,
+                "CSCO": 230, "INTC": 100, "IBM": 200, "QCOM": 170, "TXN": 180
             },
             "Healthcare": {
-                "UNH": 500, "JNJ": 400, "LLY": 550, "PFE": 160, "ABBV": 280,
-                "MRK": 270, "TMO": 200, "ABT": 190, "DHR": 170, "BMY": 100,
-                "AMGN": 140, "MDT": 110, "GILD": 100, "CVS": 90, "ELV": 100
+                "UNH": 520, "JNJ": 380, "LLY": 750, "PFE": 145, "ABBV": 310,
+                "MRK": 250, "TMO": 195, "ABT": 200, "DHR": 165, "BMY": 95,
+                "AMGN": 155, "MDT": 105, "GILD": 115, "CVS": 75, "ELV": 95
             },
             "Financial": {
-                "JPM": 500, "BAC": 280, "WFC": 180, "GS": 130, "MS": 140,
-                "BLK": 120, "C": 100, "SCHW": 110, "AXP": 150, "SPGI": 130,
-                "CB": 100, "MMC": 90, "PNC": 70, "USB": 60, "TFC": 50
+                "JPM": 680, "BAC": 360, "WFC": 240, "GS": 180, "MS": 210,
+                "BLK": 150, "C": 135, "SCHW": 140, "AXP": 200, "SPGI": 150,
+                "CB": 115, "MMC": 105, "PNC": 80, "USB": 70, "TFC": 55
             },
             "Consumer Cyclical": {
-                "AMZN": 1500, "TSLA": 700, "HD": 350, "MCD": 200, "NKE": 150,
-                "LOW": 140, "SBUX": 110, "TJX": 100, "BKNG": 120, "MAR": 70,
-                "CMG": 70, "ORLY": 60, "YUM": 40, "DHI": 50, "GM": 50
+                "AMZN": 2350, "TSLA": 1300, "HD": 390, "MCD": 210, "NKE": 115,
+                "LOW": 145, "SBUX": 105, "TJX": 130, "BKNG": 170, "MAR": 80,
+                "CMG": 85, "ORLY": 70, "YUM": 40, "DHI": 55, "GM": 60
             },
             "Communication": {
-                "GOOG": 1700, "DIS": 180, "NFLX": 250, "CMCSA": 160, "VZ": 160,
-                "T": 120, "TMUS": 200, "CHTR": 50, "EA": 40, "WBD": 25,
-                "TTWO": 30, "OMC": 20, "IPG": 12, "PARA": 10, "FOXA": 15
+                "GOOG": 2300, "DIS": 210, "NFLX": 380, "CMCSA": 165, "VZ": 175,
+                "T": 160, "TMUS": 260, "CHTR": 55, "EA": 42, "WBD": 28,
+                "TTWO": 32, "OMC": 22, "IPG": 14, "PARA": 8, "FOXA": 18
             },
             "Industrials": {
-                "CAT": 150, "GE": 180, "UNP": 140, "HON": 130, "UPS": 120,
-                "RTX": 140, "BA": 130, "DE": 110, "LMT": 110, "ADP": 100,
-                "MMM": 60, "GD": 70, "WM": 80, "CSX": 70, "NSC": 55
+                "CAT": 185, "GE": 195, "UNP": 145, "HON": 145, "UPS": 115,
+                "RTX": 160, "BA": 115, "DE": 120, "LMT": 125, "ADP": 120,
+                "MMM": 70, "GD": 80, "WM": 90, "CSX": 65, "NSC": 55
             },
             "Consumer Defensive": {
-                "WMT": 420, "PG": 360, "COST": 300, "KO": 260, "PEP": 230,
-                "PM": 180, "MO": 80, "MDLZ": 90, "CL": 75, "TGT": 70,
-                "KMB": 45, "GIS": 40, "STZ": 45, "KHC": 40, "HSY": 45
+                "WMT": 700, "PG": 400, "COST": 420, "KO": 270, "PEP": 220,
+                "PM": 200, "MO": 90, "MDLZ": 85, "CL": 75, "TGT": 65,
+                "KMB": 45, "GIS": 40, "STZ": 42, "KHC": 38, "HSY": 35
             },
             "Energy": {
-                "XOM": 450, "CVX": 280, "COP": 130, "EOG": 70, "SLB": 65,
-                "MPC": 55, "PXD": 50, "PSX": 50, "VLO": 45, "OXY": 50,
-                "WMB": 45, "KMI": 40, "HAL": 30, "DVN": 30, "HES": 45
+                "XOM": 480, "CVX": 270, "COP": 125, "EOG": 75, "SLB": 60,
+                "MPC": 60, "PXD": 55, "PSX": 55, "VLO": 42, "OXY": 45,
+                "WMB": 55, "KMI": 50, "HAL": 28, "DVN": 25, "HES": 48
             },
             "Utilities": {
-                "NEE": 150, "DUK": 80, "SO": 85, "D": 45, "AEP": 50,
-                "SRE": 50, "XEL": 35, "EXC": 40, "ED": 35, "WEC": 30,
-                "ES": 25, "PEG": 35, "AWK": 28, "DTE": 22, "ETR": 22
+                "NEE": 155, "DUK": 85, "SO": 95, "D": 48, "AEP": 55,
+                "SRE": 55, "XEL": 38, "EXC": 42, "ED": 35, "WEC": 30,
+                "ES": 28, "PEG": 38, "AWK": 28, "DTE": 25, "ETR": 25
             },
             "Real Estate": {
-                "PLD": 120, "AMT": 100, "EQIX": 75, "CCI": 45, "PSA": 55,
-                "SPG": 50, "O": 45, "WELL": 45, "DLR": 40, "AVB": 30,
-                "EQR": 25, "VTR": 22, "SBAC": 25, "WY": 22, "ARE": 18
+                "PLD": 105, "AMT": 90, "EQIX": 85, "CCI": 40, "PSA": 52,
+                "SPG": 55, "O": 48, "WELL": 75, "DLR": 45, "AVB": 30,
+                "EQR": 26, "VTR": 25, "SBAC": 22, "WY": 22, "ARE": 15
             },
             "Materials": {
-                "LIN": 200, "APD": 65, "SHW": 80, "ECL": 55, "FCX": 60,
-                "NEM": 45, "NUE": 40, "VMC": 35, "MLM": 35, "DD": 35,
-                "DOW": 35, "PPG": 30, "ALB": 15, "CTVA": 35, "CF": 15
+                "LIN": 210, "APD": 70, "SHW": 90, "ECL": 60, "FCX": 65,
+                "NEM": 50, "NUE": 38, "VMC": 38, "MLM": 38, "DD": 32,
+                "DOW": 32, "PPG": 28, "ALB": 12, "CTVA": 38, "CF": 16
             }
         }
 
@@ -293,19 +309,20 @@ def get_treemap_data():
         for sector_tickers in sector_stocks.values():
             all_tickers.extend(sector_tickers.keys())
 
-        # Fetch bulk snapshot data from Polygon (single API call)
+        # Fetch bulk snapshot data from Polygon (single API call) for prices
         bulk_data = polygon.get_market_snapshot(all_tickers)
         
-        # Log how many tickers have market cap from Polygon snapshot
+        # Log how many tickers have data from Polygon
         tickers_with_polygon_cap = sum(1 for t in all_tickers if bulk_data.get(t, {}).get("market_cap"))
         logger.info(f"Treemap: Polygon returned {len(bulk_data)} tickers, {tickers_with_polygon_cap} have market_cap")
         
-        # Fetch market cap from Yahoo Finance as fallback (free, accurate)
+        # Try Yahoo Finance only if we have cached data (to avoid rate limits)
         yahoo_market_caps = {}
-        if tickers_with_polygon_cap < len(all_tickers) * 0.5:
-            # If Polygon has less than 50% market cap data, use Yahoo Finance
-            logger.info("Polygon missing market cap data - fetching from Yahoo Finance...")
-            yahoo_market_caps = get_yahoo_market_caps(all_tickers)
+        if _yfinance_cache and len(_yfinance_cache) > 0:
+            # Use cached Yahoo data if available
+            yahoo_market_caps = {t: _yfinance_cache.get(t) for t in all_tickers if t in _yfinance_cache}
+            if yahoo_market_caps:
+                logger.info(f"Using cached Yahoo Finance data for {len(yahoo_market_caps)} tickers")
 
         treemap_data = {"name": "Market", "children": []}
 
