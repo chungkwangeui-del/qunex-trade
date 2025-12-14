@@ -16,14 +16,44 @@ csrf.exempt(api_portfolio)
 
 
 def get_current_price(ticker):
-    """Get current price for a ticker from Polygon API"""
+    """
+    Get current price for a ticker.
+    Tries multiple sources: Polygon snapshot, Polygon previous close, FMP API
+    """
+    import os
+    import requests
+    
+    # Try Polygon snapshot first
     try:
         polygon = get_polygon_service()
-        quote = polygon.get_previous_close(ticker)
-        if quote and 'results' in quote and len(quote['results']) > 0:
-            return float(quote['results'][0].get('c', 0))
+        snapshot = polygon.get_snapshot(ticker)
+        if snapshot and snapshot.get("price"):
+            return float(snapshot["price"])
     except Exception as e:
-        print(f"Error getting price for {ticker}: {e}")
+        print(f"Polygon snapshot error for {ticker}: {e}")
+    
+    # Try Polygon previous close
+    try:
+        polygon = get_polygon_service()
+        prev_close = polygon.get_previous_close(ticker)
+        if prev_close and prev_close.get("close"):
+            return float(prev_close["close"])
+    except Exception as e:
+        print(f"Polygon prev_close error for {ticker}: {e}")
+    
+    # Try Financial Modeling Prep (works for penny stocks too!)
+    try:
+        fmp_key = os.getenv("FMP_API_KEY", "")
+        if fmp_key:
+            url = f"https://financialmodelingprep.com/api/v3/quote/{ticker}"
+            response = requests.get(url, params={"apikey": fmp_key}, timeout=10)
+            if response.ok:
+                data = response.json()
+                if data and len(data) > 0 and data[0].get("price"):
+                    return float(data[0]["price"])
+    except Exception as e:
+        print(f"FMP API error for {ticker}: {e}")
+    
     return 0.0
 
 
