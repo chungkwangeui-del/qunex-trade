@@ -72,7 +72,24 @@ async function fetchRealTimeData() {
         }
         
         globalStockData = result.data;
-        console.log('[MarketMap] Loaded real-time data for', result.summary?.stocks_count || 0, 'stocks');
+        console.log('[MarketMap] ✅ Loaded REAL-TIME data from Polygon API');
+        console.log('[MarketMap] Summary:', result.summary);
+        
+        // Log some sample data to verify it's real
+        if (result.data.children && result.data.children.length > 0) {
+            const firstSector = result.data.children[0];
+            console.log('[MarketMap] First sector:', firstSector.name);
+            if (firstSector.children && firstSector.children.length > 0) {
+                const sampleStock = firstSector.children[0];
+                console.log('[MarketMap] Sample stock data:', {
+                    ticker: sampleStock.ticker || sampleStock.name,
+                    price: sampleStock.price,
+                    change_percent: sampleStock.change_percent,
+                    market_cap: sampleStock.market_cap
+                });
+            }
+        }
+        
         return result.data;
 
     } catch (error) {
@@ -92,7 +109,8 @@ async function generateFinvizData() {
 
     if (!realtimeData || !realtimeData.children || realtimeData.children.length === 0) {
         // Using fallback data due to API error
-        console.warn('[MarketMap] No real-time data available, using fallback');
+        console.warn('[MarketMap] ⚠️ NO REAL DATA - Using FAKE fallback data with random values!');
+        console.warn('[MarketMap] This means the API call failed or returned empty data.');
         return generateFallbackData();
     }
 
