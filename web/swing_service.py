@@ -154,6 +154,11 @@ def _detect_market_structure(bars: List[Dict], lookback: int = 5) -> Dict:
             "choch": None,
             "swing_highs": swing_highs,
             "swing_lows": swing_lows,
+            # Provide zeroed structure counts so downstream consumers never KeyError
+            "hh_count": 0,
+            "hl_count": 0,
+            "lh_count": 0,
+            "ll_count": 0,
             "last_hh": None,
             "last_ll": None,
             "last_hl": None,

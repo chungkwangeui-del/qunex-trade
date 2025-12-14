@@ -179,7 +179,8 @@ def get_treemap_data():
         # Market caps are approximate and used for sizing when API data unavailable
         sector_stocks = {
             "Technology": {
-                "AAPL": 3000, "MSFT": 2800, "NVDA": 1200, "GOOGL": 1700, "META": 900,
+                # Keep these updated so the treemap looks right when live caps are unavailable
+                "AAPL": 3000, "MSFT": 2800, "NVDA": 3500, "GOOGL": 1700, "META": 900,
                 "AVGO": 400, "ORCL": 300, "CRM": 250, "AMD": 200, "ADBE": 250,
                 "CSCO": 200, "INTC": 150, "IBM": 150, "QCOM": 180, "TXN": 160
             },
