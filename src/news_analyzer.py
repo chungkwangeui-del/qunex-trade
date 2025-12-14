@@ -18,21 +18,41 @@ logger = logging.getLogger(__name__)
 class NewsAnalyzer:
     """Analyze news using Google Gemini Pro for importance and credibility"""
 
-    def __init__(self, model_name: str = "gemini-1.5-pro"):
+    def __init__(self, model_name: str = "gemini-1.5-flash"):
         """
         Initialize Gemini-based news analyzer
         
         Args:
-            model_name: Gemini model to use (default: gemini-1.5-pro)
+            model_name: Gemini model to use (default: gemini-1.5-flash - fast and free tier friendly)
         """
         api_key = os.getenv("GEMINI_API_KEY")
         if not api_key:
             raise ValueError("GEMINI_API_KEY not found in environment variables")
 
+        logger.info(f"Initializing NewsAnalyzer with key: {api_key[:8]}...")
+        
         # Configure Gemini API
         genai.configure(api_key=api_key)
         self.model_name = model_name
-        self.model = genai.GenerativeModel(model_name)
+        
+        try:
+            self.model = genai.GenerativeModel(model_name)
+            logger.info(f"Successfully created Gemini model: {model_name}")
+        except Exception as e:
+            logger.error(f"Failed to create Gemini model '{model_name}': {e}")
+            # Try fallback models
+            fallback_models = ["gemini-1.5-flash", "gemini-pro", "gemini-1.0-pro"]
+            for fallback in fallback_models:
+                if fallback != model_name:
+                    try:
+                        self.model = genai.GenerativeModel(fallback)
+                        self.model_name = fallback
+                        logger.info(f"Using fallback model: {fallback}")
+                        break
+                    except:
+                        continue
+            else:
+                raise ValueError(f"No working Gemini model found. Tried: {[model_name] + fallback_models}")
 
         # System instruction for news analysis
         self.system_prompt = """You are a financial news analyst. Analyze news and provide a structured assessment.
