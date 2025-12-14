@@ -243,6 +243,10 @@ def get_treemap_data():
 
         # Fetch bulk snapshot data (single API call)
         bulk_data = polygon.get_market_snapshot(all_tickers)
+        
+        # Log how many tickers have market cap from snapshot
+        tickers_with_cap = sum(1 for t in all_tickers if bulk_data.get(t, {}).get("market_cap"))
+        logger.info(f"Treemap: {len(bulk_data)} tickers returned, {tickers_with_cap} have market_cap from snapshot")
 
         treemap_data = {"name": "Market", "children": []}
 
@@ -264,13 +268,29 @@ def get_treemap_data():
                     change_percent = float(snapshot.get("change_percent", 0) or 0)
                     volume = snapshot.get("day_volume") or snapshot.get("prev_volume") or 0
 
-                    # Prefer live market cap for accurate sizing, fall back to defaults (billions)
+                    # Prefer live market cap for accurate sizing
                     market_cap = snapshot.get("market_cap")
+                    market_cap_source = "snapshot" if market_cap else None
+
+                    # If snapshot lacks cap, try ticker details API
+                    if not market_cap:
+                        try:
+                            details = polygon.get_ticker_details(ticker)
+                            if details and details.get("market_cap"):
+                                market_cap = details["market_cap"]
+                                market_cap_source = "details"
+                        except Exception as detail_err:
+                            logger.debug(f"Could not get details for {ticker}: {detail_err}")
+
+                    # Fall back to static defaults (billions) only if API data unavailable
                     if market_cap is None or market_cap <= 0:
-                        # Fall back to static sizing (billions) if live cap unavailable
                         market_cap = default_cap_b * 1_000_000_000
+                        market_cap_source = "static_default"
+                        logger.debug(f"{ticker}: Using static default market cap ${default_cap_b}B")
                     else:
                         market_cap = float(market_cap)
+                        if market_cap_source == "snapshot":
+                            logger.debug(f"{ticker}: Got market cap from Polygon snapshot: ${market_cap/1e9:.1f}B")
 
                     # Skip if we still don't have a positive cap
                     if market_cap <= 0:
@@ -282,6 +302,7 @@ def get_treemap_data():
                         "ticker": ticker,
                         "value": market_cap,
                         "market_cap": market_cap,
+                        "market_cap_source": market_cap_source,  # Track data source
                         "price": price,
                         "change": snapshot.get("change", 0) or 0,
                         "change_percent": round(change_percent, 2),
@@ -301,10 +322,20 @@ def get_treemap_data():
                 sector_data["change_percent"] = round(sector_change, 2)
                 treemap_data["children"].append(sector_data)
 
-        # Calculate market totals
+        # Calculate market totals and data quality stats
         total_market_cap = sum(s["value"] for s in treemap_data["children"])
         weighted_market_change = sum(s["change_percent"] * s["value"] for s in treemap_data["children"])
         market_change = weighted_market_change / total_market_cap if total_market_cap > 0 else 0
+        
+        # Count data sources for debugging
+        all_stocks = [stock for sector in treemap_data["children"] for stock in sector["children"]]
+        source_counts = {
+            "snapshot": sum(1 for s in all_stocks if s.get("market_cap_source") == "snapshot"),
+            "details": sum(1 for s in all_stocks if s.get("market_cap_source") == "details"),
+            "static_default": sum(1 for s in all_stocks if s.get("market_cap_source") == "static_default"),
+        }
+        
+        logger.info(f"Treemap data sources: {source_counts}")
 
         return jsonify({
             "success": True,
@@ -313,7 +344,8 @@ def get_treemap_data():
                 "total_market_cap": total_market_cap,
                 "market_change": round(market_change, 2),
                 "sectors_count": len(treemap_data["children"]),
-                "stocks_count": sum(len(s["children"]) for s in treemap_data["children"])
+                "stocks_count": sum(len(s["children"]) for s in treemap_data["children"]),
+                "data_sources": source_counts  # Show where market cap data came from
             }
         })
     except Exception as e:
