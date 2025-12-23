@@ -1,6 +1,0 @@
-# Machine Learning Dependencies
-# Note: Core ML libraries are in root requirements.txt
-
-# Data visualization for model evaluation
-matplotlib>=3.7.0
-seaborn>=0.12.0

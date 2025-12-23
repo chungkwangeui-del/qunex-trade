@@ -1,5 +1,0 @@
-# Web-specific dependencies
-# Note: Core dependencies are in root requirements.txt
-
-yfinance==0.2.28
-lightgbm>=4.1.0
