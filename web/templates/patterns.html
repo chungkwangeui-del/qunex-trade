@@ -1,0 +1,517 @@
+{% extends "authenticated_base.html" %}
+
+{% block title %}Chart Patterns - Qunex Trade{% endblock %}
+{% block page_title %}Chart Pattern Scanner{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .patterns-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+    }
+    
+    .search-form {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+    }
+    
+    .ticker-input {
+        padding: 12px 20px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        color: #fff;
+        font-size: 16px;
+        font-family: 'JetBrains Mono', monospace;
+        text-transform: uppercase;
+        width: 150px;
+    }
+    
+    .timeframe-select {
+        padding: 12px 20px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        color: #fff;
+        font-size: 14px;
+    }
+    
+    .btn-scan {
+        padding: 12px 24px;
+        background: linear-gradient(135deg, #00d9ff, #a855f7);
+        color: #000;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+    
+    .btn-scan:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 20px rgba(0, 217, 255, 0.3);
+    }
+    
+    .tabs {
+        display: flex;
+        gap: 4px;
+        margin-bottom: 24px;
+        background: rgba(255, 255, 255, 0.03);
+        padding: 4px;
+        border-radius: 8px;
+        width: fit-content;
+    }
+    
+    .tab {
+        padding: 10px 20px;
+        background: transparent;
+        border: none;
+        color: rgba(255, 255, 255, 0.6);
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+    
+    .tab.active {
+        background: linear-gradient(135deg, #00d9ff, #a855f7);
+        color: #000;
+    }
+    
+    .tab-content {
+        display: none;
+    }
+    
+    .tab-content.active {
+        display: block;
+    }
+    
+    .pattern-card {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 16px;
+    }
+    
+    .pattern-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 16px;
+    }
+    
+    .pattern-ticker {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 24px;
+        font-weight: 700;
+        color: #00d9ff;
+    }
+    
+    .pattern-type {
+        font-size: 18px;
+        font-weight: 600;
+        margin-top: 4px;
+    }
+    
+    .pattern-badge {
+        display: inline-block;
+        padding: 6px 16px;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: 600;
+    }
+    
+    .pattern-badge.bullish {
+        background: rgba(46, 213, 115, 0.1);
+        color: #2ed573;
+    }
+    
+    .pattern-badge.bearish {
+        background: rgba(255, 71, 87, 0.1);
+        color: #ff4757;
+    }
+    
+    .pattern-badge.neutral {
+        background: rgba(255, 193, 7, 0.1);
+        color: #ffc107;
+    }
+    
+    .pattern-details {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 16px;
+        margin-top: 16px;
+        padding-top: 16px;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .detail-item {
+        text-align: center;
+    }
+    
+    .detail-value {
+        font-size: 18px;
+        font-weight: 600;
+        font-family: 'JetBrains Mono', monospace;
+    }
+    
+    .detail-label {
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.5);
+        margin-top: 4px;
+    }
+    
+    .confidence-bar {
+        height: 6px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 3px;
+        margin-top: 16px;
+        overflow: hidden;
+    }
+    
+    .confidence-fill {
+        height: 100%;
+        border-radius: 3px;
+        background: linear-gradient(90deg, #00d9ff, #a855f7);
+    }
+    
+    .status-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 4px;
+        font-size: 11px;
+        text-transform: uppercase;
+        font-weight: 600;
+    }
+    
+    .status-badge.forming {
+        background: rgba(255, 193, 7, 0.1);
+        color: #ffc107;
+    }
+    
+    .status-badge.triggered {
+        background: rgba(46, 213, 115, 0.1);
+        color: #2ed573;
+    }
+    
+    .status-badge.complete {
+        background: rgba(0, 217, 255, 0.1);
+        color: #00d9ff;
+    }
+    
+    .loading {
+        text-align: center;
+        padding: 60px;
+        color: rgba(255, 255, 255, 0.5);
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 60px;
+        color: rgba(255, 255, 255, 0.5);
+    }
+    
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+    
+    .summary-card {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 20px;
+        text-align: center;
+    }
+    
+    .summary-value {
+        font-size: 32px;
+        font-weight: 700;
+    }
+    
+    .summary-label {
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.5);
+        margin-top: 4px;
+        text-transform: uppercase;
+    }
+    
+    .scan-list {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 16px;
+    }
+    
+    .scan-preset {
+        padding: 8px 16px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 13px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .scan-preset:hover {
+        background: rgba(0, 217, 255, 0.1);
+        border-color: #00d9ff;
+        color: #00d9ff;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="patterns-header">
+    <div>
+        <h2>Detect Chart Patterns Automatically</h2>
+        <p style="color: rgba(255,255,255,0.5); margin-top: 8px;">
+            AI-powered detection of classic chart patterns
+        </p>
+    </div>
+    <form class="search-form" onsubmit="analyzeStock(event)">
+        <input type="text" class="ticker-input" id="patternTicker" placeholder="AAPL">
+        <select class="timeframe-select" id="patternTimeframe">
+            <option value="D">Daily</option>
+            <option value="4H">4 Hour</option>
+            <option value="1H">1 Hour</option>
+        </select>
+        <button type="submit" class="btn-scan">Analyze</button>
+    </form>
+</div>
+
+<div class="tabs">
+    <button class="tab active" onclick="switchTab('single')">Single Stock</button>
+    <button class="tab" onclick="switchTab('scan')">Market Scan</button>
+    <button class="tab" onclick="switchTab('alerts')">My Alerts</button>
+</div>
+
+<!-- Single Stock Tab -->
+<div class="tab-content active" id="singleTab">
+    <div class="loading" id="singleLoading">
+        Enter a ticker above to analyze for chart patterns
+    </div>
+    <div id="singleContent"></div>
+</div>
+
+<!-- Market Scan Tab -->
+<div class="tab-content" id="scanTab">
+    <div class="scan-list">
+        <span style="color: rgba(255,255,255,0.5);">Quick Scan:</span>
+        <button class="scan-preset" onclick="scanMarket('AAPL,MSFT,GOOGL,AMZN,NVDA,META,TSLA')">Mega Caps</button>
+        <button class="scan-preset" onclick="scanMarket('AMD,INTC,MU,QCOM,AVGO,TXN')">Semiconductors</button>
+        <button class="scan-preset" onclick="scanMarket('JPM,BAC,GS,MS,C,WFC')">Banks</button>
+        <button class="scan-preset" onclick="scanMarket('XOM,CVX,COP,SLB,OXY')">Energy</button>
+    </div>
+    
+    <div id="scanContent">
+        <div class="loading">Select a preset or run a custom scan</div>
+    </div>
+</div>
+
+<!-- Alerts Tab -->
+<div class="tab-content" id="alertsTab">
+    <div class="loading" id="alertsLoading">Loading pattern alerts...</div>
+    <div id="alertsContent"></div>
+</div>
+
+<script>
+    function switchTab(tab) {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        
+        event.target.classList.add('active');
+        document.getElementById(tab + 'Tab').classList.add('active');
+        
+        if (tab === 'alerts') {
+            loadAlerts();
+        }
+    }
+    
+    async function analyzeStock(e) {
+        if (e) e.preventDefault();
+        
+        const ticker = document.getElementById('patternTicker').value.trim().toUpperCase();
+        const timeframe = document.getElementById('patternTimeframe').value;
+        
+        if (!ticker) return;
+        
+        document.getElementById('singleLoading').style.display = 'block';
+        document.getElementById('singleLoading').textContent = 'Analyzing ' + ticker + ' for patterns...';
+        document.getElementById('singleContent').innerHTML = '';
+        
+        try {
+            const response = await fetch(`/api/patterns/${ticker}?timeframe=${timeframe}`);
+            const data = await response.json();
+            
+            document.getElementById('singleLoading').style.display = 'none';
+            
+            if (data.patterns && data.patterns.length > 0) {
+                renderPatterns(data, 'singleContent');
+            } else {
+                document.getElementById('singleContent').innerHTML = `
+                    <div class="empty-state">
+                        <div style="font-size: 48px; margin-bottom: 16px;">🔍</div>
+                        <p>No patterns detected for ${ticker} on ${timeframe} timeframe</p>
+                        <p style="margin-top: 8px; font-size: 14px;">Try a different timeframe or check back later</p>
+                    </div>
+                `;
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            document.getElementById('singleLoading').textContent = 'Failed to analyze stock';
+        }
+    }
+    
+    async function scanMarket(tickers) {
+        document.getElementById('scanContent').innerHTML = '<div class="loading">Scanning for patterns...</div>';
+        
+        const timeframe = document.getElementById('patternTimeframe').value;
+        
+        try {
+            const response = await fetch(`/api/patterns/scan?tickers=${tickers}&timeframe=${timeframe}`);
+            const data = await response.json();
+            
+            if (data.results && data.results.length > 0) {
+                let html = `
+                    <div class="summary-grid">
+                        <div class="summary-card">
+                            <div class="summary-value">${data.stocks_scanned}</div>
+                            <div class="summary-label">Stocks Scanned</div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="summary-value">${data.patterns_found}</div>
+                            <div class="summary-label">Patterns Found</div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="summary-value" style="color: #2ed573;">${data.bullish_patterns}</div>
+                            <div class="summary-label">Bullish</div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="summary-value" style="color: #ff4757;">${data.bearish_patterns}</div>
+                            <div class="summary-label">Bearish</div>
+                        </div>
+                    </div>
+                `;
+                
+                html += data.results.map(r => renderPatternCard(r.ticker, r.current_price, r.primary_pattern)).join('');
+                
+                document.getElementById('scanContent').innerHTML = html;
+            } else {
+                document.getElementById('scanContent').innerHTML = '<div class="empty-state">No patterns found in scanned stocks</div>';
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            document.getElementById('scanContent').innerHTML = '<div class="loading">Failed to scan market</div>';
+        }
+    }
+    
+    async function loadAlerts() {
+        document.getElementById('alertsLoading').style.display = 'block';
+        document.getElementById('alertsContent').innerHTML = '';
+        
+        try {
+            const response = await fetch('/api/patterns/alerts');
+            const data = await response.json();
+            
+            document.getElementById('alertsLoading').style.display = 'none';
+            
+            if (data.alerts && data.alerts.length > 0) {
+                document.getElementById('alertsContent').innerHTML = data.alerts.map(a => 
+                    renderPatternCard(a.ticker, a.current_price, a.pattern, a.priority)
+                ).join('');
+            } else {
+                document.getElementById('alertsContent').innerHTML = `
+                    <div class="empty-state">
+                        <div style="font-size: 48px; margin-bottom: 16px;">🔔</div>
+                        <p>No pattern alerts for your watchlist</p>
+                        <p style="margin-top: 8px; font-size: 14px;">Add stocks to your watchlist to receive pattern alerts</p>
+                    </div>
+                `;
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            document.getElementById('alertsLoading').textContent = 'Failed to load alerts';
+        }
+    }
+    
+    function renderPatterns(data, containerId) {
+        let html = `
+            <div style="margin-bottom: 16px; color: rgba(255,255,255,0.6);">
+                ${data.ticker} | ${data.current_price ? '$' + data.current_price.toFixed(2) : ''} | ${data.bars_analyzed} bars analyzed
+            </div>
+        `;
+        
+        html += data.patterns.map(p => renderPatternCard(data.ticker, data.current_price, p)).join('');
+        
+        document.getElementById(containerId).innerHTML = html;
+    }
+    
+    function renderPatternCard(ticker, price, pattern, priority) {
+        if (!pattern) return '';
+        
+        const patternName = pattern.pattern_type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+        const direction = pattern.direction || 'neutral';
+        
+        return `
+            <div class="pattern-card" style="${priority === 'high' ? 'border-color: #2ed573;' : ''}">
+                <div class="pattern-header">
+                    <div>
+                        <div class="pattern-ticker">${ticker}</div>
+                        <div class="pattern-type">${patternName}</div>
+                        ${price ? `<div style="color: rgba(255,255,255,0.5); margin-top: 4px;">$${price.toFixed(2)}</div>` : ''}
+                    </div>
+                    <div style="text-align: right;">
+                        <span class="pattern-badge ${direction}">${direction.toUpperCase()}</span>
+                        <div style="margin-top: 8px;">
+                            <span class="status-badge ${pattern.status || 'forming'}">${pattern.status || 'forming'}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="pattern-details">
+                    ${pattern.target_price ? `
+                        <div class="detail-item">
+                            <div class="detail-value" style="color: #2ed573;">$${pattern.target_price}</div>
+                            <div class="detail-label">Target</div>
+                        </div>
+                    ` : ''}
+                    ${pattern.stop_loss ? `
+                        <div class="detail-item">
+                            <div class="detail-value" style="color: #ff4757;">$${pattern.stop_loss}</div>
+                            <div class="detail-label">Stop Loss</div>
+                        </div>
+                    ` : ''}
+                    ${pattern.breakout_level ? `
+                        <div class="detail-item">
+                            <div class="detail-value">$${pattern.breakout_level}</div>
+                            <div class="detail-label">Breakout Level</div>
+                        </div>
+                    ` : ''}
+                    ${pattern.neckline ? `
+                        <div class="detail-item">
+                            <div class="detail-value">$${pattern.neckline}</div>
+                            <div class="detail-label">Neckline</div>
+                        </div>
+                    ` : ''}
+                    <div class="detail-item">
+                        <div class="detail-value">${pattern.confidence}%</div>
+                        <div class="detail-label">Confidence</div>
+                    </div>
+                </div>
+                
+                <div class="confidence-bar">
+                    <div class="confidence-fill" style="width: ${pattern.confidence}%"></div>
+                </div>
+            </div>
+        `;
+    }
+</script>
+{% endblock %}
+

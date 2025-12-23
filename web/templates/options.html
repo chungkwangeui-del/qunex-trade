@@ -1,0 +1,489 @@
+{% extends "authenticated_base.html" %}
+
+{% block title %}Options Flow - Qunex Trade{% endblock %}
+{% block page_title %}Options Flow{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .options-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+    }
+    
+    .search-form {
+        display: flex;
+        gap: 12px;
+    }
+    
+    .ticker-input {
+        padding: 12px 20px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        color: #fff;
+        font-size: 16px;
+        font-family: 'JetBrains Mono', monospace;
+        text-transform: uppercase;
+        width: 150px;
+    }
+    
+    .btn-search {
+        padding: 12px 24px;
+        background: linear-gradient(135deg, #00d9ff, #a855f7);
+        color: #000;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+    
+    .tabs {
+        display: flex;
+        gap: 4px;
+        margin-bottom: 24px;
+        background: rgba(255, 255, 255, 0.03);
+        padding: 4px;
+        border-radius: 8px;
+        width: fit-content;
+    }
+    
+    .tab {
+        padding: 10px 20px;
+        background: transparent;
+        border: none;
+        color: rgba(255, 255, 255, 0.6);
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+    
+    .tab.active {
+        background: linear-gradient(135deg, #00d9ff, #a855f7);
+        color: #000;
+    }
+    
+    .tab-content {
+        display: none;
+    }
+    
+    .tab-content.active {
+        display: block;
+    }
+    
+    .summary-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+    
+    .summary-card {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 20px;
+        text-align: center;
+    }
+    
+    .summary-value {
+        font-size: 28px;
+        font-weight: 700;
+        font-family: 'JetBrains Mono', monospace;
+    }
+    
+    .summary-label {
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.5);
+        margin-top: 4px;
+        text-transform: uppercase;
+    }
+    
+    .bullish { color: #2ed573; }
+    .bearish { color: #ff4757; }
+    .neutral { color: #ffc107; }
+    
+    .options-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: rgba(255, 255, 255, 0.02);
+        border-radius: 12px;
+        overflow: hidden;
+    }
+    
+    .options-table th,
+    .options-table td {
+        padding: 14px 16px;
+        text-align: left;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .options-table th {
+        background: rgba(255, 255, 255, 0.05);
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: rgba(255, 255, 255, 0.6);
+    }
+    
+    .options-table tr:hover {
+        background: rgba(255, 255, 255, 0.02);
+    }
+    
+    .expiration-select {
+        padding: 10px 16px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        color: #fff;
+        font-size: 14px;
+        min-width: 150px;
+    }
+    
+    .type-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+    
+    .type-badge.call {
+        background: rgba(46, 213, 115, 0.1);
+        color: #2ed573;
+    }
+    
+    .type-badge.put {
+        background: rgba(255, 71, 87, 0.1);
+        color: #ff4757;
+    }
+    
+    .unusual-card {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 12px;
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        gap: 20px;
+        align-items: center;
+    }
+    
+    .unusual-ticker {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 18px;
+        font-weight: 700;
+        color: #00d9ff;
+    }
+    
+    .unusual-details {
+        display: flex;
+        gap: 24px;
+        flex-wrap: wrap;
+    }
+    
+    .unusual-stat {
+        text-align: center;
+    }
+    
+    .unusual-stat-value {
+        font-size: 16px;
+        font-weight: 600;
+        font-family: 'JetBrains Mono', monospace;
+    }
+    
+    .unusual-stat-label {
+        font-size: 11px;
+        color: rgba(255, 255, 255, 0.4);
+        text-transform: uppercase;
+    }
+    
+    .loading {
+        text-align: center;
+        padding: 60px;
+        color: rgba(255, 255, 255, 0.5);
+    }
+    
+    .sentiment-meter {
+        height: 8px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 4px;
+        margin-top: 12px;
+        overflow: hidden;
+    }
+    
+    .sentiment-fill {
+        height: 100%;
+        border-radius: 4px;
+        transition: width 0.3s;
+    }
+    
+    .sentiment-fill.bullish { background: linear-gradient(90deg, #2ed573, #7bed9f); }
+    .sentiment-fill.bearish { background: linear-gradient(90deg, #ff4757, #ff6b81); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="options-header">
+    <h2>Track Options Flow & Unusual Activity</h2>
+    <form class="search-form" onsubmit="loadOptionsChain(event)">
+        <input type="text" class="ticker-input" id="optionsTicker" placeholder="SPY">
+        <button type="submit" class="btn-search">Load Chain</button>
+    </form>
+</div>
+
+<div class="tabs">
+    <button class="tab active" onclick="switchTab('chain')">Options Chain</button>
+    <button class="tab" onclick="switchTab('unusual')">Unusual Activity</button>
+</div>
+
+<!-- Options Chain Tab -->
+<div class="tab-content active" id="chainTab">
+    <div class="loading" id="chainLoading">
+        Enter a ticker above to load options chain
+    </div>
+    
+    <div id="chainContent" style="display: none;">
+        <div class="summary-cards" id="chainSummary"></div>
+        
+        <div style="margin-bottom: 16px; display: flex; gap: 16px; align-items: center;">
+            <label>Expiration:</label>
+            <select class="expiration-select" id="expirationSelect" onchange="changeExpiration()"></select>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+            <!-- Calls -->
+            <div>
+                <h3 style="color: #2ed573; margin-bottom: 16px;">📈 Calls</h3>
+                <table class="options-table">
+                    <thead>
+                        <tr>
+                            <th>Strike</th>
+                            <th>Last</th>
+                            <th>Bid/Ask</th>
+                            <th>Volume</th>
+                            <th>OI</th>
+                            <th>IV</th>
+                        </tr>
+                    </thead>
+                    <tbody id="callsBody"></tbody>
+                </table>
+            </div>
+            
+            <!-- Puts -->
+            <div>
+                <h3 style="color: #ff4757; margin-bottom: 16px;">📉 Puts</h3>
+                <table class="options-table">
+                    <thead>
+                        <tr>
+                            <th>Strike</th>
+                            <th>Last</th>
+                            <th>Bid/Ask</th>
+                            <th>Volume</th>
+                            <th>OI</th>
+                            <th>IV</th>
+                        </tr>
+                    </thead>
+                    <tbody id="putsBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Unusual Activity Tab -->
+<div class="tab-content" id="unusualTab">
+    <div class="loading" id="unusualLoading">Loading unusual options activity...</div>
+    <div id="unusualContent"></div>
+</div>
+
+<script>
+    let currentTicker = '';
+    let currentExpirations = [];
+    
+    function switchTab(tab) {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        
+        event.target.classList.add('active');
+        document.getElementById(tab + 'Tab').classList.add('active');
+        
+        if (tab === 'unusual') {
+            loadUnusualActivity();
+        }
+    }
+    
+    async function loadOptionsChain(e) {
+        if (e) e.preventDefault();
+        
+        const ticker = document.getElementById('optionsTicker').value.trim().toUpperCase();
+        if (!ticker) return;
+        
+        currentTicker = ticker;
+        document.getElementById('chainLoading').style.display = 'block';
+        document.getElementById('chainContent').style.display = 'none';
+        document.getElementById('chainLoading').textContent = 'Loading options chain for ' + ticker + '...';
+        
+        try {
+            const response = await fetch(`/api/options/chain/${ticker}`);
+            const data = await response.json();
+            
+            if (data.error) {
+                document.getElementById('chainLoading').textContent = data.error;
+                return;
+            }
+            
+            currentExpirations = data.available_expirations;
+            
+            // Populate expiration dropdown
+            const select = document.getElementById('expirationSelect');
+            select.innerHTML = data.available_expirations.map(exp => 
+                `<option value="${exp}" ${exp === data.expiration ? 'selected' : ''}>${exp}</option>`
+            ).join('');
+            
+            renderOptionsChain(data);
+            
+            document.getElementById('chainLoading').style.display = 'none';
+            document.getElementById('chainContent').style.display = 'block';
+        } catch (error) {
+            console.error('Error:', error);
+            document.getElementById('chainLoading').textContent = 'Failed to load options chain';
+        }
+    }
+    
+    function renderOptionsChain(data) {
+        // Summary cards
+        const summary = data.summary;
+        const sentimentClass = summary.sentiment === 'bullish' ? 'bullish' : 
+                               summary.sentiment === 'bearish' ? 'bearish' : 'neutral';
+        
+        document.getElementById('chainSummary').innerHTML = `
+            <div class="summary-card">
+                <div class="summary-value">$${data.current_price?.toFixed(2) || '-'}</div>
+                <div class="summary-label">Current Price</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-value">${summary.put_call_ratio.toFixed(2)}</div>
+                <div class="summary-label">Put/Call Ratio</div>
+                <div class="sentiment-meter">
+                    <div class="sentiment-fill ${sentimentClass}" style="width: ${summary.put_call_ratio > 1 ? 100 : summary.put_call_ratio * 100}%"></div>
+                </div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-value">$${summary.max_pain || '-'}</div>
+                <div class="summary-label">Max Pain</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-value ${sentimentClass}">${summary.sentiment.toUpperCase()}</div>
+                <div class="summary-label">Options Sentiment</div>
+            </div>
+        `;
+        
+        // Calls table
+        const callsBody = document.getElementById('callsBody');
+        callsBody.innerHTML = data.calls.slice(0, 15).map(opt => {
+            const itm = opt.in_the_money;
+            return `
+                <tr style="${itm ? 'background: rgba(46, 213, 115, 0.05);' : ''}">
+                    <td style="font-weight: ${itm ? '600' : '400'}; color: ${itm ? '#2ed573' : 'inherit'}">
+                        $${opt.strike}
+                    </td>
+                    <td>$${opt.last_price?.toFixed(2) || '-'}</td>
+                    <td>${opt.bid?.toFixed(2) || '-'} / ${opt.ask?.toFixed(2) || '-'}</td>
+                    <td>${(opt.volume || 0).toLocaleString()}</td>
+                    <td>${(opt.open_interest || 0).toLocaleString()}</td>
+                    <td>${opt.implied_volatility ? (opt.implied_volatility * 100).toFixed(1) + '%' : '-'}</td>
+                </tr>
+            `;
+        }).join('');
+        
+        // Puts table
+        const putsBody = document.getElementById('putsBody');
+        putsBody.innerHTML = data.puts.slice(0, 15).map(opt => {
+            const itm = opt.in_the_money;
+            return `
+                <tr style="${itm ? 'background: rgba(255, 71, 87, 0.05);' : ''}">
+                    <td style="font-weight: ${itm ? '600' : '400'}; color: ${itm ? '#ff4757' : 'inherit'}">
+                        $${opt.strike}
+                    </td>
+                    <td>$${opt.last_price?.toFixed(2) || '-'}</td>
+                    <td>${opt.bid?.toFixed(2) || '-'} / ${opt.ask?.toFixed(2) || '-'}</td>
+                    <td>${(opt.volume || 0).toLocaleString()}</td>
+                    <td>${(opt.open_interest || 0).toLocaleString()}</td>
+                    <td>${opt.implied_volatility ? (opt.implied_volatility * 100).toFixed(1) + '%' : '-'}</td>
+                </tr>
+            `;
+        }).join('');
+    }
+    
+    async function changeExpiration() {
+        const exp = document.getElementById('expirationSelect').value;
+        
+        try {
+            const response = await fetch(`/api/options/chain/${currentTicker}?expiration=${exp}`);
+            const data = await response.json();
+            
+            if (!data.error) {
+                renderOptionsChain(data);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    }
+    
+    async function loadUnusualActivity() {
+        document.getElementById('unusualLoading').style.display = 'block';
+        document.getElementById('unusualContent').innerHTML = '';
+        
+        try {
+            const response = await fetch('/api/options/unusual-activity');
+            const data = await response.json();
+            
+            document.getElementById('unusualLoading').style.display = 'none';
+            
+            if (data.unusual_activity && data.unusual_activity.length > 0) {
+                document.getElementById('unusualContent').innerHTML = data.unusual_activity.map(ua => `
+                    <div class="unusual-card">
+                        <div>
+                            <div class="unusual-ticker">${ua.ticker}</div>
+                            <span class="type-badge ${ua.type.toLowerCase()}">${ua.type}</span>
+                        </div>
+                        <div class="unusual-details">
+                            <div class="unusual-stat">
+                                <div class="unusual-stat-value">$${ua.strike}</div>
+                                <div class="unusual-stat-label">Strike</div>
+                            </div>
+                            <div class="unusual-stat">
+                                <div class="unusual-stat-value">${ua.expiration}</div>
+                                <div class="unusual-stat-label">Expiration</div>
+                            </div>
+                            <div class="unusual-stat">
+                                <div class="unusual-stat-value">${ua.volume.toLocaleString()}</div>
+                                <div class="unusual-stat-label">Volume</div>
+                            </div>
+                            <div class="unusual-stat">
+                                <div class="unusual-stat-value">${ua.open_interest.toLocaleString()}</div>
+                                <div class="unusual-stat-label">Open Interest</div>
+                            </div>
+                            <div class="unusual-stat">
+                                <div class="unusual-stat-value" style="color: #ffc107;">${ua.vol_oi_ratio}x</div>
+                                <div class="unusual-stat-label">Vol/OI Ratio</div>
+                            </div>
+                        </div>
+                        <div class="${ua.sentiment}">${ua.sentiment === 'bullish' ? '🚀' : '📉'}</div>
+                    </div>
+                `).join('');
+            } else {
+                document.getElementById('unusualContent').innerHTML = '<div class="loading">No unusual activity detected</div>';
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            document.getElementById('unusualLoading').textContent = 'Failed to load unusual activity';
+        }
+    }
+</script>
+{% endblock %}
+

@@ -1,0 +1,444 @@
+{% extends "authenticated_base.html" %}
+
+{% block title %}Market Sentiment - Qunex Trade{% endblock %}
+{% block page_title %}Market Sentiment{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .sentiment-header {
+        margin-bottom: 32px;
+    }
+    
+    .mood-card {
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        padding: 40px;
+        text-align: center;
+        margin-bottom: 32px;
+    }
+    
+    .mood-emoji {
+        font-size: 72px;
+        margin-bottom: 16px;
+    }
+    
+    .mood-text {
+        font-size: 36px;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+    
+    .mood-score {
+        font-size: 18px;
+        color: rgba(255, 255, 255, 0.5);
+    }
+    
+    .bullish { color: #2ed573; }
+    .bearish { color: #ff4757; }
+    .neutral { color: #ffc107; }
+    
+    .sentiment-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 24px;
+        margin-bottom: 32px;
+    }
+    
+    .sentiment-card {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        padding: 24px;
+    }
+    
+    .card-title {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .fear-greed-meter {
+        height: 12px;
+        background: linear-gradient(90deg, #ff4757, #ffc107, #2ed573);
+        border-radius: 6px;
+        position: relative;
+        margin: 20px 0;
+    }
+    
+    .fear-greed-pointer {
+        position: absolute;
+        top: -8px;
+        width: 4px;
+        height: 28px;
+        background: #fff;
+        border-radius: 2px;
+        transition: left 0.5s ease;
+    }
+    
+    .fear-greed-labels {
+        display: flex;
+        justify-content: space-between;
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.5);
+    }
+    
+    .metric-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 12px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .metric-row:last-child {
+        border-bottom: none;
+    }
+    
+    .metric-label {
+        color: rgba(255, 255, 255, 0.6);
+    }
+    
+    .metric-value {
+        font-family: 'JetBrains Mono', monospace;
+        font-weight: 600;
+    }
+    
+    .trending-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .trending-table th,
+    .trending-table td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .trending-table th {
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.5);
+        text-transform: uppercase;
+    }
+    
+    .ticker-badge {
+        background: rgba(0, 217, 255, 0.1);
+        color: #00d9ff;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-family: 'JetBrains Mono', monospace;
+        font-weight: 600;
+    }
+    
+    .sentiment-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+    
+    .sentiment-badge.bullish {
+        background: rgba(46, 213, 115, 0.1);
+        color: #2ed573;
+    }
+    
+    .sentiment-badge.bearish {
+        background: rgba(255, 71, 87, 0.1);
+        color: #ff4757;
+    }
+    
+    .sentiment-badge.neutral {
+        background: rgba(255, 193, 7, 0.1);
+        color: #ffc107;
+    }
+    
+    .search-bar {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 24px;
+    }
+    
+    .ticker-input {
+        padding: 12px 20px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        color: #fff;
+        font-size: 16px;
+        font-family: 'JetBrains Mono', monospace;
+        text-transform: uppercase;
+        width: 150px;
+    }
+    
+    .btn-analyze {
+        padding: 12px 24px;
+        background: linear-gradient(135deg, #00d9ff, #a855f7);
+        color: #000;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+    
+    .loading {
+        text-align: center;
+        padding: 40px;
+        color: rgba(255, 255, 255, 0.5);
+    }
+    
+    .score-circle {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+        font-weight: 700;
+        font-family: 'JetBrains Mono', monospace;
+        margin: 0 auto 16px;
+    }
+    
+    .score-circle.bullish {
+        background: linear-gradient(135deg, rgba(46, 213, 115, 0.2), rgba(46, 213, 115, 0.1));
+        border: 3px solid #2ed573;
+        color: #2ed573;
+    }
+    
+    .score-circle.bearish {
+        background: linear-gradient(135deg, rgba(255, 71, 87, 0.2), rgba(255, 71, 87, 0.1));
+        border: 3px solid #ff4757;
+        color: #ff4757;
+    }
+    
+    .score-circle.neutral {
+        background: linear-gradient(135deg, rgba(255, 193, 7, 0.2), rgba(255, 193, 7, 0.1));
+        border: 3px solid #ffc107;
+        color: #ffc107;
+    }
+    
+    .factor-tag {
+        display: inline-block;
+        padding: 4px 10px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 4px;
+        font-size: 12px;
+        margin: 4px;
+        color: rgba(255, 255, 255, 0.7);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="sentiment-header">
+    <h2>Real-Time Market Sentiment Analysis</h2>
+</div>
+
+<!-- Market Mood -->
+<div class="mood-card" id="moodCard">
+    <div class="loading">Loading market mood...</div>
+</div>
+
+<div class="sentiment-grid">
+    <!-- Fear & Greed -->
+    <div class="sentiment-card">
+        <div class="card-title">🎭 Fear & Greed Index</div>
+        <div id="fearGreedContent">
+            <div class="loading">Loading...</div>
+        </div>
+    </div>
+    
+    <!-- Single Stock Analysis -->
+    <div class="sentiment-card">
+        <div class="card-title">📊 Stock Sentiment</div>
+        <form class="search-bar" onsubmit="analyzeStock(event)">
+            <input type="text" class="ticker-input" id="sentimentTicker" placeholder="AAPL">
+            <button type="submit" class="btn-analyze">Analyze</button>
+        </form>
+        <div id="stockSentimentContent">
+            <div class="loading">Enter a ticker to analyze</div>
+        </div>
+    </div>
+</div>
+
+<!-- Trending Sentiment -->
+<div class="sentiment-card">
+    <div class="card-title">🔥 Trending Stocks Sentiment</div>
+    <div id="trendingContent">
+        <div class="loading">Loading trending sentiment...</div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        loadMarketMood();
+        loadFearGreed();
+        loadTrendingSentiment();
+    });
+    
+    async function loadMarketMood() {
+        try {
+            const response = await fetch('/api/sentiment/market-mood');
+            const data = await response.json();
+            
+            const moodClass = data.mood.toLowerCase().includes('bullish') ? 'bullish' :
+                              data.mood.toLowerCase().includes('bearish') ? 'bearish' : 'neutral';
+            
+            document.getElementById('moodCard').innerHTML = `
+                <div class="mood-emoji">${data.emoji || '📊'}</div>
+                <div class="mood-text ${moodClass}">${data.mood}</div>
+                <div class="mood-score">Score: ${data.score}/100</div>
+                <div style="margin-top: 20px; display: flex; justify-content: center; gap: 40px;">
+                    <div>
+                        <div style="font-size: 24px; font-weight: 600;">${data.details?.positive_sectors || 0}/${data.details?.positive_sectors + data.details?.negative_sectors || 0}</div>
+                        <div style="font-size: 12px; color: rgba(255,255,255,0.5);">Positive Sectors</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 24px; font-weight: 600;">${data.components?.fear_greed_score || 50}</div>
+                        <div style="font-size: 12px; color: rgba(255,255,255,0.5);">Fear/Greed</div>
+                    </div>
+                </div>
+            `;
+        } catch (error) {
+            console.error('Error:', error);
+            document.getElementById('moodCard').innerHTML = '<div class="loading">Failed to load market mood</div>';
+        }
+    }
+    
+    async function loadFearGreed() {
+        try {
+            const response = await fetch('/api/sentiment/fear-greed');
+            const data = await response.json();
+            
+            if (data.error) {
+                document.getElementById('fearGreedContent').innerHTML = `<div class="loading">${data.error}</div>`;
+                return;
+            }
+            
+            const position = data.score; // 0-100
+            
+            document.getElementById('fearGreedContent').innerHTML = `
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <div style="font-size: 48px; font-weight: 700; font-family: 'JetBrains Mono', monospace;">${data.score}</div>
+                    <div style="font-size: 18px; color: ${
+                        data.level.includes('Fear') ? '#ff4757' : 
+                        data.level.includes('Greed') ? '#2ed573' : '#ffc107'
+                    };">${data.level}</div>
+                </div>
+                
+                <div class="fear-greed-meter">
+                    <div class="fear-greed-pointer" style="left: calc(${position}% - 2px);"></div>
+                </div>
+                
+                <div class="fear-greed-labels">
+                    <span>Extreme Fear</span>
+                    <span>Neutral</span>
+                    <span>Extreme Greed</span>
+                </div>
+                
+                <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.05);">
+                    <div class="metric-row">
+                        <span class="metric-label">VIX Level</span>
+                        <span class="metric-value">${data.vix || '-'}</span>
+                    </div>
+                </div>
+                
+                <p style="margin-top: 16px; font-size: 13px; color: rgba(255,255,255,0.5);">
+                    ${data.description || ''}
+                </p>
+            `;
+        } catch (error) {
+            console.error('Error:', error);
+            document.getElementById('fearGreedContent').innerHTML = '<div class="loading">Failed to load</div>';
+        }
+    }
+    
+    async function analyzeStock(e) {
+        if (e) e.preventDefault();
+        
+        const ticker = document.getElementById('sentimentTicker').value.trim().toUpperCase();
+        if (!ticker) return;
+        
+        document.getElementById('stockSentimentContent').innerHTML = '<div class="loading">Analyzing...</div>';
+        
+        try {
+            const response = await fetch(`/api/sentiment/${ticker}`);
+            const data = await response.json();
+            
+            const overall = data.overall || {};
+            const technical = data.technical_sentiment || {};
+            const sentiment = overall.sentiment || technical.sentiment || 'neutral';
+            const score = overall.score || technical.score || 50;
+            
+            document.getElementById('stockSentimentContent').innerHTML = `
+                <div style="text-align: center;">
+                    <div class="score-circle ${sentiment}">${Math.round(score)}</div>
+                    <div style="font-size: 18px; margin-bottom: 8px;">${ticker}</div>
+                    <span class="sentiment-badge ${sentiment}">${sentiment.toUpperCase()}</span>
+                </div>
+                
+                ${technical.factors ? `
+                    <div style="margin-top: 20px;">
+                        <div style="font-size: 12px; color: rgba(255,255,255,0.5); margin-bottom: 8px;">FACTORS</div>
+                        ${technical.factors.map(f => `<span class="factor-tag">${f}</span>`).join('')}
+                    </div>
+                ` : ''}
+            `;
+        } catch (error) {
+            console.error('Error:', error);
+            document.getElementById('stockSentimentContent').innerHTML = '<div class="loading">Failed to analyze</div>';
+        }
+    }
+    
+    async function loadTrendingSentiment() {
+        try {
+            const response = await fetch('/api/sentiment/trending');
+            const data = await response.json();
+            
+            if (data.stocks && data.stocks.length > 0) {
+                document.getElementById('trendingContent').innerHTML = `
+                    <div style="margin-bottom: 16px; display: flex; gap: 24px;">
+                        <span>Bullish: <strong style="color: #2ed573;">${data.summary?.bullish || 0}</strong></span>
+                        <span>Bearish: <strong style="color: #ff4757;">${data.summary?.bearish || 0}</strong></span>
+                        <span>Neutral: <strong style="color: #ffc107;">${data.summary?.neutral || 0}</strong></span>
+                    </div>
+                    <table class="trending-table">
+                        <thead>
+                            <tr>
+                                <th>Ticker</th>
+                                <th>Price</th>
+                                <th>Sentiment</th>
+                                <th>Score</th>
+                                <th>RSI</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${data.stocks.map(s => `
+                                <tr>
+                                    <td><span class="ticker-badge">${s.ticker}</span></td>
+                                    <td>$${s.price?.toFixed(2) || '-'}</td>
+                                    <td><span class="sentiment-badge ${s.sentiment}">${s.sentiment}</span></td>
+                                    <td style="font-family: 'JetBrains Mono', monospace;">${s.score}</td>
+                                    <td style="font-family: 'JetBrains Mono', monospace; color: ${
+                                        s.rsi > 70 ? '#ff4757' : s.rsi < 30 ? '#2ed573' : 'inherit'
+                                    };">${s.rsi?.toFixed(1) || '-'}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+            } else {
+                document.getElementById('trendingContent').innerHTML = '<div class="loading">No trending data available</div>';
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            document.getElementById('trendingContent').innerHTML = '<div class="loading">Failed to load trending sentiment</div>';
+        }
+    }
+</script>
+{% endblock %}
+

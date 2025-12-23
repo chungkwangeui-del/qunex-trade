@@ -1,0 +1,402 @@
+{% extends "authenticated_base.html" %}
+
+{% block title %}Stock Comparison - Qunex Trade{% endblock %}
+{% block page_title %}Stock Comparison{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .compare-header {
+        margin-bottom: 32px;
+    }
+    
+    .ticker-input-group {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+    
+    .ticker-input {
+        padding: 14px 20px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        color: #fff;
+        font-size: 16px;
+        font-family: 'JetBrains Mono', monospace;
+        text-transform: uppercase;
+        width: 120px;
+    }
+    
+    .ticker-input:focus {
+        outline: none;
+        border-color: #00d9ff;
+    }
+    
+    .btn-compare {
+        padding: 14px 32px;
+        background: linear-gradient(135deg, #00d9ff, #a855f7);
+        color: #000;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .btn-compare:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 20px rgba(0, 217, 255, 0.3);
+    }
+    
+    .comparison-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: rgba(255, 255, 255, 0.02);
+        border-radius: 16px;
+        overflow: hidden;
+        margin-top: 24px;
+    }
+    
+    .comparison-table th,
+    .comparison-table td {
+        padding: 16px 20px;
+        text-align: left;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .comparison-table th {
+        background: rgba(255, 255, 255, 0.05);
+        font-weight: 600;
+    }
+    
+    .comparison-table th:first-child {
+        width: 200px;
+        color: rgba(255, 255, 255, 0.6);
+    }
+    
+    .ticker-header {
+        text-align: center !important;
+    }
+    
+    .ticker-badge-lg {
+        background: linear-gradient(135deg, rgba(0, 217, 255, 0.1), rgba(168, 85, 247, 0.1));
+        color: #00d9ff;
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-family: 'JetBrains Mono', monospace;
+        font-weight: 700;
+        font-size: 18px;
+        display: inline-block;
+    }
+    
+    .metric-row {
+        font-size: 14px;
+    }
+    
+    .metric-row td {
+        font-family: 'JetBrains Mono', monospace;
+        text-align: center;
+    }
+    
+    .metric-row td:first-child {
+        font-family: 'Inter', sans-serif;
+        text-align: left;
+    }
+    
+    .winner {
+        color: #2ed573 !important;
+        font-weight: 600;
+    }
+    
+    .loser {
+        color: rgba(255, 255, 255, 0.4);
+    }
+    
+    .positive { color: #2ed573; }
+    .negative { color: #ff4757; }
+    
+    .category-header {
+        background: rgba(255, 255, 255, 0.03) !important;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: rgba(255, 255, 255, 0.5);
+    }
+    
+    .loading-spinner {
+        text-align: center;
+        padding: 60px;
+        color: rgba(255, 255, 255, 0.5);
+    }
+    
+    .rank-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        font-size: 12px;
+        font-weight: 600;
+        margin-left: 8px;
+    }
+    
+    .rank-1 { background: linear-gradient(135deg, #FFD700, #FFA500); color: #000; }
+    .rank-2 { background: #C0C0C0; color: #000; }
+    .rank-3 { background: #CD7F32; color: #fff; }
+    
+    .overall-winner {
+        background: linear-gradient(135deg, rgba(46, 213, 115, 0.1), rgba(0, 217, 255, 0.1));
+        border: 2px solid #2ed573 !important;
+    }
+    
+    .quick-compare {
+        display: flex;
+        gap: 12px;
+        margin-top: 16px;
+        flex-wrap: wrap;
+    }
+    
+    .preset-btn {
+        padding: 8px 16px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 20px;
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 13px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .preset-btn:hover {
+        background: rgba(0, 217, 255, 0.1);
+        border-color: #00d9ff;
+        color: #00d9ff;
+    }
+    
+    .info-tip {
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.4);
+        margin-top: 8px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="compare-header">
+    <h2 style="margin-bottom: 16px;">Compare stocks side by side</h2>
+    
+    <div class="ticker-input-group">
+        <input type="text" class="ticker-input" id="ticker1" placeholder="AAPL">
+        <span style="color: rgba(255,255,255,0.3);">vs</span>
+        <input type="text" class="ticker-input" id="ticker2" placeholder="MSFT">
+        <span style="color: rgba(255,255,255,0.3);">vs</span>
+        <input type="text" class="ticker-input" id="ticker3" placeholder="">
+        <span style="color: rgba(255,255,255,0.3);">vs</span>
+        <input type="text" class="ticker-input" id="ticker4" placeholder="">
+        <button class="btn-compare" onclick="compareStocks()">Compare</button>
+    </div>
+    
+    <div class="quick-compare">
+        <span style="color: rgba(255,255,255,0.5); font-size: 13px;">Quick: </span>
+        <button class="preset-btn" onclick="loadPreset(['AAPL', 'MSFT', 'GOOGL'])">Tech Giants</button>
+        <button class="preset-btn" onclick="loadPreset(['TSLA', 'F', 'GM'])">EVs</button>
+        <button class="preset-btn" onclick="loadPreset(['JPM', 'BAC', 'GS'])">Banks</button>
+        <button class="preset-btn" onclick="loadPreset(['NVDA', 'AMD', 'INTC'])">Chips</button>
+        <button class="preset-btn" onclick="loadPreset(['META', 'SNAP', 'PINS'])">Social</button>
+    </div>
+    
+    <p class="info-tip">Enter 2-5 tickers to compare their key metrics</p>
+</div>
+
+<div id="comparisonResult">
+    <div class="loading-spinner" style="display: none;" id="loadingSpinner">
+        Loading comparison data...
+    </div>
+</div>
+
+<script>
+    function loadPreset(tickers) {
+        document.getElementById('ticker1').value = tickers[0] || '';
+        document.getElementById('ticker2').value = tickers[1] || '';
+        document.getElementById('ticker3').value = tickers[2] || '';
+        document.getElementById('ticker4').value = tickers[3] || '';
+        compareStocks();
+    }
+    
+    async function compareStocks() {
+        const tickers = [
+            document.getElementById('ticker1').value.trim().toUpperCase(),
+            document.getElementById('ticker2').value.trim().toUpperCase(),
+            document.getElementById('ticker3').value.trim().toUpperCase(),
+            document.getElementById('ticker4').value.trim().toUpperCase()
+        ].filter(t => t.length > 0);
+        
+        if (tickers.length < 2) {
+            alert('Please enter at least 2 tickers to compare');
+            return;
+        }
+        
+        const resultDiv = document.getElementById('comparisonResult');
+        document.getElementById('loadingSpinner').style.display = 'block';
+        resultDiv.innerHTML = '<div class="loading-spinner">Loading comparison data...</div>';
+        
+        try {
+            const response = await fetch(`/api/compare/stocks?tickers=${tickers.join(',')}`);
+            const data = await response.json();
+            
+            if (data.error) {
+                resultDiv.innerHTML = `<div class="loading-spinner">${data.error}</div>`;
+                return;
+            }
+            
+            renderComparison(data);
+        } catch (error) {
+            console.error('Error:', error);
+            resultDiv.innerHTML = '<div class="loading-spinner">Failed to load comparison</div>';
+        }
+    }
+    
+    function renderComparison(data) {
+        const stocks = data.comparison;
+        const rankings = data.rankings || {};
+        
+        // Find overall winner
+        const overallWinner = rankings.overall ? 
+            Object.entries(rankings.overall).find(([t, r]) => r === 1)?.[0] : null;
+        
+        // Build header row
+        const headerRow = stocks.map(s => {
+            const isWinner = s.ticker === overallWinner;
+            return `
+                <th class="ticker-header ${isWinner ? 'overall-winner' : ''}">
+                    <span class="ticker-badge-lg">${s.ticker}</span>
+                    ${isWinner ? '<br><span style="color: #2ed573; font-size: 12px;">🏆 Best Overall</span>' : ''}
+                </th>
+            `;
+        }).join('');
+        
+        // Metrics to display with categories
+        const metrics = [
+            { category: 'Price & Performance' },
+            { key: 'price', label: 'Current Price', format: 'currency' },
+            { key: 'market_cap_formatted', label: 'Market Cap', format: 'text' },
+            { key: 'change_1d', label: '1 Day Change', format: 'percent', color: true },
+            { key: 'change_1y', label: '1 Year Change', format: 'percent', color: true },
+            { key: 'from_52w_high', label: 'From 52W High', format: 'percent', color: true },
+            
+            { category: 'Valuation' },
+            { key: 'pe_ratio', label: 'P/E Ratio', format: 'number', lowerBetter: true },
+            { key: 'forward_pe', label: 'Forward P/E', format: 'number', lowerBetter: true },
+            { key: 'peg_ratio', label: 'PEG Ratio', format: 'number', lowerBetter: true },
+            { key: 'ps_ratio', label: 'P/S Ratio', format: 'number', lowerBetter: true },
+            { key: 'pb_ratio', label: 'P/B Ratio', format: 'number', lowerBetter: true },
+            
+            { category: 'Financials' },
+            { key: 'revenue_formatted', label: 'Revenue', format: 'text' },
+            { key: 'revenue_growth', label: 'Revenue Growth', format: 'percent', color: true },
+            { key: 'profit_margin', label: 'Profit Margin', format: 'percent', color: true },
+            { key: 'roe', label: 'Return on Equity', format: 'percent', color: true },
+            { key: 'debt_to_equity', label: 'Debt/Equity', format: 'number', lowerBetter: true },
+            
+            { category: 'Dividends' },
+            { key: 'dividend_yield', label: 'Dividend Yield', format: 'percent' },
+            
+            { category: 'Technical' },
+            { key: 'rsi_14', label: 'RSI (14)', format: 'number' },
+            { key: 'above_sma_20', label: 'Above SMA 20', format: 'boolean' },
+            { key: 'above_sma_50', label: 'Above SMA 50', format: 'boolean' },
+            
+            { category: 'Analyst' },
+            { key: 'target_price', label: 'Target Price', format: 'currency' },
+            { key: 'upside_potential', label: 'Upside Potential', format: 'percent', color: true },
+            { key: 'recommendation', label: 'Recommendation', format: 'text' },
+        ];
+        
+        // Build rows
+        const rows = metrics.map(m => {
+            if (m.category) {
+                return `
+                    <tr class="category-header">
+                        <td colspan="${stocks.length + 1}">${m.category}</td>
+                    </tr>
+                `;
+            }
+            
+            const cells = stocks.map(s => {
+                const val = s[m.key];
+                let formatted = formatValue(val, m.format);
+                let classes = [];
+                
+                // Apply coloring for percent values
+                if (m.color && val !== null && val !== undefined) {
+                    classes.push(val >= 0 ? 'positive' : 'negative');
+                }
+                
+                // Check ranking
+                const rank = rankings[m.key]?.[s.ticker];
+                if (rank === 1 && stocks.length > 2) {
+                    classes.push('winner');
+                }
+                
+                return `<td class="${classes.join(' ')}">${formatted}</td>`;
+            }).join('');
+            
+            return `
+                <tr class="metric-row">
+                    <td>${m.label}</td>
+                    ${cells}
+                </tr>
+            `;
+        }).join('');
+        
+        document.getElementById('comparisonResult').innerHTML = `
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Metric</th>
+                        ${headerRow}
+                    </tr>
+                </thead>
+                <tbody>
+                    ${rows}
+                </tbody>
+            </table>
+        `;
+    }
+    
+    function formatValue(val, format) {
+        if (val === null || val === undefined) return '-';
+        
+        switch (format) {
+            case 'currency':
+                return '$' + parseFloat(val).toFixed(2);
+            case 'percent':
+                return (val >= 0 ? '+' : '') + (val * (Math.abs(val) < 1 ? 100 : 1)).toFixed(2) + '%';
+            case 'number':
+                return parseFloat(val).toFixed(2);
+            case 'boolean':
+                return val ? '✓ Yes' : '✗ No';
+            default:
+                return val;
+        }
+    }
+    
+    // Auto-compare if URL has tickers
+    document.addEventListener('DOMContentLoaded', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const tickers = urlParams.get('tickers');
+        if (tickers) {
+            const tickerList = tickers.split(',');
+            document.getElementById('ticker1').value = tickerList[0] || '';
+            document.getElementById('ticker2').value = tickerList[1] || '';
+            document.getElementById('ticker3').value = tickerList[2] || '';
+            document.getElementById('ticker4').value = tickerList[3] || '';
+            compareStocks();
+        }
+    });
+</script>
+{% endblock %}
+

@@ -1,0 +1,607 @@
+{% extends "authenticated_base.html" %}
+
+{% block title %}Trading Tools - Qunex Trade{% endblock %}
+{% block page_title %}Trading Tools{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .tools-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        gap: 24px;
+    }
+    
+    .tool-card {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        padding: 28px;
+    }
+    
+    .tool-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 24px;
+    }
+    
+    .tool-icon {
+        width: 48px;
+        height: 48px;
+        background: linear-gradient(135deg, #00d9ff, #a855f7);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+    }
+    
+    .tool-title {
+        font-size: 20px;
+        font-weight: 600;
+    }
+    
+    .form-group {
+        margin-bottom: 16px;
+    }
+    
+    .form-label {
+        display: block;
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.6);
+        margin-bottom: 6px;
+    }
+    
+    .form-input {
+        width: 100%;
+        padding: 12px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        color: #fff;
+        font-size: 14px;
+        font-family: 'JetBrains Mono', monospace;
+    }
+    
+    .form-input:focus {
+        outline: none;
+        border-color: #00d9ff;
+    }
+    
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+    
+    .btn-calculate {
+        width: 100%;
+        padding: 14px;
+        background: linear-gradient(135deg, #00d9ff, #a855f7);
+        color: #000;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 14px;
+        cursor: pointer;
+        margin-top: 8px;
+        transition: all 0.2s;
+    }
+    
+    .btn-calculate:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 20px rgba(0, 217, 255, 0.3);
+    }
+    
+    .result-panel {
+        margin-top: 24px;
+        padding: 20px;
+        background: rgba(0, 217, 255, 0.05);
+        border: 1px solid rgba(0, 217, 255, 0.2);
+        border-radius: 12px;
+    }
+    
+    .result-title {
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.6);
+        margin-bottom: 12px;
+    }
+    
+    .result-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+    }
+    
+    .result-item {
+        text-align: center;
+    }
+    
+    .result-value {
+        font-size: 24px;
+        font-weight: 700;
+        font-family: 'JetBrains Mono', monospace;
+        color: #00d9ff;
+    }
+    
+    .result-label {
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.5);
+        margin-top: 4px;
+    }
+    
+    .targets-list {
+        margin-top: 16px;
+    }
+    
+    .target-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .target-row:last-child {
+        border-bottom: none;
+    }
+    
+    .grade-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+    
+    .grade-a { background: rgba(46, 213, 115, 0.2); color: #2ed573; }
+    .grade-b { background: rgba(0, 217, 255, 0.2); color: #00d9ff; }
+    .grade-c { background: rgba(255, 193, 7, 0.2); color: #ffc107; }
+    .grade-d { background: rgba(255, 71, 87, 0.2); color: #ff4757; }
+    
+    .warning-box {
+        background: rgba(255, 193, 7, 0.1);
+        border: 1px solid rgba(255, 193, 7, 0.3);
+        border-radius: 8px;
+        padding: 12px;
+        margin-top: 12px;
+        font-size: 13px;
+        color: #ffc107;
+    }
+    
+    .info-tip {
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.4);
+        margin-top: 4px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="tools-grid">
+    <!-- Position Size Calculator -->
+    <div class="tool-card">
+        <div class="tool-header">
+            <div class="tool-icon">📐</div>
+            <h3 class="tool-title">Position Size Calculator</h3>
+        </div>
+        
+        <form id="positionSizeForm">
+            <div class="form-group">
+                <label class="form-label">Account Size ($)</label>
+                <input type="number" class="form-input" id="accountSize" value="10000" required>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Risk per Trade (%)</label>
+                    <input type="number" step="0.1" class="form-input" id="riskPercent" value="2" required>
+                    <div class="info-tip">Recommended: 1-2%</div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Entry Price ($)</label>
+                    <input type="number" step="0.01" class="form-input" id="entryPrice" required>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Stop Loss ($)</label>
+                <input type="number" step="0.01" class="form-input" id="stopLoss" required>
+            </div>
+            
+            <button type="submit" class="btn-calculate">Calculate Position</button>
+        </form>
+        
+        <div class="result-panel" id="positionResult" style="display: none;">
+            <div class="result-title">POSITION DETAILS</div>
+            <div class="result-grid">
+                <div class="result-item">
+                    <div class="result-value" id="resShares">-</div>
+                    <div class="result-label">Shares</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-value" id="resValue">-</div>
+                    <div class="result-label">Position Value</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-value" id="resRisk">-</div>
+                    <div class="result-label">$ at Risk</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-value" id="resAccountPct">-</div>
+                    <div class="result-label">% of Account</div>
+                </div>
+            </div>
+            
+            <div class="targets-list" id="targetsDiv">
+                <div class="result-title" style="margin-top: 16px;">PROFIT TARGETS</div>
+                <div id="targetsList"></div>
+            </div>
+            
+            <div id="warnings"></div>
+        </div>
+    </div>
+    
+    <!-- Risk/Reward Calculator -->
+    <div class="tool-card">
+        <div class="tool-header">
+            <div class="tool-icon">⚖️</div>
+            <h3 class="tool-title">Risk/Reward Calculator</h3>
+        </div>
+        
+        <form id="rrForm">
+            <div class="form-group">
+                <label class="form-label">Entry Price ($)</label>
+                <input type="number" step="0.01" class="form-input" id="rrEntry" required>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Stop Loss ($)</label>
+                <input type="number" step="0.01" class="form-input" id="rrStop" required>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Target Prices (comma separated)</label>
+                <input type="text" class="form-input" id="rrTargets" placeholder="e.g., 105, 110, 115" required>
+            </div>
+            
+            <button type="submit" class="btn-calculate">Calculate R:R</button>
+        </form>
+        
+        <div class="result-panel" id="rrResult" style="display: none;">
+            <div class="result-title">RISK/REWARD ANALYSIS</div>
+            <div class="result-grid">
+                <div class="result-item">
+                    <div class="result-value" id="rrRisk">-</div>
+                    <div class="result-label">Risk/Share</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-value" id="rrDirection">-</div>
+                    <div class="result-label">Direction</div>
+                </div>
+            </div>
+            
+            <div class="targets-list">
+                <div class="result-title" style="margin-top: 16px;">TARGET ANALYSIS</div>
+                <div id="rrTargetsList"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Kelly Criterion Calculator -->
+    <div class="tool-card">
+        <div class="tool-header">
+            <div class="tool-icon">🎯</div>
+            <h3 class="tool-title">Kelly Criterion</h3>
+        </div>
+        
+        <form id="kellyForm">
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Win Rate (%)</label>
+                    <input type="number" step="1" class="form-input" id="winRate" value="55" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Account Size ($)</label>
+                    <input type="number" class="form-input" id="kellyAccount" value="10000" required>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Avg Winning Trade ($)</label>
+                    <input type="number" step="0.01" class="form-input" id="avgWin" value="200" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Avg Losing Trade ($)</label>
+                    <input type="number" step="0.01" class="form-input" id="avgLoss" value="100" required>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Kelly Fraction (safer = lower)</label>
+                <input type="range" id="kellyFraction" min="0.1" max="1" step="0.1" value="0.5">
+                <div style="display: flex; justify-content: space-between; font-size: 12px; color: rgba(255,255,255,0.4);">
+                    <span>0.1x (Very Safe)</span>
+                    <span id="kellyFracDisplay">0.5x (Half Kelly)</span>
+                    <span>1.0x (Full)</span>
+                </div>
+            </div>
+            
+            <button type="submit" class="btn-calculate">Calculate Kelly</button>
+        </form>
+        
+        <div class="result-panel" id="kellyResult" style="display: none;">
+            <div class="result-grid">
+                <div class="result-item">
+                    <div class="result-value" id="kellyPercent">-</div>
+                    <div class="result-label">Optimal Position %</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-value" id="kellyRisk">-</div>
+                    <div class="result-label">Risk Amount</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-value" id="kellyExpectancy">-</div>
+                    <div class="result-label">Expectancy</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-value" id="kellyRatio">-</div>
+                    <div class="result-label">Win/Loss Ratio</div>
+                </div>
+            </div>
+            <div id="kellyRecommendation" class="warning-box" style="display: none;"></div>
+        </div>
+    </div>
+    
+    <!-- Profit Calculator -->
+    <div class="tool-card">
+        <div class="tool-header">
+            <div class="tool-icon">💰</div>
+            <h3 class="tool-title">Profit Calculator</h3>
+        </div>
+        
+        <form id="profitForm">
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Shares</label>
+                    <input type="number" class="form-input" id="profitShares" value="100" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Commission (per trade)</label>
+                    <input type="number" step="0.01" class="form-input" id="commission" value="0">
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Entry Price ($)</label>
+                    <input type="number" step="0.01" class="form-input" id="profitEntry" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Exit Price ($)</label>
+                    <input type="number" step="0.01" class="form-input" id="profitExit" required>
+                </div>
+            </div>
+            
+            <button type="submit" class="btn-calculate">Calculate P/L</button>
+        </form>
+        
+        <div class="result-panel" id="profitResult" style="display: none;">
+            <div class="result-grid">
+                <div class="result-item">
+                    <div class="result-value" id="profitNet">-</div>
+                    <div class="result-label">Net P/L</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-value" id="profitPercent">-</div>
+                    <div class="result-label">Return %</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Position Size Calculator
+    document.getElementById('positionSizeForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const data = {
+            account_size: parseFloat(document.getElementById('accountSize').value),
+            risk_percent: parseFloat(document.getElementById('riskPercent').value),
+            entry_price: parseFloat(document.getElementById('entryPrice').value),
+            stop_loss: parseFloat(document.getElementById('stopLoss').value)
+        };
+        
+        try {
+            const response = await fetch('/api/tools/position-size', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            
+            const result = await response.json();
+            
+            if (result.error) {
+                alert(result.error);
+                return;
+            }
+            
+            document.getElementById('resShares').textContent = result.shares;
+            document.getElementById('resValue').textContent = '$' + result.position_value.toLocaleString();
+            document.getElementById('resRisk').textContent = '$' + result.risk_amount.toLocaleString();
+            document.getElementById('resAccountPct').textContent = result.account_percent_used + '%';
+            
+            // Targets
+            const targetsList = document.getElementById('targetsList');
+            targetsList.innerHTML = result.targets.map(t => `
+                <div class="target-row">
+                    <span>${t.r}R Target</span>
+                    <span style="font-family: 'JetBrains Mono', monospace;">$${t.target_price}</span>
+                    <span style="color: #2ed573;">+$${t.profit.toLocaleString()}</span>
+                </div>
+            `).join('');
+            
+            // Warnings
+            const warningsDiv = document.getElementById('warnings');
+            if (result.warnings && result.warnings.length > 0) {
+                warningsDiv.innerHTML = result.warnings.map(w => `
+                    <div class="warning-box">⚠️ ${w}</div>
+                `).join('');
+            } else {
+                warningsDiv.innerHTML = '';
+            }
+            
+            document.getElementById('positionResult').style.display = 'block';
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Failed to calculate');
+        }
+    });
+    
+    // Risk/Reward Calculator
+    document.getElementById('rrForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const targets = document.getElementById('rrTargets').value.split(',').map(t => parseFloat(t.trim()));
+        
+        const data = {
+            entry_price: parseFloat(document.getElementById('rrEntry').value),
+            stop_loss: parseFloat(document.getElementById('rrStop').value),
+            targets: targets
+        };
+        
+        try {
+            const response = await fetch('/api/tools/risk-reward', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            
+            const result = await response.json();
+            
+            if (result.error) {
+                alert(result.error);
+                return;
+            }
+            
+            document.getElementById('rrRisk').textContent = '$' + result.risk.toFixed(2);
+            document.getElementById('rrDirection').textContent = result.trade_direction.toUpperCase();
+            
+            const targetsList = document.getElementById('rrTargetsList');
+            targetsList.innerHTML = result.targets.map(t => {
+                const gradeClass = t.grade.startsWith('A') ? 'grade-a' : 
+                                   t.grade.startsWith('B') ? 'grade-b' :
+                                   t.grade.startsWith('C') ? 'grade-c' : 'grade-d';
+                return `
+                    <div class="target-row">
+                        <span>Target ${t.target_num}: $${t.target_price}</span>
+                        <span style="font-family: 'JetBrains Mono', monospace; color: #00d9ff;">${t.risk_reward_ratio}:1</span>
+                        <span class="grade-badge ${gradeClass}">${t.grade}</span>
+                    </div>
+                `;
+            }).join('');
+            
+            document.getElementById('rrResult').style.display = 'block';
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Failed to calculate');
+        }
+    });
+    
+    // Kelly Criterion
+    document.getElementById('kellyFraction').addEventListener('input', function() {
+        const val = this.value;
+        let label = val + 'x';
+        if (val <= 0.3) label += ' (Very Safe)';
+        else if (val <= 0.5) label += ' (Half Kelly)';
+        else if (val <= 0.7) label += ' (Moderate)';
+        else label += ' (Aggressive)';
+        document.getElementById('kellyFracDisplay').textContent = label;
+    });
+    
+    document.getElementById('kellyForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const data = {
+            win_rate: parseFloat(document.getElementById('winRate').value),
+            avg_win: parseFloat(document.getElementById('avgWin').value),
+            avg_loss: parseFloat(document.getElementById('avgLoss').value),
+            account_size: parseFloat(document.getElementById('kellyAccount').value),
+            kelly_fraction: parseFloat(document.getElementById('kellyFraction').value)
+        };
+        
+        try {
+            const response = await fetch('/api/tools/kelly-criterion', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            
+            const result = await response.json();
+            
+            if (result.error) {
+                alert(result.error);
+                return;
+            }
+            
+            document.getElementById('kellyPercent').textContent = result.capped_kelly_percent + '%';
+            document.getElementById('kellyRisk').textContent = '$' + result.suggested_risk_amount.toLocaleString();
+            document.getElementById('kellyExpectancy').textContent = '$' + result.expectancy.toFixed(2);
+            document.getElementById('kellyRatio').textContent = result.win_loss_ratio.toFixed(2);
+            
+            const recDiv = document.getElementById('kellyRecommendation');
+            recDiv.textContent = '💡 ' + result.recommendation;
+            recDiv.style.display = 'block';
+            
+            document.getElementById('kellyResult').style.display = 'block';
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Failed to calculate');
+        }
+    });
+    
+    // Profit Calculator
+    document.getElementById('profitForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const data = {
+            shares: parseInt(document.getElementById('profitShares').value),
+            entry_price: parseFloat(document.getElementById('profitEntry').value),
+            exit_price: parseFloat(document.getElementById('profitExit').value),
+            commission: parseFloat(document.getElementById('commission').value) || 0
+        };
+        
+        try {
+            const response = await fetch('/api/tools/profit-calculator', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            
+            const result = await response.json();
+            
+            if (result.error) {
+                alert(result.error);
+                return;
+            }
+            
+            const netEl = document.getElementById('profitNet');
+            const pctEl = document.getElementById('profitPercent');
+            
+            const isProfit = result.net_pnl >= 0;
+            netEl.textContent = (isProfit ? '+' : '') + '$' + result.net_pnl.toLocaleString();
+            netEl.style.color = isProfit ? '#2ed573' : '#ff4757';
+            
+            pctEl.textContent = (isProfit ? '+' : '') + result.pnl_percent.toFixed(2) + '%';
+            pctEl.style.color = isProfit ? '#2ed573' : '#ff4757';
+            
+            document.getElementById('profitResult').style.display = 'block';
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Failed to calculate');
+        }
+    });
+</script>
+{% endblock %}
+

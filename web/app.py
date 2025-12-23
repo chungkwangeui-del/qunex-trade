@@ -77,6 +77,16 @@ def create_app(config_class=Config):
     from web.main import main as main_blueprint
     from web.api_main import api_main
     from web.api_paper import api_paper
+    
+    # New feature APIs
+    from web.api_tools import api_tools
+    from web.api_earnings import api_earnings
+    from web.api_journal import api_journal
+    from web.api_analytics import api_analytics
+    from web.api_comparison import api_comparison
+    from web.api_options import api_options
+    from web.api_patterns import api_patterns
+    from web.api_sentiment import api_sentiment
 
     oauth.init_app(app)
 
@@ -91,6 +101,16 @@ def create_app(config_class=Config):
     app.register_blueprint(main_blueprint)
     app.register_blueprint(api_main)
     app.register_blueprint(api_paper)
+    
+    # Register new feature APIs
+    app.register_blueprint(api_tools)
+    app.register_blueprint(api_earnings)
+    app.register_blueprint(api_journal)
+    app.register_blueprint(api_analytics)
+    app.register_blueprint(api_comparison)
+    app.register_blueprint(api_options)
+    app.register_blueprint(api_patterns)
+    app.register_blueprint(api_sentiment)
 
     # Apply rate limiting to auth routes
     auth_routes = [

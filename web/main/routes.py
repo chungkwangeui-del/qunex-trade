@@ -361,3 +361,52 @@ def analytics():
 def paper_trading():
     """Paper Trading - Practice with virtual money"""
     return render_template("paper_trading.html", user=current_user)
+
+
+@main.route("/journal")
+@login_required
+def trade_journal():
+    """Trade Journal - Track and improve trading performance"""
+    return render_template("trade_journal.html", user=current_user)
+
+
+@main.route("/tools")
+@login_required
+def trading_tools():
+    """Trading Tools - Position sizing, risk calculator"""
+    return render_template("tools.html", user=current_user)
+
+
+@main.route("/compare")
+@login_required
+def compare_stocks():
+    """Stock Comparison Tool"""
+    return render_template("compare.html", user=current_user)
+
+
+@main.route("/options")
+@login_required
+def options_flow():
+    """Options Flow & Analysis"""
+    return render_template("options.html", user=current_user)
+
+
+@main.route("/patterns")
+@login_required
+def chart_patterns():
+    """Chart Pattern Scanner"""
+    return render_template("patterns.html", user=current_user)
+
+
+@main.route("/sentiment")
+@login_required
+def market_sentiment():
+    """Market Sentiment Analysis"""
+    return render_template("sentiment.html", user=current_user)
+
+
+@main.route("/earnings")
+@login_required
+def earnings_calendar():
+    """Earnings & Dividend Calendar"""
+    return render_template("earnings.html", user=current_user)

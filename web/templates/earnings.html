@@ -1,0 +1,514 @@
+{% extends "authenticated_base.html" %}
+
+{% block title %}Earnings Calendar - Qunex Trade{% endblock %}
+{% block page_title %}Earnings & Dividends{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .calendar-header {
+        margin-bottom: 24px;
+    }
+    
+    .tabs {
+        display: flex;
+        gap: 4px;
+        margin-bottom: 24px;
+        background: rgba(255, 255, 255, 0.03);
+        padding: 4px;
+        border-radius: 8px;
+        width: fit-content;
+    }
+    
+    .tab {
+        padding: 10px 24px;
+        background: transparent;
+        border: none;
+        color: rgba(255, 255, 255, 0.6);
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+    
+    .tab.active {
+        background: linear-gradient(135deg, #00d9ff, #a855f7);
+        color: #000;
+    }
+    
+    .tab-content {
+        display: none;
+    }
+    
+    .tab-content.active {
+        display: block;
+    }
+    
+    .event-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 16px;
+    }
+    
+    .event-card {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 20px;
+        transition: all 0.2s;
+    }
+    
+    .event-card:hover {
+        border-color: rgba(0, 217, 255, 0.3);
+        background: rgba(255, 255, 255, 0.03);
+    }
+    
+    .event-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 12px;
+    }
+    
+    .ticker-badge {
+        background: linear-gradient(135deg, rgba(0, 217, 255, 0.1), rgba(168, 85, 247, 0.1));
+        color: #00d9ff;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-family: 'JetBrains Mono', monospace;
+        font-weight: 700;
+        font-size: 16px;
+    }
+    
+    .days-badge {
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+    
+    .days-badge.today {
+        background: rgba(255, 71, 87, 0.1);
+        color: #ff4757;
+    }
+    
+    .days-badge.soon {
+        background: rgba(255, 193, 7, 0.1);
+        color: #ffc107;
+    }
+    
+    .days-badge.later {
+        background: rgba(255, 255, 255, 0.1);
+        color: rgba(255, 255, 255, 0.7);
+    }
+    
+    .company-name {
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.7);
+        margin-top: 8px;
+    }
+    
+    .event-date {
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.5);
+        margin-top: 4px;
+    }
+    
+    .event-meta {
+        display: flex;
+        gap: 16px;
+        margin-top: 16px;
+        padding-top: 16px;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .meta-item {
+        text-align: center;
+    }
+    
+    .meta-value {
+        font-family: 'JetBrains Mono', monospace;
+        font-weight: 600;
+        font-size: 14px;
+    }
+    
+    .meta-label {
+        font-size: 11px;
+        color: rgba(255, 255, 255, 0.4);
+        text-transform: uppercase;
+    }
+    
+    .dividend-yield {
+        color: #2ed573;
+    }
+    
+    .loading {
+        text-align: center;
+        padding: 60px;
+        color: rgba(255, 255, 255, 0.5);
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 60px;
+        color: rgba(255, 255, 255, 0.5);
+    }
+    
+    .search-bar {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 24px;
+    }
+    
+    .ticker-input {
+        padding: 12px 20px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        color: #fff;
+        font-size: 16px;
+        font-family: 'JetBrains Mono', monospace;
+        text-transform: uppercase;
+        width: 150px;
+    }
+    
+    .btn-search {
+        padding: 12px 24px;
+        background: linear-gradient(135deg, #00d9ff, #a855f7);
+        color: #000;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+    
+    .history-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 16px;
+    }
+    
+    .history-table th,
+    .history-table td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .history-table th {
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.5);
+        text-transform: uppercase;
+    }
+    
+    .surprise-positive {
+        color: #2ed573;
+    }
+    
+    .surprise-negative {
+        color: #ff4757;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="calendar-header">
+    <h2>Track Earnings, Dividends & Economic Events</h2>
+</div>
+
+<div class="tabs">
+    <button class="tab active" onclick="switchTab('earnings')">📊 Earnings</button>
+    <button class="tab" onclick="switchTab('dividends')">💰 Dividends</button>
+    <button class="tab" onclick="switchTab('economic')">📅 Economic Calendar</button>
+    <button class="tab" onclick="switchTab('lookup')">🔍 Stock Lookup</button>
+</div>
+
+<!-- Earnings Tab -->
+<div class="tab-content active" id="earningsTab">
+    <div class="loading" id="earningsLoading">Loading upcoming earnings...</div>
+    <div class="event-grid" id="earningsGrid"></div>
+</div>
+
+<!-- Dividends Tab -->
+<div class="tab-content" id="dividendsTab">
+    <div class="loading" id="dividendsLoading">Loading dividend stocks...</div>
+    <div class="event-grid" id="dividendsGrid"></div>
+</div>
+
+<!-- Economic Calendar Tab -->
+<div class="tab-content" id="economicTab">
+    <div class="loading" id="economicLoading">Loading economic events...</div>
+    <div id="economicContent"></div>
+</div>
+
+<!-- Stock Lookup Tab -->
+<div class="tab-content" id="lookupTab">
+    <form class="search-bar" onsubmit="lookupStock(event)">
+        <input type="text" class="ticker-input" id="lookupTicker" placeholder="AAPL">
+        <button type="submit" class="btn-search">Lookup</button>
+    </form>
+    <div id="lookupContent">
+        <div class="empty-state">Enter a ticker to view earnings and dividend history</div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        loadEarnings();
+    });
+    
+    function switchTab(tab) {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        
+        event.target.classList.add('active');
+        document.getElementById(tab + 'Tab').classList.add('active');
+        
+        if (tab === 'earnings') loadEarnings();
+        if (tab === 'dividends') loadDividends();
+        if (tab === 'economic') loadEconomic();
+    }
+    
+    async function loadEarnings() {
+        document.getElementById('earningsLoading').style.display = 'block';
+        document.getElementById('earningsGrid').innerHTML = '';
+        
+        try {
+            const response = await fetch('/api/earnings/upcoming');
+            const data = await response.json();
+            
+            document.getElementById('earningsLoading').style.display = 'none';
+            
+            if (data.earnings && data.earnings.length > 0) {
+                document.getElementById('earningsGrid').innerHTML = data.earnings.map(e => {
+                    const daysClass = e.days_until === 0 ? 'today' : e.days_until <= 3 ? 'soon' : 'later';
+                    const daysText = e.days_until === 0 ? 'Today' : 
+                                    e.days_until === 1 ? 'Tomorrow' : 
+                                    `${e.days_until} days`;
+                    
+                    return `
+                        <div class="event-card">
+                            <div class="event-header">
+                                <span class="ticker-badge">${e.ticker}</span>
+                                <span class="days-badge ${daysClass}">${daysText}</span>
+                            </div>
+                            <div class="company-name">${e.company_name || e.ticker}</div>
+                            <div class="event-date">📅 ${e.earnings_date}</div>
+                            <div class="event-meta">
+                                <div class="meta-item">
+                                    <div class="meta-value">${e.sector || '-'}</div>
+                                    <div class="meta-label">Sector</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                document.getElementById('earningsGrid').innerHTML = '<div class="empty-state">No upcoming earnings found</div>';
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            document.getElementById('earningsLoading').textContent = 'Failed to load earnings';
+        }
+    }
+    
+    async function loadDividends() {
+        document.getElementById('dividendsLoading').style.display = 'block';
+        document.getElementById('dividendsGrid').innerHTML = '';
+        
+        try {
+            const response = await fetch('/api/dividends/upcoming');
+            const data = await response.json();
+            
+            document.getElementById('dividendsLoading').style.display = 'none';
+            
+            if (data.dividends && data.dividends.length > 0) {
+                document.getElementById('dividendsGrid').innerHTML = data.dividends.map(d => `
+                    <div class="event-card">
+                        <div class="event-header">
+                            <span class="ticker-badge">${d.ticker}</span>
+                            <span class="dividend-yield" style="font-size: 18px; font-weight: 700;">
+                                ${d.dividend_yield}%
+                            </span>
+                        </div>
+                        <div class="company-name">${d.company_name || d.ticker}</div>
+                        ${d.ex_dividend_date ? `<div class="event-date">Ex-Div: ${d.ex_dividend_date}</div>` : ''}
+                        <div class="event-meta">
+                            <div class="meta-item">
+                                <div class="meta-value">$${d.dividend_rate?.toFixed(2) || '-'}</div>
+                                <div class="meta-label">Annual Div</div>
+                            </div>
+                            <div class="meta-item">
+                                <div class="meta-value">${d.payout_ratio ? (d.payout_ratio * 100).toFixed(0) + '%' : '-'}</div>
+                                <div class="meta-label">Payout Ratio</div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                document.getElementById('dividendsGrid').innerHTML = '<div class="empty-state">No dividend data available</div>';
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            document.getElementById('dividendsLoading').textContent = 'Failed to load dividends';
+        }
+    }
+    
+    async function loadEconomic() {
+        document.getElementById('economicLoading').style.display = 'block';
+        document.getElementById('economicContent').innerHTML = '';
+        
+        try {
+            const response = await fetch('/api/calendar/economic');
+            const data = await response.json();
+            
+            document.getElementById('economicLoading').style.display = 'none';
+            
+            if (data.events && data.events.length > 0) {
+                document.getElementById('economicContent').innerHTML = `
+                    <table class="history-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Event</th>
+                                <th>Impact</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${data.events.map(e => `
+                                <tr>
+                                    <td>${e.date}</td>
+                                    <td>${e.time || '-'}</td>
+                                    <td>${e.event}</td>
+                                    <td>${e.impact || '-'}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+            } else {
+                document.getElementById('economicContent').innerHTML = '<div class="empty-state">No economic events found</div>';
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            document.getElementById('economicLoading').textContent = 'Failed to load economic calendar';
+        }
+    }
+    
+    async function lookupStock(e) {
+        if (e) e.preventDefault();
+        
+        const ticker = document.getElementById('lookupTicker').value.trim().toUpperCase();
+        if (!ticker) return;
+        
+        document.getElementById('lookupContent').innerHTML = '<div class="loading">Loading...</div>';
+        
+        try {
+            const [earningsRes, dividendsRes] = await Promise.all([
+                fetch(`/api/earnings/stock/${ticker}`),
+                fetch(`/api/dividends/stock/${ticker}`)
+            ]);
+            
+            const earnings = await earningsRes.json();
+            const dividends = await dividendsRes.json();
+            
+            let html = `
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                    <div>
+                        <h3 style="margin-bottom: 16px;">📊 Earnings History</h3>
+            `;
+            
+            if (earnings.earnings_history && earnings.earnings_history.length > 0) {
+                html += `
+                    <table class="history-table">
+                        <thead>
+                            <tr>
+                                <th>Quarter</th>
+                                <th>EPS Actual</th>
+                                <th>EPS Est</th>
+                                <th>Surprise</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${earnings.earnings_history.map(e => {
+                                const surprise = e.surprise_pct;
+                                const surpriseClass = surprise > 0 ? 'surprise-positive' : surprise < 0 ? 'surprise-negative' : '';
+                                return `
+                                    <tr>
+                                        <td>${e.date || '-'}</td>
+                                        <td>${e.eps_actual?.toFixed(2) || '-'}</td>
+                                        <td>${e.eps_estimate?.toFixed(2) || '-'}</td>
+                                        <td class="${surpriseClass}">${surprise ? (surprise > 0 ? '+' : '') + surprise.toFixed(1) + '%' : '-'}</td>
+                                    </tr>
+                                `;
+                            }).join('')}
+                        </tbody>
+                    </table>
+                `;
+            } else {
+                html += '<div class="empty-state">No earnings history available</div>';
+            }
+            
+            html += `
+                    </div>
+                    <div>
+                        <h3 style="margin-bottom: 16px;">💰 Dividend Info</h3>
+            `;
+            
+            if (dividends.dividend_yield) {
+                html += `
+                    <div class="event-card">
+                        <div style="font-size: 32px; font-weight: 700; color: #2ed573; margin-bottom: 16px;">
+                            ${dividends.dividend_yield}%
+                        </div>
+                        <div style="font-size: 14px; color: rgba(255,255,255,0.6);">Dividend Yield</div>
+                        
+                        <div class="event-meta">
+                            <div class="meta-item">
+                                <div class="meta-value">$${dividends.dividend_rate?.toFixed(2) || '-'}</div>
+                                <div class="meta-label">Annual Rate</div>
+                            </div>
+                            <div class="meta-item">
+                                <div class="meta-value">${dividends.payout_ratio ? (dividends.payout_ratio * 100).toFixed(0) + '%' : '-'}</div>
+                                <div class="meta-label">Payout Ratio</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                if (dividends.dividend_history && dividends.dividend_history.length > 0) {
+                    html += `
+                        <h4 style="margin: 16px 0 8px;">Recent Dividends</h4>
+                        <table class="history-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${dividends.dividend_history.slice(0, 8).map(d => `
+                                    <tr>
+                                        <td>${d.date}</td>
+                                        <td>$${d.amount.toFixed(4)}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    `;
+                }
+            } else {
+                html += '<div class="empty-state">No dividend data available</div>';
+            }
+            
+            html += '</div></div>';
+            
+            document.getElementById('lookupContent').innerHTML = html;
+        } catch (error) {
+            console.error('Error:', error);
+            document.getElementById('lookupContent').innerHTML = '<div class="loading">Failed to load stock data</div>';
+        }
+    }
+</script>
+{% endblock %}
+
