@@ -1,0 +1,642 @@
+/**
+ * Qunex Trade - UI Polish & Animations
+ * Beautiful micro-interactions and visual enhancements
+ */
+
+/* ============================================
+   KEYFRAME ANIMATIONS
+   ============================================ */
+
+/* Fade in up */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Fade in down */
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Fade in scale */
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Slide in from left */
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Slide in from right */
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Pulse glow */
+@keyframes pulseGlow {
+    0%, 100% {
+        box-shadow: 0 0 5px rgba(0, 217, 255, 0.3);
+    }
+    50% {
+        box-shadow: 0 0 20px rgba(0, 217, 255, 0.6), 0 0 40px rgba(168, 85, 247, 0.3);
+    }
+}
+
+/* Shimmer loading */
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+/* Number count up */
+@keyframes countUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Bounce */
+@keyframes bounce {
+    0%, 20%, 53%, 100% {
+        animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+        transform: translateY(0);
+    }
+    40%, 43% {
+        animation-timing-function: cubic-bezier(0.755, 0.05, 0.855, 0.06);
+        transform: translateY(-15px);
+    }
+    70% {
+        animation-timing-function: cubic-bezier(0.755, 0.05, 0.855, 0.06);
+        transform: translateY(-7px);
+    }
+    80% {
+        transform: translateY(0);
+    }
+    90% {
+        transform: translateY(-3px);
+    }
+}
+
+/* Shake */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+/* Price flash green */
+@keyframes priceFlashGreen {
+    0% { background-color: rgba(34, 197, 94, 0.3); }
+    100% { background-color: transparent; }
+}
+
+/* Price flash red */
+@keyframes priceFlashRed {
+    0% { background-color: rgba(239, 68, 68, 0.3); }
+    100% { background-color: transparent; }
+}
+
+/* Gradient border */
+@keyframes gradientBorder {
+    0% { border-color: var(--accent-cyan); }
+    50% { border-color: var(--accent-purple); }
+    100% { border-color: var(--accent-cyan); }
+}
+
+/* Float */
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+/* Rotate */
+@keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* ============================================
+   ANIMATION UTILITY CLASSES
+   ============================================ */
+
+.animate-fade-in-up {
+    animation: fadeInUp 0.5s ease-out forwards;
+}
+
+.animate-fade-in-down {
+    animation: fadeInDown 0.5s ease-out forwards;
+}
+
+.animate-fade-in-scale {
+    animation: fadeInScale 0.4s ease-out forwards;
+}
+
+.animate-slide-in-left {
+    animation: slideInLeft 0.5s ease-out forwards;
+}
+
+.animate-slide-in-right {
+    animation: slideInRight 0.5s ease-out forwards;
+}
+
+.animate-bounce {
+    animation: bounce 1s ease-out;
+}
+
+.animate-shake {
+    animation: shake 0.5s ease-out;
+}
+
+.animate-pulse-glow {
+    animation: pulseGlow 2s ease-in-out infinite;
+}
+
+.animate-float {
+    animation: float 3s ease-in-out infinite;
+}
+
+.animate-rotate {
+    animation: rotate 1s linear infinite;
+}
+
+/* Staggered animations */
+.stagger-1 { animation-delay: 0.1s; }
+.stagger-2 { animation-delay: 0.2s; }
+.stagger-3 { animation-delay: 0.3s; }
+.stagger-4 { animation-delay: 0.4s; }
+.stagger-5 { animation-delay: 0.5s; }
+.stagger-6 { animation-delay: 0.6s; }
+
+/* ============================================
+   PRICE ANIMATIONS
+   ============================================ */
+
+.price-up {
+    animation: priceFlashGreen 0.8s ease-out;
+    color: var(--success) !important;
+}
+
+.price-down {
+    animation: priceFlashRed 0.8s ease-out;
+    color: var(--danger) !important;
+}
+
+.price-change {
+    transition: all 0.3s ease;
+}
+
+.price-ticker {
+    display: inline-block;
+    transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.price-ticker.updating {
+    transform: scale(1.05);
+}
+
+/* ============================================
+   SKELETON LOADING
+   ============================================ */
+
+.skeleton {
+    background: linear-gradient(
+        90deg,
+        var(--bg-hover) 25%,
+        var(--bg-active) 50%,
+        var(--bg-hover) 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: var(--radius-md);
+}
+
+.skeleton-text {
+    height: 1em;
+    margin: 0.5em 0;
+}
+
+.skeleton-title {
+    height: 1.5em;
+    width: 60%;
+}
+
+.skeleton-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+}
+
+.skeleton-card {
+    height: 150px;
+}
+
+/* ============================================
+   HOVER EFFECTS
+   ============================================ */
+
+/* Card lift effect */
+.hover-lift {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-lift:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+/* Card glow effect */
+.hover-glow {
+    transition: box-shadow 0.3s ease;
+}
+
+.hover-glow:hover {
+    box-shadow: 0 0 20px rgba(0, 217, 255, 0.3);
+}
+
+/* Border gradient on hover */
+.hover-border-gradient {
+    position: relative;
+    transition: border-color 0.3s ease;
+}
+
+.hover-border-gradient::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+    border-radius: inherit;
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.hover-border-gradient:hover::before {
+    opacity: 1;
+}
+
+/* Scale on hover */
+.hover-scale {
+    transition: transform 0.2s ease;
+}
+
+.hover-scale:hover {
+    transform: scale(1.02);
+}
+
+/* Icon rotate on hover */
+.hover-icon-rotate:hover svg {
+    transform: rotate(15deg);
+    transition: transform 0.3s ease;
+}
+
+/* Text underline slide */
+.hover-underline {
+    position: relative;
+}
+
+.hover-underline::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple));
+    transition: width 0.3s ease;
+}
+
+.hover-underline:hover::after {
+    width: 100%;
+}
+
+/* ============================================
+   BUTTON ENHANCEMENTS
+   ============================================ */
+
+.btn-animated {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.btn-animated::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.6s ease, height 0.6s ease;
+}
+
+.btn-animated:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+.btn-animated:active {
+    transform: scale(0.98);
+}
+
+/* Gradient shift on hover */
+.btn-gradient-shift {
+    background-size: 200% auto;
+    transition: background-position 0.5s ease;
+}
+
+.btn-gradient-shift:hover {
+    background-position: right center;
+}
+
+/* ============================================
+   INPUT ENHANCEMENTS
+   ============================================ */
+
+.input-animated {
+    transition: all 0.3s ease;
+}
+
+.input-animated:focus {
+    transform: scale(1.01);
+    box-shadow: 0 0 0 3px rgba(0, 217, 255, 0.15);
+}
+
+/* Floating label */
+.input-float-label {
+    position: relative;
+}
+
+.input-float-label input {
+    padding-top: 1.5rem;
+}
+
+.input-float-label label {
+    position: absolute;
+    top: 50%;
+    left: 1rem;
+    transform: translateY(-50%);
+    transition: all 0.3s ease;
+    pointer-events: none;
+    color: var(--text-tertiary);
+}
+
+.input-float-label input:focus + label,
+.input-float-label input:not(:placeholder-shown) + label {
+    top: 0.5rem;
+    font-size: 0.75rem;
+    color: var(--accent-cyan);
+}
+
+/* ============================================
+   TABLE ENHANCEMENTS
+   ============================================ */
+
+.table-row-animated {
+    transition: all 0.2s ease;
+}
+
+.table-row-animated:hover {
+    background: var(--bg-hover);
+    transform: scale(1.005);
+}
+
+.table-cell-number {
+    font-family: 'JetBrains Mono', monospace;
+    transition: color 0.3s ease, background 0.3s ease;
+}
+
+/* ============================================
+   NOTIFICATION & TOAST ANIMATIONS
+   ============================================ */
+
+.toast-enter {
+    animation: slideInRight 0.4s ease-out;
+}
+
+.toast-exit {
+    animation: slideInRight 0.3s ease-in reverse forwards;
+}
+
+.notification-badge {
+    animation: bounce 0.5s ease-out;
+}
+
+/* ============================================
+   CHART ANIMATIONS
+   ============================================ */
+
+.chart-line-animated {
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 1000;
+    animation: drawLine 2s ease-out forwards;
+}
+
+@keyframes drawLine {
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+.chart-bar-animated {
+    transform-origin: bottom;
+    animation: growBar 0.8s ease-out forwards;
+}
+
+@keyframes growBar {
+    from {
+        transform: scaleY(0);
+    }
+    to {
+        transform: scaleY(1);
+    }
+}
+
+/* ============================================
+   MODAL ANIMATIONS
+   ============================================ */
+
+.modal-backdrop {
+    animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.modal-content {
+    animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* ============================================
+   NAVIGATION ANIMATIONS
+   ============================================ */
+
+.nav-item-animated {
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.nav-item-animated::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 0;
+    background: linear-gradient(to bottom, var(--accent-cyan), var(--accent-purple));
+    border-radius: 0 2px 2px 0;
+    transition: height 0.2s ease;
+}
+
+.nav-item-animated:hover::before,
+.nav-item-animated.active::before {
+    height: 60%;
+}
+
+/* ============================================
+   SCROLL ANIMATIONS (triggered by JS)
+   ============================================ */
+
+.scroll-animate {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.6s ease;
+}
+
+.scroll-animate.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ============================================
+   LIVE INDICATOR
+   ============================================ */
+
+.live-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.live-dot {
+    width: 8px;
+    height: 8px;
+    background: var(--success);
+    border-radius: 50%;
+    animation: livePulse 1.5s ease-in-out infinite;
+}
+
+@keyframes livePulse {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.5;
+        transform: scale(1.3);
+    }
+}
+
+/* ============================================
+   GRADIENT TEXT ANIMATION
+   ============================================ */
+
+.gradient-text-animated {
+    background: linear-gradient(
+        90deg,
+        var(--accent-cyan),
+        var(--accent-purple),
+        var(--accent-cyan)
+    );
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: gradientShift 3s linear infinite;
+}
+
+@keyframes gradientShift {
+    0% { background-position: 0% center; }
+    100% { background-position: 200% center; }
+}
+
+/* ============================================
+   PERFORMANCE OPTIMIZATIONS
+   ============================================ */
+
+/* Use will-change for frequently animated elements */
+.will-animate {
+    will-change: transform, opacity;
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+

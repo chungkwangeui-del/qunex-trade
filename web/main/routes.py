@@ -410,3 +410,23 @@ def market_sentiment():
 def earnings_calendar():
     """Earnings & Dividend Calendar"""
     return render_template("earnings.html", user=current_user)
+
+
+@main.route("/chat")
+@login_required
+def ai_chat():
+    """AI Chat Assistant - Stock Q&A"""
+    return render_template("chat.html", user=current_user)
+
+
+@main.route("/leaderboard")
+def leaderboard():
+    """Paper Trading Leaderboard"""
+    return render_template("leaderboard.html", user=current_user)
+
+
+@main.route("/flow")
+@login_required
+def institutional_flow():
+    """Institutional Flow Analysis - Options, Dark Pool, Insider"""
+    return render_template("flow.html", user=current_user)

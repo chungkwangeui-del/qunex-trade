@@ -1,0 +1,725 @@
+{% extends "base_layout.html" %}
+
+{% block title %}Institutional Flow - Qunex Trade{% endblock %}
+
+{% block extra_styles %}
+<style>
+    .flow-header {
+        margin-bottom: 32px;
+    }
+
+    .flow-title {
+        font-size: var(--text-3xl);
+        font-weight: var(--font-bold);
+        margin-bottom: 8px;
+    }
+
+    .flow-subtitle {
+        color: var(--text-secondary);
+    }
+
+    /* Search Box */
+    .search-container {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 32px;
+        max-width: 500px;
+    }
+
+    .search-input {
+        flex: 1;
+        padding: 14px 20px;
+        background: var(--bg-card);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-lg);
+        color: var(--text-primary);
+        font-size: var(--text-base);
+        transition: all var(--transition-fast);
+    }
+
+    .search-input:focus {
+        outline: none;
+        border-color: var(--accent-cyan);
+        box-shadow: 0 0 0 3px rgba(0, 217, 255, 0.1);
+    }
+
+    .search-btn {
+        padding: 14px 28px;
+        background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+        border: none;
+        border-radius: var(--radius-lg);
+        color: white;
+        font-weight: var(--font-semibold);
+        cursor: pointer;
+        transition: all var(--transition-fast);
+    }
+
+    .search-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 20px rgba(0, 217, 255, 0.4);
+    }
+
+    /* Flow Grid */
+    .flow-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 24px;
+        margin-bottom: 32px;
+    }
+
+    @media (max-width: 1200px) {
+        .flow-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .flow-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* Flow Card */
+    .flow-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-xl);
+        overflow: hidden;
+        transition: all var(--transition-fast);
+    }
+
+    .flow-card:hover {
+        border-color: var(--border-medium);
+        transform: translateY(-2px);
+    }
+
+    .flow-card-header {
+        padding: 20px;
+        border-bottom: 1px solid var(--border-subtle);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .flow-card-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+    }
+
+    .flow-card-icon.options { background: linear-gradient(135deg, #f97316, #ef4444); }
+    .flow-card-icon.darkpool { background: linear-gradient(135deg, #6366f1, #8b5cf6); }
+    .flow-card-icon.insider { background: linear-gradient(135deg, #10b981, #14b8a6); }
+
+    .flow-card-title {
+        font-size: var(--text-lg);
+        font-weight: var(--font-semibold);
+    }
+
+    .flow-card-subtitle {
+        font-size: var(--text-xs);
+        color: var(--text-tertiary);
+    }
+
+    .flow-card-body {
+        padding: 20px;
+    }
+
+    /* Score Gauge */
+    .score-container {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .score-gauge {
+        position: relative;
+        width: 120px;
+        height: 60px;
+        margin: 0 auto 12px;
+    }
+
+    .score-gauge-bg {
+        fill: none;
+        stroke: var(--bg-active);
+        stroke-width: 8;
+    }
+
+    .score-gauge-fill {
+        fill: none;
+        stroke-width: 8;
+        stroke-linecap: round;
+        transition: stroke-dashoffset 0.8s ease;
+    }
+
+    .score-gauge-fill.bullish { stroke: url(#bullish-gradient); }
+    .score-gauge-fill.bearish { stroke: url(#bearish-gradient); }
+    .score-gauge-fill.neutral { stroke: url(#neutral-gradient); }
+
+    .score-value {
+        font-size: var(--text-3xl);
+        font-weight: var(--font-bold);
+        font-family: 'JetBrains Mono', monospace;
+    }
+
+    .score-value.bullish { color: var(--success); }
+    .score-value.bearish { color: var(--danger); }
+    .score-value.neutral { color: var(--text-secondary); }
+
+    .score-label {
+        font-size: var(--text-sm);
+        color: var(--text-secondary);
+    }
+
+    /* Flow Details */
+    .flow-details {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .flow-detail-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .flow-detail-row:last-child {
+        border-bottom: none;
+    }
+
+    .flow-detail-label {
+        color: var(--text-tertiary);
+        font-size: var(--text-sm);
+    }
+
+    .flow-detail-value {
+        font-weight: var(--font-semibold);
+        font-family: 'JetBrains Mono', monospace;
+    }
+
+    .flow-detail-value.positive { color: var(--success); }
+    .flow-detail-value.negative { color: var(--danger); }
+
+    /* Signal Badge */
+    .signal-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        border-radius: var(--radius-md);
+        font-size: var(--text-xs);
+        font-weight: var(--font-semibold);
+    }
+
+    .signal-badge.bullish {
+        background: rgba(34, 197, 94, 0.15);
+        color: var(--success);
+        border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+
+    .signal-badge.bearish {
+        background: rgba(239, 68, 68, 0.15);
+        color: var(--danger);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .signal-badge.neutral {
+        background: var(--bg-active);
+        color: var(--text-secondary);
+        border: 1px solid var(--border-subtle);
+    }
+
+    /* Summary Card */
+    .summary-card {
+        background: linear-gradient(135deg, rgba(0, 217, 255, 0.1), rgba(168, 85, 247, 0.1));
+        border: 1px solid rgba(0, 217, 255, 0.2);
+        border-radius: var(--radius-xl);
+        padding: 24px;
+        margin-bottom: 32px;
+    }
+
+    .summary-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+    }
+
+    .summary-ticker {
+        font-size: var(--text-2xl);
+        font-weight: var(--font-bold);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .summary-ticker-badge {
+        font-size: var(--text-sm);
+        padding: 4px 12px;
+        background: var(--bg-card);
+        border-radius: var(--radius-md);
+    }
+
+    .summary-score {
+        text-align: right;
+    }
+
+    .summary-score-value {
+        font-size: var(--text-4xl);
+        font-weight: var(--font-bold);
+        font-family: 'JetBrains Mono', monospace;
+    }
+
+    .summary-score-value.bullish { color: var(--success); }
+    .summary-score-value.bearish { color: var(--danger); }
+
+    .summary-score-label {
+        font-size: var(--text-sm);
+        color: var(--text-secondary);
+    }
+
+    .summary-interpretation {
+        padding: 16px;
+        background: var(--bg-card);
+        border-radius: var(--radius-lg);
+        font-size: var(--text-sm);
+    }
+
+    /* Insider Trades Table */
+    .trades-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: var(--text-sm);
+    }
+
+    .trades-table th {
+        padding: 12px;
+        text-align: left;
+        font-size: var(--text-xs);
+        color: var(--text-tertiary);
+        text-transform: uppercase;
+        border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .trades-table td {
+        padding: 12px;
+        border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .trades-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .trade-type {
+        padding: 4px 8px;
+        border-radius: var(--radius-sm);
+        font-size: var(--text-xs);
+        font-weight: var(--font-semibold);
+    }
+
+    .trade-type.buy {
+        background: rgba(34, 197, 94, 0.15);
+        color: var(--success);
+    }
+
+    .trade-type.sell {
+        background: rgba(239, 68, 68, 0.15);
+        color: var(--danger);
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: var(--text-tertiary);
+    }
+
+    .empty-state-icon {
+        font-size: 48px;
+        margin-bottom: 16px;
+    }
+
+    /* Loading */
+    .loading-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(4px);
+        z-index: 1000;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .loading-overlay.visible {
+        display: flex;
+    }
+
+    .loading-card {
+        background: var(--bg-card);
+        padding: 40px;
+        border-radius: var(--radius-xl);
+        text-align: center;
+    }
+
+    .spinner-large {
+        width: 48px;
+        height: 48px;
+        border: 4px solid var(--border-subtle);
+        border-top-color: var(--accent-cyan);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 16px;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+</style>
+
+<!-- SVG Gradients for gauges -->
+<svg width="0" height="0">
+    <defs>
+        <linearGradient id="bullish-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#10b981"/>
+            <stop offset="100%" stop-color="#22c55e"/>
+        </linearGradient>
+        <linearGradient id="bearish-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#ef4444"/>
+            <stop offset="100%" stop-color="#f97316"/>
+        </linearGradient>
+        <linearGradient id="neutral-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#6b7280"/>
+            <stop offset="100%" stop-color="#9ca3af"/>
+        </linearGradient>
+    </defs>
+</svg>
+{% endblock %}
+
+{% block content %}
+<div class="flow-header">
+    <h1 class="flow-title">📊 Institutional Flow Analysis</h1>
+    <p class="flow-subtitle">Track options flow, dark pool activity, and insider trading</p>
+</div>
+
+<!-- Search -->
+<div class="search-container">
+    <input type="text" class="search-input" id="tickerInput" placeholder="Enter ticker (e.g., AAPL)" maxlength="10">
+    <button class="search-btn" onclick="analyzeFlow()">Analyze</button>
+</div>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-card">
+        <div class="spinner-large"></div>
+        <div>Analyzing institutional flow...</div>
+    </div>
+</div>
+
+<!-- Results Container (hidden initially) -->
+<div id="resultsContainer" style="display: none;">
+    <!-- Summary Card -->
+    <div class="summary-card" id="summaryCard"></div>
+
+    <!-- Flow Grid -->
+    <div class="flow-grid">
+        <!-- Options Flow Card -->
+        <div class="flow-card">
+            <div class="flow-card-header">
+                <div class="flow-card-icon options">📈</div>
+                <div>
+                    <div class="flow-card-title">Options Flow</div>
+                    <div class="flow-card-subtitle">Put/Call Analysis</div>
+                </div>
+            </div>
+            <div class="flow-card-body" id="optionsFlowBody">
+                <div class="empty-state">
+                    <div>Enter a ticker to analyze</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dark Pool Card -->
+        <div class="flow-card">
+            <div class="flow-card-header">
+                <div class="flow-card-icon darkpool">🏦</div>
+                <div>
+                    <div class="flow-card-title">Dark Pool</div>
+                    <div class="flow-card-subtitle">Institutional Blocks</div>
+                </div>
+            </div>
+            <div class="flow-card-body" id="darkPoolBody">
+                <div class="empty-state">
+                    <div>Enter a ticker to analyze</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Insider Trading Card -->
+        <div class="flow-card">
+            <div class="flow-card-header">
+                <div class="flow-card-icon insider">👔</div>
+                <div>
+                    <div class="flow-card-title">Insider Trading</div>
+                    <div class="flow-card-subtitle">SEC Form 4 Filings</div>
+                </div>
+            </div>
+            <div class="flow-card-body" id="insiderBody">
+                <div class="empty-state">
+                    <div>Enter a ticker to analyze</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Insider Trades -->
+    <div class="flow-card" id="insiderTradesCard" style="display: none;">
+        <div class="flow-card-header">
+            <div class="flow-card-icon insider">📋</div>
+            <div>
+                <div class="flow-card-title">Recent Insider Transactions</div>
+                <div class="flow-card-subtitle">Last 90 days</div>
+            </div>
+        </div>
+        <div class="flow-card-body">
+            <table class="trades-table" id="insiderTradesTable">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Insider</th>
+                        <th>Position</th>
+                        <th>Type</th>
+                        <th>Shares</th>
+                        <th>Price</th>
+                    </tr>
+                </thead>
+                <tbody id="insiderTradesBody"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Empty State -->
+<div id="emptyState">
+    <div class="empty-state">
+        <div class="empty-state-icon">🔍</div>
+        <h3>Enter a stock ticker to analyze</h3>
+        <p>Get insights on institutional activity including options flow, dark pool prints, and insider trading</p>
+    </div>
+</div>
+
+<script>
+    const tickerInput = document.getElementById('tickerInput');
+    const resultsContainer = document.getElementById('resultsContainer');
+    const emptyState = document.getElementById('emptyState');
+    const loadingOverlay = document.getElementById('loadingOverlay');
+
+    // Enter key to search
+    tickerInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') analyzeFlow();
+    });
+
+    async function analyzeFlow() {
+        const ticker = tickerInput.value.trim().toUpperCase();
+        if (!ticker) return;
+
+        showLoading(true);
+        emptyState.style.display = 'none';
+        resultsContainer.style.display = 'none';
+
+        try {
+            // Fetch all flow data in parallel
+            const [summaryRes, optionsRes, darkPoolRes, insiderRes] = await Promise.all([
+                fetch(`/api/flow/summary/${ticker}`),
+                fetch(`/api/flow/options/${ticker}`),
+                fetch(`/api/flow/darkpool/${ticker}`),
+                fetch(`/api/flow/insider/${ticker}`)
+            ]);
+
+            const [summary, options, darkPool, insider] = await Promise.all([
+                summaryRes.json(),
+                optionsRes.json(),
+                darkPoolRes.json(),
+                insiderRes.json()
+            ]);
+
+            // Render results
+            renderSummary(ticker, summary);
+            renderOptionsFlow(options);
+            renderDarkPool(darkPool);
+            renderInsider(insider);
+
+            resultsContainer.style.display = 'block';
+        } catch (error) {
+            console.error('Flow analysis error:', error);
+            alert('Failed to analyze flow. Please try again.');
+            emptyState.style.display = 'block';
+        } finally {
+            showLoading(false);
+        }
+    }
+
+    function showLoading(show) {
+        loadingOverlay.classList.toggle('visible', show);
+    }
+
+    function renderSummary(ticker, data) {
+        const scoreClass = data.overall_institutional_score >= 55 ? 'bullish' : 
+                          data.overall_institutional_score <= 45 ? 'bearish' : 'neutral';
+        
+        document.getElementById('summaryCard').innerHTML = `
+            <div class="summary-header">
+                <div class="summary-ticker">
+                    ${ticker}
+                    <span class="summary-ticker-badge">Institutional Flow</span>
+                </div>
+                <div class="summary-score">
+                    <div class="summary-score-value ${scoreClass}">${data.overall_institutional_score || 50}</div>
+                    <div class="summary-score-label">Institutional Score</div>
+                </div>
+            </div>
+            <div class="summary-interpretation">
+                <strong>${data.interpretation || 'Neutral'}</strong>
+                ${data.cluster_buy_detected ? ' • 🎯 <strong>Cluster Buy Detected!</strong> Multiple insiders buying.' : ''}
+            </div>
+        `;
+    }
+
+    function renderOptionsFlow(data) {
+        const body = document.getElementById('optionsFlowBody');
+        
+        if (data.error && !data.chain_data) {
+            body.innerHTML = `<div class="empty-state">Options data unavailable</div>`;
+            return;
+        }
+
+        const chain = data.chain_data || {};
+        const sentiment = data.overall_sentiment || 'neutral';
+        const sentimentClass = sentiment === 'bullish' ? 'bullish' : sentiment === 'bearish' ? 'bearish' : 'neutral';
+
+        body.innerHTML = `
+            <div class="score-container">
+                <div class="signal-badge ${sentimentClass}">
+                    ${sentiment === 'bullish' ? '📈 Bullish' : sentiment === 'bearish' ? '📉 Bearish' : '➡️ Neutral'}
+                </div>
+            </div>
+            <div class="flow-details">
+                <div class="flow-detail-row">
+                    <span class="flow-detail-label">Put/Call Ratio</span>
+                    <span class="flow-detail-value ${chain.put_call_ratio > 1 ? 'negative' : 'positive'}">
+                        ${(chain.put_call_ratio || 0).toFixed(2)}
+                    </span>
+                </div>
+                <div class="flow-detail-row">
+                    <span class="flow-detail-label">Total Calls</span>
+                    <span class="flow-detail-value">${(chain.calls_count || 0).toLocaleString()}</span>
+                </div>
+                <div class="flow-detail-row">
+                    <span class="flow-detail-label">Total Puts</span>
+                    <span class="flow-detail-value">${(chain.puts_count || 0).toLocaleString()}</span>
+                </div>
+            </div>
+        `;
+    }
+
+    function renderDarkPool(data) {
+        const body = document.getElementById('darkPoolBody');
+        
+        if (data.error && !data.dark_pool_score) {
+            body.innerHTML = `<div class="empty-state">Dark pool data unavailable</div>`;
+            return;
+        }
+
+        const score = data.dark_pool_score || 0;
+        const scoreClass = score >= 55 ? 'bullish' : score <= 45 ? 'bearish' : 'neutral';
+
+        body.innerHTML = `
+            <div class="score-container">
+                <div class="score-value ${scoreClass}">${score}</div>
+                <div class="score-label">${data.interpretation || 'Unknown'}</div>
+            </div>
+            <div class="flow-details">
+                <div class="flow-detail-row">
+                    <span class="flow-detail-label">VWAP</span>
+                    <span class="flow-detail-value">$${(data.vwap || 0).toFixed(2)}</span>
+                </div>
+                <div class="flow-detail-row">
+                    <span class="flow-detail-label">Avg Volume</span>
+                    <span class="flow-detail-value">${(data.avg_volume || 0).toLocaleString()}</span>
+                </div>
+                <div class="flow-detail-row">
+                    <span class="flow-detail-label">Block Trades</span>
+                    <span class="flow-detail-value">${(data.dark_pool_indicators || []).length}</span>
+                </div>
+            </div>
+        `;
+    }
+
+    function renderInsider(data) {
+        const body = document.getElementById('insiderBody');
+        
+        if (data.error && !data.insider_score) {
+            body.innerHTML = `<div class="empty-state">Insider data unavailable</div>`;
+            return;
+        }
+
+        const score = data.insider_score || 50;
+        const scoreClass = score >= 55 ? 'bullish' : score <= 45 ? 'bearish' : 'neutral';
+        const buys = data.buys || {};
+        const sells = data.sells || {};
+
+        body.innerHTML = `
+            <div class="score-container">
+                <div class="score-value ${scoreClass}">${score}</div>
+                <div class="score-label">${data.interpretation || 'Unknown'}</div>
+            </div>
+            <div class="flow-details">
+                <div class="flow-detail-row">
+                    <span class="flow-detail-label">Insider Buys</span>
+                    <span class="flow-detail-value positive">${buys.count || 0}</span>
+                </div>
+                <div class="flow-detail-row">
+                    <span class="flow-detail-label">Insider Sells</span>
+                    <span class="flow-detail-value negative">${sells.count || 0}</span>
+                </div>
+                <div class="flow-detail-row">
+                    <span class="flow-detail-label">Net Value</span>
+                    <span class="flow-detail-value ${(buys.total_value || 0) > (sells.total_value || 0) ? 'positive' : 'negative'}">
+                        $${Math.abs((buys.total_value || 0) - (sells.total_value || 0)).toLocaleString()}
+                    </span>
+                </div>
+                ${data.cluster_buy_detected ? '<div style="margin-top: 12px;"><span class="signal-badge bullish">🎯 Cluster Buy</span></div>' : ''}
+                ${data.executive_buying ? '<div style="margin-top: 8px;"><span class="signal-badge bullish">👔 Executive Buying</span></div>' : ''}
+            </div>
+        `;
+
+        // Render recent trades table
+        const trades = data.recent_trades || [];
+        if (trades.length > 0) {
+            document.getElementById('insiderTradesCard').style.display = 'block';
+            document.getElementById('insiderTradesBody').innerHTML = trades.map(t => `
+                <tr>
+                    <td>${t.filing_date || '-'}</td>
+                    <td>${t.insider_name || '-'}</td>
+                    <td>${t.position || '-'}</td>
+                    <td><span class="trade-type ${t.transaction_type}">${t.transaction_type?.toUpperCase()}</span></td>
+                    <td>${(t.shares || 0).toLocaleString()}</td>
+                    <td>${t.price ? '$' + t.price.toFixed(2) : '-'}</td>
+                </tr>
+            `).join('');
+        } else {
+            document.getElementById('insiderTradesCard').style.display = 'none';
+        }
+    }
+</script>
+{% endblock %}
+
