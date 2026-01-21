@@ -122,7 +122,34 @@ class StockChatAssistant:
                 }
 
             genai.configure(api_key=self.gemini_key)
-            model = genai.GenerativeModel("gemini-1.5-flash")
+            
+            # Try different model names - free tier uses gemini-pro or gemini-1.5-flash
+            model_names = [
+                "gemini-2.0-flash",      # Newest model
+                "gemini-1.5-flash",       # Fast model
+                "gemini-1.5-pro",         # Pro model
+                "gemini-pro",             # Legacy model
+            ]
+            
+            model = None
+            last_error = None
+            for model_name in model_names:
+                try:
+                    model = genai.GenerativeModel(model_name)
+                    # Test if model works by checking it exists
+                    logger.info(f"Using Gemini model: {model_name}")
+                    break
+                except Exception as e:
+                    last_error = e
+                    logger.warning(f"Model {model_name} not available: {e}")
+                    continue
+            
+            if model is None:
+                return {
+                    "response": f"Could not initialize AI model. Please check your API key configuration.",
+                    "error": True,
+                    "error_message": str(last_error) if last_error else "No model available"
+                }
 
             # Extract tickers from message
             tickers = self.extract_tickers(message)
