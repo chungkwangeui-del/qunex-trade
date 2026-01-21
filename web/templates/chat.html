@@ -515,9 +515,11 @@
             const data = await response.json();
             
             if (data.suggestions) {
-                suggestionsContainer.innerHTML = data.suggestions.map(s => 
-                    `<button class="suggestion-btn" onclick="sendQuickAction('${s}')">${s}</button>`
-                ).join('');
+                suggestionsContainer.innerHTML = data.suggestions.map((s, i) => {
+                    // Escape quotes for HTML attribute
+                    const escaped = s.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                    return `<button class="suggestion-btn" data-suggestion="${s.replace(/"/g, '&quot;')}" onclick="sendQuickAction(this.dataset.suggestion)">${s}</button>`;
+                }).join('');
             }
         } catch (error) {
             console.error('Failed to load suggestions:', error);

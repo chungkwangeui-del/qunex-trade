@@ -284,11 +284,10 @@ def chat():
     # Get user ID if authenticated
     user_id = None
     try:
-        from flask_login import current_user
-        if current_user.is_authenticated:
+        if current_user and current_user.is_authenticated:
             user_id = current_user.id
-    except:
-        pass
+    except Exception:
+        pass  # User not authenticated, continue without user context
 
     result = chat_assistant.chat(message, user_id, history)
     
@@ -302,14 +301,14 @@ def chat():
 def get_suggestions():
     """Get suggested questions based on market context"""
     suggestions = [
-        "What's driving the market today?",
+        "What is driving the market today?",
         "Explain RSI and how to use it",
         "What are good scalping strategies for beginners?",
         "How do I find stocks with high momentum?",
-        "What's the difference between support and resistance?",
+        "What is the difference between support and resistance?",
         "How do I read candlestick patterns?",
         "What indicators work best for swing trading?",
-        "Explain the Fear & Greed Index",
+        "Explain the Fear and Greed Index",
     ]
     
     # Add contextual suggestions based on time
@@ -317,7 +316,7 @@ def get_suggestions():
     if 9 <= hour < 16:  # Market hours (EST approximation)
         suggestions.insert(0, "What stocks are moving the most right now?")
     else:
-        suggestions.insert(0, "What should I prepare for tomorrow's market?")
+        suggestions.insert(0, "What should I prepare for tomorrow market?")
 
     return jsonify({"suggestions": suggestions[:8]})
 
