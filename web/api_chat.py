@@ -33,6 +33,10 @@ class StockChatAssistant:
     def __init__(self):
         self.gemini_key = os.getenv("GEMINI_API_KEY")
         self._polygon = None
+        self._model = None
+        self._model_name = None
+        self._last_request_time = 0
+        self._min_request_interval = 2  # Minimum 2 seconds between requests
     
     @property
     def polygon(self):
@@ -40,6 +44,40 @@ class StockChatAssistant:
         if self._polygon is None:
             self._polygon = get_polygon_service()
         return self._polygon
+    
+    def _get_model(self):
+        """Get or create cached Gemini model"""
+        import time
+        
+        if self._model is not None:
+            return self._model
+        
+        try:
+            import google.generativeai as genai
+            genai.configure(api_key=self.gemini_key)
+            
+            # Try different model names
+            model_names = [
+                "gemini-2.0-flash-exp",   # Experimental (free)
+                "gemini-1.5-flash",       # Fast model
+                "gemini-1.5-pro",         # Pro model  
+                "gemini-pro",             # Legacy
+            ]
+            
+            for model_name in model_names:
+                try:
+                    self._model = genai.GenerativeModel(model_name)
+                    self._model_name = model_name
+                    logger.info(f"Initialized Gemini model: {model_name}")
+                    return self._model
+                except Exception as e:
+                    logger.warning(f"Model {model_name} failed: {e}")
+                    continue
+            
+            return None
+        except Exception as e:
+            logger.error(f"Failed to initialize Gemini: {e}")
+            return None
 
     def get_stock_context(self, ticker: str) -> dict:
         """Get real-time stock data for context"""
@@ -104,6 +142,8 @@ class StockChatAssistant:
 
     def chat(self, message: str, user_id: int = None, conversation_history: list = None) -> dict:
         """Process chat message and generate AI response"""
+        import time
+        
         try:
             # Check for API key first
             if not self.gemini_key:
@@ -112,43 +152,22 @@ class StockChatAssistant:
                     "error": True
                 }
             
-            # Import and configure Gemini
-            try:
-                import google.generativeai as genai
-            except ImportError:
-                return {
-                    "response": "AI service is not available. The required library is not installed.",
-                    "error": True
-                }
-
-            genai.configure(api_key=self.gemini_key)
+            # Simple rate limiting - wait if too fast
+            current_time = time.time()
+            time_since_last = current_time - self._last_request_time
+            if time_since_last < self._min_request_interval:
+                wait_time = self._min_request_interval - time_since_last
+                time.sleep(wait_time)
             
-            # Try different model names - free tier uses gemini-pro or gemini-1.5-flash
-            model_names = [
-                "gemini-2.0-flash",      # Newest model
-                "gemini-1.5-flash",       # Fast model
-                "gemini-1.5-pro",         # Pro model
-                "gemini-pro",             # Legacy model
-            ]
+            self._last_request_time = time.time()
             
-            model = None
-            last_error = None
-            for model_name in model_names:
-                try:
-                    model = genai.GenerativeModel(model_name)
-                    # Test if model works by checking it exists
-                    logger.info(f"Using Gemini model: {model_name}")
-                    break
-                except Exception as e:
-                    last_error = e
-                    logger.warning(f"Model {model_name} not available: {e}")
-                    continue
+            # Get cached model
+            model = self._get_model()
             
             if model is None:
                 return {
-                    "response": f"Could not initialize AI model. Please check your API key configuration.",
-                    "error": True,
-                    "error_message": str(last_error) if last_error else "No model available"
+                    "response": "Could not initialize AI model. Please check your API key configuration.",
+                    "error": True
                 }
 
             # Extract tickers from message
@@ -265,19 +284,23 @@ Respond helpfully and concisely:"""
             
             # Provide more helpful error messages
             error_msg = str(e).lower()
+            error_str = str(e)
+            
             if "api_key" in error_msg or "invalid" in error_msg:
-                user_message = "The AI service is temporarily unavailable. Please try again later."
-            elif "quota" in error_msg or "rate" in error_msg:
-                user_message = "Too many requests. Please wait a moment and try again."
+                user_message = "The AI service is temporarily unavailable. Please check your API key."
+            elif "quota" in error_msg or "rate" in error_msg or "resource" in error_msg or "429" in error_str:
+                user_message = "The AI service is busy. Gemini free tier has rate limits - please wait 30-60 seconds and try again."
             elif "blocked" in error_msg or "safety" in error_msg:
                 user_message = "I couldn't respond to that query. Please try a different question."
+            elif "404" in error_str or "not found" in error_msg:
+                user_message = "AI model not available. Please contact support."
             else:
-                user_message = "Sorry, I encountered an error processing your request. Please try again."
+                user_message = f"Sorry, I encountered an error: {error_str[:100]}"
             
             return {
                 "response": user_message,
                 "error": True,
-                "error_message": str(e)
+                "error_message": error_str
             }
 
 
