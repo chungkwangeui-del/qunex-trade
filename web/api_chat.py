@@ -297,31 +297,39 @@ def chat():
         "history": [{"role": "user", "content": "..."}, {"role": "assistant", "content": "..."}]
     }
     """
-    data = request.get_json()
-    
-    if not data or not data.get("message"):
-        return jsonify({"error": "Message is required"}), 400
-
-    message = data.get("message", "").strip()
-    history = data.get("history", [])
-
-    if len(message) > 2000:
-        return jsonify({"error": "Message too long (max 2000 characters)"}), 400
-
-    # Get user ID if authenticated
-    user_id = None
     try:
-        if current_user and current_user.is_authenticated:
-            user_id = current_user.id
-    except Exception:
-        pass  # User not authenticated, continue without user context
+        data = request.get_json()
+        
+        if not data or not data.get("message"):
+            return jsonify({"error": "Message is required", "response": "Please enter a message."}), 400
 
-    result = chat_assistant.chat(message, user_id, history)
-    
-    if result.get("error") and "error_message" in result:
-        return jsonify(result), 500
+        message = data.get("message", "").strip()
+        history = data.get("history", [])
 
-    return jsonify(result)
+        if len(message) > 2000:
+            return jsonify({"error": "Message too long", "response": "Message too long (max 2000 characters)"}), 400
+
+        # Get user ID if authenticated
+        user_id = None
+        try:
+            if current_user and current_user.is_authenticated:
+                user_id = current_user.id
+        except Exception:
+            pass  # User not authenticated, continue without user context
+
+        result = chat_assistant.chat(message, user_id, history)
+        
+        # Always return 200 - the error info is in the response body
+        # This allows the frontend to display the error message properly
+        return jsonify(result), 200
+        
+    except Exception as e:
+        logger.error(f"Chat endpoint error: {e}", exc_info=True)
+        return jsonify({
+            "response": "Sorry, something went wrong. Please try again.",
+            "error": True,
+            "error_message": str(e)
+        }), 200  # Return 200 so frontend can show the message
 
 
 @api_chat.route("/api/chat/suggest", methods=["GET"])
