@@ -634,7 +634,7 @@ Qunex Trade Team
                             </p>
                             <p style="margin: 16px 0 0 0; color: #718096; font-size: 12px; line-height: 1.5;">
                                 This is an automated message, please do not reply to this email.<br/>
-                                © 2025 Qunex Trade. All rights reserved.
+                                © 2026 Qunex Trade. All rights reserved.
                             </p>
                         </td>
                     </tr>

@@ -32,23 +32,34 @@ class StockChatAssistant:
 
     def __init__(self):
         self.gemini_key = os.getenv("GEMINI_API_KEY")
-        self.polygon = get_polygon_service()
+        self._polygon = None
+    
+    @property
+    def polygon(self):
+        """Lazy-load polygon service to avoid initialization issues"""
+        if self._polygon is None:
+            self._polygon = get_polygon_service()
+        return self._polygon
 
     def get_stock_context(self, ticker: str) -> dict:
         """Get real-time stock data for context"""
         try:
             snapshot = self.polygon.get_snapshot(ticker.upper())
             if snapshot:
+                # Extract data from nested structures
+                day = snapshot.get("day", {})
+                prev_day = snapshot.get("prevDay", {})
+                
                 return {
                     "ticker": ticker.upper(),
-                    "price": snapshot.get("price"),
-                    "change": snapshot.get("change"),
-                    "change_percent": snapshot.get("change_percent"),
-                    "volume": snapshot.get("volume"),
-                    "high": snapshot.get("high"),
-                    "low": snapshot.get("low"),
-                    "open": snapshot.get("open"),
-                    "prev_close": snapshot.get("prev_close"),
+                    "price": snapshot.get("price", 0),
+                    "change": snapshot.get("todaysChange", 0),
+                    "change_percent": snapshot.get("todaysChangePerc", 0),
+                    "volume": day.get("v", 0),
+                    "high": day.get("h", 0),
+                    "low": day.get("l", 0),
+                    "open": day.get("o", 0),
+                    "prev_close": prev_day.get("c", 0),
                 }
         except Exception as e:
             logger.warning(f"Failed to get stock context for {ticker}: {e}")
@@ -94,11 +105,19 @@ class StockChatAssistant:
     def chat(self, message: str, user_id: int = None, conversation_history: list = None) -> dict:
         """Process chat message and generate AI response"""
         try:
-            import google.generativeai as genai
-
+            # Check for API key first
             if not self.gemini_key:
                 return {
-                    "response": "AI assistant is not configured. Please set GEMINI_API_KEY.",
+                    "response": "AI assistant is not configured. Please contact the administrator to set up the GEMINI_API_KEY.",
+                    "error": True
+                }
+            
+            # Import and configure Gemini
+            try:
+                import google.generativeai as genai
+            except ImportError:
+                return {
+                    "response": "AI service is not available. The required library is not installed.",
                     "error": True
                 }
 
@@ -126,9 +145,14 @@ class StockChatAssistant:
             if stock_data:
                 context_parts.append("REAL-TIME STOCK DATA:")
                 for ticker, data in stock_data.items():
+                    price = data.get('price') or 0
+                    change_pct = data.get('change_percent') or 0
+                    volume = data.get('volume') or 0
+                    high = data.get('high') or 0
+                    low = data.get('low') or 0
                     context_parts.append(
-                        f"- {ticker}: ${data['price']:.2f} ({data['change_percent']:+.2f}%) "
-                        f"Volume: {data['volume']:,} High: ${data['high']:.2f} Low: ${data['low']:.2f}"
+                        f"- {ticker}: ${price:.2f} ({change_pct:+.2f}%) "
+                        f"Volume: {volume:,.0f} High: ${high:.2f} Low: ${low:.2f}"
                     )
 
             if user_context.get("watchlist"):
@@ -188,6 +212,14 @@ USER MESSAGE: {message}
 Respond helpfully and concisely:"""
 
             response = model.generate_content(full_prompt)
+            
+            # Handle response safely
+            if not response or not response.text:
+                return {
+                    "response": "I couldn't generate a response. Please try rephrasing your question.",
+                    "error": True
+                }
+            
             response_text = response.text.strip()
 
             # Extract any stock mentions for quick links
@@ -203,8 +235,20 @@ Respond helpfully and concisely:"""
 
         except Exception as e:
             logger.error(f"Chat error: {e}", exc_info=True)
+            
+            # Provide more helpful error messages
+            error_msg = str(e).lower()
+            if "api_key" in error_msg or "invalid" in error_msg:
+                user_message = "The AI service is temporarily unavailable. Please try again later."
+            elif "quota" in error_msg or "rate" in error_msg:
+                user_message = "Too many requests. Please wait a moment and try again."
+            elif "blocked" in error_msg or "safety" in error_msg:
+                user_message = "I couldn't respond to that query. Please try a different question."
+            else:
+                user_message = "Sorry, I encountered an error processing your request. Please try again."
+            
             return {
-                "response": f"Sorry, I encountered an error processing your request. Please try again.",
+                "response": user_message,
                 "error": True,
                 "error_message": str(e)
             }

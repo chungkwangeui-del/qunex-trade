@@ -88,11 +88,12 @@ def create_app(config_class=Config):
     from web.api_patterns import api_patterns
     from web.api_sentiment import api_sentiment
     
-    # Advanced features - Chat, Leaderboard, Flow, WebSocket
+    # Advanced features - Chat, Leaderboard, Flow, WebSocket, SSE
     from web.api_chat import api_chat
     from web.api_leaderboard import api_leaderboard
     from web.api_flow import api_flow
     from web.api_websocket import api_websocket
+    from web.api_sse import api_sse
 
     oauth.init_app(app)
 
@@ -118,11 +119,12 @@ def create_app(config_class=Config):
     app.register_blueprint(api_patterns)
     app.register_blueprint(api_sentiment)
     
-    # Register advanced features - Chat, Leaderboard, Flow, WebSocket
+    # Register advanced features - Chat, Leaderboard, Flow, WebSocket, SSE
     app.register_blueprint(api_chat)
     app.register_blueprint(api_leaderboard)
     app.register_blueprint(api_flow)
     app.register_blueprint(api_websocket)
+    app.register_blueprint(api_sse)
 
     # Apply rate limiting to auth routes
     auth_routes = [

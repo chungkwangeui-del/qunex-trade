@@ -62,6 +62,21 @@ class Config:
     CACHE_REDIS_URL = REDIS_URL if REDIS_URL != "memory://" else None
     CACHE_DEFAULT_TIMEOUT = 300
     CACHE_KEY_PREFIX = "qunex_"
+    
+    # Redis Cache Options (for production stability)
+    if CACHE_TYPE == "RedisCache":
+        CACHE_OPTIONS = {
+            "socket_connect_timeout": 5,
+            "socket_timeout": 5,
+            "retry_on_timeout": True,
+        }
+    
+    # Session Configuration (use Redis in production for better scaling)
+    SESSION_TYPE = "redis" if REDIS_URL != "memory://" else "filesystem"
+    SESSION_REDIS = REDIS_URL if REDIS_URL != "memory://" else None
+    SESSION_KEY_PREFIX = "qunex_session:"
+    SESSION_USE_SIGNER = True
+    SESSION_PERMANENT = True
 
     # App Constants
     RATE_LIMITS = {"daily": 200, "hourly": 50, "auth_per_minute": 10}
