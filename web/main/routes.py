@@ -430,3 +430,14 @@ def leaderboard():
 def institutional_flow():
     """Institutional Flow Analysis - Options, Dark Pool, Insider"""
     return render_template("flow.html", user=current_user)
+
+
+@main.route("/agents")
+@login_required
+def agents_dashboard():
+    """Automated Agents Dashboard - Monitor and manage system agents"""
+    # Check if user is admin
+    if not (current_user.email.endswith("@admin.com") or 
+            current_user.subscription_tier == "developer"):
+        return redirect(url_for("main.index"))
+    return render_template("agents.html", user=current_user)

@@ -94,6 +94,9 @@ def create_app(config_class=Config):
     from web.api_flow import api_flow
     from web.api_websocket import api_websocket
     from web.api_sse import api_sse
+    
+    # Automated Agents API
+    from web.api_agents import api_agents
 
     oauth.init_app(app)
 
@@ -125,6 +128,9 @@ def create_app(config_class=Config):
     app.register_blueprint(api_flow)
     app.register_blueprint(api_websocket)
     app.register_blueprint(api_sse)
+    
+    # Register Automated Agents API
+    app.register_blueprint(api_agents)
 
     # Apply rate limiting to auth routes
     auth_routes = [

@@ -54,3 +54,6 @@ structlog==24.1.0
 
 # Security (XSS Prevention)
 bleach==6.1.0
+
+# System Monitoring (for Agents)
+psutil==7.0.0
