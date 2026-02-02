@@ -156,6 +156,7 @@ class UltimateBot:
     """
 
     def __init__(self):
+        self.project_root = Path(__file__).parent.parent.parent
         self.bots: Dict[str, BotInfo] = {}
         self.task_queue: List[UltimateTask] = []
         self.completed_tasks: List[UltimateTask] = []
@@ -662,6 +663,34 @@ class UltimateBot:
         print(f"  │ Performance:      {performance:.1f}%{' '*16} │")
         print(f"  │ Top Expert:       {top_name[:20]:<18} │")
         print(f"  └{'─'*40}┘")
+
+    async def _health_check(self):
+        """Perform health check on all systems."""
+        try:
+            # Check bot statuses
+            healthy_bots = sum(1 for b in self.bots.values() if b.enabled and b.status != BotStatus.ERROR)
+            total_bots = len(self.bots)
+            
+            if healthy_bots < total_bots:
+                unhealthy = [b.name for b in self.bots.values() if b.status == BotStatus.ERROR]
+                print(f"     ⚠️ {len(unhealthy)} bots have errors: {', '.join(unhealthy[:3])}")
+            
+            # Check disk space (simple check)
+            try:
+                import shutil
+                total, used, free = shutil.disk_usage(self.project_root)
+                free_gb = free / (1024**3)
+                if free_gb < 1:
+                    print(f"     ⚠️ Low disk space: {free_gb:.1f}GB free")
+            except Exception:
+                pass
+            
+            # Record health in reports
+            if self.reports:
+                self.reports.record_issue(f"Health check: {healthy_bots}/{total_bots} bots healthy")
+                
+        except Exception as e:
+            logger.debug(f"Health check error: {e}")
 
     def _task_exists(self, description: str) -> bool:
         """Check if a similar task already exists."""
