@@ -765,7 +765,7 @@
     "file_path": "agents\\autonomous\\reviewer.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 3
+    "times_seen": 4
   },
   {
     "error_hash": "ca836bcb8c6b",
@@ -773,7 +773,7 @@
     "file_path": "agents\\cli.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 2
+    "times_seen": 3
   },
   {
     "error_hash": "d2b2831e816d",
@@ -781,7 +781,7 @@
     "file_path": "agents\\project_scanner.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 2
+    "times_seen": 3
   },
   {
     "error_hash": "56306d3a3ca4",
@@ -789,7 +789,7 @@
     "file_path": "agents\\welcome.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 2
+    "times_seen": 3
   },
   {
     "error_hash": "d032299e3400",
@@ -797,7 +797,7 @@
     "file_path": "ml\\ai_score_system.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 2
+    "times_seen": 3
   },
   {
     "error_hash": "3787d167d708",
@@ -805,7 +805,7 @@
     "file_path": "scripts\\cron_check_alerts.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 2
+    "times_seen": 3
   },
   {
     "error_hash": "501f17aad0f5",
@@ -813,7 +813,7 @@
     "file_path": "scripts\\cron_run_agents.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 2
+    "times_seen": 3
   },
   {
     "error_hash": "d10eadf5bd8c",
@@ -821,7 +821,7 @@
     "file_path": "scripts\\cron_update_ai_scores.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 2
+    "times_seen": 3
   },
   {
     "error_hash": "4d124b520461",
@@ -829,7 +829,7 @@
     "file_path": "scripts\\cron_update_ai_scores.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 2
+    "times_seen": 3
   },
   {
     "error_hash": "ee58bc56005c",
@@ -837,7 +837,7 @@
     "file_path": "scripts\\refresh_data_cron.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 2
+    "times_seen": 3
   },
   {
     "error_hash": "f95b14380f4f",
@@ -845,7 +845,7 @@
     "file_path": "web\\advanced_sr_analysis.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 2
+    "times_seen": 3
   },
   {
     "error_hash": "4f9362dd348c",
@@ -853,7 +853,7 @@
     "file_path": "web\\api_analytics.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 2
+    "times_seen": 3
   },
   {
     "error_hash": "c70f806064fe",
@@ -861,7 +861,7 @@
     "file_path": "web\\api_chat.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 2
+    "times_seen": 3
   },
   {
     "error_hash": "6218fcc86b97",
@@ -869,7 +869,7 @@
     "file_path": "web\\api_earnings.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 2
+    "times_seen": 3
   },
   {
     "error_hash": "2b64677cded5",
@@ -877,7 +877,7 @@
     "file_path": "web\\api_journal.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 2
+    "times_seen": 3
   },
   {
     "error_hash": "61a2cfecae1b",
@@ -885,7 +885,7 @@
     "file_path": "web\\api_journal.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 2
+    "times_seen": 3
   },
   {
     "error_hash": "ec1884256233",
@@ -893,7 +893,7 @@
     "file_path": "web\\api_main.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 2
+    "times_seen": 3
   },
   {
     "error_hash": "ecbd7d3f5cd7",
@@ -901,7 +901,7 @@
     "file_path": "web\\api_main.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 2
+    "times_seen": 3
   },
   {
     "error_hash": "8118eac9e0a0",
@@ -909,7 +909,7 @@
     "file_path": "web\\api_market_features.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 2
+    "times_seen": 3
   },
   {
     "error_hash": "e501984f1400",
@@ -917,7 +917,7 @@
     "file_path": "web\\api_market_features.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 2
+    "times_seen": 3
   },
   {
     "error_hash": "2a672a9e0a46",
@@ -925,7 +925,7 @@
     "file_path": "web\\api_portfolio.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 2
+    "times_seen": 3
   },
   {
     "error_hash": "6a5322af7dc4",
@@ -933,7 +933,7 @@
     "file_path": "web\\api_scalp.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 2
+    "times_seen": 3
   },
   {
     "error_hash": "c8f3651a6c5f",
@@ -941,7 +941,7 @@
     "file_path": "web\\api_scalp.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 2
+    "times_seen": 3
   },
   {
     "error_hash": "d24c00b7aa64",
@@ -949,7 +949,7 @@
     "file_path": "web\\api_scalp.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 2
+    "times_seen": 3
   },
   {
     "error_hash": "a19bec8e92d7",
@@ -957,7 +957,7 @@
     "file_path": "web\\api_scalp.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 2
+    "times_seen": 3
   },
   {
     "error_hash": "84c57c75900a",
@@ -965,7 +965,7 @@
     "file_path": "web\\api_scalp.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 2
+    "times_seen": 3
   },
   {
     "error_hash": "af11ea6b22ad",
@@ -973,7 +973,7 @@
     "file_path": "web\\api_scalp.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 2
+    "times_seen": 3
   },
   {
     "error_hash": "0631adf0aa8e",
@@ -981,7 +981,7 @@
     "file_path": "web\\api_scalp.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 2
+    "times_seen": 3
   },
   {
     "error_hash": "ec36fb7a8879",
@@ -989,7 +989,7 @@
     "file_path": "web\\api_watchlist.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 2
+    "times_seen": 3
   },
   {
     "error_hash": "b122a58e9e4d",
@@ -997,7 +997,7 @@
     "file_path": "web\\app.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 2
+    "times_seen": 3
   },
   {
     "error_hash": "9ce74b84db42",
@@ -1005,7 +1005,7 @@
     "file_path": "web\\polygon_service.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 2
+    "times_seen": 3
   },
   {
     "error_hash": "9f6b6cd59b21",
@@ -1013,7 +1013,7 @@
     "file_path": "web\\polygon_service.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 2
+    "times_seen": 3
   },
   {
     "error_hash": "5ad89de89fa0",
@@ -1061,7 +1061,7 @@
     "file_path": "web\\swing_service.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 1
+    "times_seen": 2
   },
   {
     "error_hash": "443b554d2e20",
@@ -1069,7 +1069,7 @@
     "file_path": "web\\swing_service.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 1
+    "times_seen": 2
   },
   {
     "error_hash": "9da4c9faaa30",
@@ -1077,7 +1077,7 @@
     "file_path": "web\\swing_service.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 1
+    "times_seen": 2
   },
   {
     "error_hash": "4b0e9fbace3a",
@@ -1085,7 +1085,7 @@
     "file_path": "web\\swing_service.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 1
+    "times_seen": 2
   },
   {
     "error_hash": "121d9d7ed5d4",
@@ -1093,7 +1093,7 @@
     "file_path": "agents\\autonomous\\deployer.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 1
+    "times_seen": 2
   },
   {
     "error_hash": "7444f7ed15e9",
@@ -1101,7 +1101,7 @@
     "file_path": "agents\\autonomous\\developer.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 1
+    "times_seen": 2
   },
   {
     "error_hash": "1871c135763b",
@@ -1109,7 +1109,7 @@
     "file_path": "agents\\autonomous\\fixer.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 1
+    "times_seen": 2
   },
   {
     "error_hash": "cc1a34db7e39",
@@ -1117,7 +1117,7 @@
     "file_path": "agents\\autonomous\\fixer.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 1
+    "times_seen": 2
   },
   {
     "error_hash": "8bb9d53d49ce",
@@ -1125,7 +1125,7 @@
     "file_path": "agents\\autonomous\\fixer.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 1
+    "times_seen": 2
   },
   {
     "error_hash": "2525109e8a16",
@@ -1133,7 +1133,7 @@
     "file_path": "agents\\autonomous\\fixer.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 1
+    "times_seen": 2
   },
   {
     "error_hash": "49279141c117",
@@ -1141,7 +1141,7 @@
     "file_path": "agents\\autonomous\\fixer.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 1
+    "times_seen": 2
   },
   {
     "error_hash": "4f9e2397ecf3",
@@ -1149,7 +1149,7 @@
     "file_path": "agents\\autonomous\\fixer.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 1
+    "times_seen": 2
   },
   {
     "error_hash": "08f8cc907fda",
