@@ -411,6 +411,10 @@ class UltimateBot:
         """Run the fixer proactively every cycle."""
         print("  🛠️ Running proactive fixes...")
 
+        total_fixes = 0
+        all_files = set()
+
+        # Phase 1: Fix syntax errors (RealFixer)
         try:
             from .real_fixer import RealFixerAgent
             fixer = RealFixerAgent()
@@ -420,24 +424,47 @@ class UltimateBot:
             files = result.get('fixed_files', [])
 
             if fixed > 0:
-                print(f"     ✅ Fixed {fixed} errors in {len(files)} files")
-                for f in files[:5]:  # Show first 5
-                    print(f"        • {f}")
-                if len(files) > 5:
-                    print(f"        ... and {len(files) - 5} more")
-
-                # Update expert stats
-                self.bots['fixer'].record_success(1.0)
-                if self.competition:
-                    self.competition.record_task_success('fixer', 1.0)
-
-                # IMMEDIATELY commit fixes!
-                await self._commit_fixes(f"🛠️ Auto-fixed {fixed} errors in {len(files)} files")
-            else:
-                print(f"     ✓ No errors to fix")
+                total_fixes += fixed
+                all_files.update(files)
+                print(f"     ✅ Syntax: Fixed {fixed} errors")
 
         except Exception as e:
-            print(f"     ⚠️ Fixer error: {e}")
+            logger.debug(f"RealFixer error: {e}")
+
+        # Phase 2: Expert fixes (code quality, patterns)
+        try:
+            from .expert_fixer import ExpertFixer
+            expert = ExpertFixer()
+            result = await expert.fix_all()
+
+            expert_fixes = result.get('fixes_applied', 0)
+            expert_files = result.get('files_fixed', [])
+            manual_count = result.get('manual_review_count', 0)
+
+            if expert_fixes > 0:
+                total_fixes += expert_fixes
+                all_files.update(expert_files)
+                print(f"     ✅ Expert: Fixed {expert_fixes} code quality issues")
+
+            if manual_count > 0:
+                print(f"     📋 {manual_count} issues need manual review (see reports/)")
+
+        except Exception as e:
+            logger.debug(f"ExpertFixer error: {e}")
+
+        # Summary and commit
+        if total_fixes > 0:
+            print(f"     🎯 Total: {total_fixes} fixes in {len(all_files)} files")
+
+            # Update expert stats
+            self.bots['fixer'].record_success(1.0)
+            if self.competition:
+                self.competition.record_task_success('fixer', 1.0)
+
+            # Commit fixes
+            await self._commit_fixes(f"🛠️ Auto-fixed {total_fixes} issues in {len(all_files)} files")
+        else:
+            print(f"     ✓ No errors to fix")
 
     async def _commit_fixes(self, message: str):
         """Immediately commit any fixes."""
