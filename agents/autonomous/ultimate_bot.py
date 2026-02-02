@@ -668,31 +668,85 @@ class UltimateBot:
         print(f"     Assigned {assigned} tasks")
 
     def _select_bot_for_task(self, task: UltimateTask) -> Optional[str]:
-        """Select the best bot for a given task."""
+        """Select the best bot for a given task - distribute work across experts."""
         desc = task.description.lower()
 
-        # MOST issues should go to Fixer first (it actually fixes code!)
-        # Only route VERY specific things to other experts
-
-        # Critical security vulnerabilities ONLY (specific keywords)
-        if any(word in desc for word in ['sql injection', 'xss attack', 'hardcoded password', 'hardcoded secret']):
+        # === SECURITY EXPERT ===
+        # Security vulnerabilities and auth issues
+        if any(word in desc for word in [
+            'sql injection', 'xss', 'csrf', 'injection',
+            'hardcoded password', 'hardcoded secret', 'hardcoded key',
+            'unprotected route', 'login_required', 'auth',
+            'vulnerability', 'security'
+        ]):
             return 'security'
 
-        # Test failures -> Tester Bot
-        if any(word in desc for word in ['test fail', 'assert fail', 'pytest']):
+        # === TESTER EXPERT ===
+        # Test-related issues
+        if any(word in desc for word in [
+            'test fail', 'assert fail', 'pytest', 'unittest',
+            'test_', 'coverage', 'mock'
+        ]):
             return 'tester'
 
-        # Git operations -> Git Bot
-        if any(word in desc for word in ['merge conflict', 'git conflict']):
+        # === ANALYZER EXPERT ===
+        # Code quality and complexity issues
+        if any(word in desc for word in [
+            'high complexity', 'complexity:', 'cyclomatic',
+            'too many arguments', 'too many', 'refactor',
+            'code smell', 'duplicate code'
+        ]):
+            return 'analyzer'
+
+        # === HEALER EXPERT ===
+        # Exception handling and error recovery
+        if any(word in desc for word in [
+            'pass in except', 'bare except', 'exception handling',
+            'error handling', 'silent fail', 'log exception'
+        ]):
+            return 'healer'
+
+        # === DEVELOPER EXPERT ===
+        # Feature development and improvements
+        if any(word in desc for word in [
+            'missing feature', 'todo', 'fixme', 'implement',
+            'add feature', 'enhancement'
+        ]):
+            return 'developer'
+
+        # === GIT EXPERT ===
+        # Version control issues
+        if any(word in desc for word in [
+            'merge conflict', 'git conflict', 'commit', 'branch'
+        ]):
             return 'git'
 
-        # Deploy requests -> Deployer Bot
-        if 'deploy to production' in desc or 'release' in desc:
+        # === DEPLOYER EXPERT ===
+        # Deployment and config issues
+        if any(word in desc for word in [
+            'deploy', 'release', 'production', 'config',
+            'environment', 'debug enabled'
+        ]):
             return 'deployer'
 
-        # DEFAULT: EVERYTHING goes to Fixer (it actually fixes code!)
-        # This includes: bare_except, unused_import, syntax errors, bugs, etc.
-        return 'fixer'
+        # === FIXER EXPERT ===
+        # Actual code fixes (syntax, imports, etc.)
+        # Only real fixable issues go here
+        if any(word in desc for word in [
+            'syntax error', 'import error', 'unused import',
+            'name error', 'attribute error', 'type error'
+        ]):
+            return 'fixer'
+
+        # Default: Round-robin based on task count to balance load
+        bot_tasks = {bot_id: 0 for bot_id in self.bots.keys()}
+        for t in self.task_queue:
+            if t.assigned_bot:
+                bot_tasks[t.assigned_bot] = bot_tasks.get(t.assigned_bot, 0) + 1
+
+        # Find bot with least tasks
+        min_bot = min(bot_tasks, key=bot_tasks.get)
+        return min_bot
 
     async def _execute_tasks(self):
         """Execute assigned tasks through expert bots."""
