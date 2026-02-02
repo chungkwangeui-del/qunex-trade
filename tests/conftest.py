@@ -20,7 +20,6 @@ from web.app import create_app
 from web.database import db, User
 from web.config import Config
 
-
 class TestConfig(Config):
     """Test configuration"""
     TESTING = True
@@ -28,21 +27,19 @@ class TestConfig(Config):
     WTF_CSRF_ENABLED = False
     SECRET_KEY = "test-secret-key"
     CACHE_TYPE = "SimpleCache"
-    
+
     # Disable rate limiting in tests
     RATELIMIT_ENABLED = False
-
 
 @pytest.fixture(scope="session")
 def app():
     """Create application for testing"""
     app = create_app(TestConfig)
-    
+
     with app.app_context():
         db.create_all()
         yield app
         db.drop_all()
-
 
 @pytest.fixture(scope="function")
 def client(app):
@@ -50,13 +47,11 @@ def client(app):
     with app.test_client() as client:
         yield client
 
-
 @pytest.fixture(scope="function")
 def app_context(app):
     """Create app context for database operations"""
     with app.app_context():
         yield app
-
 
 @pytest.fixture(scope="function")
 def db_session(app_context):
@@ -64,7 +59,6 @@ def db_session(app_context):
     db.session.begin_nested()
     yield db.session
     db.session.rollback()
-
 
 @pytest.fixture
 def test_user(app_context, db_session):
@@ -81,7 +75,6 @@ def test_user(app_context, db_session):
     db.session.delete(user)
     db.session.commit()
 
-
 @pytest.fixture
 def authenticated_client(client, test_user):
     """Create an authenticated test client"""
@@ -90,13 +83,12 @@ def authenticated_client(client, test_user):
         session["_fresh"] = True
     yield client
 
-
 @pytest.fixture
 def mock_polygon():
     """Mock Polygon API service"""
     with patch("web.polygon_service.PolygonService") as mock:
         instance = mock.return_value
-        
+
         # Mock common methods
         instance.get_stock_quote.return_value = {
             "price": 150.00,
@@ -108,27 +100,26 @@ def mock_polygon():
             "low": 147.50,
             "prev_close": 147.50
         }
-        
+
         instance.get_market_indices.return_value = {
             "SPY": {"name": "S&P 500", "price": 500.00, "change_percent": 0.5},
             "QQQ": {"name": "NASDAQ", "price": 400.00, "change_percent": 0.8},
             "DIA": {"name": "Dow Jones", "price": 380.00, "change_percent": 0.3},
             "IWM": {"name": "Russell 2000", "price": 200.00, "change_percent": -0.2}
         }
-        
+
         instance.get_market_snapshot.return_value = {
             "AAPL": {"price": 150.00, "change": 2.50, "change_percent": 1.69},
             "MSFT": {"price": 350.00, "change": -1.50, "change_percent": -0.43}
         }
-        
+
         instance.get_ticker_details.return_value = {
             "name": "Apple Inc.",
             "market_cap": 2500000000000,
             "description": "Apple designs, manufactures, and sells smartphones..."
         }
-        
-        yield instance
 
+        yield instance
 
 @pytest.fixture
 def mock_news():
@@ -152,7 +143,6 @@ def mock_news():
         }
     ]
 
-
 # Helper functions for tests
 def login_user(client, email="test@example.com", password="testpassword123"):
     """Helper to log in a user"""
@@ -161,7 +151,6 @@ def login_user(client, email="test@example.com", password="testpassword123"):
         "password": password
     }, follow_redirects=True)
 
-
 def create_user(db_session, username, email, password="testpass123", verified=True):
     """Helper to create a user"""
     user = User(username=username, email=email, is_verified=verified)
@@ -169,4 +158,3 @@ def create_user(db_session, username, email, password="testpass123", verified=Tr
     db.session.add(user)
     db.session.commit()
     return user
-
