@@ -615,16 +615,17 @@ class UltimateBot:
         """Print summary for this cycle."""
         # Get stats
         total_bots = len([b for b in self.bots.values() if b.enabled])
-        active_bots = len([b for b in self.bots.values() if b.enabled and b.success_count > 0])
+        active_bots = len([b for b in self.bots.values() if b.enabled and b.tasks_completed > 0])
 
         # Calculate overall performance
-        total_success = sum(b.success_count for b in self.bots.values())
-        total_tasks = sum(b.total_tasks for b in self.bots.values())
-        performance = (total_success / total_tasks * 100) if total_tasks > 0 else 100
+        total_completed = sum(b.tasks_completed for b in self.bots.values())
+        total_failed = sum(b.tasks_failed for b in self.bots.values())
+        total_tasks = total_completed + total_failed
+        performance = (total_completed / total_tasks * 100) if total_tasks > 0 else 100
 
         # Find top performer
-        top_bot = max(self.bots.values(), key=lambda b: b.success_count, default=None)
-        top_name = top_bot.name if top_bot and top_bot.success_count > 0 else "N/A"
+        top_bot = max(self.bots.values(), key=lambda b: b.tasks_completed, default=None)
+        top_name = top_bot.name if top_bot and top_bot.tasks_completed > 0 else "N/A"
 
         print(f"\n  ┌{'─'*40}┐")
         print(f"  │ {'CYCLE SUMMARY':<38} │")

@@ -1,5 +1,806 @@
 {
-  "cycle_count": 0,
-  "last_save": "2026-02-02T11:05:00.000000",
-  "task_queue": []
+  "cycle_count": 35,
+  "last_save": "2026-02-02T11:04:02.079807",
+  "task_queue": [
+    {
+      "id": "issue_20260202101646_1883",
+      "description": "[web\\api_polygon.py] {'file_path': 'web\\\\api_polygon.py', 'line_number': 116, 'category': 'security', 'severity': 'medium', 'title': 'Unprotected Route', 'description': 'Found unprotected_route pattern', 'suggestion': 'Consider adding @login_required', 'auto_fixable': False}",
+      "priority": 1,
+      "assigned_bot": "security",
+      "status": "in_progress",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202102805_1136",
+      "description": "[web\\api_advanced_sr.py] {'file_path': 'web\\\\api_advanced_sr.py', 'line_number': 83, 'category': 'security', 'severity': 'medium', 'title': 'Unprotected Route', 'description': 'Found unprotected_route pattern', 'suggestion': 'Consider adding @login_required', 'auto_fixable': False}",
+      "priority": 1,
+      "assigned_bot": "fixer",
+      "status": "in_progress",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202105039_344",
+      "description": "[agents\\autonomous\\self_healer.py] Sql Injection: Use parameterized queries",
+      "priority": 1,
+      "assigned_bot": "security",
+      "status": "in_progress",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202110207_6",
+      "description": "[agents\\database_agent.py] Sql Injection: Use parameterized queries",
+      "priority": 1,
+      "assigned_bot": "security",
+      "status": "completed",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202110207_16",
+      "description": "[agents\\health_agent.py] Sql Injection: Use parameterized queries",
+      "priority": 1,
+      "assigned_bot": "security",
+      "status": "completed",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202110207_97",
+      "description": "[tests\\conftest.py] Hardcoded Secret: Move to environment variable",
+      "priority": 1,
+      "assigned_bot": "security",
+      "status": "completed",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202110207_202",
+      "description": "[web\\auth.py] Sql Injection: Use parameterized queries",
+      "priority": 1,
+      "assigned_bot": "security",
+      "status": "completed",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202110208_337",
+      "description": "[agents\\autonomous\\reviewer.py] Eval Usage: Avoid eval/exec - use ast.literal_eval",
+      "priority": 1,
+      "assigned_bot": "fixer",
+      "status": "completed",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202105901_356",
+      "description": "[agents\\autonomous\\test_runner.py] High complexity: _parse_pytest_output: Break into smaller functions",
+      "priority": 2,
+      "assigned_bot": "tester",
+      "status": "failed",
+      "retries": 3
+    },
+    {
+      "id": "issue_20260202110101_233",
+      "description": "[web\\scalp_service.py] High complexity: generate_scalp_signal: Break into smaller functions",
+      "priority": 2,
+      "assigned_bot": "fixer",
+      "status": "completed",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202110101_240",
+      "description": "[web\\swing_service.py] High complexity: _detect_market_structure: Break into smaller functions",
+      "priority": 2,
+      "assigned_bot": "fixer",
+      "status": "completed",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202110101_241",
+      "description": "[web\\swing_service.py] High complexity: _detect_order_blocks: Break into smaller functions",
+      "priority": 2,
+      "assigned_bot": "fixer",
+      "status": "completed",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202110101_243",
+      "description": "[web\\swing_service.py] High complexity: _calculate_confluence: Break into smaller functions",
+      "priority": 2,
+      "assigned_bot": "fixer",
+      "status": "completed",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202110101_244",
+      "description": "[web\\swing_service.py] High complexity: generate_swing_signal: Break into smaller functions",
+      "priority": 2,
+      "assigned_bot": "fixer",
+      "status": "completed",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202110101_276",
+      "description": "[agents\\autonomous\\deployer.py] High complexity: deploy: Break into smaller functions",
+      "priority": 2,
+      "assigned_bot": "fixer",
+      "status": "completed",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202110101_335",
+      "description": "[agents\\autonomous\\reviewer.py] High complexity: _review_python: Break into smaller functions",
+      "priority": 2,
+      "assigned_bot": "fixer",
+      "status": "completed",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202110101_349",
+      "description": "[agents\\autonomous\\smart_analyzer.py] High complexity: _ast_analysis: Break into smaller functions",
+      "priority": 2,
+      "assigned_bot": "fixer",
+      "status": "completed",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202110101_362",
+      "description": "[agents\\autonomous\\ultimate_bot.py] High complexity: _run_bot_task: Break into smaller functions",
+      "priority": 2,
+      "assigned_bot": "fixer",
+      "status": "completed",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202110207_4",
+      "description": "[agents\\cli.py] Shell Injection: Use subprocess with shell=False",
+      "priority": 2,
+      "assigned_bot": "fixer",
+      "status": "completed",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202110207_26",
+      "description": "[agents\\project_scanner.py] Debug Enabled: Set DEBUG=False in production",
+      "priority": 2,
+      "assigned_bot": "fixer",
+      "status": "completed",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202110207_40",
+      "description": "[agents\\welcome.py] Shell Injection: Use subprocess with shell=False",
+      "priority": 2,
+      "assigned_bot": "fixer",
+      "status": "completed",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202110207_68",
+      "description": "[ml\\ai_score_system.py] Pickle Load: Pickle can execute arbitrary code",
+      "priority": 2,
+      "assigned_bot": "fixer",
+      "status": "completed",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202110207_76",
+      "description": "[scripts\\cron_check_alerts.py] High complexity: check_price_alerts: Break into smaller functions",
+      "priority": 2,
+      "assigned_bot": "fixer",
+      "status": "completed",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202110207_78",
+      "description": "[scripts\\cron_run_agents.py] High complexity: run_agent_checks: Break into smaller functions",
+      "priority": 2,
+      "assigned_bot": "fixer",
+      "status": "completed",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202110207_81",
+      "description": "[scripts\\cron_update_ai_scores.py] High complexity: update_ai_scores: Break into smaller functions",
+      "priority": 2,
+      "assigned_bot": "fixer",
+      "status": "completed",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202110207_82",
+      "description": "[scripts\\cron_update_ai_scores.py] High complexity: calculate_enhanced_features: Break into smaller functions",
+      "priority": 2,
+      "assigned_bot": "fixer",
+      "status": "completed",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202110207_84",
+      "description": "[scripts\\refresh_data_cron.py] High complexity: refresh_news_data: Break into smaller functions",
+      "priority": 2,
+      "assigned_bot": "fixer",
+      "status": "completed",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202110207_101",
+      "description": "[web\\advanced_sr_analysis.py] High complexity: calculate_bounce_probability: Break into smaller functions",
+      "priority": 2,
+      "assigned_bot": "fixer",
+      "status": "completed",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202110207_110",
+      "description": "[web\\api_analytics.py] High complexity: get_trade_analysis: Break into smaller functions",
+      "priority": 2,
+      "assigned_bot": "fixer",
+      "status": "completed",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202110207_112",
+      "description": "[web\\api_chat.py] High complexity: chat: Break into smaller functions",
+      "priority": 2,
+      "assigned_bot": "fixer",
+      "status": "completed",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202110207_118",
+      "description": "[web\\api_earnings.py] High complexity: get_upcoming_earnings: Break into smaller functions",
+      "priority": 2,
+      "assigned_bot": "fixer",
+      "status": "completed",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202110207_125",
+      "description": "[web\\api_journal.py] High complexity: create_journal_entry: Break into smaller functions",
+      "priority": 2,
+      "assigned_bot": "fixer",
+      "status": "completed",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202110207_126",
+      "description": "[web\\api_journal.py] High complexity: get_journal_stats: Break into smaller functions",
+      "priority": 2,
+      "assigned_bot": "fixer",
+      "status": "completed",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202110207_135",
+      "description": "[web\\api_main.py] High complexity: get_api_status: Break into smaller functions",
+      "priority": 2,
+      "assigned_bot": "fixer",
+      "status": "completed",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202110207_136",
+      "description": "[web\\api_main.py] High complexity: test_ticker_data: Break into smaller functions",
+      "priority": 2,
+      "assigned_bot": "fixer",
+      "status": "completed",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202110207_139",
+      "description": "[web\\api_market_features.py] High complexity: get_twelvedata_market_data: Break into smaller functions",
+      "priority": 2,
+      "assigned_bot": "fixer",
+      "status": "completed",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202110207_140",
+      "description": "[web\\api_market_features.py] High complexity: get_treemap_data: Break into smaller functions",
+      "priority": 2,
+      "assigned_bot": "fixer",
+      "status": "completed",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202110207_154",
+      "description": "[web\\api_portfolio.py] High complexity: get_current_price: Break into smaller functions",
+      "priority": 2,
+      "assigned_bot": "fixer",
+      "status": "completed",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202110207_165",
+      "description": "[web\\api_scalp.py] High complexity: analyze_patterns: Break into smaller functions",
+      "priority": 2,
+      "assigned_bot": "fixer",
+      "status": "completed",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202110207_167",
+      "description": "[web\\api_scalp.py] High complexity: detect_order_blocks: Break into smaller functions",
+      "priority": 2,
+      "assigned_bot": "fixer",
+      "status": "completed",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202110207_168",
+      "description": "[web\\api_scalp.py] High complexity: detect_fakeout: Break into smaller functions",
+      "priority": 2,
+      "assigned_bot": "fixer",
+      "status": "completed",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202110207_169",
+      "description": "[web\\api_scalp.py] High complexity: calculate_confluence: Break into smaller functions",
+      "priority": 2,
+      "assigned_bot": "fixer",
+      "status": "completed",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202110207_171",
+      "description": "[web\\api_scalp.py] High complexity: analyze: Break into smaller functions",
+      "priority": 2,
+      "assigned_bot": "fixer",
+      "status": "completed",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202110207_172",
+      "description": "[web\\api_scalp.py] High complexity: _determine_signal_v2: Break into smaller functions",
+      "priority": 2,
+      "assigned_bot": "fixer",
+      "status": "completed",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202110207_173",
+      "description": "[web\\api_scalp.py] High complexity: _calculate_trade_setup: Break into smaller functions",
+      "priority": 2,
+      "assigned_bot": "fixer",
+      "status": "completed",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202110207_192",
+      "description": "[web\\api_watchlist.py] High complexity: get_watchlist: Break into smaller functions",
+      "priority": 2,
+      "assigned_bot": "fixer",
+      "status": "completed",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202110207_200",
+      "description": "[web\\app.py] Debug Enabled: Set DEBUG=False in production",
+      "priority": 2,
+      "assigned_bot": "fixer",
+      "status": "completed",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202110207_223",
+      "description": "[web\\polygon_service.py] High complexity: get_market_indices: Break into smaller functions",
+      "priority": 2,
+      "assigned_bot": "fixer",
+      "status": "completed",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202110207_225",
+      "description": "[web\\polygon_service.py] High complexity: screen_stocks: Break into smaller functions",
+      "priority": 2,
+      "assigned_bot": "fixer",
+      "status": "completed",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202110207_226",
+      "description": "[web\\polygon_service.py] High complexity: get_extended_hours_data: Break into smaller functions",
+      "priority": 2,
+      "assigned_bot": "fixer",
+      "status": "completed",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202110207_229",
+      "description": "[web\\scalp_service.py] High complexity: _detect_order_blocks: Break into smaller functions",
+      "priority": 2,
+      "assigned_bot": "fixer",
+      "status": "in_progress",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202110207_231",
+      "description": "[web\\scalp_service.py] High complexity: _build_sr_levels: Break into smaller functions",
+      "priority": 2,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202110207_232",
+      "description": "[web\\scalp_service.py] High complexity: _calculate_confluence: Break into smaller functions",
+      "priority": 2,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202110207_274",
+      "description": "[agents\\autonomous\\developer.py] High complexity: enhance_function_with_logging: Break into smaller functions",
+      "priority": 2,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202110207_284",
+      "description": "[agents\\autonomous\\fixer.py] Debug Enabled: Set DEBUG=False in production",
+      "priority": 2,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202110207_286",
+      "description": "[agents\\autonomous\\fixer.py] High complexity: create_fix_patterns: Break into smaller functions",
+      "priority": 2,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202110207_288",
+      "description": "[agents\\autonomous\\fixer.py] High complexity: detect_unused_imports: Break into smaller functions",
+      "priority": 2,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202110207_291",
+      "description": "[agents\\autonomous\\fixer.py] High complexity: _fix_unused_import: Break into smaller functions",
+      "priority": 2,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202110207_292",
+      "description": "[agents\\autonomous\\fixer.py] High complexity: scan_and_fix_all: Break into smaller functions",
+      "priority": 2,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202110207_293",
+      "description": "[agents\\autonomous\\fixer.py] High complexity: smart_fix: Break into smaller functions",
+      "priority": 2,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202110207_300",
+      "description": "[agents\\autonomous\\improver.py] High complexity: _analyze_file: Break into smaller functions",
+      "priority": 2,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202110207_314",
+      "description": "[agents\\autonomous\\master.py] High complexity: _analyze_and_escalate_issue: Break into smaller functions",
+      "priority": 2,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103643_0",
+      "description": "[test_polygon.py] High complexity: test_polygon: Break into smaller functions",
+      "priority": 3,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103643_1",
+      "description": "[agents\\analysis_agent.py] Pass In Except: Log exceptions instead of silencing",
+      "priority": 3,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103643_2",
+      "description": "[agents\\analysis_agent.py] High complexity: _check_sentiment_service: Break into smaller functions",
+      "priority": 3,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103643_3",
+      "description": "[agents\\analysis_agent.py] High complexity: _check_advanced_sr: Break into smaller functions",
+      "priority": 3,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103643_10",
+      "description": "[agents\\codebase_knowledge.py] Pass In Except: Log exceptions instead of silencing",
+      "priority": 3,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103643_11",
+      "description": "[agents\\codebase_knowledge.py] High complexity: scan_python_file: Break into smaller functions",
+      "priority": 3,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103643_12",
+      "description": "[agents\\config.py] Pass In Except: Log exceptions instead of silencing",
+      "priority": 3,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103643_18",
+      "description": "[agents\\development_agent.py] Pass In Except: Log exceptions instead of silencing",
+      "priority": 3,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103643_19",
+      "description": "[agents\\development_agent.py] High complexity: fix_errors: Break into smaller functions",
+      "priority": 3,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103643_20",
+      "description": "[agents\\development_agent.py] High complexity: _analyze_performance: Break into smaller functions",
+      "priority": 3,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103643_35",
+      "description": "[agents\\orchestrator.py] Pass In Except: Log exceptions instead of silencing",
+      "priority": 3,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103643_36",
+      "description": "[agents\\orchestrator.py] High complexity: get_comprehensive_status: Break into smaller functions",
+      "priority": 3,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103643_37",
+      "description": "[agents\\orchestrator.py] High complexity: _scheduler_loop: Break into smaller functions",
+      "priority": 3,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103643_40",
+      "description": "[agents\\project_scanner.py] Pass In Except: Log exceptions instead of silencing",
+      "priority": 3,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103643_41",
+      "description": "[agents\\project_scanner.py] High complexity: _check_imports: Break into smaller functions",
+      "priority": 3,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103643_42",
+      "description": "[agents\\project_scanner.py] High complexity: _scan_templates: Break into smaller functions",
+      "priority": 3,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103643_43",
+      "description": "[agents\\project_scanner.py] High complexity: _scan_config: Break into smaller functions",
+      "priority": 3,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103643_49",
+      "description": "[agents\\scheduler.py] High complexity: _scheduler_loop: Break into smaller functions",
+      "priority": 3,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103643_94",
+      "description": "[scripts\\cron_refresh_insider.py] High complexity: refresh_insider_data: Break into smaller functions",
+      "priority": 3,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103643_98",
+      "description": "[scripts\\cron_update_ai_scores.py] High complexity: calculate_ai_score: Break into smaller functions",
+      "priority": 3,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103643_99",
+      "description": "[scripts\\cron_update_ai_scores.py] High complexity: calculate_feature_contributions: Break into smaller functions",
+      "priority": 3,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103643_101",
+      "description": "[scripts\\refresh_data_cron.py] High complexity: refresh_calendar_data: Break into smaller functions",
+      "priority": 3,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103643_108",
+      "description": "[src\\news_collector.py] High complexity: collect_from_polygon_filtered: Break into smaller functions",
+      "priority": 3,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103643_119",
+      "description": "[web\\advanced_sr_analysis.py] High complexity: analyze_multi_timeframe: Break into smaller functions",
+      "priority": 3,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103643_120",
+      "description": "[web\\advanced_sr_analysis.py] High complexity: calculate_volume_profile: Break into smaller functions",
+      "priority": 3,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103643_121",
+      "description": "[web\\advanced_sr_analysis.py] High complexity: _calculate_value_area: Break into smaller functions",
+      "priority": 3,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103643_122",
+      "description": "[web\\advanced_sr_analysis.py] High complexity: get_sr_from_volume_profile: Break into smaller functions",
+      "priority": 3,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103643_123",
+      "description": "[web\\advanced_sr_analysis.py] High complexity: _generate_recommendation: Break into smaller functions",
+      "priority": 3,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103643_137",
+      "description": "[web\\api_comparison.py] Pass In Except: Log exceptions instead of silencing",
+      "priority": 3,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103643_138",
+      "description": "[web\\api_comparison.py] High complexity: _calculate_rankings: Break into smaller functions",
+      "priority": 3,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103643_140",
+      "description": "[web\\api_earnings.py] Pass In Except: Log exceptions instead of silencing",
+      "priority": 3,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103643_141",
+      "description": "[web\\api_earnings.py] High complexity: get_stock_earnings: Break into smaller functions",
+      "priority": 3,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103643_142",
+      "description": "[web\\api_earnings.py] High complexity: get_stock_dividends: Break into smaller functions",
+      "priority": 3,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103643_145",
+      "description": "[web\\api_flow.py] High complexity: get_insider_trades: Break into smaller functions",
+      "priority": 3,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103643_150",
+      "description": "[web\\api_journal.py] Pass In Except: Log exceptions instead of silencing",
+      "priority": 3,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103643_151",
+      "description": "[web\\api_journal.py] High complexity: update_journal_entry: Break into smaller functions",
+      "priority": 3,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202105039_126",
+      "description": "[web\\api_journal.py] High complexity: close_trade: Break into smaller functions",
+      "priority": 3,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202105501_128",
+      "description": "[web\\api_leaderboard.py] High complexity: calculate_user_metrics: Break into smaller functions",
+      "priority": 3,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    }
+  ]
 }
