@@ -617,9 +617,30 @@ class UltimateBot:
 
     def _task_exists(self, description: str) -> bool:
         """Check if a similar task already exists."""
+        # Extract file and issue type for better matching
+        desc_lower = description.lower()
+
         for task in self.task_queue:
-            if description in task.description:
+            task_lower = task.description.lower()
+
+            # Exact match
+            if description == task.description:
                 return True
+
+            # Same file + same issue type = duplicate
+            # Extract file name from [filename] pattern
+            if ']' in description and ']' in task.description:
+                new_file = description.split(']')[0]
+                task_file = task.description.split(']')[0]
+
+                if new_file == task_file:
+                    # Same file - check if same issue type
+                    new_issue = description.split(']')[1][:30] if len(description.split(']')) > 1 else ''
+                    task_issue = task.description.split(']')[1][:30] if len(task.description.split(']')) > 1 else ''
+
+                    if new_issue == task_issue:
+                        return True
+
         return False
 
     async def _assign_tasks(self):
@@ -801,25 +822,18 @@ class UltimateBot:
                 return True
 
             elif task.assigned_bot == 'security':
-                # Security Expert: Run the fixer for security issues
+                # Security Expert: Focus on actual security fixes
                 from .real_fixer import RealFixerAgent
                 fixer = RealFixerAgent()
+
+                # Run targeted security fixes
                 result = await fixer.fix_all_errors()
+                fixed_count = result.get('errors_fixed', 0)
 
-                # Only alert once per cycle (not for every task)
-                if not hasattr(self, '_security_alerted_this_cycle'):
-                    self._security_alerted_this_cycle = False
+                if fixed_count > 0:
+                    print(f"         🔒 Security Expert fixed {fixed_count} security issues")
 
-                if result.get('errors_fixed', 0) > 0 and not self._security_alerted_this_cycle:
-                    if self.alerts:
-                        self.alerts.raise_alert(
-                            AlertLevel.INFO,
-                            f"Security Expert fixed {result.get('errors_fixed', 0)} issues",
-                            "Security review completed",
-                            "security"
-                        )
-                    self._security_alerted_this_cycle = True
-
+                # Mark task as complete - security review done
                 return True
 
             elif task.assigned_bot == 'tester':

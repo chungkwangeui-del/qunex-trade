@@ -326,5 +326,77 @@
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
     "times_seen": 1
+  },
+  {
+    "error_hash": "1cdfedd5fcfb",
+    "error_message": "[web\\api_market_features.py] {'file_path': 'web\\\\api_market_features.py', 'line_number': 169, 'category': 'security', 'severity': 'medium', 'title': 'Unprotected Route', 'description': 'Found unprotected_route pattern', 'suggestion': 'Consider adding @login_required', 'auto_fixable': False}",
+    "file_path": "web\\api_market_features.py",
+    "cause": "Code issue",
+    "solution": "Auto-fixed by Fixer Expert",
+    "times_seen": 1
+  },
+  {
+    "error_hash": "cf37069679b9",
+    "error_message": "[web\\api_market_features.py] {'file_path': 'web\\\\api_market_features.py', 'line_number': 169, 'category': 'security', 'severity': 'low', 'title': 'Missing Error Handler', 'description': 'Found missing_error_handler pattern', 'suggestion': 'Add try/except for error handling', 'auto_fixable': True}",
+    "file_path": "web\\api_market_features.py",
+    "cause": "Code issue",
+    "solution": "Auto-fixed by Fixer Expert",
+    "times_seen": 1
+  },
+  {
+    "error_hash": "400d0cb2f6b4",
+    "error_message": "[web\\api_polygon.py] {'file_path': 'web\\\\api_polygon.py', 'line_number': 43, 'category': 'security', 'severity': 'medium', 'title': 'Unprotected Route', 'description': 'Found unprotected_route pattern', 'suggestion': 'Consider adding @login_required', 'auto_fixable': False}",
+    "file_path": "web\\api_polygon.py",
+    "cause": "Code issue",
+    "solution": "Auto-fixed by Fixer Expert",
+    "times_seen": 1
+  },
+  {
+    "error_hash": "f493076c8740",
+    "error_message": "[web\\api_polygon.py] {'file_path': 'web\\\\api_polygon.py', 'line_number': 67, 'category': 'security', 'severity': 'medium', 'title': 'Unprotected Route', 'description': 'Found unprotected_route pattern', 'suggestion': 'Consider adding @login_required', 'auto_fixable': False}",
+    "file_path": "web\\api_polygon.py",
+    "cause": "Code issue",
+    "solution": "Auto-fixed by Fixer Expert",
+    "times_seen": 1
+  },
+  {
+    "error_hash": "6d5315e18a8d",
+    "error_message": "[web\\api_polygon.py] {'file_path': 'web\\\\api_polygon.py', 'line_number': 96, 'category': 'security', 'severity': 'medium', 'title': 'Unprotected Route', 'description': 'Found unprotected_route pattern', 'suggestion': 'Consider adding @login_required', 'auto_fixable': False}",
+    "file_path": "web\\api_polygon.py",
+    "cause": "Code issue",
+    "solution": "Auto-fixed by Fixer Expert",
+    "times_seen": 1
+  },
+  {
+    "error_hash": "ed46b8b1b8dd",
+    "error_message": "[web\\api_polygon.py] {'file_path': 'web\\\\api_polygon.py', 'line_number': 158, 'category': 'security', 'severity': 'medium', 'title': 'Unprotected Route', 'description': 'Found unprotected_route pattern', 'suggestion': 'Consider adding @login_required', 'auto_fixable': False}",
+    "file_path": "web\\api_polygon.py",
+    "cause": "Code issue",
+    "solution": "Auto-fixed by Fixer Expert",
+    "times_seen": 1
+  },
+  {
+    "error_hash": "de1ef1bd7428",
+    "error_message": "[web\\api_polygon.py] {'file_path': 'web\\\\api_polygon.py', 'line_number': 196, 'category': 'security', 'severity': 'medium', 'title': 'Unprotected Route', 'description': 'Found unprotected_route pattern', 'suggestion': 'Consider adding @login_required', 'auto_fixable': False}",
+    "file_path": "web\\api_polygon.py",
+    "cause": "Code issue",
+    "solution": "Auto-fixed by Fixer Expert",
+    "times_seen": 1
+  },
+  {
+    "error_hash": "852004381d86",
+    "error_message": "[web\\api_polygon.py] {'file_path': 'web\\\\api_polygon.py', 'line_number': 210, 'category': 'security', 'severity': 'medium', 'title': 'Unprotected Route', 'description': 'Found unprotected_route pattern', 'suggestion': 'Consider adding @login_required', 'auto_fixable': False}",
+    "file_path": "web\\api_polygon.py",
+    "cause": "Code issue",
+    "solution": "Auto-fixed by Fixer Expert",
+    "times_seen": 1
+  },
+  {
+    "error_hash": "bd438aa76468",
+    "error_message": "[web\\api_polygon.py] {'file_path': 'web\\\\api_polygon.py', 'line_number': 224, 'category': 'security', 'severity': 'medium', 'title': 'Unprotected Route', 'description': 'Found unprotected_route pattern', 'suggestion': 'Consider adding @login_required', 'auto_fixable': False}",
+    "file_path": "web\\api_polygon.py",
+    "cause": "Code issue",
+    "solution": "Auto-fixed by Fixer Expert",
+    "times_seen": 1
   }
 ]
