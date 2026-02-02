@@ -1,6 +1,6 @@
 {
   "fixer": {
-    "points": 5780,
+    "points": 5810,
     "rank": "MASTER",
     "achievements": [
       "5 Task Streak \ud83d\udd25",
@@ -12,11 +12,11 @@
       "Reached \ud83d\udca0 Diamond",
       "Reached \ud83d\udc51 Master"
     ],
-    "streak": 381,
-    "best_streak": 381
+    "streak": 383,
+    "best_streak": 383
   },
   "security": {
-    "points": 2215,
+    "points": 2275,
     "rank": "MASTER",
     "achievements": [
       "5 Task Streak \ud83d\udd25",
@@ -28,8 +28,8 @@
       "Reached \ud83d\udca0 Diamond",
       "Reached \ud83d\udc51 Master"
     ],
-    "streak": 136,
-    "best_streak": 136
+    "streak": 140,
+    "best_streak": 140
   },
   "tester": {
     "points": 0,
