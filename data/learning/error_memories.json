@@ -957,7 +957,7 @@
     "file_path": "web\\api_scalp.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 3
+    "times_seen": 4
   },
   {
     "error_hash": "84c57c75900a",
@@ -965,7 +965,7 @@
     "file_path": "web\\api_scalp.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 3
+    "times_seen": 4
   },
   {
     "error_hash": "af11ea6b22ad",
@@ -973,7 +973,7 @@
     "file_path": "web\\api_scalp.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 3
+    "times_seen": 4
   },
   {
     "error_hash": "0631adf0aa8e",
@@ -981,7 +981,7 @@
     "file_path": "web\\api_scalp.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 3
+    "times_seen": 4
   },
   {
     "error_hash": "ec36fb7a8879",
@@ -989,7 +989,7 @@
     "file_path": "web\\api_watchlist.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 3
+    "times_seen": 4
   },
   {
     "error_hash": "b122a58e9e4d",
@@ -997,7 +997,7 @@
     "file_path": "web\\app.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 3
+    "times_seen": 4
   },
   {
     "error_hash": "9ce74b84db42",
@@ -1005,7 +1005,7 @@
     "file_path": "web\\polygon_service.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 3
+    "times_seen": 4
   },
   {
     "error_hash": "9f6b6cd59b21",
@@ -1013,7 +1013,7 @@
     "file_path": "web\\polygon_service.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 3
+    "times_seen": 4
   },
   {
     "error_hash": "5ad89de89fa0",
