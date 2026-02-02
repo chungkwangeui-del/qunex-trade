@@ -6,6 +6,8 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timezone
+from datetime import timezone
+from typing import Optional
 
 db = SQLAlchemy()
 
@@ -496,16 +498,16 @@ class Signal(db.Model):
     status = db.Column(
         db.String(20), default="pending", index=True
     )  # pending, active, success, partial, failed
-    
+
     # Price levels
     entry_price = db.Column(db.Float, nullable=False)
     target_price = db.Column(db.Float, nullable=True)
     stop_loss = db.Column(db.Float, nullable=True)
-    
+
     # Performance tracking
     exit_price = db.Column(db.Float, nullable=True)
     actual_return = db.Column(db.Float, nullable=True)  # Percentage return
-    
+
     # Timing
     signal_date = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), index=True)
     closed_at = db.Column(db.DateTime, nullable=True)
@@ -637,7 +639,7 @@ class PaperTrade(db.Model):
 class TradeJournal(db.Model):
     """
     Trade Journal for tracking and improving trading performance.
-    
+
     Helps traders log trades with psychology notes, screenshots,
     and lessons learned for continuous improvement.
     """
@@ -675,7 +677,7 @@ class TradeJournal(db.Model):
     emotion_after = db.Column(db.String(50), nullable=True)
     confidence_level = db.Column(db.Integer, nullable=True)  # 1-10
     followed_plan = db.Column(db.Boolean, default=True)
-    
+
     # Notes & Learning
     entry_reason = db.Column(db.Text, nullable=True)  # Why did you enter?
     exit_reason = db.Column(db.Text, nullable=True)  # Why did you exit?
@@ -695,7 +697,7 @@ class TradeJournal(db.Model):
     entry_date = db.Column(db.DateTime, nullable=False, index=True)
     exit_date = db.Column(db.DateTime, nullable=True)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
-    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), 
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc),
                           onupdate=lambda: datetime.now(timezone.utc))
 
     # Relationship
@@ -742,7 +744,7 @@ class TradeJournal(db.Model):
 class PortfolioSnapshot(db.Model):
     """
     Daily portfolio snapshots for tracking performance over time.
-    
+
     Stores daily value, P&L, and key metrics for analytics.
     """
 
@@ -760,14 +762,14 @@ class PortfolioSnapshot(db.Model):
     # Daily metrics
     daily_pnl = db.Column(db.Numeric(precision=12, scale=2), nullable=True)
     daily_pnl_percent = db.Column(db.Float, nullable=True)
-    
+
     # Cumulative metrics
     total_pnl = db.Column(db.Numeric(precision=12, scale=2), nullable=True)
     total_pnl_percent = db.Column(db.Float, nullable=True)
 
     # Holdings count
     positions_count = db.Column(db.Integer, default=0)
-    
+
     # Risk metrics
     largest_position_pct = db.Column(db.Float, nullable=True)  # % of portfolio in largest position
 
@@ -798,7 +800,7 @@ class PortfolioSnapshot(db.Model):
 class SentimentData(db.Model):
     """
     Social media sentiment data for stocks.
-    
+
     Aggregated sentiment from Reddit, Twitter, StockTwits, etc.
     """
 
@@ -806,30 +808,30 @@ class SentimentData(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     ticker = db.Column(db.String(10), nullable=False, index=True)
-    
+
     # Sentiment scores (0-100)
     overall_score = db.Column(db.Integer, nullable=False)  # 0=very bearish, 50=neutral, 100=very bullish
     reddit_score = db.Column(db.Integer, nullable=True)
     twitter_score = db.Column(db.Integer, nullable=True)
     news_score = db.Column(db.Integer, nullable=True)
-    
+
     # Volume metrics
     mentions_24h = db.Column(db.Integer, default=0)
     mentions_change_pct = db.Column(db.Float, nullable=True)  # vs previous 24h
-    
+
     # Sentiment breakdown
     bullish_pct = db.Column(db.Float, nullable=True)
     bearish_pct = db.Column(db.Float, nullable=True)
     neutral_pct = db.Column(db.Float, nullable=True)
-    
+
     # Top keywords/themes
     keywords = db.Column(db.Text, nullable=True)  # JSON array of top keywords
-    
+
     # Metadata
     sources_count = db.Column(db.Integer, default=0)
     data_quality = db.Column(db.String(20), default="medium")  # low, medium, high
-    
-    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), 
+
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc),
                           onupdate=lambda: datetime.now(timezone.utc), index=True)
 
     def to_dict(self):
@@ -853,7 +855,7 @@ class SentimentData(db.Model):
 class ChartPattern(db.Model):
     """
     Detected chart patterns for stocks.
-    
+
     AI-detected patterns like head & shoulders, triangles, etc.
     """
 
@@ -862,31 +864,31 @@ class ChartPattern(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     ticker = db.Column(db.String(10), nullable=False, index=True)
     timeframe = db.Column(db.String(10), nullable=False)  # '1H', '4H', 'D', 'W'
-    
+
     # Pattern info
     pattern_type = db.Column(db.String(50), nullable=False, index=True)
     # Types: 'head_shoulders', 'double_top', 'double_bottom', 'triangle_ascending',
     #        'triangle_descending', 'wedge_rising', 'wedge_falling', 'flag', 'pennant',
     #        'cup_handle', 'channel_up', 'channel_down'
-    
+
     pattern_direction = db.Column(db.String(10), nullable=False)  # 'bullish', 'bearish', 'neutral'
-    
+
     # Price levels
     pattern_start_price = db.Column(db.Numeric(precision=10, scale=4), nullable=True)
     pattern_end_price = db.Column(db.Numeric(precision=10, scale=4), nullable=True)
     breakout_level = db.Column(db.Numeric(precision=10, scale=4), nullable=True)
     target_price = db.Column(db.Numeric(precision=10, scale=4), nullable=True)
     stop_loss = db.Column(db.Numeric(precision=10, scale=4), nullable=True)
-    
+
     # Confidence & Status
     confidence = db.Column(db.Integer, nullable=False)  # 0-100
     status = db.Column(db.String(20), default="forming")  # 'forming', 'complete', 'triggered', 'failed'
-    
+
     # Dates
     pattern_start_date = db.Column(db.DateTime, nullable=True)
     pattern_end_date = db.Column(db.DateTime, nullable=True)
     detected_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
-    
+
     def to_dict(self):
         return {
             "id": self.id,

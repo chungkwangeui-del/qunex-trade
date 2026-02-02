@@ -7,9 +7,11 @@ import logging
 from typing import List, Dict, Optional, Tuple
 from dataclasses import dataclass
 from enum import Enum
+from typing import Dict
+from typing import Optional
+from typing import Tuple
 
 logger = logging.getLogger(__name__)
-
 
 class Trend(Enum):
     """Market trend direction."""
@@ -17,13 +19,11 @@ class Trend(Enum):
     BEARISH = "bearish"
     NEUTRAL = "neutral"
 
-
 class SignalStrength(Enum):
     """Signal strength indicator."""
     STRONG = "strong"
     MODERATE = "moderate"
     WEAK = "weak"
-
 
 @dataclass
 class TechnicalSignal:
@@ -33,7 +33,6 @@ class TechnicalSignal:
     strength: SignalStrength
     value: float
     description: str
-
 
 def calculate_sma(prices: List[float], period: int) -> Optional[float]:
     """
@@ -49,7 +48,6 @@ def calculate_sma(prices: List[float], period: int) -> Optional[float]:
     if len(prices) < period:
         return None
     return sum(prices[-period:]) / period
-
 
 def calculate_ema(prices: List[float], period: int) -> Optional[float]:
     """
@@ -72,7 +70,6 @@ def calculate_ema(prices: List[float], period: int) -> Optional[float]:
         ema = (price - ema) * multiplier + ema
 
     return ema
-
 
 def calculate_rsi(prices: List[float], period: int = 14) -> Optional[float]:
     """
@@ -106,7 +103,6 @@ def calculate_rsi(prices: List[float], period: int = 14) -> Optional[float]:
     rsi = 100 - (100 / (1 + rs))
 
     return round(rsi, 2)
-
 
 def calculate_macd(
     prices: List[float],
@@ -156,7 +152,6 @@ def calculate_macd(
         'histogram': round(histogram, 4)
     }
 
-
 def calculate_bollinger_bands(
     prices: List[float],
     period: int = 20,
@@ -195,7 +190,6 @@ def calculate_bollinger_bands(
         'std': round(std, 4)
     }
 
-
 def calculate_atr(
     highs: List[float],
     lows: List[float],
@@ -227,7 +221,6 @@ def calculate_atr(
     # Simple average of recent true ranges
     atr = sum(true_ranges[-period:]) / period
     return round(atr, 4)
-
 
 def calculate_stochastic(
     highs: List[float],
@@ -277,7 +270,6 @@ def calculate_stochastic(
         'd': round(d, 2)
     }
 
-
 def identify_trend(prices: List[float], short_period: int = 20, long_period: int = 50) -> Trend:
     """
     Identify market trend using moving averages.
@@ -307,7 +299,6 @@ def identify_trend(prices: List[float], short_period: int = 20, long_period: int
         return Trend.BEARISH
 
     return Trend.NEUTRAL
-
 
 def calculate_support_resistance(
     highs: List[float],
@@ -354,7 +345,6 @@ def calculate_support_resistance(
         'resistance': sorted(set(round(r, 2) for r in resistance_levels), reverse=True),
         'pivot': round(pivot, 2)
     }
-
 
 def generate_technical_signals(
     prices: List[float],
@@ -465,7 +455,6 @@ def generate_technical_signals(
             ))
 
     return signals
-
 
 def get_signal_summary(signals: List[TechnicalSignal]) -> Dict[str, any]:
     """

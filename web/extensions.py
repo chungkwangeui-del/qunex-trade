@@ -6,9 +6,10 @@ from flask_caching import Cache
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_login import LoginManager
+import re
 
 # Initialize extensions
-# db is initialized in web.database, but we can re-export it here if we want, 
+# db is initialized in web.database, but we can re-export it here if we want,
 # or just keep it there. For now, let's keep db in database.py to avoid breaking too many things.
 
 mail = Mail()

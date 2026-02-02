@@ -13,15 +13,18 @@ Author: AI Trading System
 
 import os
 import logging
-import numpy as np
+
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Tuple
 from collections import defaultdict
 import requests
+from datetime import timedelta
 import json
+from typing import List
+from typing import Optional
+from typing import Tuple
 
 logger = logging.getLogger(__name__)
-
 
 class MultiTimeframeSR:
     """
@@ -145,7 +148,7 @@ class MultiTimeframeSR:
                             "v": float(kline[5]),
                         })
                     return bars
-                except:
+                except Exception:
                     continue
 
             return []
@@ -343,7 +346,6 @@ class MultiTimeframeSR:
             "distance_percent": round(distance_pct, 2),
             "total_weight": round(total_weight, 2),
         }
-
 
 class VolumeProfileAnalyzer:
     """
@@ -579,7 +581,6 @@ class VolumeProfileAnalyzer:
             "current_price": current_price,
         }
 
-
 class SRBouncePredictor:
     """
     ML-based Support/Resistance Bounce Prediction
@@ -752,7 +753,6 @@ class SRBouncePredictor:
             "best_support": support_analysis[0] if support_analysis else None,
             "best_resistance": resistance_analysis[0] if resistance_analysis else None,
         }
-
 
 class PriceAlertManager:
     """
@@ -941,7 +941,6 @@ class PriceAlertManager:
         total = sum(len(alerts) for alerts in self.active_alerts.values())
         self.active_alerts.clear()
         return {"cleared": total, "ticker": "all"}
-
 
 class AdvancedSRAnalyzer:
     """
@@ -1158,10 +1157,8 @@ class AdvancedSRAnalyzer:
             "all_recommendations": recommendations,
         }
 
-
 # Singleton instance
 _advanced_sr_analyzer = None
-
 
 def get_advanced_sr_analyzer() -> AdvancedSRAnalyzer:
     """Get or create AdvancedSRAnalyzer singleton"""

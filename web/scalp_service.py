@@ -20,7 +20,11 @@ Key Rules:
 from datetime import datetime, timezone
 from typing import Dict, Any, List, Optional, Tuple
 from statistics import mean
-
+from datetime import timezone
+from typing import List
+from typing import Optional
+from typing import Any
+from typing import Tuple
 
 def _get_candle_info(bar: Dict) -> Dict:
     """Extract candle components"""
@@ -43,7 +47,6 @@ def _get_candle_info(bar: Dict) -> Dict:
         "is_bullish": c > o,
         "is_bearish": c < o,
     }
-
 
 def _detect_swing_levels(bars: List[Dict], lookback: int = 5) -> Dict:
     """
@@ -101,7 +104,6 @@ def _detect_swing_levels(bars: List[Dict], lookback: int = 5) -> Dict:
         "swing_highs": swing_highs,
         "swing_lows": swing_lows
     }
-
 
 def _detect_order_blocks(bars: List[Dict], lookback: int = 30) -> Dict:
     """
@@ -192,7 +194,6 @@ def _detect_order_blocks(bars: List[Dict], lookback: int = 30) -> Dict:
         "double_ob": double_ob
     }
 
-
 def _detect_fvg(bars: List[Dict], min_gap_percent: float = 0.15) -> Dict:
     """
     Detect Fair Value Gaps (FVG)
@@ -246,7 +247,6 @@ def _detect_fvg(bars: List[Dict], min_gap_percent: float = 0.15) -> Dict:
         "bearish": bearish_fvgs[-5:]
     }
 
-
 def _detect_fakeout(bars: List[Dict], lookback: int = 20) -> Optional[Dict]:
     """
     Detect Fakeout (헛돌파)
@@ -298,7 +298,6 @@ def _detect_fakeout(bars: List[Dict], lookback: int = 20) -> Optional[Dict]:
 
     return None
 
-
 def _check_at_zone(price: float, zones: List[Dict], tolerance_pct: float = 0.3) -> Optional[Dict]:
     """Check if price is at/near a zone"""
     for zone in zones:
@@ -309,7 +308,6 @@ def _check_at_zone(price: float, zones: List[Dict], tolerance_pct: float = 0.3) 
         if extended_bottom <= price <= extended_top:
             return zone
     return None
-
 
 def _get_vwap(bars: List[Dict]) -> Optional[float]:
     """Calculate VWAP"""
@@ -327,7 +325,6 @@ def _get_vwap(bars: List[Dict]) -> Optional[float]:
         cumulative_vol += volume
 
     return cumulative_tp_vol / cumulative_vol if cumulative_vol > 0 else None
-
 
 def _analyze_volume(bars: List[Dict]) -> Dict:
     """Analyze volume for exit signals"""
@@ -350,7 +347,6 @@ def _analyze_volume(bars: List[Dict]) -> Dict:
         "spike": spike,
         "exit_warning": exit_warning
     }
-
 
 def _build_sr_levels(
     current_price: float,
@@ -467,7 +463,6 @@ def _build_sr_levels(
         "supports": supports,
         "resistances": resistances
     }
-
 
 def _calculate_confluence(
     current_price: float,
@@ -606,7 +601,6 @@ def _calculate_confluence(
         "bullish_reasons": bullish_reasons,
         "bearish_reasons": bearish_reasons,
     }
-
 
 def generate_scalp_signal(
     candles: List[Dict[str, Any]],

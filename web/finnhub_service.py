@@ -11,13 +11,15 @@ import logging
 from datetime import datetime, timedelta
 from typing import List, Dict, Optional
 from functools import lru_cache
-import time
+from datetime import timedelta
+import json
+from typing import Dict
+from typing import Optional
 
 logger = logging.getLogger(__name__)
 
 FINNHUB_API_KEY = os.getenv("FINNHUB_API_KEY", "")
 FINNHUB_BASE_URL = "https://finnhub.io/api/v1"
-
 
 class FinnhubService:
     """Finnhub API client for real-time stock data"""
@@ -256,10 +258,8 @@ class FinnhubService:
         })
         return data if isinstance(data, list) else []
 
-
 # Singleton instance
 _finnhub_service = None
-
 
 def get_finnhub_service() -> FinnhubService:
     """Get singleton Finnhub service instance"""

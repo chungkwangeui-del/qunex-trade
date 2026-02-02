@@ -24,8 +24,12 @@ Sources:
 from datetime import datetime, timezone, timedelta
 from typing import Dict, Any, List, Optional, Tuple
 from statistics import mean
-import math
-
+from datetime import timedelta
+from datetime import timezone
+from typing import List
+from typing import Optional
+from typing import Any
+from typing import Tuple
 
 # =============================================================================
 # CANDLE UTILITIES
@@ -60,7 +64,6 @@ def _get_candle_info(bar: Dict) -> Dict:
         "is_doji": body < total_range * 0.1,  # Body < 10% of range
     }
 
-
 def _normalize_candles(candles: List[Dict]) -> List[Dict]:
     """Normalize candle keys to standard format"""
     normalized = []
@@ -74,7 +77,6 @@ def _normalize_candles(candles: List[Dict]) -> List[Dict]:
             "t": c.get("t", c.get("timestamp", c.get("time", None))),
         })
     return normalized
-
 
 # =============================================================================
 # MARKET STRUCTURE - BOS & CHoCH
@@ -132,7 +134,6 @@ def _find_swing_points(bars: List[Dict], lookback: int = 5) -> Dict:
         "swing_highs": swing_highs,
         "swing_lows": swing_lows
     }
-
 
 def _detect_market_structure(bars: List[Dict], lookback: int = 5) -> Dict:
     """
@@ -247,7 +248,6 @@ def _detect_market_structure(bars: List[Dict], lookback: int = 5) -> Dict:
         "ll_count": ll_count,
     }
 
-
 # =============================================================================
 # LIQUIDITY - BSL, SSL & SWEEPS
 # =============================================================================
@@ -322,7 +322,6 @@ def _detect_liquidity_zones(bars: List[Dict], lookback: int = 20) -> Dict:
         "sweeps": sweeps,
     }
 
-
 def _detect_liquidity_sweeps(
     bars: List[Dict],
     bsl_zones: List[Dict],
@@ -372,7 +371,6 @@ def _detect_liquidity_sweeps(
                     break
 
     return sweeps
-
 
 # =============================================================================
 # ORDER BLOCKS & BREAKER BLOCKS
@@ -449,7 +447,6 @@ def _detect_order_blocks(bars: List[Dict], lookback: int = 30) -> Dict:
         "breakers": breakers,
     }
 
-
 def _detect_breaker_blocks(
     bars: List[Dict],
     bullish_obs: List[Dict],
@@ -491,7 +488,6 @@ def _detect_breaker_blocks(
             })
 
     return breakers[-3:]  # Keep last 3
-
 
 # =============================================================================
 # FAIR VALUE GAPS (FVG)
@@ -572,7 +568,6 @@ def _detect_fvg(bars: List[Dict], min_gap_percent: float = 0.1) -> Dict:
         "bullish": [f for f in bullish_fvgs if not f["filled"]][-5:],
         "bearish": [f for f in bearish_fvgs if not f["filled"]][-5:],
     }
-
 
 # =============================================================================
 # PREMIUM/DISCOUNT & OTE (OPTIMAL TRADE ENTRY)
@@ -655,7 +650,6 @@ def _calculate_premium_discount(bars: List[Dict], lookback: int = 50) -> Dict:
         "ote_type": ote_type,
     }
 
-
 # =============================================================================
 # KILL ZONES
 # =============================================================================
@@ -698,7 +692,6 @@ def _check_kill_zone() -> Dict:
         "in_optimal_zone": current_zone is not None and current_zone.get("optimal_for_entry", False),
         "kill_zones": kill_zones,
     }
-
 
 # =============================================================================
 # CONFLUENCE SCORING
@@ -870,7 +863,6 @@ def _calculate_confluence(
                              (direction == "bearish" and len(bearish_reasons) >= 2),
     }
 
-
 # =============================================================================
 # MAIN SIGNAL GENERATOR
 # =============================================================================
@@ -936,7 +928,7 @@ def generate_swing_signal(
         total_score = max(confluence["bullish_score"], confluence["bearish_score"])
         confluence_count = max(confluence["bullish_count"], confluence["bearish_count"])
         wait_confidence = min(40, (total_score // 4) + (confluence_count * 3))
-        
+
         return {
             "signal": "WAIT",
             "direction": confluence["direction"],

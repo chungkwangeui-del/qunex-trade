@@ -12,6 +12,7 @@ from uuid import uuid4
 from web.config import Config
 from web.database import db, User
 from web.extensions import mail, csrf, cache, limiter, login_manager
+import json
 
 # Add parent directory to path for imports (src/)
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -40,7 +41,7 @@ def create_app(config_class=Config):
     cache.init_app(app)
     limiter.init_app(app)
     login_manager.init_app(app)
-    
+
     login_manager.login_view = "auth.login"
 
     @login_manager.user_loader
@@ -77,7 +78,7 @@ def create_app(config_class=Config):
     from web.main import main as main_blueprint
     from web.api_main import api_main
     from web.api_paper import api_paper
-    
+
     # New feature APIs
     from web.api_tools import api_tools
     from web.api_earnings import api_earnings
@@ -87,14 +88,14 @@ def create_app(config_class=Config):
     from web.api_options import api_options
     from web.api_patterns import api_patterns
     from web.api_sentiment import api_sentiment
-    
+
     # Advanced features - Chat, Leaderboard, Flow, WebSocket, SSE
     from web.api_chat import api_chat
     from web.api_leaderboard import api_leaderboard
     from web.api_flow import api_flow
     from web.api_websocket import api_websocket
     from web.api_sse import api_sse
-    
+
     # Automated Agents API
     from web.api_agents import api_agents
 
@@ -111,7 +112,7 @@ def create_app(config_class=Config):
     app.register_blueprint(main_blueprint)
     app.register_blueprint(api_main)
     app.register_blueprint(api_paper)
-    
+
     # Register new feature APIs
     app.register_blueprint(api_tools)
     app.register_blueprint(api_earnings)
@@ -121,14 +122,14 @@ def create_app(config_class=Config):
     app.register_blueprint(api_options)
     app.register_blueprint(api_patterns)
     app.register_blueprint(api_sentiment)
-    
+
     # Register advanced features - Chat, Leaderboard, Flow, WebSocket, SSE
     app.register_blueprint(api_chat)
     app.register_blueprint(api_leaderboard)
     app.register_blueprint(api_flow)
     app.register_blueprint(api_websocket)
     app.register_blueprint(api_sse)
-    
+
     # Register Automated Agents API
     app.register_blueprint(api_agents)
 

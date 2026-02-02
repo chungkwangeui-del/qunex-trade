@@ -14,7 +14,7 @@ Schedule: Background worker (always running)
 import os
 import sys
 import json
-import time
+
 import logging
 from datetime import datetime
 import backoff
@@ -32,7 +32,6 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
-
 
 class PolygonWebSocketClient:
     """Polygon WebSocket client with auto-reconnection"""
@@ -171,7 +170,6 @@ class PolygonWebSocketClient:
         self.subscribed_tickers.discard(ticker)
         logger.info(f"Unsubscribed from ticker: {ticker}")
 
-
 def main():
     """Run Polygon WebSocket client"""
     logger.info("=" * 80)
@@ -193,7 +191,6 @@ def main():
     except Exception as e:
         logger.error(f"Fatal error: {e}", exc_info=True)
         sys.exit(1)
-
 
 if __name__ == "__main__":
     main()

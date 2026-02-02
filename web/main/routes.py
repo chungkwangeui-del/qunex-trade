@@ -79,7 +79,6 @@ def market():
     # Data is loaded via JavaScript from APIs
     return render_template("market.html", user=current_user)
 
-
 @main.route("/watchlist")
 @login_required
 def watchlist():
@@ -235,7 +234,6 @@ def portfolio():
             total_pnl_percent=0,
         )
 
-
 # Redirect routes for compatibility with tests
 @main.route("/login")
 def login_redirect():
@@ -246,7 +244,6 @@ def login_redirect():
         return redirect(url_for("main.index"))
     return redirect(url_for("auth.login"), code=301)
 
-
 @main.route("/register")
 def register_redirect():
     from flask_login import current_user
@@ -254,24 +251,20 @@ def register_redirect():
         return redirect(url_for("main.index"))
     return redirect(url_for("auth.signup"), code=301)
 
-
 @main.route("/logout")
 def logout_redirect():
     return redirect(url_for("auth.logout"))
-
 
 @main.route("/pricing")
 def pricing():
     # Simple pricing page for tests
     return render_template("about.html")
 
-
 @main.route("/stocks")
 @login_required
 def stocks():
     # Stock list/search page
     return render_template("stocks.html", ticker=None, user=current_user)
-
 
 @main.route("/stocks/<ticker>")
 @login_required
@@ -299,18 +292,15 @@ def stock_detail(ticker):
             user=current_user
         )
 
-
 @main.route("/calendar")
 @login_required
 def calendar():
     return render_template("calendar.html", user=current_user)
 
-
 @main.route("/news")
 @login_required
 def news():
     return render_template("news.html", user=current_user)
-
 
 @main.route("/admin")
 @login_required
@@ -320,13 +310,11 @@ def admin():
         return redirect(url_for("main.index"))
     return redirect(url_for("auth.admin_dashboard"))
 
-
 @main.route("/scalping")
 @login_required
 def scalping():
     """Scalp trading analysis page"""
     return render_template("scalping.html", user=current_user)
-
 
 @main.route("/swing")
 @login_required
@@ -334,13 +322,11 @@ def swing():
     """ICT/SMC Swing trading analysis page"""
     return render_template("swing.html", user=current_user)
 
-
 @main.route("/day-trading")
 @login_required
 def day_trading():
     """AI Day Trading Analysis with Advanced S/R"""
     return render_template("day_trading.html", user=current_user)
-
 
 @main.route("/sector-heatmap")
 @login_required
@@ -348,13 +334,11 @@ def sector_heatmap():
     """Sector Heatmap - Real-time sector performance visualization"""
     return render_template("sector_heatmap.html", user=current_user)
 
-
 @main.route("/analytics")
 @login_required
 def analytics():
     """Performance Analytics Dashboard"""
     return render_template("analytics.html", user=current_user)
-
 
 @main.route("/paper-trading")
 @login_required
@@ -362,13 +346,11 @@ def paper_trading():
     """Paper Trading - Practice with virtual money"""
     return render_template("paper_trading.html", user=current_user)
 
-
 @main.route("/journal")
 @login_required
 def trade_journal():
     """Trade Journal - Track and improve trading performance"""
     return render_template("trade_journal.html", user=current_user)
-
 
 @main.route("/tools")
 @login_required
@@ -376,13 +358,11 @@ def trading_tools():
     """Trading Tools - Position sizing, risk calculator"""
     return render_template("tools.html", user=current_user)
 
-
 @main.route("/compare")
 @login_required
 def compare_stocks():
     """Stock Comparison Tool"""
     return render_template("compare.html", user=current_user)
-
 
 @main.route("/options")
 @login_required
@@ -390,13 +370,11 @@ def options_flow():
     """Options Flow & Analysis"""
     return render_template("options.html", user=current_user)
 
-
 @main.route("/patterns")
 @login_required
 def chart_patterns():
     """Chart Pattern Scanner"""
     return render_template("patterns.html", user=current_user)
-
 
 @main.route("/sentiment")
 @login_required
@@ -404,13 +382,11 @@ def market_sentiment():
     """Market Sentiment Analysis"""
     return render_template("sentiment.html", user=current_user)
 
-
 @main.route("/earnings")
 @login_required
 def earnings_calendar():
     """Earnings & Dividend Calendar"""
     return render_template("earnings.html", user=current_user)
-
 
 @main.route("/chat")
 @login_required
@@ -418,12 +394,10 @@ def ai_chat():
     """AI Chat Assistant - Stock Q&A"""
     return render_template("chat.html", user=current_user)
 
-
 @main.route("/leaderboard")
 def leaderboard():
     """Paper Trading Leaderboard"""
     return render_template("leaderboard.html", user=current_user)
-
 
 @main.route("/flow")
 @login_required
@@ -431,13 +405,12 @@ def institutional_flow():
     """Institutional Flow Analysis - Options, Dark Pool, Insider"""
     return render_template("flow.html", user=current_user)
 
-
 @main.route("/agents")
 @login_required
 def agents_dashboard():
     """Automated Agents Dashboard - Monitor and manage system agents"""
     # Check if user is admin
-    if not (current_user.email.endswith("@admin.com") or 
+    if not (current_user.email.endswith("@admin.com") or
             current_user.subscription_tier == "developer"):
         return redirect(url_for("main.index"))
     return render_template("agents.html", user=current_user)
