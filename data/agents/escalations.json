@@ -1,0 +1,130 @@
+{
+  "counter": 3,
+  "escalations": [
+    {
+      "id": "ESC-0001",
+      "title": "Missing Polygon API Key",
+      "description": "The Polygon API key is not configured. Market data features require this key.",
+      "reason": "requires_credentials",
+      "priority": 2,
+      "source_agent": "scanner",
+      "affected_files": [
+        ".env"
+      ],
+      "why_not_auto": "API keys contain sensitive credentials that only you can provide. Visit https://polygon.io to get your key.",
+      "manual_steps": [
+        {
+          "step": 1,
+          "description": "Get a free API key from Polygon.io",
+          "command": null,
+          "code": null,
+          "file": null,
+          "notes": "Visit https://polygon.io and create an account"
+        },
+        {
+          "step": 2,
+          "description": "Copy your API key from the dashboard",
+          "command": null,
+          "code": null,
+          "file": null,
+          "notes": null
+        },
+        {
+          "step": 3,
+          "description": "Add to your .env file",
+          "command": null,
+          "code": "POLYGON_API_KEY=your_key_here",
+          "file": ".env",
+          "notes": null
+        },
+        {
+          "step": 4,
+          "description": "Restart the application",
+          "command": "python run.py",
+          "code": null,
+          "file": null,
+          "notes": null
+        }
+      ],
+      "created_at": "2026-01-27T22:39:29.645294+00:00",
+      "resolved": false
+    },
+    {
+      "id": "ESC-0002",
+      "title": "Database Data Needs Refresh",
+      "description": "[trading] AI Score System: No AI scores in database",
+      "reason": "requires_external",
+      "priority": 3,
+      "source_agent": "scanner",
+      "affected_files": [],
+      "why_not_auto": "Running data refresh scripts requires your verification.",
+      "manual_steps": [
+        {
+          "step": 1,
+          "description": "Run the data refresh scripts",
+          "command": "python scripts/refresh_all_data.py",
+          "code": null,
+          "file": null,
+          "notes": null
+        },
+        {
+          "step": 2,
+          "description": "Or run specific refresh scripts for the affected data",
+          "command": null,
+          "code": null,
+          "file": null,
+          "notes": null
+        },
+        {
+          "step": 3,
+          "description": "Verify the data was updated successfully",
+          "command": null,
+          "code": null,
+          "file": null,
+          "notes": null
+        }
+      ],
+      "created_at": "2026-01-27T22:39:29.646300+00:00",
+      "resolved": false
+    },
+    {
+      "id": "ESC-0003",
+      "title": "Database Data Needs Refresh",
+      "description": "[database] Stale data detected: Some data is stale",
+      "reason": "requires_external",
+      "priority": 3,
+      "source_agent": "scanner",
+      "affected_files": [],
+      "why_not_auto": "Running data refresh scripts requires your verification.",
+      "manual_steps": [
+        {
+          "step": 1,
+          "description": "Run the data refresh scripts",
+          "command": "python scripts/refresh_all_data.py",
+          "code": null,
+          "file": null,
+          "notes": null
+        },
+        {
+          "step": 2,
+          "description": "Or run specific refresh scripts for the affected data",
+          "command": null,
+          "code": null,
+          "file": null,
+          "notes": null
+        },
+        {
+          "step": 3,
+          "description": "Verify the data was updated successfully",
+          "command": null,
+          "code": null,
+          "file": null,
+          "notes": null
+        }
+      ],
+      "created_at": "2026-01-27T22:39:29.646937+00:00",
+      "resolved": false
+    }
+  ],
+  "last_updated": "2026-01-27T22:39:29.646963+00:00"
+}

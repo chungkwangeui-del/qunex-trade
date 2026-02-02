@@ -10,6 +10,7 @@ from flask import Blueprint, jsonify, request
 from flask_login import login_required, current_user
 import asyncio
 import logging
+from typing import List
 
 logger = logging.getLogger(__name__)
 
@@ -29,17 +30,17 @@ def run_async(coro):
 def require_admin(f):
     """Decorator to require admin access."""
     from functools import wraps
-    
+
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if not current_user.is_authenticated:
             return jsonify({"success": False, "error": "Authentication required"}), 401
         # Check if user is admin (developer tier or admin email)
-        if not (current_user.email.endswith("@admin.com") or 
+        if not (current_user.email.endswith("@admin.com") or
                 current_user.subscription_tier == "developer"):
             return jsonify({"success": False, "error": "Admin access required"}), 403
         return f(*args, **kwargs)
-    
+
     return decorated_function
 
 
@@ -50,9 +51,9 @@ def get_all_status():
     """Get status of all agents."""
     try:
         from agents.orchestrator import quick_status
-        
+
         result = run_async(quick_status())
-        
+
         return jsonify({
             "success": True,
             "data": result
@@ -72,9 +73,9 @@ def diagnose_all():
     """Run diagnostics on all agents."""
     try:
         from agents.orchestrator import quick_diagnose
-        
+
         result = run_async(quick_diagnose())
-        
+
         return jsonify({
             "success": True,
             "data": result
@@ -94,12 +95,12 @@ def fix_all():
     """Attempt to fix issues."""
     try:
         from agents.orchestrator import quick_fix
-        
+
         data = request.get_json() or {}
         auto_fix = data.get("auto_fix", False)
-        
+
         result = run_async(quick_fix(auto_fix=auto_fix))
-        
+
         return jsonify({
             "success": True,
             "data": result
@@ -119,9 +120,9 @@ def get_development_suggestions():
     """Get development suggestions from all agents."""
     try:
         from agents.orchestrator import quick_develop
-        
+
         result = run_async(quick_develop())
-        
+
         return jsonify({
             "success": True,
             "data": result
@@ -141,9 +142,9 @@ def list_agents():
     """List all available agents."""
     try:
         from agents.orchestrator import AgentOrchestrator
-        
+
         orchestrator = AgentOrchestrator.get_instance()
-        
+
         agents = []
         for agent in orchestrator.registry.get_all():
             agents.append({
@@ -162,7 +163,7 @@ def list_agents():
                     for task_id, task in agent.tasks.items()
                 ]
             })
-        
+
         return jsonify({
             "success": True,
             "data": {
@@ -185,18 +186,18 @@ def get_agent_status(agent_name: str):
     """Get status of a specific agent."""
     try:
         from agents.orchestrator import AgentOrchestrator
-        
+
         orchestrator = AgentOrchestrator.get_instance()
         agent = orchestrator.get_agent_by_name(agent_name)
-        
+
         if not agent:
             return jsonify({
                 "success": False,
                 "error": f"Agent '{agent_name}' not found"
             }), 404
-        
+
         result = run_async(agent.check_status())
-        
+
         return jsonify({
             "success": True,
             "data": {
@@ -219,18 +220,18 @@ def diagnose_agent(agent_name: str):
     """Run diagnostics on a specific agent."""
     try:
         from agents.orchestrator import AgentOrchestrator
-        
+
         orchestrator = AgentOrchestrator.get_instance()
         agent = orchestrator.get_agent_by_name(agent_name)
-        
+
         if not agent:
             return jsonify({
                 "success": False,
                 "error": f"Agent '{agent_name}' not found"
             }), 404
-        
+
         result = run_async(agent.diagnose_issues())
-        
+
         return jsonify({
             "success": True,
             "data": result.to_dict()
@@ -250,21 +251,21 @@ def fix_agent(agent_name: str):
     """Attempt to fix issues for a specific agent."""
     try:
         from agents.orchestrator import AgentOrchestrator
-        
+
         orchestrator = AgentOrchestrator.get_instance()
         agent = orchestrator.get_agent_by_name(agent_name)
-        
+
         if not agent:
             return jsonify({
                 "success": False,
                 "error": f"Agent '{agent_name}' not found"
             }), 404
-        
+
         data = request.get_json() or {}
         auto_fix = data.get("auto_fix", False)
-        
+
         result = run_async(agent.fix_errors(auto_fix=auto_fix))
-        
+
         return jsonify({
             "success": True,
             "data": result.to_dict()
@@ -284,18 +285,18 @@ def get_agent_suggestions(agent_name: str):
     """Get development suggestions for a specific agent."""
     try:
         from agents.orchestrator import AgentOrchestrator
-        
+
         orchestrator = AgentOrchestrator.get_instance()
         agent = orchestrator.get_agent_by_name(agent_name)
-        
+
         if not agent:
             return jsonify({
                 "success": False,
                 "error": f"Agent '{agent_name}' not found"
             }), 404
-        
+
         result = run_async(agent.get_development_suggestions())
-        
+
         return jsonify({
             "success": True,
             "data": result.to_dict()
@@ -315,11 +316,11 @@ def run_task(agent_name: str, task_id: str):
     """Run a specific task on an agent."""
     try:
         from agents.orchestrator import AgentOrchestrator
-        
+
         orchestrator = AgentOrchestrator.get_instance()
-        
+
         result = run_async(orchestrator.run_agent_task(agent_name, task_id))
-        
+
         return jsonify({
             "success": result.success,
             "data": result.to_dict()
@@ -339,9 +340,9 @@ def get_summary():
     """Get comprehensive summary of all agents."""
     try:
         from agents.orchestrator import AgentOrchestrator
-        
+
         orchestrator = AgentOrchestrator.get_instance()
-        
+
         return jsonify({
             "success": True,
             "data": orchestrator.get_comprehensive_status()
@@ -359,10 +360,10 @@ def agent_health():
     """Quick health check for agents (no auth required)."""
     try:
         from agents.orchestrator import AgentOrchestrator
-        
+
         orchestrator = AgentOrchestrator.get_instance()
         status = orchestrator.get_comprehensive_status()
-        
+
         return jsonify({
             "status": status["overall_status"],
             "agents": status["total_agents"],

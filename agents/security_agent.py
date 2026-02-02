@@ -9,20 +9,22 @@ Monitors security aspects including:
 - Session management
 """
 
-import asyncio
 import logging
 from datetime import datetime, timezone, timedelta
 from typing import Dict, Any, List
 
 from agents.base import BaseAgent, AgentResult, AgentStatus, AgentTask, TaskType
+from datetime import timedelta
+from datetime import timezone
+from typing import List
+from typing import Any
 
 logger = logging.getLogger(__name__)
-
 
 class SecurityAgent(BaseAgent):
     """
     Agent for monitoring security aspects.
-    
+
     Checks:
     - Failed login attempts
     - Rate limit violations
@@ -30,14 +32,14 @@ class SecurityAgent(BaseAgent):
     - API key exposure
     - Configuration security
     """
-    
+
     def __init__(self):
         super().__init__(
             name="security",
             category="Security",
             description="Monitors authentication, rate limiting, and security configuration"
         )
-    
+
     def _register_tasks(self) -> None:
         """Register security monitoring tasks."""
         self.register_task(AgentTask(
@@ -48,7 +50,7 @@ class SecurityAgent(BaseAgent):
             handler=self._check_config_security,
             interval_seconds=3600,
         ))
-        
+
         self.register_task(AgentTask(
             id="auth_status",
             name="Authentication Status",
@@ -57,7 +59,7 @@ class SecurityAgent(BaseAgent):
             handler=self._check_auth_status,
             interval_seconds=600,
         ))
-        
+
         self.register_task(AgentTask(
             id="rate_limiting",
             name="Rate Limiting Status",
@@ -66,7 +68,7 @@ class SecurityAgent(BaseAgent):
             handler=self._check_rate_limiting,
             interval_seconds=600,
         ))
-        
+
         self.register_task(AgentTask(
             id="csrf_protection",
             name="CSRF Protection",
@@ -75,7 +77,7 @@ class SecurityAgent(BaseAgent):
             handler=self._check_csrf_protection,
             interval_seconds=3600,
         ))
-        
+
         self.register_task(AgentTask(
             id="user_activity",
             name="User Activity Monitor",
@@ -84,14 +86,14 @@ class SecurityAgent(BaseAgent):
             handler=self._check_user_activity,
             interval_seconds=1800,
         ))
-    
+
     async def check_status(self) -> AgentResult:
         """Run all security checks."""
         results = await self.run_all_tasks(TaskType.STATUS_CHECK)
-        
+
         all_healthy = all(r.status == AgentStatus.HEALTHY for r in results.values())
         has_errors = any(r.status in [AgentStatus.ERROR, AgentStatus.CRITICAL] for r in results.values())
-        
+
         if all_healthy:
             status = AgentStatus.HEALTHY
             message = "All security checks passed"
@@ -101,9 +103,9 @@ class SecurityAgent(BaseAgent):
         else:
             status = AgentStatus.WARNING
             message = "Security warnings detected"
-        
+
         self.status = status
-        
+
         return AgentResult(
             success=not has_errors,
             status=status,
@@ -112,19 +114,19 @@ class SecurityAgent(BaseAgent):
                 "checks": {k: v.to_dict() for k, v in results.items()},
             }
         )
-    
+
     async def diagnose_issues(self) -> AgentResult:
         """Diagnose security issues."""
         issues = []
         suggestions = []
-        
+
         await self.check_status()
-        
+
         for task_id, task in self.tasks.items():
             if task.last_result and task.last_result.status != AgentStatus.HEALTHY:
                 issues.append(f"{task.name}: {task.last_result.message}")
                 suggestions.extend(task.last_result.suggestions)
-        
+
         return AgentResult(
             success=len(issues) == 0,
             status=AgentStatus.HEALTHY if not issues else AgentStatus.WARNING,
@@ -132,23 +134,23 @@ class SecurityAgent(BaseAgent):
             errors=issues,
             suggestions=list(set(suggestions))
         )
-    
+
     async def fix_errors(self, auto_fix: bool = False) -> AgentResult:
         """Attempt to fix security issues."""
         fixes_available = []
-        
+
         # Check config
         config_result = await self._check_config_security()
         if config_result.status != AgentStatus.HEALTHY:
             fixes_available.extend(config_result.suggestions)
-        
+
         if not fixes_available:
             return AgentResult(
                 success=True,
                 status=AgentStatus.HEALTHY,
                 message="No fixes needed"
             )
-        
+
         return AgentResult(
             success=True,
             status=AgentStatus.WARNING,
@@ -156,7 +158,7 @@ class SecurityAgent(BaseAgent):
             suggestions=fixes_available,
             data={"fixes_available": fixes_available}
         )
-    
+
     async def get_development_suggestions(self) -> AgentResult:
         """Suggest security improvements."""
         suggestions = [
@@ -171,7 +173,7 @@ class SecurityAgent(BaseAgent):
             "Add IP-based access control for admin",
             "Implement Content Security Policy (CSP) reporting",
         ]
-        
+
         return AgentResult(
             success=True,
             status=AgentStatus.HEALTHY,
@@ -179,29 +181,29 @@ class SecurityAgent(BaseAgent):
             suggestions=suggestions,
             data={"category": "Security"}
         )
-    
+
     async def _check_config_security(self) -> AgentResult:
         """Check security configuration."""
         try:
             from web.config import Config
             import os
-            
+
             issues = []
             warnings = []
-            
+
             # Check secret key
             secret_key = os.getenv("SECRET_KEY", "")
             if not secret_key or len(secret_key) < 32:
                 issues.append("SECRET_KEY is missing or too short")
-            
+
             # Check debug mode
             debug = os.getenv("FLASK_DEBUG", "false").lower() == "true"
             if debug:
                 warnings.append("Debug mode is enabled - disable in production")
-            
+
             # Check HTTPS enforcement
             # This is typically handled by the proxy, but check config
-            
+
             if issues:
                 return AgentResult(
                     success=False,
@@ -211,7 +213,7 @@ class SecurityAgent(BaseAgent):
                     warnings=warnings,
                     suggestions=["Set a strong SECRET_KEY (32+ characters)"]
                 )
-            
+
             if warnings:
                 return AgentResult(
                     success=True,
@@ -219,7 +221,7 @@ class SecurityAgent(BaseAgent):
                     message="Security configuration has warnings",
                     warnings=warnings
                 )
-            
+
             return AgentResult(
                 success=True,
                 status=AgentStatus.HEALTHY,
@@ -232,19 +234,19 @@ class SecurityAgent(BaseAgent):
                 message=f"Config check failed: {e}",
                 errors=[str(e)]
             )
-    
+
     async def _check_auth_status(self) -> AgentResult:
         """Check authentication system status."""
         try:
             from web.database import db, User
             from web.app import create_app
-            
+
             app = create_app()
             with app.app_context():
                 total_users = User.query.count()
                 verified_users = User.query.filter_by(email_verified=True).count()
                 oauth_users = User.query.filter(User.oauth_provider.isnot(None)).count()
-                
+
                 return AgentResult(
                     success=True,
                     status=AgentStatus.HEALTHY,
@@ -263,13 +265,13 @@ class SecurityAgent(BaseAgent):
                 message=f"Auth check failed: {e}",
                 errors=[str(e)]
             )
-    
+
     async def _check_rate_limiting(self) -> AgentResult:
         """Check rate limiting configuration."""
         try:
             from web.extensions import limiter
             from web.config import Config
-            
+
             # Check if limiter is configured
             if limiter:
                 return AgentResult(
@@ -295,12 +297,12 @@ class SecurityAgent(BaseAgent):
                 message=f"Rate limit check failed: {e}",
                 errors=[str(e)]
             )
-    
+
     async def _check_csrf_protection(self) -> AgentResult:
         """Check CSRF protection status."""
         try:
             from web.extensions import csrf
-            
+
             if csrf:
                 return AgentResult(
                     success=True,
@@ -322,13 +324,13 @@ class SecurityAgent(BaseAgent):
                 message=f"CSRF check failed: {e}",
                 errors=[str(e)]
             )
-    
+
     async def _check_user_activity(self) -> AgentResult:
         """Monitor user activity."""
         try:
             from web.database import db, User
             from web.app import create_app
-            
+
             app = create_app()
             with app.app_context():
                 # New users in last 24h
@@ -336,13 +338,13 @@ class SecurityAgent(BaseAgent):
                 new_users_24h = User.query.filter(
                     User.created_at >= cutoff_24h
                 ).count()
-                
+
                 # New users in last 7 days
                 cutoff_7d = datetime.now(timezone.utc) - timedelta(days=7)
                 new_users_7d = User.query.filter(
                     User.created_at >= cutoff_7d
                 ).count()
-                
+
                 return AgentResult(
                     success=True,
                     status=AgentStatus.HEALTHY,
@@ -359,4 +361,3 @@ class SecurityAgent(BaseAgent):
                 message=f"Activity check failed: {e}",
                 errors=[str(e)]
             )
-
