@@ -13,7 +13,7 @@
     "file_path": "agents\\project_scanner.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 1
+    "times_seen": 2
   },
   {
     "error_hash": "da178ea41a75",
@@ -21,7 +21,7 @@
     "file_path": "agents\\welcome.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 1
+    "times_seen": 2
   },
   {
     "error_hash": "9bb989c705fd",
@@ -29,7 +29,7 @@
     "file_path": "ml\\ai_score_system.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 1
+    "times_seen": 2
   },
   {
     "error_hash": "a1a26de9c105",
@@ -37,7 +37,7 @@
     "file_path": "ml\\ai_score_system.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 1
+    "times_seen": 2
   },
   {
     "error_hash": "f86e2c33f3a7",
@@ -45,7 +45,7 @@
     "file_path": "tests\\conftest.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 1
+    "times_seen": 2
   },
   {
     "error_hash": "6c901862cc06",
@@ -53,7 +53,7 @@
     "file_path": "tests\\conftest.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 1
+    "times_seen": 2
   },
   {
     "error_hash": "2faeb84b7137",

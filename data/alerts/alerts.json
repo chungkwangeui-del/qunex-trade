@@ -1,5 +1,5 @@
 {
-  "counter": 50,
+  "counter": 51,
   "alerts": [
     {
       "id": "ALERT-00001",
@@ -498,6 +498,16 @@
       "message": "Security review completed",
       "source": "security",
       "timestamp": "2026-02-02T10:25:35.216305",
+      "acknowledged": false,
+      "resolved": false
+    },
+    {
+      "id": "ALERT-00051",
+      "level": "INFO",
+      "title": "Security Expert fixed 2 issues",
+      "message": "Security review completed",
+      "source": "security",
+      "timestamp": "2026-02-02T10:30:47.920857",
       "acknowledged": false,
       "resolved": false
     }

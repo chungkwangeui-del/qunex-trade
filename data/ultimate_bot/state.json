@@ -1,6 +1,6 @@
 {
-  "cycle_count": 15,
-  "last_save": "2026-02-02T10:30:31.423248",
+  "cycle_count": 16,
+  "last_save": "2026-02-02T10:31:08.918836",
   "task_queue": [
     {
       "id": "issue_20260202101646_1883",
@@ -15,7 +15,7 @@
       "description": "[agents\\database_agent.py] {'file_path': 'agents\\\\database_agent.py', 'line_number': 163, 'category': 'security', 'severity': 'critical', 'title': 'Sql Injection', 'description': 'Found sql_injection pattern', 'suggestion': 'Use parameterized queries', 'auto_fixable': False}",
       "priority": 1,
       "assigned_bot": "security",
-      "status": "pending",
+      "status": "completed",
       "retries": 0
     },
     {
@@ -23,7 +23,7 @@
       "description": "[agents\\health_agent.py] {'file_path': 'agents\\\\health_agent.py', 'line_number': 229, 'category': 'security', 'severity': 'critical', 'title': 'Sql Injection', 'description': 'Found sql_injection pattern', 'suggestion': 'Use parameterized queries', 'auto_fixable': False}",
       "priority": 1,
       "assigned_bot": "security",
-      "status": "pending",
+      "status": "completed",
       "retries": 0
     },
     {
@@ -31,7 +31,7 @@
       "description": "[agents\\project_scanner.py] {'file_path': 'agents\\\\project_scanner.py', 'line_number': 343, 'category': 'security', 'severity': 'high', 'title': 'Debug Enabled', 'description': 'Found debug_enabled pattern', 'suggestion': 'Set DEBUG=False in production', 'auto_fixable': True}",
       "priority": 1,
       "assigned_bot": "fixer",
-      "status": "pending",
+      "status": "completed",
       "retries": 0
     },
     {
@@ -39,7 +39,7 @@
       "description": "[agents\\welcome.py] {'file_path': 'agents\\\\welcome.py', 'line_number': 35, 'category': 'security', 'severity': 'high', 'title': 'Shell Injection', 'description': 'Found shell_injection pattern', 'suggestion': 'Use subprocess with shell=False', 'auto_fixable': True}",
       "priority": 1,
       "assigned_bot": "fixer",
-      "status": "pending",
+      "status": "completed",
       "retries": 0
     },
     {
@@ -47,7 +47,7 @@
       "description": "[ml\\ai_score_system.py] {'file_path': 'ml\\\\ai_score_system.py', 'line_number': 545, 'category': 'security', 'severity': 'high', 'title': 'Pickle Load', 'description': 'Found pickle_load pattern', 'suggestion': 'Pickle can execute arbitrary code', 'auto_fixable': False}",
       "priority": 1,
       "assigned_bot": "fixer",
-      "status": "pending",
+      "status": "completed",
       "retries": 0
     },
     {
@@ -55,7 +55,7 @@
       "description": "[ml\\ai_score_system.py] {'file_path': 'ml\\\\ai_score_system.py', 'line_number': 554, 'category': 'security', 'severity': 'high', 'title': 'Pickle Load', 'description': 'Found pickle_load pattern', 'suggestion': 'Pickle can execute arbitrary code', 'auto_fixable': False}",
       "priority": 1,
       "assigned_bot": "fixer",
-      "status": "pending",
+      "status": "completed",
       "retries": 0
     },
     {
@@ -63,7 +63,7 @@
       "description": "[tests\\conftest.py] {'file_path': 'tests\\\\conftest.py', 'line_number': 147, 'category': 'security', 'severity': 'critical', 'title': 'Hardcoded Secret', 'description': 'Found hardcoded_secret pattern', 'suggestion': 'Move to environment variable', 'auto_fixable': True}",
       "priority": 1,
       "assigned_bot": "fixer",
-      "status": "pending",
+      "status": "completed",
       "retries": 0
     },
     {
@@ -71,7 +71,7 @@
       "description": "[tests\\conftest.py] {'file_path': 'tests\\\\conftest.py', 'line_number': 154, 'category': 'security', 'severity': 'critical', 'title': 'Hardcoded Secret', 'description': 'Found hardcoded_secret pattern', 'suggestion': 'Move to environment variable', 'auto_fixable': True}",
       "priority": 1,
       "assigned_bot": "fixer",
-      "status": "pending",
+      "status": "completed",
       "retries": 0
     },
     {
@@ -79,7 +79,7 @@
       "description": "[web\\api_advanced_sr.py] {'file_path': 'web\\\\api_advanced_sr.py', 'line_number': 83, 'category': 'security', 'severity': 'medium', 'title': 'Unprotected Route', 'description': 'Found unprotected_route pattern', 'suggestion': 'Consider adding @login_required', 'auto_fixable': False}",
       "priority": 1,
       "assigned_bot": "fixer",
-      "status": "pending",
+      "status": "in_progress",
       "retries": 0
     },
     {
@@ -397,6 +397,406 @@
     {
       "id": "issue_20260202102806_2494",
       "description": "[web\\auth.py] {'file_path': 'web\\\\auth.py', 'line_number': 142, 'category': 'security', 'severity': 'medium', 'title': 'Unprotected Route', 'description': 'Found unprotected_route pattern', 'suggestion': 'Consider adding @login_required', 'auto_fixable': False}",
+      "priority": 1,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103041_78",
+      "description": "[agents\\cli.py] {'file_path': 'agents\\\\cli.py', 'line_number': 56, 'category': 'security', 'severity': 'high', 'title': 'Shell Injection', 'description': 'Found shell_injection pattern', 'suggestion': 'Use subprocess with shell=False', 'auto_fixable': True}",
+      "priority": 1,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103041_1710",
+      "description": "[web\\api_market_features.py] {'file_path': 'web\\\\api_market_features.py', 'line_number': 169, 'category': 'security', 'severity': 'medium', 'title': 'Unprotected Route', 'description': 'Found unprotected_route pattern', 'suggestion': 'Consider adding @login_required', 'auto_fixable': False}",
+      "priority": 1,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103041_1711",
+      "description": "[web\\api_market_features.py] {'file_path': 'web\\\\api_market_features.py', 'line_number': 169, 'category': 'security', 'severity': 'low', 'title': 'Missing Error Handler', 'description': 'Found missing_error_handler pattern', 'suggestion': 'Add try/except for error handling', 'auto_fixable': True}",
+      "priority": 1,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103041_1838",
+      "description": "[web\\api_polygon.py] {'file_path': 'web\\\\api_polygon.py', 'line_number': 43, 'category': 'security', 'severity': 'medium', 'title': 'Unprotected Route', 'description': 'Found unprotected_route pattern', 'suggestion': 'Consider adding @login_required', 'auto_fixable': False}",
+      "priority": 1,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103041_1839",
+      "description": "[web\\api_polygon.py] {'file_path': 'web\\\\api_polygon.py', 'line_number': 67, 'category': 'security', 'severity': 'medium', 'title': 'Unprotected Route', 'description': 'Found unprotected_route pattern', 'suggestion': 'Consider adding @login_required', 'auto_fixable': False}",
+      "priority": 1,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103041_1840",
+      "description": "[web\\api_polygon.py] {'file_path': 'web\\\\api_polygon.py', 'line_number': 96, 'category': 'security', 'severity': 'medium', 'title': 'Unprotected Route', 'description': 'Found unprotected_route pattern', 'suggestion': 'Consider adding @login_required', 'auto_fixable': False}",
+      "priority": 1,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103041_1841",
+      "description": "[web\\api_polygon.py] {'file_path': 'web\\\\api_polygon.py', 'line_number': 158, 'category': 'security', 'severity': 'medium', 'title': 'Unprotected Route', 'description': 'Found unprotected_route pattern', 'suggestion': 'Consider adding @login_required', 'auto_fixable': False}",
+      "priority": 1,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103041_1842",
+      "description": "[web\\api_polygon.py] {'file_path': 'web\\\\api_polygon.py', 'line_number': 196, 'category': 'security', 'severity': 'medium', 'title': 'Unprotected Route', 'description': 'Found unprotected_route pattern', 'suggestion': 'Consider adding @login_required', 'auto_fixable': False}",
+      "priority": 1,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103041_1843",
+      "description": "[web\\api_polygon.py] {'file_path': 'web\\\\api_polygon.py', 'line_number': 210, 'category': 'security', 'severity': 'medium', 'title': 'Unprotected Route', 'description': 'Found unprotected_route pattern', 'suggestion': 'Consider adding @login_required', 'auto_fixable': False}",
+      "priority": 1,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103041_1844",
+      "description": "[web\\api_polygon.py] {'file_path': 'web\\\\api_polygon.py', 'line_number': 224, 'category': 'security', 'severity': 'medium', 'title': 'Unprotected Route', 'description': 'Found unprotected_route pattern', 'suggestion': 'Consider adding @login_required', 'auto_fixable': False}",
+      "priority": 1,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103041_1845",
+      "description": "[web\\api_polygon.py] {'file_path': 'web\\\\api_polygon.py', 'line_number': 241, 'category': 'security', 'severity': 'medium', 'title': 'Unprotected Route', 'description': 'Found unprotected_route pattern', 'suggestion': 'Consider adding @login_required', 'auto_fixable': False}",
+      "priority": 1,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103041_1846",
+      "description": "[web\\api_polygon.py] {'file_path': 'web\\\\api_polygon.py', 'line_number': 261, 'category': 'security', 'severity': 'medium', 'title': 'Unprotected Route', 'description': 'Found unprotected_route pattern', 'suggestion': 'Consider adding @login_required', 'auto_fixable': False}",
+      "priority": 1,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103041_1847",
+      "description": "[web\\api_polygon.py] {'file_path': 'web\\\\api_polygon.py', 'line_number': 287, 'category': 'security', 'severity': 'medium', 'title': 'Unprotected Route', 'description': 'Found unprotected_route pattern', 'suggestion': 'Consider adding @login_required', 'auto_fixable': False}",
+      "priority": 1,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103041_1848",
+      "description": "[web\\api_polygon.py] {'file_path': 'web\\\\api_polygon.py', 'line_number': 319, 'category': 'security', 'severity': 'medium', 'title': 'Unprotected Route', 'description': 'Found unprotected_route pattern', 'suggestion': 'Consider adding @login_required', 'auto_fixable': False}",
+      "priority": 1,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103041_1849",
+      "description": "[web\\api_polygon.py] {'file_path': 'web\\\\api_polygon.py', 'line_number': 396, 'category': 'security', 'severity': 'medium', 'title': 'Unprotected Route', 'description': 'Found unprotected_route pattern', 'suggestion': 'Consider adding @login_required', 'auto_fixable': False}",
+      "priority": 1,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103041_1850",
+      "description": "[web\\api_polygon.py] {'file_path': 'web\\\\api_polygon.py', 'line_number': 445, 'category': 'security', 'severity': 'medium', 'title': 'Unprotected Route', 'description': 'Found unprotected_route pattern', 'suggestion': 'Consider adding @login_required', 'auto_fixable': False}",
+      "priority": 1,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103041_1851",
+      "description": "[web\\api_polygon.py] {'file_path': 'web\\\\api_polygon.py', 'line_number': 466, 'category': 'security', 'severity': 'medium', 'title': 'Unprotected Route', 'description': 'Found unprotected_route pattern', 'suggestion': 'Consider adding @login_required', 'auto_fixable': False}",
+      "priority": 1,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103041_1852",
+      "description": "[web\\api_polygon.py] {'file_path': 'web\\\\api_polygon.py', 'line_number': 492, 'category': 'security', 'severity': 'medium', 'title': 'Unprotected Route', 'description': 'Found unprotected_route pattern', 'suggestion': 'Consider adding @login_required', 'auto_fixable': False}",
+      "priority": 1,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103041_1853",
+      "description": "[web\\api_polygon.py] {'file_path': 'web\\\\api_polygon.py', 'line_number': 535, 'category': 'security', 'severity': 'medium', 'title': 'Unprotected Route', 'description': 'Found unprotected_route pattern', 'suggestion': 'Consider adding @login_required', 'auto_fixable': False}",
+      "priority": 1,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103041_1854",
+      "description": "[web\\api_polygon.py] {'file_path': 'web\\\\api_polygon.py', 'line_number': 573, 'category': 'security', 'severity': 'medium', 'title': 'Unprotected Route', 'description': 'Found unprotected_route pattern', 'suggestion': 'Consider adding @login_required', 'auto_fixable': False}",
+      "priority": 1,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103041_1855",
+      "description": "[web\\api_polygon.py] {'file_path': 'web\\\\api_polygon.py', 'line_number': 43, 'category': 'security', 'severity': 'low', 'title': 'Missing Error Handler', 'description': 'Found missing_error_handler pattern', 'suggestion': 'Add try/except for error handling', 'auto_fixable': True}",
+      "priority": 1,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103041_1856",
+      "description": "[web\\api_polygon.py] {'file_path': 'web\\\\api_polygon.py', 'line_number': 67, 'category': 'security', 'severity': 'low', 'title': 'Missing Error Handler', 'description': 'Found missing_error_handler pattern', 'suggestion': 'Add try/except for error handling', 'auto_fixable': True}",
+      "priority": 1,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103041_1857",
+      "description": "[web\\api_polygon.py] {'file_path': 'web\\\\api_polygon.py', 'line_number': 96, 'category': 'security', 'severity': 'low', 'title': 'Missing Error Handler', 'description': 'Found missing_error_handler pattern', 'suggestion': 'Add try/except for error handling', 'auto_fixable': True}",
+      "priority": 1,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103041_1858",
+      "description": "[web\\api_polygon.py] {'file_path': 'web\\\\api_polygon.py', 'line_number': 116, 'category': 'security', 'severity': 'low', 'title': 'Missing Error Handler', 'description': 'Found missing_error_handler pattern', 'suggestion': 'Add try/except for error handling', 'auto_fixable': True}",
+      "priority": 1,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103041_1859",
+      "description": "[web\\api_polygon.py] {'file_path': 'web\\\\api_polygon.py', 'line_number': 158, 'category': 'security', 'severity': 'low', 'title': 'Missing Error Handler', 'description': 'Found missing_error_handler pattern', 'suggestion': 'Add try/except for error handling', 'auto_fixable': True}",
+      "priority": 1,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103041_1860",
+      "description": "[web\\api_polygon.py] {'file_path': 'web\\\\api_polygon.py', 'line_number': 196, 'category': 'security', 'severity': 'low', 'title': 'Missing Error Handler', 'description': 'Found missing_error_handler pattern', 'suggestion': 'Add try/except for error handling', 'auto_fixable': True}",
+      "priority": 1,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103041_1861",
+      "description": "[web\\api_polygon.py] {'file_path': 'web\\\\api_polygon.py', 'line_number': 210, 'category': 'security', 'severity': 'low', 'title': 'Missing Error Handler', 'description': 'Found missing_error_handler pattern', 'suggestion': 'Add try/except for error handling', 'auto_fixable': True}",
+      "priority": 1,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103041_1862",
+      "description": "[web\\api_polygon.py] {'file_path': 'web\\\\api_polygon.py', 'line_number': 224, 'category': 'security', 'severity': 'low', 'title': 'Missing Error Handler', 'description': 'Found missing_error_handler pattern', 'suggestion': 'Add try/except for error handling', 'auto_fixable': True}",
+      "priority": 1,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103041_1863",
+      "description": "[web\\api_polygon.py] {'file_path': 'web\\\\api_polygon.py', 'line_number': 241, 'category': 'security', 'severity': 'low', 'title': 'Missing Error Handler', 'description': 'Found missing_error_handler pattern', 'suggestion': 'Add try/except for error handling', 'auto_fixable': True}",
+      "priority": 1,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103041_1864",
+      "description": "[web\\api_polygon.py] {'file_path': 'web\\\\api_polygon.py', 'line_number': 261, 'category': 'security', 'severity': 'low', 'title': 'Missing Error Handler', 'description': 'Found missing_error_handler pattern', 'suggestion': 'Add try/except for error handling', 'auto_fixable': True}",
+      "priority": 1,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103041_1865",
+      "description": "[web\\api_polygon.py] {'file_path': 'web\\\\api_polygon.py', 'line_number': 287, 'category': 'security', 'severity': 'low', 'title': 'Missing Error Handler', 'description': 'Found missing_error_handler pattern', 'suggestion': 'Add try/except for error handling', 'auto_fixable': True}",
+      "priority": 1,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103041_1866",
+      "description": "[web\\api_polygon.py] {'file_path': 'web\\\\api_polygon.py', 'line_number': 319, 'category': 'security', 'severity': 'low', 'title': 'Missing Error Handler', 'description': 'Found missing_error_handler pattern', 'suggestion': 'Add try/except for error handling', 'auto_fixable': True}",
+      "priority": 1,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103041_1867",
+      "description": "[web\\api_polygon.py] {'file_path': 'web\\\\api_polygon.py', 'line_number': 396, 'category': 'security', 'severity': 'low', 'title': 'Missing Error Handler', 'description': 'Found missing_error_handler pattern', 'suggestion': 'Add try/except for error handling', 'auto_fixable': True}",
+      "priority": 1,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103041_1868",
+      "description": "[web\\api_polygon.py] {'file_path': 'web\\\\api_polygon.py', 'line_number': 445, 'category': 'security', 'severity': 'low', 'title': 'Missing Error Handler', 'description': 'Found missing_error_handler pattern', 'suggestion': 'Add try/except for error handling', 'auto_fixable': True}",
+      "priority": 1,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103041_1869",
+      "description": "[web\\api_polygon.py] {'file_path': 'web\\\\api_polygon.py', 'line_number': 466, 'category': 'security', 'severity': 'low', 'title': 'Missing Error Handler', 'description': 'Found missing_error_handler pattern', 'suggestion': 'Add try/except for error handling', 'auto_fixable': True}",
+      "priority": 1,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103041_1870",
+      "description": "[web\\api_polygon.py] {'file_path': 'web\\\\api_polygon.py', 'line_number': 492, 'category': 'security', 'severity': 'low', 'title': 'Missing Error Handler', 'description': 'Found missing_error_handler pattern', 'suggestion': 'Add try/except for error handling', 'auto_fixable': True}",
+      "priority": 1,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103041_1871",
+      "description": "[web\\api_polygon.py] {'file_path': 'web\\\\api_polygon.py', 'line_number': 535, 'category': 'security', 'severity': 'low', 'title': 'Missing Error Handler', 'description': 'Found missing_error_handler pattern', 'suggestion': 'Add try/except for error handling', 'auto_fixable': True}",
+      "priority": 1,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103041_1872",
+      "description": "[web\\api_polygon.py] {'file_path': 'web\\\\api_polygon.py', 'line_number': 573, 'category': 'security', 'severity': 'low', 'title': 'Missing Error Handler', 'description': 'Found missing_error_handler pattern', 'suggestion': 'Add try/except for error handling', 'auto_fixable': True}",
+      "priority": 1,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103042_2179",
+      "description": "[web\\api_scalp.py] {'file_path': 'web\\\\api_scalp.py', 'line_number': 2044, 'category': 'security', 'severity': 'medium', 'title': 'Unprotected Route', 'description': 'Found unprotected_route pattern', 'suggestion': 'Consider adding @login_required', 'auto_fixable': False}",
+      "priority": 1,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103042_2180",
+      "description": "[web\\api_scalp.py] {'file_path': 'web\\\\api_scalp.py', 'line_number': 2067, 'category': 'security', 'severity': 'medium', 'title': 'Unprotected Route', 'description': 'Found unprotected_route pattern', 'suggestion': 'Consider adding @login_required', 'auto_fixable': False}",
+      "priority": 1,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103042_2181",
+      "description": "[web\\api_scalp.py] {'file_path': 'web\\\\api_scalp.py', 'line_number': 2044, 'category': 'security', 'severity': 'low', 'title': 'Missing Error Handler', 'description': 'Found missing_error_handler pattern', 'suggestion': 'Add try/except for error handling', 'auto_fixable': True}",
+      "priority": 1,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103042_2182",
+      "description": "[web\\api_scalp.py] {'file_path': 'web\\\\api_scalp.py', 'line_number': 2067, 'category': 'security', 'severity': 'low', 'title': 'Missing Error Handler', 'description': 'Found missing_error_handler pattern', 'suggestion': 'Add try/except for error handling', 'auto_fixable': True}",
+      "priority": 1,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103042_2239",
+      "description": "[web\\api_sse.py] {'file_path': 'web\\\\api_sse.py', 'line_number': 232, 'category': 'security', 'severity': 'medium', 'title': 'Unprotected Route', 'description': 'Found unprotected_route pattern', 'suggestion': 'Consider adding @login_required', 'auto_fixable': False}",
+      "priority": 1,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103042_2240",
+      "description": "[web\\api_sse.py] {'file_path': 'web\\\\api_sse.py', 'line_number': 294, 'category': 'security', 'severity': 'medium', 'title': 'Unprotected Route', 'description': 'Found unprotected_route pattern', 'suggestion': 'Consider adding @login_required', 'auto_fixable': False}",
+      "priority": 1,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103042_2241",
+      "description": "[web\\api_sse.py] {'file_path': 'web\\\\api_sse.py', 'line_number': 315, 'category': 'security', 'severity': 'medium', 'title': 'Unprotected Route', 'description': 'Found unprotected_route pattern', 'suggestion': 'Consider adding @login_required', 'auto_fixable': False}",
+      "priority": 1,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103042_2242",
+      "description": "[web\\api_sse.py] {'file_path': 'web\\\\api_sse.py', 'line_number': 232, 'category': 'security', 'severity': 'low', 'title': 'Missing Error Handler', 'description': 'Found missing_error_handler pattern', 'suggestion': 'Add try/except for error handling', 'auto_fixable': True}",
+      "priority": 1,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103042_2243",
+      "description": "[web\\api_sse.py] {'file_path': 'web\\\\api_sse.py', 'line_number': 294, 'category': 'security', 'severity': 'low', 'title': 'Missing Error Handler', 'description': 'Found missing_error_handler pattern', 'suggestion': 'Add try/except for error handling', 'auto_fixable': True}",
+      "priority": 1,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103042_2244",
+      "description": "[web\\api_sse.py] {'file_path': 'web\\\\api_sse.py', 'line_number': 315, 'category': 'security', 'severity': 'low', 'title': 'Missing Error Handler', 'description': 'Found missing_error_handler pattern', 'suggestion': 'Add try/except for error handling', 'auto_fixable': True}",
+      "priority": 1,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103042_2398",
+      "description": "[web\\api_websocket.py] {'file_path': 'web\\\\api_websocket.py', 'line_number': 125, 'category': 'security', 'severity': 'medium', 'title': 'Unprotected Route', 'description': 'Found unprotected_route pattern', 'suggestion': 'Consider adding @login_required', 'auto_fixable': False}",
+      "priority": 1,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103042_2399",
+      "description": "[web\\api_websocket.py] {'file_path': 'web\\\\api_websocket.py', 'line_number': 186, 'category': 'security', 'severity': 'medium', 'title': 'Unprotected Route', 'description': 'Found unprotected_route pattern', 'suggestion': 'Consider adding @login_required', 'auto_fixable': False}",
       "priority": 1,
       "assigned_bot": "fixer",
       "status": "pending",
