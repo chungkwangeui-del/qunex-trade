@@ -555,16 +555,21 @@ class UltimateBot:
                     title = issue.get('title', 'Unknown issue')
                     auto_fixable = issue.get('auto_fixable', False)
 
-                    # SKIP low-value issues that can't be auto-fixed
-                    # These just spam the queue without any real work being done
-                    if severity in ['low', 'info'] and not auto_fixable:
+                    # ONLY process issues that can be auto-fixed!
+                    # Skip everything else - bot can't do anything with them
+                    if not auto_fixable:
                         skipped_count += 1
                         continue
 
-                    # SKIP non-actionable issues (no auto-fix, no clear action)
-                    if not auto_fixable and 'unprotected route' in title.lower():
+                    # Also skip issues that are just code style recommendations
+                    skip_titles = [
+                        'high complexity',  # Needs refactoring by human
+                        'too many arguments',  # Design decision
+                        'debug enabled',  # May be intentional
+                    ]
+                    if any(skip in title.lower() for skip in skip_titles):
                         skipped_count += 1
-                        continue  # These need manual review, bot can't do anything
+                        continue
 
                     # Create task description - use title, not the whole dict
                     task_desc = f"[{file_path}] {title}: {issue.get('suggestion', '')}"
