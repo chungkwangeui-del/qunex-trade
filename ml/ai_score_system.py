@@ -21,6 +21,10 @@ import logging
 import pickle
 import os
 import sys
+from datetime import timedelta
+from typing import List
+from typing import Optional
+from typing import Tuple
 
 # ML libraries
 try:
@@ -43,7 +47,6 @@ try:
 except ImportError:
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)
-
 
 class FeatureEngineer:
     """
@@ -273,7 +276,6 @@ class FeatureEngineer:
         features["news_volume"] = len(news_data)
 
         return features
-
 
 class AIScoreModel:
     """
@@ -572,7 +574,6 @@ class AIScoreModel:
             logger.error(f"Error extracting model components: {e}")
             return False
 
-
 class MultiTimeframeAIScoreModel:
     """
     Multi-timeframe AI Score predictor
@@ -692,7 +693,6 @@ class MultiTimeframeAIScoreModel:
             ratings["long_term_rating"] = None
 
         return ratings
-
 
 if __name__ == "__main__":
     # Example usage

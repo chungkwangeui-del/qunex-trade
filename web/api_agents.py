@@ -11,6 +11,7 @@ from flask_login import login_required, current_user
 import asyncio
 import logging
 from typing import List
+import json
 
 logger = logging.getLogger(__name__)
 
@@ -373,6 +374,385 @@ def agent_health():
     except Exception as e:
         return jsonify({
             "status": "error",
+            "error": str(e)
+        }), 500
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# DASHBOARD API
+# ═══════════════════════════════════════════════════════════════════════════
+
+@api_agents.route("/dashboard", methods=["GET"])
+@login_required
+@require_admin
+def get_dashboard_data():
+    """Get comprehensive dashboard data."""
+    try:
+        from agents.autonomous.statistics import get_statistics
+
+        stats = get_statistics()
+        data = stats.get_dashboard_data()
+
+        return jsonify({
+            "success": True,
+            "data": data
+        })
+    except Exception as e:
+        logger.error(f"Error getting dashboard data: {e}")
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
+
+
+@api_agents.route("/reports/<report_type>", methods=["GET"])
+@login_required
+@require_admin
+def get_report(report_type: str):
+    """Generate a report."""
+    try:
+        from agents.autonomous.statistics import get_statistics
+
+        stats = get_statistics()
+        report = stats.generate_report(report_type)
+
+        format_type = request.args.get('format', 'json')
+        content = stats.export_report(report, format_type)
+
+        return jsonify({
+            "success": True,
+            "data": {
+                "report": content if format_type == 'json' else None,
+                "markdown": content if format_type == 'markdown' else None
+            }
+        })
+    except Exception as e:
+        logger.error(f"Error generating report: {e}")
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# AI INTEGRATION API
+# ═══════════════════════════════════════════════════════════════════════════
+
+@api_agents.route("/ai/status", methods=["GET"])
+@login_required
+@require_admin
+def get_ai_status():
+    """Get AI integration status."""
+    try:
+        from agents.autonomous.ai_integration import get_ai
+
+        ai = get_ai()
+
+        return jsonify({
+            "success": True,
+            "data": ai.get_usage_stats()
+        })
+    except Exception as e:
+        logger.error(f"Error getting AI status: {e}")
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
+
+
+@api_agents.route("/ai/analyze", methods=["POST"])
+@login_required
+@require_admin
+def ai_analyze():
+    """Analyze code with AI."""
+    try:
+        from agents.autonomous.ai_integration import get_ai
+
+        data = request.get_json() or {}
+        code = data.get('query', '')
+        context = data.get('context', '')
+
+        ai = get_ai()
+        result = run_async(ai.analyze_code(code, context))
+
+        return jsonify({
+            "success": result.success,
+            "data": {
+                "content": result.content,
+                "model": result.model,
+                "tokens": result.tokens_used,
+                "cost": result.cost
+            }
+        })
+    except Exception as e:
+        logger.error(f"Error in AI analyze: {e}")
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
+
+
+@api_agents.route("/ai/generate", methods=["POST"])
+@login_required
+@require_admin
+def ai_generate():
+    """Generate code with AI."""
+    try:
+        from agents.autonomous.ai_integration import get_ai
+
+        data = request.get_json() or {}
+        description = data.get('description', '')
+
+        ai = get_ai()
+        result = run_async(ai.generate_feature(description))
+
+        return jsonify({
+            "success": True,
+            "data": result
+        })
+    except Exception as e:
+        logger.error(f"Error in AI generate: {e}")
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
+
+
+@api_agents.route("/ai/explain", methods=["POST"])
+@login_required
+@require_admin
+def ai_explain():
+    """Explain error with AI."""
+    try:
+        from agents.autonomous.ai_integration import get_ai
+
+        data = request.get_json() or {}
+        error = data.get('error', '')
+        code = data.get('code', '')
+
+        ai = get_ai()
+        explanation = run_async(ai.explain_error(error, code))
+
+        return jsonify({
+            "success": True,
+            "data": {
+                "explanation": explanation
+            }
+        })
+    except Exception as e:
+        logger.error(f"Error in AI explain: {e}")
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
+
+
+@api_agents.route("/ai/tests", methods=["POST"])
+@login_required
+@require_admin
+def ai_tests():
+    """Generate tests with AI."""
+    try:
+        from agents.autonomous.ai_integration import get_ai
+
+        data = request.get_json() or {}
+        code = data.get('code', '')
+        file_path = data.get('file_path', 'unknown.py')
+
+        ai = get_ai()
+        tests = run_async(ai.generate_tests(code, file_path))
+
+        return jsonify({
+            "success": True,
+            "data": {
+                "tests": tests
+            }
+        })
+    except Exception as e:
+        logger.error(f"Error in AI tests: {e}")
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# DEPLOYMENT API
+# ═══════════════════════════════════════════════════════════════════════════
+
+@api_agents.route("/deploy/status", methods=["GET"])
+@login_required
+@require_admin
+def get_deploy_status():
+    """Get deployment status."""
+    try:
+        from agents.autonomous.deployer import get_deployer
+
+        deployer = get_deployer()
+        status = deployer.get_status()
+
+        return jsonify({
+            "success": True,
+            "data": status
+        })
+    except Exception as e:
+        logger.error(f"Error getting deploy status: {e}")
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
+
+
+@api_agents.route("/deploy", methods=["POST"])
+@login_required
+@require_admin
+def run_deploy():
+    """Run deployment."""
+    try:
+        from agents.autonomous.deployer import get_deployer
+
+        data = request.get_json() or {}
+        environment = data.get('environment', 'staging')
+        dry_run = data.get('dry_run', True)
+
+        deployer = get_deployer()
+        results = run_async(deployer.deploy(environment, dry_run))
+
+        return jsonify({
+            "success": all(r.success for r in results),
+            "data": {
+                "results": [
+                    {
+                        "stage": r.stage,
+                        "success": r.success,
+                        "message": r.message,
+                        "duration": r.duration_seconds,
+                        "error": r.error
+                    }
+                    for r in results
+                ]
+            }
+        })
+    except Exception as e:
+        logger.error(f"Error running deploy: {e}")
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
+
+
+@api_agents.route("/deploy/history", methods=["GET"])
+@login_required
+@require_admin
+def get_deploy_history():
+    """Get deployment history."""
+    try:
+        from agents.autonomous.deployer import get_deployer
+
+        deployer = get_deployer()
+        history = deployer.get_deployment_history()
+
+        return jsonify({
+            "success": True,
+            "data": {
+                "history": history
+            }
+        })
+    except Exception as e:
+        logger.error(f"Error getting deploy history: {e}")
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# LOG ANALYSIS API
+# ═══════════════════════════════════════════════════════════════════════════
+
+@api_agents.route("/logs/analyze", methods=["GET"])
+@login_required
+@require_admin
+def analyze_logs():
+    """Analyze application logs."""
+    try:
+        from agents.autonomous.log_analyzer import get_log_analyzer
+
+        hours = int(request.args.get('hours', 24))
+
+        analyzer = get_log_analyzer()
+        result = run_async(analyzer.analyze_all(hours))
+
+        return jsonify({
+            "success": True,
+            "data": result
+        })
+    except Exception as e:
+        logger.error(f"Error analyzing logs: {e}")
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
+
+
+@api_agents.route("/logs/errors", methods=["GET"])
+@login_required
+@require_admin
+def get_log_errors():
+    """Get recent errors from logs."""
+    try:
+        from agents.autonomous.log_analyzer import get_log_analyzer
+
+        limit = int(request.args.get('limit', 20))
+
+        analyzer = get_log_analyzer()
+        errors = analyzer.get_recent_errors(limit)
+
+        return jsonify({
+            "success": True,
+            "data": {
+                "errors": errors
+            }
+        })
+    except Exception as e:
+        logger.error(f"Error getting log errors: {e}")
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
+
+
+@api_agents.route("/logs/alerts", methods=["GET"])
+@login_required
+@require_admin
+def get_log_alerts():
+    """Get log-based alerts."""
+    try:
+        from agents.autonomous.log_analyzer import get_log_analyzer
+
+        analyzer = get_log_analyzer()
+
+        return jsonify({
+            "success": True,
+            "data": {
+                "alerts": [
+                    {
+                        "id": a.id,
+                        "severity": a.severity,
+                        "title": a.title,
+                        "message": a.message,
+                        "count": a.count,
+                        "suggested_action": a.suggested_action,
+                        "auto_fixable": a.auto_fixable
+                    }
+                    for a in analyzer.alerts
+                ]
+            }
+        })
+    except Exception as e:
+        logger.error(f"Error getting log alerts: {e}")
+        return jsonify({
+            "success": False,
             "error": str(e)
         }), 500
 

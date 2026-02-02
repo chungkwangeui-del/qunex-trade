@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 
 
-api_tools = Bluelogger.info("api_tools", __name__)
+api_tools = Blueprint("api_tools", __name__)
 
 @api_tools.route("/api/tools/position-size", methods=["POST"])
 @login_required

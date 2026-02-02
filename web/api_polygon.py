@@ -23,7 +23,7 @@ except ImportError:
     from web.polygon_service import get_polygon_service
     from web.extensions import cache
 
-api_polygon = Bluelogger.info("api_polygon", __name__)
+api_polygon = Blueprint("api_polygon", __name__)
 
 
 def validate_ticker(ticker: str) -> bool:

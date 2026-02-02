@@ -43,6 +43,26 @@ from agents.autonomous.scheduler import SchedulerAgent, ScheduledTask, ScheduleT
 from agents.autonomous.self_healer import SelfHealerAgent, HealthCheck, HealingAction
 from agents.autonomous.test_runner import TestRunnerAgent, TestResult, TestReport
 
+# New Feature Agents
+from agents.autonomous.ai_integration import AIIntegration, AIResponse, CodeFix, get_ai
+from agents.autonomous.deployer import DeployerAgent, DeploymentResult, DeploymentPlan, get_deployer
+from agents.autonomous.log_analyzer import LogAnalyzer, LogEntry, LogPattern, LogAlert, get_log_analyzer
+from agents.autonomous.statistics import StatisticsAgent, AgentStats, DailyStats, Report, get_statistics
+
+# Ultimate Bot - Supreme Controller
+from agents.autonomous.ultimate_bot import UltimateBot, get_ultimate_bot, BotStatus, BotInfo, UltimateTask
+
+# Advanced Systems
+from agents.autonomous.expert_comm import ExpertCommunicationHub, get_comm_hub, ExpertMessage, MessageType
+from agents.autonomous.learning_system import ExpertLearningSystem, get_learning_system, FixPattern
+from agents.autonomous.advanced_systems import (
+    DailyReportSystem, get_report_system,
+    RollbackSystem, get_rollback_system,
+    CompetitionSystem, get_competition_system,
+    EmergencyAlertSystem, get_alert_system, AlertLevel,
+    AutoTestGenerator, get_test_generator
+)
+
 __all__ = [
     # Core Agents
     "MasterAgent",
@@ -58,6 +78,32 @@ __all__ = [
     "SchedulerAgent",
     "SelfHealerAgent",
     "TestRunnerAgent",
+
+    # AI Integration
+    "AIIntegration",
+    "AIResponse",
+    "CodeFix",
+    "get_ai",
+
+    # Deployment
+    "DeployerAgent",
+    "DeploymentResult",
+    "DeploymentPlan",
+    "get_deployer",
+
+    # Log Analysis
+    "LogAnalyzer",
+    "LogEntry",
+    "LogPattern",
+    "LogAlert",
+    "get_log_analyzer",
+
+    # Statistics
+    "StatisticsAgent",
+    "AgentStats",
+    "DailyStats",
+    "Report",
+    "get_statistics",
 
     # Memory System
     "AgentMemory",
@@ -104,4 +150,11 @@ __all__ = [
     "EscalationReason",
     "EscalationPriority",
     "ManualStep",
+
+    # Ultimate Bot (Supreme Controller)
+    "UltimateBot",
+    "get_ultimate_bot",
+    "BotStatus",
+    "BotInfo",
+    "UltimateTask",
 ]

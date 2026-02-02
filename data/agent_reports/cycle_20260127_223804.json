@@ -1,0 +1,451 @@
+{
+  "cycle_number": 1,
+  "start_time": "2026-01-27T22:37:59.947566+00:00",
+  "phases": {
+    "analysis": {
+      "health_score": 57,
+      "issues_found": 198,
+      "opportunities_found": 76
+    },
+    "task_creation": {
+      "tasks_created": 26
+    },
+    "processing": {
+      "tasks": [
+        {
+          "task_id": "126cab04",
+          "title": "[WARNING] Fix Code Quality issue in api_advanced_sr.py",
+          "type": "improvement",
+          "success": false,
+          "changes_applied": 0,
+          "changes_rolled_back": 0,
+          "review_score": null,
+          "error": "No improvements applied",
+          "process_message": "No improvements applied"
+        },
+        {
+          "task_id": "d0a085fa",
+          "title": "[WARNING] Fix Code Quality issue in api_advanced_sr.py",
+          "type": "improvement",
+          "success": false,
+          "changes_applied": 0,
+          "changes_rolled_back": 0,
+          "review_score": null,
+          "error": "No improvements applied",
+          "process_message": "No improvements applied"
+        },
+        {
+          "task_id": "deebf923",
+          "title": "[WARNING] Fix Code Quality issue in api_analytics.py",
+          "type": "improvement",
+          "success": false,
+          "changes_applied": 0,
+          "changes_rolled_back": 0,
+          "review_score": null,
+          "error": "No improvements applied",
+          "process_message": "No improvements applied"
+        },
+        {
+          "task_id": "38649ced",
+          "title": "[WARNING] Fix Code Quality issue in api_analytics.py",
+          "type": "improvement",
+          "success": false,
+          "changes_applied": 0,
+          "changes_rolled_back": 0,
+          "review_score": null,
+          "error": "No improvements applied",
+          "process_message": "No improvements applied"
+        },
+        {
+          "task_id": "96cc23a8",
+          "title": "[WARNING] Fix Code Quality issue in api_analytics.py",
+          "type": "improvement",
+          "success": false,
+          "changes_applied": 0,
+          "changes_rolled_back": 0,
+          "review_score": null,
+          "error": "No improvements applied",
+          "process_message": "No improvements applied"
+        }
+      ]
+    },
+    "auto_fixes": {
+      "scanned_files": 136,
+      "fixed_files": 57,
+      "fixes": [
+        {
+          "file": "init_db.py",
+          "patterns": [
+            "print_to_logging"
+          ]
+        },
+        {
+          "file": "run.py",
+          "patterns": [
+            "debug_mode"
+          ]
+        },
+        {
+          "file": "test_polygon.py",
+          "patterns": [
+            "print_to_logging",
+            "unused_import"
+          ]
+        },
+        {
+          "file": "agents\\analysis_agent.py",
+          "patterns": [
+            "unused_import"
+          ]
+        },
+        {
+          "file": "agents\\base.py",
+          "patterns": [
+            "unused_import"
+          ]
+        },
+        {
+          "file": "agents\\cli.py",
+          "patterns": [
+            "print_to_logging"
+          ]
+        },
+        {
+          "file": "agents\\database_agent.py",
+          "patterns": [
+            "unused_import"
+          ]
+        },
+        {
+          "file": "agents\\development_agent.py",
+          "patterns": [
+            "unused_import",
+            "unused_import"
+          ]
+        },
+        {
+          "file": "agents\\health_agent.py",
+          "patterns": [
+            "unused_import"
+          ]
+        },
+        {
+          "file": "agents\\market_agent.py",
+          "patterns": [
+            "unused_import"
+          ]
+        },
+        {
+          "file": "agents\\metrics.py",
+          "patterns": [
+            "unused_import"
+          ]
+        },
+        {
+          "file": "agents\\orchestrator.py",
+          "patterns": [
+            "unused_import"
+          ]
+        },
+        {
+          "file": "agents\\scheduler.py",
+          "patterns": [
+            "unused_import"
+          ]
+        },
+        {
+          "file": "agents\\security_agent.py",
+          "patterns": [
+            "unused_import"
+          ]
+        },
+        {
+          "file": "agents\\trading_agent.py",
+          "patterns": [
+            "unused_import"
+          ]
+        },
+        {
+          "file": "ml\\ai_score_system.py",
+          "patterns": [
+            "unused_import"
+          ]
+        },
+        {
+          "file": "scripts\\cron_retrain_model.py",
+          "patterns": [
+            "print_to_logging"
+          ]
+        },
+        {
+          "file": "scripts\\cron_run_agents.py",
+          "patterns": [
+            "unused_import"
+          ]
+        },
+        {
+          "file": "scripts\\polygon_websocket_client.py",
+          "patterns": [
+            "unused_import"
+          ]
+        },
+        {
+          "file": "scripts\\refresh_news.py",
+          "patterns": [
+            "print_to_logging"
+          ]
+        },
+        {
+          "file": "src\\gemini_service.py",
+          "patterns": [
+            "unused_import"
+          ]
+        },
+        {
+          "file": "src\\news_collector.py",
+          "patterns": [
+            "unused_import"
+          ]
+        },
+        {
+          "file": "tests\\conftest.py",
+          "patterns": [
+            "unused_import"
+          ]
+        },
+        {
+          "file": "tests\\test_api.py",
+          "patterns": [
+            "unused_import"
+          ]
+        },
+        {
+          "file": "tests\\test_auth.py",
+          "patterns": [
+            "unused_import"
+          ]
+        },
+        {
+          "file": "tests\\test_routes.py",
+          "patterns": [
+            "unused_import"
+          ]
+        },
+        {
+          "file": "web\\advanced_sr_analysis.py",
+          "patterns": [
+            "unused_import",
+            "unused_import"
+          ]
+        },
+        {
+          "file": "web\\api_advanced_sr.py",
+          "patterns": [
+            "unused_import"
+          ]
+        },
+        {
+          "file": "web\\api_chat.py",
+          "patterns": [
+            "unused_import",
+            "unused_import"
+          ]
+        },
+        {
+          "file": "web\\api_comparison.py",
+          "patterns": [
+            "unused_import"
+          ]
+        },
+        {
+          "file": "web\\api_earnings.py",
+          "patterns": [
+            "unused_import"
+          ]
+        },
+        {
+          "file": "web\\api_flow.py",
+          "patterns": [
+            "unused_import"
+          ]
+        },
+        {
+          "file": "web\\api_leaderboard.py",
+          "patterns": [
+            "unused_import"
+          ]
+        },
+        {
+          "file": "web\\api_market_features.py",
+          "patterns": [
+            "unused_import",
+            "unused_import"
+          ]
+        },
+        {
+          "file": "web\\api_options.py",
+          "patterns": [
+            "unused_import"
+          ]
+        },
+        {
+          "file": "web\\api_portfolio.py",
+          "patterns": [
+            "print_to_logging",
+            "unused_import"
+          ]
+        },
+        {
+          "file": "web\\api_scalp.py",
+          "patterns": [
+            "unused_import"
+          ]
+        },
+        {
+          "file": "web\\api_swing.py",
+          "patterns": [
+            "unused_import"
+          ]
+        },
+        {
+          "file": "web\\api_tools.py",
+          "patterns": [
+            "unused_import",
+            "unused_import"
+          ]
+        },
+        {
+          "file": "web\\api_watchlist.py",
+          "patterns": [
+            "unused_import"
+          ]
+        },
+        {
+          "file": "web\\api_websocket.py",
+          "patterns": [
+            "unused_import",
+            "unused_import",
+            "unused_import",
+            "unused_import"
+          ]
+        },
+        {
+          "file": "web\\finnhub_service.py",
+          "patterns": [
+            "unused_import",
+            "unused_import"
+          ]
+        },
+        {
+          "file": "web\\pattern_recognition.py",
+          "patterns": [
+            "unused_import"
+          ]
+        },
+        {
+          "file": "web\\scalp_service.py",
+          "patterns": [
+            "unused_import"
+          ]
+        },
+        {
+          "file": "web\\sentiment_service.py",
+          "patterns": [
+            "unused_import"
+          ]
+        },
+        {
+          "file": "web\\swing_service.py",
+          "patterns": [
+            "unused_import",
+            "unused_import"
+          ]
+        },
+        {
+          "file": "web\\technical_analysis.py",
+          "patterns": [
+            "unused_import"
+          ]
+        },
+        {
+          "file": "web\\main\\routes.py",
+          "patterns": [
+            "unused_import"
+          ]
+        },
+        {
+          "file": "agents\\autonomous\\developer.py",
+          "patterns": [
+            "unused_import"
+          ]
+        },
+        {
+          "file": "agents\\autonomous\\master.py",
+          "patterns": [
+            "unused_import"
+          ]
+        },
+        {
+          "file": "agents\\autonomous\\pipeline.py",
+          "patterns": [
+            "unused_import",
+            "unused_import"
+          ]
+        },
+        {
+          "file": "agents\\autonomous\\reviewer.py",
+          "patterns": [
+            "unused_import"
+          ]
+        },
+        {
+          "file": "agents\\autonomous\\runner.py",
+          "patterns": [
+            "print_to_logging",
+            "unused_import"
+          ]
+        },
+        {
+          "file": "agents\\autonomous\\smart_analyzer.py",
+          "patterns": [
+            "bare_except",
+            "unused_import"
+          ]
+        },
+        {
+          "file": "agents\\autonomous\\test_runner.py",
+          "patterns": [
+            "unused_import"
+          ]
+        },
+        {
+          "file": "agents\\autonomous\\watchdog.py",
+          "patterns": [
+            "unused_import",
+            "unused_import"
+          ]
+        },
+        {
+          "file": "agents\\autonomous\\__init__.py",
+          "patterns": [
+            "unused_import"
+          ]
+        }
+      ],
+      "by_category": {
+        "print_to_logging": 7,
+        "debug_mode": 1,
+        "unused_import": 64,
+        "bare_except": 1
+      }
+    }
+  },
+  "tasks_processed": 5,
+  "tasks_completed": 0,
+  "tasks_failed": 0,
+  "changes_applied": 57,
+  "changes_rolled_back": 0,
+  "errors": [],
+  "end_time": "2026-01-27T22:38:04.540710+00:00",
+  "duration_seconds": 4.593144
+}

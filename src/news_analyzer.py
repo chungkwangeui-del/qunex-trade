@@ -10,6 +10,8 @@ import logging
 from datetime import datetime
 from typing import List, Dict
 import google.generativeai as genai
+from pathlib import Path
+from typing import Dict
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -21,7 +23,7 @@ class NewsAnalyzer:
     def __init__(self, model_name: str = "gemini-1.5-flash"):
         """
         Initialize Gemini-based news analyzer
-        
+
         Args:
             model_name: Gemini model to use (default: gemini-1.5-flash - fast and free tier friendly)
         """
@@ -30,11 +32,11 @@ class NewsAnalyzer:
             raise ValueError("GEMINI_API_KEY not found in environment variables")
 
         logger.info(f"Initializing NewsAnalyzer with key: {api_key[:8]}...")
-        
+
         # Configure Gemini API
         genai.configure(api_key=api_key)
         self.model_name = model_name
-        
+
         try:
             self.model = genai.GenerativeModel(model_name)
             logger.info(f"Successfully created Gemini model: {model_name}")
@@ -49,7 +51,7 @@ class NewsAnalyzer:
                         self.model_name = fallback
                         logger.info(f"Using fallback model: {fallback}")
                         break
-                    except:
+                    except Exception:
                         continue
             else:
                 raise ValueError(f"No working Gemini model found. Tried: {[model_name] + fallback_models}")
@@ -271,7 +273,7 @@ SOURCE: {source}"""
 def analyze_with_claude(news_item: Dict) -> Dict:
     """
     Standalone function to analyze a single news item (used by cron job)
-    
+
     Note: This function name is kept for backward compatibility.
     It now uses Gemini Pro instead of Claude.
 

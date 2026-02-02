@@ -16,6 +16,7 @@ import json
 import shutil
 import subprocess
 from datetime import datetime, timezone
+from datetime import timezone
 
 # Add parent directory and web directory to path for imports
 parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -24,6 +25,10 @@ sys.path.insert(0, web_dir)
 sys.path.insert(0, parent_dir)
 
 from dotenv import load_dotenv
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 load_dotenv()
 
@@ -57,7 +62,7 @@ def main():
     def log(msg):
         timestamp = datetime.now(timezone.utc).isoformat()
         log_msg = f"[{timestamp}] {msg}"
-        print(log_msg)
+        logger.info(log_msg)
         with open(log_file, "a") as f:
             f.write(log_msg + "\n")
 

@@ -11,7 +11,6 @@ from typing import Optional
 
 db = SQLAlchemy()
 
-
 class User(UserMixin, db.Model):
     """User model for authentication"""
 
@@ -77,7 +76,6 @@ class User(UserMixin, db.Model):
     def __repr__(self):
         return f"<User {self.username}>"
 
-
 class Payment(db.Model):
     """Payment history model"""
 
@@ -93,7 +91,6 @@ class Payment(db.Model):
 
     def __repr__(self):
         return f"<Payment {self.id} - ${self.amount}>"
-
 
 class Watchlist(db.Model):
     """User watchlist for tracking favorite stocks"""
@@ -118,7 +115,6 @@ class Watchlist(db.Model):
 
     def __repr__(self):
         return f"<Watchlist {self.user_id} - {self.ticker}>"
-
 
 class SavedScreener(db.Model):
     """Saved screener criteria for quick access"""
@@ -151,7 +147,6 @@ class SavedScreener(db.Model):
 
     def __repr__(self):
         return f"<SavedScreener {self.name} by User {self.user_id}>"
-
 
 class NewsArticle(db.Model):
     """Cached news articles with AI analysis"""
@@ -195,7 +190,6 @@ class NewsArticle(db.Model):
             "sentiment": self.sentiment,
             "created_at": self.created_at.isoformat() if self.created_at else None,
         }
-
 
 class EconomicEvent(db.Model):
     """Economic calendar events"""
@@ -250,7 +244,6 @@ class EconomicEvent(db.Model):
             "source": self.source,
         }
 
-
 class AIScore(db.Model):
     """Pre-computed AI scores for stocks with SHAP explainability and multi-timeframe support"""
 
@@ -301,7 +294,6 @@ class AIScore(db.Model):
             "updated_at": self.updated_at.isoformat() if self.updated_at else None,
         }
 
-
 class Transaction(db.Model):
     """
     User portfolio transactions (buy/sell).
@@ -346,7 +338,6 @@ class Transaction(db.Model):
             "total_cost": float(self.shares * self.price),
             "notes": self.notes,
         }
-
 
 class BacktestJob(db.Model):
     """
@@ -396,7 +387,6 @@ class BacktestJob(db.Model):
             "completed_at": self.completed_at.isoformat() if self.completed_at else None,
         }
 
-
 class PriceAlert(db.Model):
     """
     Price alerts for watchlist stocks.
@@ -436,7 +426,6 @@ class PriceAlert(db.Model):
             "triggered_price": float(self.triggered_price) if self.triggered_price else None,
             "created_at": self.created_at.isoformat() if self.created_at else None,
         }
-
 
 class InsiderTrade(db.Model):
     """
@@ -483,7 +472,6 @@ class InsiderTrade(db.Model):
             "filing_date": self.filing_date.isoformat() if self.filing_date else None,
             "created_at": self.created_at.isoformat() if self.created_at else None,
         }
-
 
 class Signal(db.Model):
     """
@@ -533,7 +521,6 @@ class Signal(db.Model):
             "created_at": self.created_at.isoformat() if self.created_at else None,
         }
 
-
 class Announcement(db.Model):
     """Site-wide announcement banner managed by admin"""
 
@@ -560,7 +547,6 @@ class Announcement(db.Model):
             "is_active": self.is_active,
             "created_at": self.created_at.isoformat() if self.created_at else None,
         }
-
 
 class PaperAccount(db.Model):
     """
@@ -590,7 +576,6 @@ class PaperAccount(db.Model):
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "last_reset": self.last_reset.isoformat() if self.last_reset else None,
         }
-
 
 class PaperTrade(db.Model):
     """
@@ -634,7 +619,6 @@ class PaperTrade(db.Model):
             "realized_pnl": float(self.realized_pnl) if self.realized_pnl else None,
             "total_value": float(self.shares * self.price),
         }
-
 
 class TradeJournal(db.Model):
     """
@@ -740,7 +724,6 @@ class TradeJournal(db.Model):
             "created_at": self.created_at.isoformat() if self.created_at else None,
         }
 
-
 class PortfolioSnapshot(db.Model):
     """
     Daily portfolio snapshots for tracking performance over time.
@@ -796,7 +779,6 @@ class PortfolioSnapshot(db.Model):
             "positions_count": self.positions_count,
         }
 
-
 class SentimentData(db.Model):
     """
     Social media sentiment data for stocks.
@@ -850,7 +832,6 @@ class SentimentData(db.Model):
             "keywords": json.loads(self.keywords) if self.keywords else [],
             "updated_at": self.updated_at.isoformat() if self.updated_at else None,
         }
-
 
 class ChartPattern(db.Model):
     """

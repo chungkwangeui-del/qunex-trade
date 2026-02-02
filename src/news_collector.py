@@ -8,11 +8,13 @@ import requests
 import logging
 from datetime import datetime, timedelta, timezone
 from typing import List, Dict
-import time
+from datetime import timedelta
+from datetime import timezone
+import json
+from typing import Dict
 
 # Configure logging
 logger = logging.getLogger(__name__)
-
 
 class NewsCollector:
     """Collect real-time financial news from reliable sources"""
@@ -263,14 +265,12 @@ class NewsCollector:
 
         return all_news
 
-
 def collect_news() -> List[Dict]:
     """
     Main function to collect news (used by cron job)
     """
     collector = NewsCollector()
     return collector.collect_all_news(limit=100)
-
 
 if __name__ == "__main__":
     # Test the collector

@@ -413,4 +413,15 @@ def agents_dashboard():
     if not (current_user.email.endswith("@admin.com") or
             current_user.subscription_tier == "developer"):
         return redirect(url_for("main.index"))
+    # Use the new enhanced dashboard
+    return render_template("agents_dashboard.html", user=current_user)
+
+
+@main.route("/agents/classic")
+@login_required
+def agents_dashboard_classic():
+    """Classic Agents Dashboard (legacy)"""
+    if not (current_user.email.endswith("@admin.com") or
+            current_user.subscription_tier == "developer"):
+        return redirect(url_for("main.index"))
     return render_template("agents.html", user=current_user)

@@ -1,0 +1,152 @@
+[
+  {
+    "id": "FP-0001",
+    "error_pattern": "undefined variable '(\\w+)'",
+    "fix_pattern": "Check if variable is defined or imported",
+    "confidence": 0.5,
+    "success_count": 0,
+    "failure_count": 0,
+    "category": "variable",
+    "expert_id": "system"
+  },
+  {
+    "id": "FP-0002",
+    "error_pattern": "'(\\w+)' is not defined",
+    "fix_pattern": "Add import or define the variable",
+    "confidence": 0.5,
+    "success_count": 0,
+    "failure_count": 0,
+    "category": "import",
+    "expert_id": "system"
+  },
+  {
+    "id": "FP-0003",
+    "error_pattern": "IndentationError",
+    "fix_pattern": "Fix indentation to use consistent spaces/tabs",
+    "confidence": 0.5,
+    "success_count": 0,
+    "failure_count": 0,
+    "category": "syntax",
+    "expert_id": "system"
+  },
+  {
+    "id": "FP-0004",
+    "error_pattern": "SyntaxError: invalid syntax",
+    "fix_pattern": "Check for missing colons, parentheses, or brackets",
+    "confidence": 0.5,
+    "success_count": 0,
+    "failure_count": 0,
+    "category": "syntax",
+    "expert_id": "system"
+  },
+  {
+    "id": "FP-0005",
+    "error_pattern": "ModuleNotFoundError: No module named '(\\w+)'",
+    "fix_pattern": "Install missing package with pip install",
+    "confidence": 0.5,
+    "success_count": 0,
+    "failure_count": 0,
+    "category": "import",
+    "expert_id": "system"
+  },
+  {
+    "id": "FP-0006",
+    "error_pattern": "TypeError: .* takes .* positional argument",
+    "fix_pattern": "Check function arguments match definition",
+    "confidence": 0.5,
+    "success_count": 0,
+    "failure_count": 0,
+    "category": "type",
+    "expert_id": "system"
+  },
+  {
+    "id": "FP-0007",
+    "error_pattern": "AttributeError: .* has no attribute '(\\w+)'",
+    "fix_pattern": "Check object type and available attributes",
+    "confidence": 0.5,
+    "success_count": 0,
+    "failure_count": 0,
+    "category": "attribute",
+    "expert_id": "system"
+  },
+  {
+    "id": "FP-0008",
+    "error_pattern": "KeyError: '(\\w+)'",
+    "fix_pattern": "Check if key exists in dictionary before accessing",
+    "confidence": 0.5,
+    "success_count": 0,
+    "failure_count": 0,
+    "category": "dict",
+    "expert_id": "system"
+  },
+  {
+    "id": "FP-0009",
+    "error_pattern": "IndexError: list index out of range",
+    "fix_pattern": "Check list length before accessing index",
+    "confidence": 0.5,
+    "success_count": 0,
+    "failure_count": 0,
+    "category": "list",
+    "expert_id": "system"
+  },
+  {
+    "id": "FP-0010",
+    "error_pattern": "ValueError: .* is not in list",
+    "fix_pattern": "Verify item exists before using list.index()",
+    "confidence": 0.5,
+    "success_count": 0,
+    "failure_count": 0,
+    "category": "list",
+    "expert_id": "system"
+  },
+  {
+    "id": "FP-0011",
+    "error_pattern": "FileNotFoundError",
+    "fix_pattern": "Check file path exists before opening",
+    "confidence": 0.5,
+    "success_count": 0,
+    "failure_count": 0,
+    "category": "file",
+    "expert_id": "system"
+  },
+  {
+    "id": "FP-0012",
+    "error_pattern": "PermissionError",
+    "fix_pattern": "Check file permissions or run with elevated privileges",
+    "confidence": 0.5,
+    "success_count": 0,
+    "failure_count": 0,
+    "category": "file",
+    "expert_id": "system"
+  },
+  {
+    "id": "FP-0013",
+    "error_pattern": "ConnectionError",
+    "fix_pattern": "Check network connection and server availability",
+    "confidence": 0.5,
+    "success_count": 0,
+    "failure_count": 0,
+    "category": "network",
+    "expert_id": "system"
+  },
+  {
+    "id": "FP-0014",
+    "error_pattern": "TimeoutError",
+    "fix_pattern": "Increase timeout or check server response time",
+    "confidence": 0.5,
+    "success_count": 0,
+    "failure_count": 0,
+    "category": "network",
+    "expert_id": "system"
+  },
+  {
+    "id": "FP-0015",
+    "error_pattern": "json.JSONDecodeError",
+    "fix_pattern": "Verify JSON format is valid",
+    "confidence": 0.5,
+    "success_count": 0,
+    "failure_count": 0,
+    "category": "json",
+    "expert_id": "system"
+  }
+]

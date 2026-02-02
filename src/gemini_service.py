@@ -9,10 +9,12 @@ import logging
 from datetime import datetime
 from typing import List, Dict, Optional, Any
 import google.generativeai as genai
+from typing import Dict
+from typing import Optional
+from typing import Any
 
 # Configure logging
 logger = logging.getLogger(__name__)
-
 
 class GeminiService:
     """
@@ -38,7 +40,7 @@ class GeminiService:
         genai.configure(api_key=api_key)
         self.model_name = model_name
         self.model = genai.GenerativeModel(model_name)
-        
+
         logger.info(f"Gemini service initialized with model: {model_name}")
 
     def generate_text(
@@ -93,7 +95,7 @@ class GeminiService:
                         response_text = response_text.split("```json")[1].split("```")[0].strip()
                     elif "```" in response_text:
                         response_text = response_text.split("```")[1].split("```")[0].strip()
-                    
+
                     parsed_json = json.loads(response_text)
                     return {
                         "success": True,
@@ -232,7 +234,7 @@ SOURCE: {source}"""
         Returns:
             Dictionary with insight/answer
         """
-        system_instruction = """You are a professional financial analyst and trading expert. 
+        system_instruction = """You are a professional financial analyst and trading expert.
 Provide clear, concise, and accurate insights about the stock market, trading strategies, and financial markets.
 Focus on factual information and data-driven analysis."""
 
@@ -282,7 +284,6 @@ Focus on factual information and data-driven analysis."""
 
         return result
 
-
 def analyze_with_gemini(news_item: Dict) -> Dict:
     """
     Standalone function to analyze a single news item using Gemini (similar to analyze_with_claude)
@@ -317,7 +318,6 @@ def analyze_with_gemini(news_item: Dict) -> Dict:
             "sentiment": "neutral",
             "analysis": f"Analysis failed: {str(e)}",
         }
-
 
 if __name__ == "__main__":
     # Test the service
@@ -360,9 +360,3 @@ if __name__ == "__main__":
         print("1. Get API key from: https://makersuite.google.com/app/apikey")
         print("2. Set environment variable: GEMINI_API_KEY=your_key_here")
         print("3. Or add to .env file: GEMINI_API_KEY=your_key_here")
-
-
-
-
-
-
