@@ -52,6 +52,9 @@ from agents.autonomous.statistics import StatisticsAgent, AgentStats, DailyStats
 # Ultimate Bot - Supreme Controller
 from agents.autonomous.ultimate_bot import UltimateBot, get_ultimate_bot, BotStatus, BotInfo, UltimateTask
 
+# Expert Fixer - Intelligent Code Fixer
+from agents.autonomous.expert_fixer import ExpertFixer, FixResult, IssueReport
+
 # Advanced Systems
 from agents.autonomous.expert_comm import ExpertCommunicationHub, get_comm_hub, ExpertMessage, MessageType
 from agents.autonomous.learning_system import ExpertLearningSystem, get_learning_system, FixPattern
@@ -157,4 +160,9 @@ __all__ = [
     "BotStatus",
     "BotInfo",
     "UltimateTask",
+
+    # Expert Fixer
+    "ExpertFixer",
+    "FixResult",
+    "IssueReport",
 ]
