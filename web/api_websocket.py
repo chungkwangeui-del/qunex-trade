@@ -13,19 +13,21 @@ from flask_login import login_required, current_user
 from web.extensions import csrf, cache
 from web.database import db, Watchlist
 from web.polygon_service import get_polygon_service
-import os
+
 import logging
-import json
+
 from datetime import datetime, timezone
 from typing import Dict, List
-import threading
+
 import time
+from datetime import timezone
+from typing import List
+from typing import Optional
 
 logger = logging.getLogger(__name__)
 
 api_websocket = Blueprint("api_websocket", __name__)
 csrf.exempt(api_websocket)
-
 
 class PriceStreamManager:
     """Manages real-time price streaming with polling fallback"""
@@ -57,7 +59,7 @@ class PriceStreamManager:
         if tickers_to_fetch:
             try:
                 snapshots = self.polygon.get_market_snapshot(tickers_to_fetch)
-                
+
                 for ticker in tickers_to_fetch:
                     data = snapshots.get(ticker, {})
                     if data:
@@ -73,14 +75,14 @@ class PriceStreamManager:
                             "prev_close": data.get("prev_close"),
                             "timestamp": datetime.now(timezone.utc).isoformat()
                         }
-                        
+
                         # Update cache
                         self._cache[ticker] = price_data
                         self._cache_time[ticker] = now
                         results[ticker] = price_data
                     else:
                         results[ticker] = {"ticker": ticker, "error": "No data"}
-                        
+
             except Exception as e:
                 logger.error(f"Price fetch error: {e}")
                 for ticker in tickers_to_fetch:
@@ -96,7 +98,7 @@ class PriceStreamManager:
         for ticker, current in current_prices.items():
             if current.get("error"):
                 continue
-                
+
             last = last_prices.get(ticker, {})
             last_price = last.get("price")
             current_price = current.get("price")
@@ -117,16 +119,14 @@ class PriceStreamManager:
 
         return changes
 
-
 # Initialize manager
 price_manager = PriceStreamManager()
-
 
 @api_websocket.route("/api/realtime/prices", methods=["POST"])
 def get_realtime_prices():
     """
     Get real-time prices for multiple tickers
-    
+
     Request body:
     {
         "tickers": ["AAPL", "MSFT", "GOOGL"],
@@ -134,7 +134,7 @@ def get_realtime_prices():
     }
     """
     data = request.get_json()
-    
+
     if not data or not data.get("tickers"):
         return jsonify({"error": "Tickers required"}), 400
 
@@ -146,7 +146,7 @@ def get_realtime_prices():
     tickers = [t.upper().strip() for t in tickers if t and len(t) <= 10]
 
     prices = price_manager.get_live_prices(tickers)
-    
+
     # Check for changes if last_prices provided
     changes = []
     if data.get("last_prices"):
@@ -159,13 +159,12 @@ def get_realtime_prices():
         "timestamp": datetime.now(timezone.utc).isoformat()
     })
 
-
 @api_websocket.route("/api/realtime/watchlist")
 @login_required
 def get_watchlist_realtime():
     """Get real-time prices for user's watchlist"""
     watchlist = Watchlist.query.filter_by(user_id=current_user.id).all()
-    
+
     if not watchlist:
         return jsonify({
             "success": True,
@@ -184,7 +183,6 @@ def get_watchlist_realtime():
         "timestamp": datetime.now(timezone.utc).isoformat()
     })
 
-
 @api_websocket.route("/api/realtime/stream/<ticker>")
 def stream_ticker(ticker: str):
     """
@@ -192,7 +190,7 @@ def stream_ticker(ticker: str):
     Includes price, volume, and technical indicators
     """
     ticker = ticker.upper().strip()
-    
+
     if not ticker or len(ticker) > 10:
         return jsonify({"error": "Invalid ticker"}), 400
 
@@ -204,13 +202,13 @@ def stream_ticker(ticker: str):
 
     # Add additional stream data
     polygon = get_polygon_service()
-    
+
     # Get intraday data for mini chart
     try:
         from datetime import timedelta
         end_date = datetime.now()
         start_date = end_date - timedelta(days=1)
-        
+
         aggs = polygon.get_aggregates(
             ticker, 5, "minute",
             start_date.strftime("%Y-%m-%d"),
@@ -229,7 +227,7 @@ def stream_ticker(ticker: str):
                 })
 
         price_data["mini_chart"] = mini_chart
-        
+
     except Exception as e:
         logger.warning(f"Mini chart error for {ticker}: {e}")
         price_data["mini_chart"] = []
@@ -238,7 +236,6 @@ def stream_ticker(ticker: str):
         "success": True,
         "data": price_data
     })
-
 
 @api_websocket.route("/api/realtime/market-pulse")
 @cache.cached(timeout=15)
@@ -275,7 +272,7 @@ def market_pulse():
     # Calculate market sentiment based on SPY
     spy_data = prices.get("SPY", {})
     spy_change = spy_data.get("change_percent", 0) or 0
-    
+
     if spy_change > 1:
         sentiment = "bullish"
     elif spy_change > 0:
@@ -293,7 +290,6 @@ def market_pulse():
         "indices": prices,
         "timestamp": datetime.now(timezone.utc).isoformat()
     })
-
 
 @api_websocket.route("/api/realtime/subscribe", methods=["POST"])
 @login_required
@@ -322,4 +318,3 @@ def subscribe_to_tickers():
         "poll_interval_ms": 5000,  # Recommend 5 second polling
         "message": "Use /api/realtime/prices with POST to get updates"
     })
-

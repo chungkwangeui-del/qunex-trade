@@ -8,6 +8,7 @@ from flask import Blueprint, jsonify, request
 from flask_login import login_required
 from datetime import datetime, timedelta
 import logging
+from datetime import timedelta
 
 try:
     from web.polygon_service import get_polygon_service
@@ -20,7 +21,6 @@ logger = logging.getLogger(__name__)
 
 api_earnings = Blueprint("api_earnings", __name__)
 
-
 # Major stocks to track for earnings
 EARNINGS_WATCHLIST = [
     "AAPL", "MSFT", "GOOGL", "AMZN", "NVDA", "META", "TSLA", "BRK.B",
@@ -31,51 +31,50 @@ EARNINGS_WATCHLIST = [
     "SBUX", "BA", "CAT", "GS", "MS", "BLK", "SCHW", "AXP", "SPGI"
 ]
 
-
 @api_earnings.route("/api/earnings/upcoming")
 @login_required
 @cache.cached(timeout=3600, key_prefix="earnings_upcoming")
 def get_upcoming_earnings():
     """
     Get stocks with upcoming earnings in the next 14 days.
-    
+
     Uses yfinance for earnings calendar data.
     """
     try:
         import yfinance as yf
     except ImportError:
         return jsonify({"error": "yfinance not installed"}), 500
-    
+
     earnings = []
     today = datetime.now().date()
-    
+
     for ticker in EARNINGS_WATCHLIST[:30]:  # Limit to avoid rate limits
         try:
             stock = yf.Ticker(ticker)
-            
+
             # Get calendar info
             try:
                 calendar = stock.calendar
             except Exception:
                 continue
-            
+
             if calendar is None or calendar.empty if hasattr(calendar, 'empty') else not calendar:
                 continue
-            
+
             # Handle different calendar formats
             earnings_date = None
             if isinstance(calendar, dict):
                 earnings_date = calendar.get('Earnings Date')
             elif hasattr(calendar, 'get'):
                 earnings_date = calendar.get('Earnings Date')
-            
+
             if earnings_date is None:
                 continue
-            
+
             # Handle list of dates
             if isinstance(earnings_date, list) and earnings_date:
                 earnings_date = earnings_date[0]
-            
+
             # Convert to date if needed
             if hasattr(earnings_date, 'date'):
                 earnings_date = earnings_date.date()
@@ -84,12 +83,12 @@ def get_upcoming_earnings():
                     earnings_date = datetime.strptime(earnings_date, "%Y-%m-%d").date()
                 except ValueError:
                     continue
-            
+
             # Check if within next 14 days
             if earnings_date and today <= earnings_date <= today + timedelta(days=14):
                 # Get additional info
                 info = stock.info or {}
-                
+
                 earnings.append({
                     "ticker": ticker,
                     "company_name": info.get("shortName", ticker),
@@ -100,20 +99,19 @@ def get_upcoming_earnings():
                     "eps_estimate": None,  # Would need separate API
                     "revenue_estimate": None,
                 })
-                
+
         except Exception as e:
             logger.debug(f"Error getting earnings for {ticker}: {e}")
             continue
-    
+
     # Sort by date
     earnings.sort(key=lambda x: x["earnings_date"])
-    
+
     return jsonify({
         "count": len(earnings),
         "earnings": earnings,
         "updated_at": datetime.now().isoformat(),
     })
-
 
 @api_earnings.route("/api/earnings/stock/<ticker>")
 @login_required
@@ -125,13 +123,13 @@ def get_stock_earnings(ticker):
         import yfinance as yf
     except ImportError:
         return jsonify({"error": "yfinance not installed"}), 500
-    
+
     ticker = ticker.upper()
-    
+
     try:
         stock = yf.Ticker(ticker)
         info = stock.info or {}
-        
+
         # Get earnings history
         earnings_history = []
         try:
@@ -146,7 +144,7 @@ def get_stock_earnings(ticker):
                     })
         except Exception:
             pass
-        
+
         # Get quarterly earnings
         quarterly = []
         try:
@@ -160,7 +158,7 @@ def get_stock_earnings(ticker):
                     })
         except Exception:
             pass
-        
+
         return jsonify({
             "ticker": ticker,
             "company_name": info.get("shortName", ticker),
@@ -172,11 +170,10 @@ def get_stock_earnings(ticker):
             "forward_pe": info.get("forwardPE"),
             "trailing_pe": info.get("trailingPE"),
         })
-        
+
     except Exception as e:
         logger.error(f"Error getting earnings for {ticker}: {e}")
         return jsonify({"error": str(e)}), 500
-
 
 @api_earnings.route("/api/dividends/upcoming")
 @login_required
@@ -189,26 +186,26 @@ def get_upcoming_dividends():
         import yfinance as yf
     except ImportError:
         return jsonify({"error": "yfinance not installed"}), 500
-    
+
     dividends = []
     today = datetime.now().date()
-    
+
     # Dividend aristocrats and high-yield stocks
     div_stocks = [
         "JNJ", "PG", "KO", "PEP", "MCD", "WMT", "HD", "MMM", "ABT", "ABBV",
         "XOM", "CVX", "T", "VZ", "IBM", "MO", "PM", "O", "SCHD", "VYM",
         "SPY", "QQQ", "DIA", "IVV", "VTI"
     ]
-    
+
     for ticker in div_stocks:
         try:
             stock = yf.Ticker(ticker)
             info = stock.info or {}
-            
+
             div_yield = info.get("dividendYield", 0) or 0
             div_rate = info.get("dividendRate", 0) or 0
             ex_date = info.get("exDividendDate")
-            
+
             if div_yield > 0:
                 # Convert timestamp to date
                 if ex_date:
@@ -216,7 +213,7 @@ def get_upcoming_dividends():
                         ex_date = datetime.fromtimestamp(ex_date).date()
                     elif hasattr(ex_date, 'date'):
                         ex_date = ex_date.date()
-                
+
                 dividends.append({
                     "ticker": ticker,
                     "company_name": info.get("shortName", ticker),
@@ -226,20 +223,19 @@ def get_upcoming_dividends():
                     "payout_ratio": info.get("payoutRatio"),
                     "five_year_avg_yield": info.get("fiveYearAvgDividendYield"),
                 })
-                
+
         except Exception as e:
             logger.debug(f"Error getting dividend for {ticker}: {e}")
             continue
-    
+
     # Sort by yield (highest first)
     dividends.sort(key=lambda x: x["dividend_yield"], reverse=True)
-    
+
     return jsonify({
         "count": len(dividends),
         "dividends": dividends,
         "updated_at": datetime.now().isoformat(),
     })
-
 
 @api_earnings.route("/api/dividends/stock/<ticker>")
 @login_required
@@ -251,13 +247,13 @@ def get_stock_dividends(ticker):
         import yfinance as yf
     except ImportError:
         return jsonify({"error": "yfinance not installed"}), 500
-    
+
     ticker = ticker.upper()
-    
+
     try:
         stock = yf.Ticker(ticker)
         info = stock.info or {}
-        
+
         # Get dividend history
         div_history = []
         try:
@@ -270,7 +266,7 @@ def get_stock_dividends(ticker):
                     })
         except Exception:
             pass
-        
+
         return jsonify({
             "ticker": ticker,
             "company_name": info.get("shortName", ticker),
@@ -281,33 +277,32 @@ def get_stock_dividends(ticker):
             "dividend_history": div_history,
             "five_year_avg_yield": info.get("fiveYearAvgDividendYield"),
         })
-        
+
     except Exception as e:
         logger.error(f"Error getting dividends for {ticker}: {e}")
         return jsonify({"error": str(e)}), 500
 
-
 @api_earnings.route("/api/ipo/upcoming")
-@login_required  
+@login_required
 @cache.cached(timeout=3600, key_prefix="ipo_upcoming")
 def get_upcoming_ipos():
     """
     Get upcoming IPOs.
-    
+
     Note: IPO data requires specialized API (Finnhub, Polygon, etc.)
     This provides a framework - implement with your preferred data source.
     """
     try:
         from web.finnhub_service import get_finnhub_service
         finnhub = get_finnhub_service()
-        
+
         if finnhub:
             # Get IPO calendar from Finnhub
             from_date = datetime.now().strftime("%Y-%m-%d")
             to_date = (datetime.now() + timedelta(days=30)).strftime("%Y-%m-%d")
-            
+
             ipos = finnhub.get_ipo_calendar(from_date, to_date)
-            
+
             return jsonify({
                 "count": len(ipos) if ipos else 0,
                 "ipos": ipos or [],
@@ -315,7 +310,7 @@ def get_upcoming_ipos():
             })
     except Exception as e:
         logger.warning(f"Finnhub IPO calendar not available: {e}")
-    
+
     # Fallback: Return placeholder data
     return jsonify({
         "count": 0,
@@ -324,35 +319,33 @@ def get_upcoming_ipos():
         "updated_at": datetime.now().isoformat(),
     })
 
-
 @api_earnings.route("/api/calendar/economic")
 @login_required
 @cache.cached(timeout=1800, key_prefix="economic_calendar")
 def get_economic_calendar():
     """
     Get economic calendar events.
-    
+
     Returns events from the database (populated by cron job).
     """
     try:
         from web.database import EconomicEvent
-        
+
         # Get events for next 7 days
         today = datetime.now().date()
         end_date = today + timedelta(days=7)
-        
+
         events = EconomicEvent.query.filter(
             EconomicEvent.date >= today,
             EconomicEvent.date <= end_date
         ).order_by(EconomicEvent.date, EconomicEvent.time).all()
-        
+
         return jsonify({
             "count": len(events),
             "events": [e.to_dict() for e in events],
             "updated_at": datetime.now().isoformat(),
         })
-        
+
     except Exception as e:
         logger.error(f"Error getting economic calendar: {e}")
         return jsonify({"error": str(e)}), 500
-

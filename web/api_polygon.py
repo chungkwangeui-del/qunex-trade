@@ -8,6 +8,13 @@ from datetime import datetime, timedelta
 import csv
 import io
 import re
+import logging
+from datetime import timedelta
+from typing import Dict
+
+logger = logging.getLogger(__name__)
+
+
 
 try:
     from polygon_service import get_polygon_service
@@ -16,7 +23,7 @@ except ImportError:
     from web.polygon_service import get_polygon_service
     from web.extensions import cache
 
-api_polygon = Blueprint("api_polygon", __name__)
+api_polygon = Bluelogger.info("api_polygon", __name__)
 
 
 def validate_ticker(ticker: str) -> bool:

@@ -19,12 +19,16 @@ import logging
 import requests
 from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional
+from datetime import timedelta
+from datetime import timezone
+import json
+from typing import List
+from typing import Optional
 
 logger = logging.getLogger(__name__)
 
 api_flow = Blueprint("api_flow", __name__)
 csrf.exempt(api_flow)
-
 
 class OptionsFlowAnalyzer:
     """Analyze options flow for unusual activity"""
@@ -40,7 +44,7 @@ class OptionsFlowAnalyzer:
         try:
             # Get current date for expiration filtering
             today = datetime.now()
-            
+
             # Get options contracts
             url = f"https://api.polygon.io/v3/reference/options/contracts"
             params = {
@@ -55,11 +59,11 @@ class OptionsFlowAnalyzer:
             data = response.json()
 
             contracts = data.get("results", [])
-            
+
             # Organize by expiration and type
             calls = []
             puts = []
-            
+
             for contract in contracts:
                 contract_info = {
                     "ticker": contract.get("ticker"),
@@ -67,7 +71,7 @@ class OptionsFlowAnalyzer:
                     "expiration": contract.get("expiration_date"),
                     "type": contract.get("contract_type"),
                 }
-                
+
                 if contract.get("contract_type") == "call":
                     calls.append(contract_info)
                 else:
@@ -97,11 +101,11 @@ class OptionsFlowAnalyzer:
 
             # For now, return simulated unusual activity based on volume patterns
             # In production, you'd analyze actual options flow data
-            
+
             chain = self.get_options_chain(ticker)
-            
+
             unusual_signals = []
-            
+
             # High put/call ratio (bearish signal)
             if chain.get("put_call_ratio", 0) > 1.5:
                 unusual_signals.append({
@@ -110,12 +114,12 @@ class OptionsFlowAnalyzer:
                     "description": f"Put/Call ratio of {chain['put_call_ratio']:.2f} indicates bearish sentiment",
                     "strength": min(100, int(chain['put_call_ratio'] * 40))
                 })
-            
+
             # Low put/call ratio (bullish signal)
             if chain.get("put_call_ratio", 1) < 0.5:
                 unusual_signals.append({
                     "type": "low_put_call",
-                    "signal": "bullish", 
+                    "signal": "bullish",
                     "description": f"Put/Call ratio of {chain['put_call_ratio']:.2f} indicates bullish sentiment",
                     "strength": min(100, int((1 - chain['put_call_ratio']) * 80))
                 })
@@ -132,7 +136,6 @@ class OptionsFlowAnalyzer:
             logger.error(f"Unusual activity detection error: {e}")
             return {"error": str(e)}
 
-
 class DarkPoolAnalyzer:
     """Analyze dark pool and off-exchange trading activity"""
 
@@ -143,14 +146,14 @@ class DarkPoolAnalyzer:
         """Get recent dark pool prints (large block trades)"""
         try:
             polygon = get_polygon_service()
-            
+
             # Get recent trades - dark pool trades are often larger blocks
             end_date = datetime.now()
             start_date = end_date - timedelta(days=1)
 
             # Get aggregates to estimate dark pool activity
             aggs = polygon.get_aggregates(
-                ticker.upper(), 
+                ticker.upper(),
                 1, "hour",
                 start_date.strftime("%Y-%m-%d"),
                 end_date.strftime("%Y-%m-%d"),
@@ -168,10 +171,10 @@ class DarkPoolAnalyzer:
 
             volumes = [bar.get("v", 0) for bar in aggs]
             prices = [bar.get("c", 0) for bar in aggs]
-            
+
             avg_volume = sum(volumes) / len(volumes) if volumes else 0
             avg_price = sum(prices) / len(prices) if prices else 0
-            
+
             # Calculate VWAP
             vwap_sum = sum(
                 (bar.get("h", 0) + bar.get("l", 0) + bar.get("c", 0)) / 3 * bar.get("v", 0)
@@ -182,13 +185,13 @@ class DarkPoolAnalyzer:
 
             # Identify potential dark pool prints (large volume bars)
             dark_pool_indicators = []
-            
+
             for i, bar in enumerate(aggs[-10:]):  # Last 10 bars
                 volume = bar.get("v", 0)
                 if volume > avg_volume * 2:  # 2x average = potential block trade
                     price = bar.get("c", 0)
                     price_impact = abs(price - vwap) / vwap * 100 if vwap > 0 else 0
-                    
+
                     dark_pool_indicators.append({
                         "timestamp": bar.get("t"),
                         "volume": volume,
@@ -201,16 +204,16 @@ class DarkPoolAnalyzer:
             # Calculate dark pool score (0-100)
             # Higher score = more institutional accumulation signals
             dark_pool_score = 0
-            
+
             likely_dp_trades = [d for d in dark_pool_indicators if d["likely_dark_pool"]]
             if likely_dp_trades:
                 # Large volume with low price impact
                 dark_pool_score += min(50, len(likely_dp_trades) * 15)
-                
+
                 # Very large blocks
                 max_ratio = max(d["volume_ratio"] for d in likely_dp_trades)
                 dark_pool_score += min(30, int(max_ratio * 5))
-                
+
                 # Consistent accumulation (multiple prints)
                 if len(likely_dp_trades) >= 3:
                     dark_pool_score += 20
@@ -255,7 +258,6 @@ class DarkPoolAnalyzer:
             logger.error(f"Short interest error: {e}")
             return {"error": str(e)}
 
-
 class InsiderAnalyzer:
     """Analyze SEC Form 4 insider trading filings"""
 
@@ -264,7 +266,7 @@ class InsiderAnalyzer:
         try:
             # Check database first
             cutoff = datetime.now(timezone.utc) - timedelta(days=days)
-            
+
             trades = InsiderTrade.query.filter(
                 InsiderTrade.ticker == ticker.upper(),
                 InsiderTrade.filing_date >= cutoff.date()
@@ -285,7 +287,7 @@ class InsiderAnalyzer:
                                     insider_name=txn.get("name", "Unknown"),
                                     filing_date=datetime.strptime(txn.get("filingDate", "2024-01-01"), "%Y-%m-%d").date()
                                 ).first()
-                                
+
                                 if not existing:
                                     trade = InsiderTrade(
                                         ticker=ticker.upper(),
@@ -298,9 +300,9 @@ class InsiderAnalyzer:
                                         filing_date=datetime.strptime(txn.get("filingDate", "2024-01-01"), "%Y-%m-%d").date()
                                     )
                                     db.session.add(trade)
-                            
+
                             db.session.commit()
-                            
+
                             # Re-fetch from database
                             trades = InsiderTrade.query.filter(
                                 InsiderTrade.ticker == ticker.upper(),
@@ -312,10 +314,10 @@ class InsiderAnalyzer:
             # Analyze trades
             buys = [t for t in trades if t.transaction_type == "buy"]
             sells = [t for t in trades if t.transaction_type == "sell"]
-            
+
             total_bought_shares = sum(t.shares for t in buys)
             total_sold_shares = sum(t.shares for t in sells)
-            
+
             total_bought_value = sum(float(t.shares) * float(t.price or 0) for t in buys)
             total_sold_value = sum(float(t.shares) * float(t.price or 0) for t in sells)
 
@@ -328,7 +330,7 @@ class InsiderAnalyzer:
             # Calculate insider sentiment score (0-100)
             # Higher = more bullish insider activity
             insider_score = 50  # Neutral baseline
-            
+
             if total_bought_value > total_sold_value:
                 ratio = total_bought_value / (total_sold_value + 1)
                 insider_score += min(40, int(ratio * 10))
@@ -380,12 +382,10 @@ class InsiderAnalyzer:
             logger.error(f"Insider analysis error: {e}")
             return {"error": str(e), "ticker": ticker}
 
-
 # Initialize analyzers
 options_analyzer = OptionsFlowAnalyzer()
 dark_pool_analyzer = DarkPoolAnalyzer()
 insider_analyzer = InsiderAnalyzer()
-
 
 # ============ API ENDPOINTS ============
 
@@ -395,17 +395,16 @@ insider_analyzer = InsiderAnalyzer()
 def get_options_flow(ticker: str):
     """Get options flow analysis for a ticker"""
     ticker = ticker.upper().strip()
-    
+
     if not ticker or len(ticker) > 10:
         return jsonify({"error": "Invalid ticker"}), 400
 
     result = options_analyzer.detect_unusual_activity(ticker)
-    
+
     if "error" in result and not result.get("unusual_signals"):
         return jsonify(result), 400
 
     return jsonify(result)
-
 
 @api_flow.route("/api/flow/darkpool/<ticker>")
 @login_required
@@ -413,17 +412,16 @@ def get_options_flow(ticker: str):
 def get_dark_pool_data(ticker: str):
     """Get dark pool activity analysis for a ticker"""
     ticker = ticker.upper().strip()
-    
+
     if not ticker or len(ticker) > 10:
         return jsonify({"error": "Invalid ticker"}), 400
 
     result = dark_pool_analyzer.get_dark_pool_prints(ticker)
-    
+
     if result.get("error") and not result.get("dark_pool_indicators"):
         return jsonify(result), 400
 
     return jsonify(result)
-
 
 @api_flow.route("/api/flow/insider/<ticker>")
 @login_required
@@ -432,19 +430,18 @@ def get_insider_activity(ticker: str):
     """Get insider trading activity for a ticker"""
     ticker = ticker.upper().strip()
     days = request.args.get("days", 90, type=int)
-    
+
     if not ticker or len(ticker) > 10:
         return jsonify({"error": "Invalid ticker"}), 400
 
     days = min(365, max(7, days))  # Between 7 and 365 days
 
     result = insider_analyzer.get_insider_trades(ticker, days)
-    
+
     if result.get("error") and not result.get("recent_trades"):
         return jsonify(result), 400
 
     return jsonify(result)
-
 
 @api_flow.route("/api/flow/summary/<ticker>")
 @login_required
@@ -452,7 +449,7 @@ def get_insider_activity(ticker: str):
 def get_flow_summary(ticker: str):
     """Get combined institutional flow summary for a ticker"""
     ticker = ticker.upper().strip()
-    
+
     if not ticker or len(ticker) > 10:
         return jsonify({"error": "Invalid ticker"}), 400
 
@@ -463,7 +460,7 @@ def get_flow_summary(ticker: str):
 
     # Calculate overall institutional score
     scores = []
-    
+
     if not options_data.get("error"):
         sentiment = options_data.get("overall_sentiment", "neutral")
         if sentiment == "bullish":
@@ -498,14 +495,13 @@ def get_flow_summary(ticker: str):
         "timestamp": datetime.now(timezone.utc).isoformat()
     })
 
-
 @api_flow.route("/api/flow/screener")
 @login_required
 @cache.cached(timeout=600, query_string=True)
 def flow_screener():
     """Screen multiple stocks for institutional activity"""
     tickers_param = request.args.get("tickers", "")
-    
+
     if not tickers_param:
         # Default to some popular stocks
         tickers = ["AAPL", "MSFT", "NVDA", "TSLA", "META", "AMZN", "GOOGL", "AMD"]
@@ -513,12 +509,12 @@ def flow_screener():
         tickers = [t.strip().upper() for t in tickers_param.split(",")][:20]  # Max 20
 
     results = []
-    
+
     for ticker in tickers:
         try:
             insider_data = insider_analyzer.get_insider_trades(ticker, 30)
             dark_pool_data = dark_pool_analyzer.get_dark_pool_prints(ticker)
-            
+
             if insider_data.get("error") and dark_pool_data.get("error"):
                 continue
 
@@ -544,4 +540,3 @@ def flow_screener():
         "total": len(results),
         "timestamp": datetime.now(timezone.utc).isoformat()
     })
-

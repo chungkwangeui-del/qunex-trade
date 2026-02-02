@@ -7,6 +7,9 @@ from sqlalchemy import or_
 import logging
 import requests
 import os
+from datetime import timedelta
+from datetime import timezone
+import json
 
 logger = logging.getLogger(__name__)
 
@@ -62,7 +65,7 @@ def refresh_news():
         analyzer = None
         analyzer_available = False
         analyzer_error = None
-        
+
         if gemini_key:
             logger.info(f"GEMINI_API_KEY found (starts with: {gemini_key[:8]}...)")
             try:
@@ -79,7 +82,7 @@ def refresh_news():
         saved_count = 0
         analyzed_count = 0
         filtered_count = 0
-        
+
         for item in news_items:
             try:
                 # Check if article already exists
@@ -92,7 +95,7 @@ def refresh_news():
                 if item.get("published_at"):
                     try:
                         published_at = datetime.fromisoformat(item["published_at"].replace("Z", "+00:00"))
-                    except:
+                    except Exception:
                         published_at = datetime.now(timezone.utc)
                 else:
                     published_at = datetime.now(timezone.utc)
@@ -117,7 +120,7 @@ def refresh_news():
                         reason = f"Gemini API error: {analyzer_error}"
                     else:
                         reason = "Filtered: Low importance or credibility"
-                    
+
                     analysis = {
                         "importance": 3,
                         "impact_summary": reason,
@@ -400,9 +403,9 @@ def get_api_status():
                 aapl_price = result.get("close") or result.get("c") or 0
                 if aapl_price > 0:
                     status["polygon"] = {
-                        "connected": True, 
-                        "message": f"OK: AAPL=${aapl_price:.2f} (key: {_mask_key(polygon_key)})", 
-                        "label": "Polygon.io (Stocks)", 
+                        "connected": True,
+                        "message": f"OK: AAPL=${aapl_price:.2f} (key: {_mask_key(polygon_key)})",
+                        "label": "Polygon.io (Stocks)",
                         "env_var": "POLYGON_API_KEY",
                         "data_sample": {"ticker": "AAPL", "price": aapl_price}
                     }
@@ -433,9 +436,9 @@ def get_api_status():
                 if data and not data.get("code") and data.get("close"):
                     price = float(data.get("close", 0))
                     status["twelvedata"] = {
-                        "connected": True, 
-                        "message": f"OK: AAPL=${price:.2f} (key: {_mask_key(twelvedata_key)})", 
-                        "label": "Twelve Data (800/day)", 
+                        "connected": True,
+                        "message": f"OK: AAPL=${price:.2f} (key: {_mask_key(twelvedata_key)})",
+                        "label": "Twelve Data (800/day)",
                         "env_var": "TWELVEDATA_API_KEY",
                         "data_sample": {"ticker": "AAPL", "price": price}
                     }
@@ -473,9 +476,9 @@ def get_api_status():
                     if price > 0 and market_cap > 0:
                         market_cap_b = market_cap / 1e9
                         status["fmp"] = {
-                            "connected": True, 
-                            "message": f"OK: AAPL=${price:.2f}, MCap=${market_cap_b:.0f}B (key: {_mask_key(fmp_key)})", 
-                            "label": "FMP (Real-time Data)", 
+                            "connected": True,
+                            "message": f"OK: AAPL=${price:.2f}, MCap=${market_cap_b:.0f}B (key: {_mask_key(fmp_key)})",
+                            "label": "FMP (Real-time Data)",
                             "env_var": "FMP_API_KEY",
                             "data_sample": {"ticker": "AAPL", "price": price, "market_cap": market_cap}
                         }
@@ -708,31 +711,31 @@ def test_ticker_data():
     """
     Test data quality for a specific ticker across all APIs.
     Usage: /api/status/test-ticker?ticker=AAPL
-    
+
     Returns what each data source returns for the ticker - helps debug
     which APIs work and which don't for specific stocks.
     """
     import os
     import requests
-    
+
     ticker = request.args.get("ticker", "AAPL").upper().strip()
-    
+
     results = {
         "ticker": ticker,
         "tested_at": datetime.now(timezone.utc).isoformat(),
         "sources": {}
     }
-    
+
     # Test Polygon API
     polygon_key = os.environ.get("POLYGON_API_KEY", "")
     if polygon_key:
         try:
             polygon = get_polygon_service()
-            
+
             # Try snapshot first (real-time)
             snapshot = polygon.get_snapshot(ticker)
             prev_close = polygon.get_previous_close(ticker)
-            
+
             polygon_data = {
                 "available": False,
                 "price": 0,
@@ -741,7 +744,7 @@ def test_ticker_data():
                 "source_type": None,
                 "raw_response": None
             }
-            
+
             if snapshot:
                 polygon_data["available"] = True
                 polygon_data["price"] = snapshot.get("price") or snapshot.get("lastTrade", {}).get("p") or 0
@@ -755,13 +758,13 @@ def test_ticker_data():
                 polygon_data["volume"] = prev_close.get("volume") or prev_close.get("v") or 0
                 polygon_data["source_type"] = "prev_close"
                 polygon_data["raw_response"] = prev_close
-            
+
             results["sources"]["polygon"] = polygon_data
         except Exception as e:
             results["sources"]["polygon"] = {"available": False, "error": str(e)[:100]}
     else:
         results["sources"]["polygon"] = {"available": False, "error": "API key not set"}
-    
+
     # Test Twelve Data API (800 calls/day free - best free option!)
     twelvedata_key = os.environ.get("TWELVEDATA_API_KEY", "")
     if twelvedata_key:
@@ -771,7 +774,7 @@ def test_ticker_data():
                 params={"symbol": ticker, "apikey": twelvedata_key},
                 timeout=10
             )
-            
+
             twelvedata_data = {
                 "available": False,
                 "price": 0,
@@ -779,7 +782,7 @@ def test_ticker_data():
                 "volume": 0,
                 "raw_response": None
             }
-            
+
             if resp.status_code == 200:
                 data = resp.json()
                 if data and not data.get("code") and data.get("close"):
@@ -804,13 +807,13 @@ def test_ticker_data():
                 twelvedata_data["error"] = "Rate limit exceeded (8/min or 800/day)"
             else:
                 twelvedata_data["error"] = f"HTTP {resp.status_code}"
-            
+
             results["sources"]["twelvedata"] = twelvedata_data
         except Exception as e:
             results["sources"]["twelvedata"] = {"available": False, "error": str(e)[:100]}
     else:
         results["sources"]["twelvedata"] = {"available": False, "error": "API key not set (TWELVEDATA_API_KEY)"}
-    
+
     # Test Finnhub API
     finnhub_key = os.environ.get("FINNHUB_API_KEY", "")
     if finnhub_key:
@@ -820,14 +823,14 @@ def test_ticker_data():
                 params={"symbol": ticker, "token": finnhub_key},
                 timeout=5
             )
-            
+
             finnhub_data = {
                 "available": False,
                 "price": 0,
                 "change_percent": 0,
                 "raw_response": None
             }
-            
+
             if resp.status_code == 200:
                 data = resp.json()
                 if data and data.get("c", 0) > 0:  # c = current price
@@ -843,24 +846,24 @@ def test_ticker_data():
                     finnhub_data["error"] = "No price data - ticker may not be supported"
             else:
                 finnhub_data["error"] = f"HTTP {resp.status_code}"
-            
+
             results["sources"]["finnhub"] = finnhub_data
         except Exception as e:
             results["sources"]["finnhub"] = {"available": False, "error": str(e)[:100]}
     else:
         results["sources"]["finnhub"] = {"available": False, "error": "API key not set"}
-    
+
     # Test Binance API (for crypto) - No API key required!
     # Detect if ticker looks like crypto (ends with USDT, BTC, ETH, etc.)
     crypto_suffixes = ['USDT', 'USD', 'BTC', 'ETH', 'BUSD', 'USDC']
     is_crypto = any(ticker.endswith(suffix) for suffix in crypto_suffixes) or ticker in ['BTC', 'ETH', 'SOL', 'XRP', 'DOGE']
-    
+
     # Try Binance for all tickers (crypto pairs work, stocks won't)
     binance_endpoints = [
         ("https://api.binance.com/api/v3/ticker/24hr", "Binance.com"),
         ("https://api.binance.us/api/v3/ticker/24hr", "Binance.US"),
     ]
-    
+
     binance_data = {
         "available": False,
         "price": 0,
@@ -869,7 +872,7 @@ def test_ticker_data():
         "is_crypto": is_crypto,
         "raw_response": None
     }
-    
+
     for endpoint_url, endpoint_name in binance_endpoints:
         try:
             resp = requests.get(
@@ -877,7 +880,7 @@ def test_ticker_data():
                 params={"symbol": ticker},
                 timeout=5
             )
-            
+
             if resp.status_code == 200:
                 data = resp.json()
                 if data and float(data.get("lastPrice", 0)) > 0:
@@ -906,9 +909,9 @@ def test_ticker_data():
         except Exception as e:
             binance_data["error"] = str(e)[:50]
             continue
-    
+
     results["sources"]["binance"] = binance_data
-    
+
     # Summary: which source has the best data
     best_source = None
     best_price = 0
@@ -916,12 +919,12 @@ def test_ticker_data():
         if source_data.get("available") and source_data.get("price", 0) > best_price:
             best_price = source_data.get("price", 0)
             best_source = source_name
-    
+
     results["summary"] = {
         "best_source": best_source,
         "best_price": best_price,
         "sources_with_data": [s for s, d in results["sources"].items() if d.get("available")],
         "sources_failed": [s for s, d in results["sources"].items() if not d.get("available")]
     }
-    
+
     return jsonify(results)

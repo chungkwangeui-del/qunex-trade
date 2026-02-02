@@ -35,11 +35,16 @@ import pytz
 from web.polygon_service import PolygonService
 from web.finnhub_service import get_finnhub_service
 from web.scalp_service import generate_scalp_signal
+from datetime import timedelta
+from datetime import timezone
+import json
+from typing import List
+from typing import Optional
+from typing import Tuple
 
 logger = logging.getLogger(__name__)
 
 api_scalp = Blueprint("api_scalp", __name__)
-
 
 class CandlestickPatterns:
     """Professional candlestick pattern detection for scalp trading"""
@@ -448,7 +453,6 @@ class CandlestickPatterns:
             }
         }
 
-
 class VolumeAnalyzer:
     """Volume analysis for trade confirmation"""
 
@@ -506,7 +510,6 @@ class VolumeAnalyzer:
             "volume_trend": volume_trend,
             "confirmation_strength": confirmation_strength,
         }
-
 
 class FVGAnalyzer:
     """
@@ -626,7 +629,6 @@ class FVGAnalyzer:
             "total_bullish": len(bullish_fvgs),
             "total_bearish": len(bearish_fvgs),
         }
-
 
 class OrderBlockAnalyzer:
     """
@@ -781,7 +783,6 @@ class OrderBlockAnalyzer:
             "at_ob": at_ob,
         }
 
-
 class FakeoutDetector:
     """
     Fakeout & Trap Detection - 쉽알 Strategy
@@ -906,7 +907,6 @@ class FakeoutDetector:
             "fakeout": fakeout,
             "trap": trap,
         }
-
 
 class ConfluenceScorer:
     """
@@ -1094,7 +1094,6 @@ class ConfluenceScorer:
             "total_reasons": len(bullish_reasons) + len(bearish_reasons),
         }
 
-
 class SupportResistance:
     """Support and Resistance level detection based on price action"""
 
@@ -1194,7 +1193,6 @@ class SupportResistance:
             })
 
         return clustered
-
 
 class ScalpAnalyzer:
     """
@@ -1417,7 +1415,7 @@ class ScalpAnalyzer:
                         else:
                             market_msg = "Market open but no data available"
                         return {"error": f"{market_msg}. Try crypto (e.g., BTCUSDT) or wait for market to open."}
-                    except:
+                    except Exception:
                         pass
                 return {"error": f"Insufficient data for {ticker}. Try crypto pairs like BTCUSDT which trade 24/7."}
 
@@ -2023,10 +2021,8 @@ Be direct. Use <strong> tags for key points. Focus ONLY on candlesticks and volu
             Watch for patterns at <strong>support {support_text}</strong> or <strong>resistance {resistance_text}</strong>.
             Volume currently {vol_ratio:.1f}x average."""
 
-
 # Initialize analyzer
 analyzer = ScalpAnalyzer()
-
 
 @api_scalp.route("/api/scalp/analyze/<ticker>")
 @login_required
@@ -2044,7 +2040,6 @@ def analyze_ticker(ticker: str):
         return jsonify(result), 400
 
     return jsonify(result)
-
 
 @api_scalp.route("/api/scalp/quick/<ticker>")
 def quick_analysis(ticker: str):
@@ -2068,7 +2063,6 @@ def quick_analysis(ticker: str):
         "primary_pattern": result.get("candlestick", {}).get("primary_pattern", {}).get("name") if result.get("candlestick", {}).get("primary_pattern") else None,
         "message": "Login for full analysis with entry/exit levels and reasoning",
     })
-
 
 @api_scalp.route("/api/scalp/signal", methods=["POST"])
 def scalp_signal():
@@ -2113,7 +2107,6 @@ def scalp_signal():
     signal["timeframe"] = timeframe
 
     return jsonify(signal)
-
 
 @api_scalp.route("/api/scalp/full/<ticker>")
 @login_required

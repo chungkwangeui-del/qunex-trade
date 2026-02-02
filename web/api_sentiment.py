@@ -11,7 +11,7 @@ import logging
 
 try:
     from web.sentiment_service import (
-        SentimentAnalyzer, 
+        SentimentAnalyzer,
         analyze_ticker_sentiment,
         get_fear_greed_proxy,
         calculate_price_sentiment
@@ -38,16 +38,16 @@ api_sentiment = Blueprint("api_sentiment", __name__)
 def get_ticker_sentiment(ticker):
     """
     Get comprehensive sentiment analysis for a stock.
-    
+
     Combines:
     - News sentiment
     - Technical indicators sentiment
     - Overall score
     """
     ticker = ticker.upper()
-    
+
     result = analyze_ticker_sentiment(ticker)
-    
+
     return jsonify(result)
 
 
@@ -57,7 +57,7 @@ def get_ticker_sentiment(ticker):
 def get_fear_greed():
     """
     Get Fear & Greed Index proxy.
-    
+
     Based on VIX and market momentum.
     """
     result = get_fear_greed_proxy()
@@ -69,19 +69,19 @@ def get_fear_greed():
 def analyze_text():
     """
     Analyze sentiment of provided text.
-    
+
     Request JSON:
         text: str - Text to analyze
     """
     data = request.get_json() or {}
     text = data.get("text", "")
-    
+
     if not text:
         return jsonify({"error": "Text is required"}), 400
-    
+
     analyzer = SentimentAnalyzer()
     result = analyzer.analyze_text(text)
-    
+
     return jsonify(result)
 
 
@@ -93,30 +93,30 @@ def get_market_mood():
     Get overall market mood based on multiple indicators.
     """
     polygon = get_polygon_service()
-    
+
     # Get sector performance
     sectors = polygon.get_sector_performance()
-    
+
     # Get market indices
     indices = polygon.get_market_indices()
-    
+
     # Count positive/negative sectors
     positive_sectors = sum(1 for s in sectors if s.get("change_percent", 0) > 0)
     negative_sectors = len(sectors) - positive_sectors
-    
+
     # Count positive/negative indices
     positive_indices = sum(1 for k, v in indices.items() if v.get("change_percent", 0) > 0)
-    
+
     # Get fear/greed
     fear_greed = get_fear_greed_proxy()
-    
+
     # Calculate mood score
     sector_score = (positive_sectors / len(sectors) * 100) if sectors else 50
     index_score = (positive_indices / len(indices) * 100) if indices else 50
     fg_score = fear_greed.get("score", 50) if "score" in fear_greed else 50
-    
+
     overall_score = (sector_score + index_score + fg_score) / 3
-    
+
     if overall_score >= 65:
         mood = "Bullish"
         emoji = "🚀"
@@ -132,7 +132,7 @@ def get_market_mood():
     else:
         mood = "Bearish"
         emoji = "🔻"
-    
+
     return jsonify({
         "mood": mood,
         "emoji": emoji,
@@ -165,21 +165,21 @@ def get_trending_sentiment():
         "AAPL", "MSFT", "GOOGL", "AMZN", "NVDA", "META", "TSLA",
         "AMD", "NFLX", "DIS", "BA", "JPM", "V", "CRM", "COIN"
     ]
-    
+
     polygon = get_polygon_service()
     results = []
-    
+
     for ticker in tickers:
         try:
             # Get technical data
             technicals = polygon.get_technical_indicators(ticker, days=30)
             quote = polygon.get_stock_quote(ticker)
-            
+
             if not technicals or not quote:
                 continue
-            
+
             current_price = quote.get("price", 0)
-            
+
             tech_sentiment = calculate_price_sentiment(
                 current_price=current_price,
                 sma_20=technicals.get("sma_20", current_price),
@@ -187,7 +187,7 @@ def get_trending_sentiment():
                 rsi=technicals.get("rsi_14"),
                 volume_ratio=1.0
             )
-            
+
             results.append({
                 "ticker": ticker,
                 "price": current_price,
@@ -196,19 +196,19 @@ def get_trending_sentiment():
                 "rsi": technicals.get("rsi_14"),
                 "factors": tech_sentiment.get("factors", []),
             })
-            
+
         except Exception as e:
             logger.debug(f"Error analyzing {ticker}: {e}")
             continue
-    
+
     # Sort by score (most bullish first)
     results.sort(key=lambda x: x["score"], reverse=True)
-    
+
     # Summary
     bullish = sum(1 for r in results if r["sentiment"] == "bullish")
     bearish = sum(1 for r in results if r["sentiment"] == "bearish")
     neutral = len(results) - bullish - bearish
-    
+
     return jsonify({
         "stocks": results,
         "summary": {
@@ -232,32 +232,32 @@ def get_watchlist_sentiment():
         from web.database import Watchlist
     except ImportError:
         return jsonify({"error": "Database not available"}), 500
-    
+
     from flask_login import current_user
-    
+
     watchlist = Watchlist.query.filter_by(user_id=current_user.id).all()
-    
+
     if not watchlist:
         return jsonify({
             "message": "No stocks in watchlist",
             "stocks": [],
         })
-    
+
     polygon = get_polygon_service()
     results = []
-    
+
     for item in watchlist[:20]:  # Max 20
         ticker = item.ticker
-        
+
         try:
             technicals = polygon.get_technical_indicators(ticker, days=30)
             quote = polygon.get_stock_quote(ticker)
-            
+
             if not technicals or not quote:
                 continue
-            
+
             current_price = quote.get("price", 0)
-            
+
             tech_sentiment = calculate_price_sentiment(
                 current_price=current_price,
                 sma_20=technicals.get("sma_20", current_price),
@@ -265,7 +265,7 @@ def get_watchlist_sentiment():
                 rsi=technicals.get("rsi_14"),
                 volume_ratio=1.0
             )
-            
+
             results.append({
                 "ticker": ticker,
                 "company_name": item.company_name,
@@ -274,14 +274,14 @@ def get_watchlist_sentiment():
                 "score": tech_sentiment["score"],
                 "rsi": technicals.get("rsi_14"),
             })
-            
+
         except Exception as e:
             logger.debug(f"Error analyzing {ticker}: {e}")
             continue
-    
+
     # Sort by score
     results.sort(key=lambda x: x["score"], reverse=True)
-    
+
     return jsonify({
         "stocks": results,
         "total": len(results),

@@ -11,7 +11,8 @@ from datetime import datetime, timedelta
 from decimal import Decimal
 from collections import defaultdict
 import logging
-import concurrent.futures
+from datetime import timedelta
+import json
 
 logger = logging.getLogger(__name__)
 
@@ -20,18 +21,17 @@ _market_cap_cache = {}
 _market_cap_cache_time = None
 _CACHE_MINUTES = 5  # Refresh every 5 minutes for real-time data
 
-
 def get_twelvedata_market_data(tickers: list) -> dict:
     """
     Fetch real-time market data from Twelve Data API.
     Free tier: 800 calls/day, 8 calls/min - need to batch carefully!
-    
+
     Returns: {ticker: {"price": Y, "change_percent": Z}, ...}
     """
     global _market_cap_cache, _market_cap_cache_time
     import os
     import requests
-    
+
     # Check cache first (5 minute TTL for real-time data)
     if _market_cap_cache_time:
         cache_age_minutes = (datetime.now() - _market_cap_cache_time).total_seconds() / 60
@@ -40,17 +40,17 @@ def get_twelvedata_market_data(tickers: list) -> dict:
             if len(cached) >= len(tickers) * 0.8:
                 logger.info(f"TwelveData: Using cached data ({len(cached)} tickers, {cache_age_minutes:.1f}m old)")
                 return cached
-    
+
     # Get Twelve Data API key from environment
     twelvedata_key = os.getenv("TWELVEDATA_API_KEY", "")
-    
+
     if not twelvedata_key:
         logger.warning("TWELVEDATA_API_KEY not set - cannot fetch real-time data")
         return {}
-    
+
     try:
         result = {}
-        
+
         # Twelve Data supports batch requests with comma-separated symbols
         # But free tier is 8 calls/min, so we batch in groups of 8
         batch_size = 8
@@ -58,12 +58,12 @@ def get_twelvedata_market_data(tickers: list) -> dict:
             batch = tickers[i:i + batch_size]
             tickers_str = ",".join(batch)
             url = "https://api.twelvedata.com/quote"
-            
+
             response = requests.get(url, params={"symbol": tickers_str, "apikey": twelvedata_key}, timeout=15)
-            
+
             if response.ok:
                 data = response.json()
-                
+
                 # Handle single ticker response (dict) vs multi (dict of dicts)
                 if len(batch) == 1:
                     ticker = batch[0]
@@ -84,16 +84,16 @@ def get_twelvedata_market_data(tickers: list) -> dict:
                                 "volume": int(stock_data.get("volume", 0)) if stock_data.get("volume") else 0,
                             }
                             _market_cap_cache[ticker] = result[ticker]
-            
+
             # Rate limit: only 8 calls/min on free tier
             if i + batch_size < len(tickers):
                 import time
                 time.sleep(0.5)  # Small delay between batches
-        
+
         _market_cap_cache_time = datetime.now()
         logger.info(f"TwelveData: Got real-time data for {len(result)}/{len(tickers)} tickers")
         return result
-        
+
     except requests.exceptions.HTTPError as e:
         if e.response and e.response.status_code == 401:
             logger.error("Twelve Data API key invalid")
@@ -107,7 +107,6 @@ def get_twelvedata_market_data(tickers: list) -> dict:
         return {}
 
 api_market_features = Blueprint('api_market_features', __name__)
-
 
 # ============================================================================
 # EXTENDED HOURS (PREMARKET/AFTERHOURS) ENDPOINTS
@@ -134,7 +133,6 @@ def get_extended_hours(ticker):
     except Exception as e:
         logger.error(f"Error fetching extended hours for {ticker}: {e}")
         return jsonify({"success": False, "error": str(e)}), 500
-
 
 @api_market_features.route("/api/market/extended-hours/watchlist")
 @login_required
@@ -168,7 +166,6 @@ def get_extended_hours_watchlist():
         logger.error(f"Error fetching extended hours for watchlist: {e}")
         return jsonify({"success": False, "error": str(e)}), 500
 
-
 @api_market_features.route("/api/market/status")
 def get_market_status():
     """Get current market status (open, closed, pre-market, post-market)"""
@@ -189,7 +186,6 @@ def get_market_status():
     except Exception as e:
         logger.error(f"Error fetching market status: {e}")
         return jsonify({"success": False, "error": str(e)}), 500
-
 
 # ============================================================================
 # SECTOR HEATMAP ENDPOINTS
@@ -254,7 +250,6 @@ def get_sector_heatmap():
     except Exception as e:
         logger.error(f"Error fetching sector heatmap: {e}")
         return jsonify({"success": False, "error": str(e)}), 500
-
 
 @api_market_features.route("/api/market/treemap")
 # Note: Removed @login_required - market map should be publicly accessible
@@ -337,7 +332,7 @@ def get_treemap_data():
         # Fetch bulk snapshot data from Polygon (for prices/changes)
         bulk_data = polygon.get_market_snapshot(all_tickers)
         logger.info(f"Treemap: Polygon returned data for {len(bulk_data)} tickers")
-        
+
         # Fetch REAL-TIME market data from Twelve Data (free API - 800 calls/day!)
         # Twelve Data provides accurate price, change %, volume
         twelvedata_result = get_twelvedata_market_data(all_tickers)
@@ -367,9 +362,9 @@ def get_treemap_data():
                     # 1) Twelve Data (best - has accurate price, change)
                     # 2) Polygon snapshot
                     # 3) Static defaults (last resort)
-                    
+
                     td_stock = twelvedata_result.get(ticker, {})
-                    
+
                     # Use Twelve Data for price/change if available
                     if td_stock:
                         market_cap_source = "twelvedata"
@@ -430,7 +425,7 @@ def get_treemap_data():
         total_market_cap = sum(s["value"] for s in treemap_data["children"])
         weighted_market_change = sum(s["change_percent"] * s["value"] for s in treemap_data["children"])
         market_change = weighted_market_change / total_market_cap if total_market_cap > 0 else 0
-        
+
         # Count data sources for debugging
         all_stocks = [stock for sector in treemap_data["children"] for stock in sector["children"]]
         source_counts = {
@@ -438,7 +433,7 @@ def get_treemap_data():
             "polygon": sum(1 for s in all_stocks if s.get("market_cap_source") == "polygon"),
             "static_default": sum(1 for s in all_stocks if s.get("market_cap_source") == "static_default"),
         }
-        
+
         real_data_pct = ((source_counts["twelvedata"] + source_counts["polygon"]) / len(all_stocks) * 100) if all_stocks else 0
         logger.info(f"Treemap data sources: {source_counts} ({real_data_pct:.0f}% real-time data)")
 
@@ -456,7 +451,6 @@ def get_treemap_data():
     except Exception as e:
         logger.error(f"Error fetching treemap data: {e}", exc_info=True)
         return jsonify({"success": False, "error": str(e)}), 500
-
 
 # ============================================================================
 # PERFORMANCE ANALYTICS ENDPOINTS
@@ -574,7 +568,7 @@ def get_portfolio_analytics():
                 try:
                     quote = polygon.get_stock_quote(ticker)
                     current_price = quote.get("price", 0) if quote else 0
-                except:
+                except Exception:
                     current_price = 0
 
                 avg_cost = pos["cost_basis"] / pos["shares"] if pos["shares"] > 0 else 0
@@ -705,7 +699,6 @@ def get_portfolio_analytics():
     except Exception as e:
         logger.error(f"Error calculating portfolio analytics: {e}", exc_info=True)
         return jsonify({"success": False, "error": str(e)}), 500
-
 
 @api_market_features.route("/api/portfolio/performance-chart")
 @login_required

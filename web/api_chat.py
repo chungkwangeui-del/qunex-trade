@@ -16,16 +16,16 @@ from web.polygon_service import get_polygon_service
 from web.database import db, Watchlist, PaperTrade, PaperAccount
 import os
 import logging
-import json
+
 import re
 from datetime import datetime, timedelta
 from decimal import Decimal
+from datetime import timedelta
 
 logger = logging.getLogger(__name__)
 
 api_chat = Blueprint("api_chat", __name__)
 csrf.exempt(api_chat)
-
 
 class StockChatAssistant:
     """AI-powered stock market chat assistant using Gemini"""
@@ -37,33 +37,33 @@ class StockChatAssistant:
         self._model_name = None
         self._last_request_time = 0
         self._min_request_interval = 2  # Minimum 2 seconds between requests
-    
+
     @property
     def polygon(self):
         """Lazy-load polygon service to avoid initialization issues"""
         if self._polygon is None:
             self._polygon = get_polygon_service()
         return self._polygon
-    
+
     def _get_model(self):
         """Get or create cached Gemini model"""
         import time
-        
+
         if self._model is not None:
             return self._model
-        
+
         try:
             import google.generativeai as genai
             genai.configure(api_key=self.gemini_key)
-            
+
             # Try different model names
             model_names = [
                 "gemini-2.0-flash-exp",   # Experimental (free)
                 "gemini-1.5-flash",       # Fast model
-                "gemini-1.5-pro",         # Pro model  
+                "gemini-1.5-pro",         # Pro model
                 "gemini-pro",             # Legacy
             ]
-            
+
             for model_name in model_names:
                 try:
                     self._model = genai.GenerativeModel(model_name)
@@ -73,7 +73,7 @@ class StockChatAssistant:
                 except Exception as e:
                     logger.warning(f"Model {model_name} failed: {e}")
                     continue
-            
+
             return None
         except Exception as e:
             logger.error(f"Failed to initialize Gemini: {e}")
@@ -87,7 +87,7 @@ class StockChatAssistant:
                 # Extract data from nested structures
                 day = snapshot.get("day", {})
                 prev_day = snapshot.get("prevDay", {})
-                
+
                 return {
                     "ticker": ticker.upper(),
                     "price": snapshot.get("price", 0),
@@ -112,7 +112,7 @@ class StockChatAssistant:
 
             # Get paper trading account
             account = PaperAccount.query.filter_by(user_id=user_id).first()
-            
+
             # Get recent paper trades
             recent_trades = PaperTrade.query.filter_by(user_id=user_id)\
                 .order_by(PaperTrade.trade_date.desc())\
@@ -135,7 +135,7 @@ class StockChatAssistant:
         # Common patterns: $AAPL, AAPL, "apple stock"
         ticker_pattern = r'\$?([A-Z]{1,5})\b'
         matches = re.findall(ticker_pattern, message.upper())
-        
+
         # Filter out common words
         common_words = {'I', 'A', 'THE', 'AND', 'OR', 'IS', 'IT', 'TO', 'FOR', 'IN', 'ON', 'AT', 'BE', 'AS', 'SO', 'IF', 'UP', 'DO', 'GO', 'CAN', 'AI', 'VS', 'ETF', 'IPO'}
         return [m for m in matches if m not in common_words and len(m) >= 2]
@@ -143,7 +143,7 @@ class StockChatAssistant:
     def chat(self, message: str, user_id: int = None, conversation_history: list = None) -> dict:
         """Process chat message and generate AI response"""
         import time
-        
+
         try:
             # Check for API key first
             if not self.gemini_key:
@@ -151,19 +151,19 @@ class StockChatAssistant:
                     "response": "AI assistant is not configured. Please contact the administrator to set up the GEMINI_API_KEY.",
                     "error": True
                 }
-            
+
             # Simple rate limiting - wait if too fast
             current_time = time.time()
             time_since_last = current_time - self._last_request_time
             if time_since_last < self._min_request_interval:
                 wait_time = self._min_request_interval - time_since_last
                 time.sleep(wait_time)
-            
+
             self._last_request_time = time.time()
-            
+
             # Get cached model
             model = self._get_model()
-            
+
             if model is None:
                 return {
                     "response": "Could not initialize AI model. Please check your API key configuration.",
@@ -172,7 +172,7 @@ class StockChatAssistant:
 
             # Extract tickers from message
             tickers = self.extract_tickers(message)
-            
+
             # Get stock data for mentioned tickers
             stock_data = {}
             for ticker in tickers[:3]:  # Limit to 3 tickers
@@ -187,7 +187,7 @@ class StockChatAssistant:
 
             # Build context for AI
             context_parts = []
-            
+
             if stock_data:
                 context_parts.append("REAL-TIME STOCK DATA:")
                 for ticker, data in stock_data.items():
@@ -258,14 +258,14 @@ USER MESSAGE: {message}
 Respond helpfully and concisely:"""
 
             response = model.generate_content(full_prompt)
-            
+
             # Handle response safely
             if not response or not response.text:
                 return {
                     "response": "I couldn't generate a response. Please try rephrasing your question.",
                     "error": True
                 }
-            
+
             response_text = response.text.strip()
 
             # Extract any stock mentions for quick links
@@ -281,11 +281,11 @@ Respond helpfully and concisely:"""
 
         except Exception as e:
             logger.error(f"Chat error: {e}", exc_info=True)
-            
+
             # Provide more helpful error messages
             error_msg = str(e).lower()
             error_str = str(e)
-            
+
             if "api_key" in error_msg or "invalid" in error_msg:
                 user_message = "The AI service is temporarily unavailable. Please check your API key."
             elif "quota" in error_msg or "rate" in error_msg or "resource" in error_msg or "429" in error_str:
@@ -296,24 +296,22 @@ Respond helpfully and concisely:"""
                 user_message = "AI model not available. Please contact support."
             else:
                 user_message = f"Sorry, I encountered an error: {error_str[:100]}"
-            
+
             return {
                 "response": user_message,
                 "error": True,
                 "error_message": error_str
             }
 
-
 # Initialize assistant
 chat_assistant = StockChatAssistant()
-
 
 @api_chat.route("/api/chat", methods=["POST"])
 @limiter.limit("30 per minute")
 def chat():
     """
     AI Chat endpoint - process user message and return AI response
-    
+
     Request body:
     {
         "message": "What do you think about AAPL?",
@@ -322,7 +320,7 @@ def chat():
     """
     try:
         data = request.get_json()
-        
+
         if not data or not data.get("message"):
             return jsonify({"error": "Message is required", "response": "Please enter a message."}), 400
 
@@ -341,11 +339,11 @@ def chat():
             pass  # User not authenticated, continue without user context
 
         result = chat_assistant.chat(message, user_id, history)
-        
+
         # Always return 200 - the error info is in the response body
         # This allows the frontend to display the error message properly
         return jsonify(result), 200
-        
+
     except Exception as e:
         logger.error(f"Chat endpoint error: {e}", exc_info=True)
         return jsonify({
@@ -353,7 +351,6 @@ def chat():
             "error": True,
             "error_message": str(e)
         }), 200  # Return 200 so frontend can show the message
-
 
 @api_chat.route("/api/chat/suggest", methods=["GET"])
 def get_suggestions():
@@ -368,7 +365,7 @@ def get_suggestions():
         "What indicators work best for swing trading?",
         "Explain the Fear and Greed Index",
     ]
-    
+
     # Add contextual suggestions based on time
     hour = datetime.now().hour
     if 9 <= hour < 16:  # Market hours (EST approximation)
@@ -378,18 +375,16 @@ def get_suggestions():
 
     return jsonify({"suggestions": suggestions[:8]})
 
-
 @api_chat.route("/api/chat/quick/<ticker>", methods=["GET"])
 def quick_analysis(ticker: str):
     """Quick AI analysis for a specific ticker"""
     ticker = ticker.upper().strip()
-    
+
     if not ticker or len(ticker) > 10:
         return jsonify({"error": "Invalid ticker"}), 400
 
     message = f"Give me a quick analysis of {ticker} stock - current price action, key levels to watch, and overall sentiment."
-    
-    result = chat_assistant.chat(message)
-    
-    return jsonify(result)
 
+    result = chat_assistant.chat(message)
+
+    return jsonify(result)

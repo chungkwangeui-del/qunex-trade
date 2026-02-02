@@ -17,6 +17,8 @@ from sqlalchemy import func, desc
 from decimal import Decimal
 from datetime import datetime, timedelta, timezone
 import logging
+from datetime import timedelta
+from datetime import timezone
 
 logger = logging.getLogger(__name__)
 
@@ -25,7 +27,6 @@ csrf.exempt(api_leaderboard)
 
 INITIAL_BALANCE = Decimal("100000.00")
 
-
 def calculate_user_metrics(user_id: int) -> dict:
     """Calculate detailed trading metrics for a user"""
     account = PaperAccount.query.filter_by(user_id=user_id).first()
@@ -33,13 +34,13 @@ def calculate_user_metrics(user_id: int) -> dict:
         return None
 
     trades = PaperTrade.query.filter_by(user_id=user_id).all()
-    
+
     # Get current holdings value
     holdings = {}
     for trade in trades:
         if trade.ticker not in holdings:
             holdings[trade.ticker] = {"shares": Decimal("0"), "cost": Decimal("0")}
-        
+
         if trade.trade_type == "buy":
             holdings[trade.ticker]["shares"] += trade.shares
             holdings[trade.ticker]["cost"] += trade.shares * trade.price
@@ -49,14 +50,14 @@ def calculate_user_metrics(user_id: int) -> dict:
 
     # Filter active holdings
     active_holdings = {k: v for k, v in holdings.items() if v["shares"] > 0}
-    
+
     # Get current prices
     portfolio_value = Decimal("0")
     if active_holdings:
         polygon = get_polygon_service()
         tickers = list(active_holdings.keys())
         snapshots = polygon.get_market_snapshot(tickers)
-        
+
         for ticker, holding in active_holdings.items():
             snapshot = snapshots.get(ticker, {})
             current_price = Decimal(str(snapshot.get("price", 0) or 0))
@@ -69,19 +70,19 @@ def calculate_user_metrics(user_id: int) -> dict:
     # Calculate win rate from closed trades
     buy_trades = [t for t in trades if t.trade_type == "buy"]
     sell_trades = [t for t in trades if t.trade_type == "sell"]
-    
+
     # Match buys and sells to calculate wins
     wins = 0
     losses = 0
-    
+
     for ticker in set(t.ticker for t in trades):
         ticker_buys = [t for t in buy_trades if t.ticker == ticker]
         ticker_sells = [t for t in sell_trades if t.ticker == ticker]
-        
+
         if ticker_buys and ticker_sells:
             avg_buy = sum(float(t.price) for t in ticker_buys) / len(ticker_buys)
             avg_sell = sum(float(t.price) for t in ticker_sells) / len(ticker_sells)
-            
+
             if avg_sell > avg_buy:
                 wins += 1
             else:
@@ -113,7 +114,6 @@ def calculate_user_metrics(user_id: int) -> dict:
         "days_since_reset": (datetime.now(timezone.utc) - account.last_reset).days if account.last_reset else 0
     }
 
-
 def get_user_rank(user_id: int, rankings: list) -> int:
     """Get user's rank from rankings list"""
     for i, r in enumerate(rankings):
@@ -121,11 +121,10 @@ def get_user_rank(user_id: int, rankings: list) -> int:
             return i + 1
     return 0
 
-
 def get_badge(pnl_pct: float, trades: int, win_rate: float) -> dict:
     """Determine user's achievement badge"""
     badges = []
-    
+
     # Performance badges
     if pnl_pct >= 100:
         badges.append({"name": "Double Up", "icon": "🚀", "color": "#fbbf24"})
@@ -135,13 +134,13 @@ def get_badge(pnl_pct: float, trades: int, win_rate: float) -> dict:
         badges.append({"name": "Strong Start", "icon": "💪", "color": "#34d399"})
     elif pnl_pct >= 10:
         badges.append({"name": "Green Thumb", "icon": "🌱", "color": "#22c55e"})
-    
+
     # Activity badges
     if trades >= 100:
         badges.append({"name": "Active Trader", "icon": "⚡", "color": "#a855f7"})
     elif trades >= 50:
         badges.append({"name": "Regular", "icon": "📈", "color": "#06b6d4"})
-    
+
     # Win rate badges
     if win_rate >= 70 and trades >= 10:
         badges.append({"name": "Sharpshooter", "icon": "🎯", "color": "#ef4444"})
@@ -150,13 +149,12 @@ def get_badge(pnl_pct: float, trades: int, win_rate: float) -> dict:
 
     return badges[0] if badges else {"name": "Beginner", "icon": "🌟", "color": "#94a3b8"}
 
-
 @api_leaderboard.route("/api/leaderboard")
 @cache.cached(timeout=60, query_string=True)
 def get_leaderboard():
     """
     Get paper trading leaderboard
-    
+
     Query params:
     - period: 'all', 'week', 'month' (default: 'all')
     - limit: number of results (default: 50, max: 100)
@@ -166,7 +164,7 @@ def get_leaderboard():
 
     # Get all paper accounts
     accounts = PaperAccount.query.all()
-    
+
     rankings = []
     for account in accounts:
         user = User.query.get(account.user_id)
@@ -217,13 +215,12 @@ def get_leaderboard():
         "updated_at": datetime.now(timezone.utc).isoformat()
     })
 
-
 @api_leaderboard.route("/api/leaderboard/me")
 @login_required
 def get_my_ranking():
     """Get current user's ranking and stats"""
     metrics = calculate_user_metrics(current_user.id)
-    
+
     if not metrics:
         return jsonify({
             "success": True,
@@ -234,7 +231,7 @@ def get_my_ranking():
     # Get user's rank
     accounts = PaperAccount.query.all()
     all_rankings = []
-    
+
     for account in accounts:
         user_metrics = calculate_user_metrics(account.user_id)
         if user_metrics:
@@ -259,13 +256,12 @@ def get_my_ranking():
         "username": current_user.username
     })
 
-
 @api_leaderboard.route("/api/leaderboard/top-performers")
 @cache.cached(timeout=300)
 def get_top_performers():
     """Get top performers with detailed stats for homepage display"""
     accounts = PaperAccount.query.all()
-    
+
     performers = []
     for account in accounts:
         user = User.query.get(account.user_id)
@@ -298,13 +294,12 @@ def get_top_performers():
         "top_performers": top_5
     })
 
-
 @api_leaderboard.route("/api/leaderboard/stats")
 @cache.cached(timeout=300)
 def get_leaderboard_stats():
     """Get overall leaderboard statistics"""
     accounts = PaperAccount.query.all()
-    
+
     total_traders = len(accounts)
     total_volume = Decimal("0")
     profitable_traders = 0
@@ -329,4 +324,3 @@ def get_leaderboard_stats():
             "avg_trades_per_trader": round(total_trades / total_traders, 1) if total_traders > 0 else 0
         }
     })
-

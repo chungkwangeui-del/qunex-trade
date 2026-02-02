@@ -34,7 +34,6 @@ logger = logging.getLogger(__name__)
 
 api_advanced_sr = Blueprint("api_advanced_sr", __name__)
 
-
 @api_advanced_sr.route("/api/sr/analyze/<ticker>")
 @login_required
 def full_sr_analysis(ticker: str):
@@ -81,7 +80,6 @@ def full_sr_analysis(ticker: str):
 
     return jsonify(result)
 
-
 @api_advanced_sr.route("/api/sr/mtf/<ticker>")
 def mtf_analysis(ticker: str):
     """
@@ -114,7 +112,6 @@ def mtf_analysis(ticker: str):
         "timestamp": datetime.now().isoformat(),
         **result,
     })
-
 
 @api_advanced_sr.route("/api/sr/volume-profile/<ticker>")
 def volume_profile_analysis(ticker: str):
@@ -171,7 +168,6 @@ def volume_profile_analysis(ticker: str):
         "current_price": profile.get("current_price"),
     })
 
-
 @api_advanced_sr.route("/api/sr/bounce-probability/<ticker>")
 def bounce_probability(ticker: str):
     """
@@ -227,7 +223,6 @@ def bounce_probability(ticker: str):
         "resistance_predictions": bounce_analysis.get("resistances", []),
     })
 
-
 # Alert Management Endpoints
 
 @api_advanced_sr.route("/api/sr/alerts", methods=["GET"])
@@ -248,7 +243,6 @@ def get_alerts():
         "status": "success",
         **alerts,
     })
-
 
 @api_advanced_sr.route("/api/sr/alerts", methods=["POST"])
 @login_required
@@ -293,7 +287,6 @@ def create_alerts():
         "alerts": alerts[:10],  # First 10
     })
 
-
 @api_advanced_sr.route("/api/sr/alerts", methods=["DELETE"])
 @login_required
 def clear_alerts():
@@ -312,7 +305,6 @@ def clear_alerts():
         "status": "success",
         **result,
     })
-
 
 @api_advanced_sr.route("/api/sr/alerts/check/<ticker>")
 @login_required
@@ -345,7 +337,6 @@ def check_alerts(ticker: str):
         "triggered_alerts": triggered,
         "timestamp": datetime.now().isoformat(),
     })
-
 
 # Quick Analysis Endpoint (No Login Required)
 @api_advanced_sr.route("/api/sr/quick/<ticker>")

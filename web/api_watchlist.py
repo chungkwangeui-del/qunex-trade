@@ -13,6 +13,8 @@ from datetime import datetime
 from typing import Dict, Any, Tuple
 import logging
 import re
+from typing import Any
+from typing import Tuple
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +22,6 @@ api_watchlist = Blueprint("api_watchlist", __name__)
 
 # Exempt API routes from CSRF for JavaScript fetch calls
 csrf.exempt(api_watchlist)
-
 
 @api_watchlist.route("/api/watchlist", methods=["GET"])
 @login_required
@@ -149,7 +150,6 @@ def get_watchlist() -> Tuple[Any, int]:
         logger.error(f"Error fetching watchlist: {e}", exc_info=True)
         return jsonify({"error": str(e)}), 500
 
-
 @api_watchlist.route("/api/watchlist", methods=["POST"])
 @login_required
 def add_to_watchlist():
@@ -219,7 +219,6 @@ def add_to_watchlist():
         logger.error(f"Error adding to watchlist: {e}", exc_info=True)
         return jsonify({"error": str(e)}), 500
 
-
 @api_watchlist.route("/api/watchlist/<int:item_id>", methods=["DELETE"])
 @login_required
 def remove_from_watchlist(item_id):
@@ -240,7 +239,6 @@ def remove_from_watchlist(item_id):
         db.session.rollback()
         logger.error(f"Error removing from watchlist: {e}", exc_info=True)
         return jsonify({"error": str(e)}), 500
-
 
 @api_watchlist.route("/api/watchlist/<int:item_id>", methods=["PUT"])
 @login_required
@@ -272,7 +270,6 @@ def update_watchlist_item(item_id):
         db.session.rollback()
         logger.error(f"Error updating watchlist item: {e}", exc_info=True)
         return jsonify({"error": str(e)}), 500
-
 
 @api_watchlist.route("/api/watchlist/stats", methods=["GET"])
 @login_required

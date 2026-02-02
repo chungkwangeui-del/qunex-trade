@@ -10,10 +10,14 @@ from web.extensions import csrf
 from datetime import datetime
 from sqlalchemy import func
 from decimal import Decimal
+import logging
+import json
+from typing import Optional
+
+logger = logging.getLogger(__name__)
 
 api_portfolio = Blueprint('api_portfolio', __name__)
 csrf.exempt(api_portfolio)
-
 
 def get_current_price(ticker):
     """
@@ -22,7 +26,7 @@ def get_current_price(ticker):
     """
     import os
     import requests
-    
+
     # Try Polygon snapshot first
     try:
         polygon = get_polygon_service()
@@ -30,8 +34,8 @@ def get_current_price(ticker):
         if snapshot and snapshot.get("price"):
             return float(snapshot["price"])
     except Exception as e:
-        print(f"Polygon snapshot error for {ticker}: {e}")
-    
+        logger.info(f"Polygon snapshot error for {ticker}: {e}")
+
     # Try Polygon previous close
     try:
         polygon = get_polygon_service()
@@ -39,8 +43,8 @@ def get_current_price(ticker):
         if prev_close and prev_close.get("close"):
             return float(prev_close["close"])
     except Exception as e:
-        print(f"Polygon prev_close error for {ticker}: {e}")
-    
+        logger.info(f"Polygon prev_close error for {ticker}: {e}")
+
     # Try Twelve Data (800 calls/day free - best backup!)
     try:
         twelvedata_key = os.getenv("TWELVEDATA_API_KEY", "")
@@ -52,8 +56,8 @@ def get_current_price(ticker):
                 if data and not data.get("code") and data.get("close"):
                     return float(data["close"])
     except Exception as e:
-        print(f"Twelve Data API error for {ticker}: {e}")
-    
+        logger.info(f"Twelve Data API error for {ticker}: {e}")
+
     # Try Finnhub as last resort
     try:
         finnhub_key = os.getenv("FINNHUB_API_KEY", "")
@@ -65,10 +69,9 @@ def get_current_price(ticker):
                 if data and data.get("c", 0) > 0:
                     return float(data["c"])
     except Exception as e:
-        print(f"Finnhub API error for {ticker}: {e}")
-    
-    return 0.0
+        logger.info(f"Finnhub API error for {ticker}: {e}")
 
+    return 0.0
 
 @api_portfolio.route("/api/portfolio")
 @login_required
@@ -161,7 +164,6 @@ def get_portfolio():
         'total_gain_percent': ((total_value - total_cost) / total_cost * 100) if total_cost > 0 else 0
     })
 
-
 @api_portfolio.route("/api/portfolio/transaction", methods=['POST'])
 @login_required
 def add_transaction():
@@ -230,7 +232,6 @@ def add_transaction():
         'transaction': transaction.to_dict()
     })
 
-
 @api_portfolio.route("/api/portfolio/holding/<ticker>", methods=['PUT'])
 @login_required
 def update_holding(ticker):
@@ -272,7 +273,6 @@ def update_holding(ticker):
         'message': f'Successfully updated holding for {ticker}'
     })
 
-
 @api_portfolio.route("/api/portfolio/holding/<ticker>", methods=['DELETE'])
 @login_required
 def delete_holding(ticker):
@@ -292,7 +292,6 @@ def delete_holding(ticker):
             'success': False,
             'message': f'No transactions found for {ticker}'
         }), 404
-
 
 @api_portfolio.route("/api/portfolio/transactions", methods=['GET'])
 @login_required
@@ -328,7 +327,6 @@ def get_transactions():
         }
     })
 
-
 @api_portfolio.route("/api/portfolio/transaction/<int:transaction_id>", methods=['DELETE'])
 @login_required
 def delete_transaction(transaction_id):
@@ -347,7 +345,6 @@ def delete_transaction(transaction_id):
         'message': f'Transaction for {ticker} deleted successfully'
     })
 
-
 def get_user_shares(user_id, ticker):
     """Calculate current shares owned by user for a ticker"""
     transactions = Transaction.query.filter_by(user_id=user_id, ticker=ticker.upper()).all()
@@ -360,7 +357,6 @@ def get_user_shares(user_id, ticker):
             total_shares -= float(t.shares)
 
     return max(0, total_shares)
-
 
 @api_portfolio.route("/api/portfolio/analysis", methods=['GET'])
 @login_required

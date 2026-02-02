@@ -17,7 +17,7 @@ Supported Markets:
 
 from flask import Blueprint, jsonify, request
 from flask_login import login_required
-import os
+
 import logging
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Tuple
@@ -27,11 +27,16 @@ import pytz
 from web.polygon_service import PolygonService
 from web.finnhub_service import get_finnhub_service
 from web.swing_service import generate_swing_signal
+from datetime import timedelta
+from datetime import timezone
+import json
+from typing import List
+from typing import Optional
+from typing import Tuple
 
 logger = logging.getLogger(__name__)
 
 api_swing = Blueprint("api_swing", __name__)
-
 
 # =============================================================================
 # MARKET HOURS CHECK
@@ -63,7 +68,6 @@ def get_market_status() -> Tuple[bool, str]:
     except Exception:
         return True, "Unknown"  # Assume open if check fails
 
-
 # =============================================================================
 # CRYPTO DETECTION
 # =============================================================================
@@ -79,7 +83,6 @@ def is_crypto_ticker(ticker: str) -> bool:
     ]
     ticker_upper = ticker.upper()
     return any(re.match(pattern, ticker_upper) for pattern in crypto_patterns)
-
 
 # =============================================================================
 # DATA FETCHING
@@ -154,7 +157,6 @@ def fetch_binance_candles(symbol: str, interval: str = "4h", limit: int = 100) -
     logger.error(f"All Binance endpoints failed for {symbol}")
     return []
 
-
 def fetch_finnhub_candles(ticker: str, timeframe: str = "4H", limit: int = 100) -> List[Dict]:
     """
     Fetch candle data from Finnhub for stocks (primary).
@@ -174,7 +176,6 @@ def fetch_finnhub_candles(ticker: str, timeframe: str = "4H", limit: int = 100) 
     except Exception as e:
         logger.error(f"Finnhub API error for {ticker}: {e}")
         return []
-
 
 def fetch_polygon_candles(ticker: str, timeframe: str = "4H", limit: int = 100) -> List[Dict]:
     """
@@ -241,14 +242,12 @@ def fetch_polygon_candles(ticker: str, timeframe: str = "4H", limit: int = 100) 
         logger.error(f"Polygon API error for {ticker}: {e}", exc_info=True)
         return []
 
-
 def fetch_stock_candles(ticker: str, timeframe: str = "4H", limit: int = 100) -> List[Dict]:
     """
     Fetch stock candles from Polygon.
     (Finnhub free tier doesn't support historical candles)
     """
     return fetch_polygon_candles(ticker, timeframe, limit)
-
 
 # =============================================================================
 # API ENDPOINTS
@@ -326,7 +325,6 @@ def analyze_swing(ticker: str):
             "ticker": ticker,
         }), 500
 
-
 @api_swing.route("/api/swing/signal", methods=["POST"])
 @login_required
 def get_swing_signal():
@@ -394,7 +392,6 @@ def get_swing_signal():
             "ticker": ticker,
         })
 
-
 @api_swing.route("/api/swing/kill-zones", methods=["GET"])
 @login_required
 def get_kill_zones():
@@ -407,7 +404,6 @@ def get_kill_zones():
         "success": True,
         **kill_zone
     })
-
 
 @api_swing.route("/api/swing/multi-timeframe/<ticker>", methods=["GET"])
 @login_required
