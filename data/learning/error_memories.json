@@ -5,7 +5,7 @@
     "file_path": "agents\\cli.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 2
+    "times_seen": 3
   },
   {
     "error_hash": "0b5e461d676f",
@@ -69,7 +69,7 @@
     "file_path": "web\\api_advanced_sr.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 1
+    "times_seen": 2
   },
   {
     "error_hash": "ea6925dd5a2f",
@@ -77,7 +77,7 @@
     "file_path": "web\\api_advanced_sr.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 1
+    "times_seen": 2
   },
   {
     "error_hash": "29f1662ecfec",
@@ -85,7 +85,7 @@
     "file_path": "web\\api_advanced_sr.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 1
+    "times_seen": 2
   },
   {
     "error_hash": "c8351410cea9",
@@ -93,7 +93,7 @@
     "file_path": "web\\api_advanced_sr.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 1
+    "times_seen": 2
   },
   {
     "error_hash": "78ecd90b89ee",
@@ -101,7 +101,7 @@
     "file_path": "web\\api_advanced_sr.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 1
+    "times_seen": 2
   },
   {
     "error_hash": "141acd31a3db",
@@ -109,7 +109,7 @@
     "file_path": "web\\api_advanced_sr.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 1
+    "times_seen": 2
   },
   {
     "error_hash": "2576d900b334",
@@ -117,7 +117,7 @@
     "file_path": "web\\api_advanced_sr.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 1
+    "times_seen": 2
   },
   {
     "error_hash": "190e887bdb55",
@@ -125,7 +125,7 @@
     "file_path": "web\\api_agents.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 1
+    "times_seen": 2
   },
   {
     "error_hash": "ccf095879136",
@@ -133,7 +133,7 @@
     "file_path": "web\\api_agents.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 1
+    "times_seen": 2
   },
   {
     "error_hash": "a81e603a3a5e",
@@ -141,7 +141,7 @@
     "file_path": "web\\api_chat.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 1
+    "times_seen": 2
   },
   {
     "error_hash": "ef4336d0ed00",
@@ -149,7 +149,7 @@
     "file_path": "web\\api_chat.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 1
+    "times_seen": 2
   },
   {
     "error_hash": "ebd4be0ab7d3",
@@ -157,7 +157,7 @@
     "file_path": "web\\api_chat.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 1
+    "times_seen": 2
   },
   {
     "error_hash": "3865f4a0629c",
@@ -165,7 +165,7 @@
     "file_path": "web\\api_chat.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 1
+    "times_seen": 2
   },
   {
     "error_hash": "b3ceecff83a2",
@@ -173,7 +173,7 @@
     "file_path": "web\\api_main.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 1
+    "times_seen": 2
   },
   {
     "error_hash": "edcdf045ab64",
@@ -181,7 +181,7 @@
     "file_path": "web\\api_main.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 1
+    "times_seen": 2
   },
   {
     "error_hash": "c8e3e2ca3df9",
@@ -189,7 +189,7 @@
     "file_path": "web\\api_main.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 1
+    "times_seen": 2
   },
   {
     "error_hash": "68ff465abd13",
@@ -197,7 +197,7 @@
     "file_path": "web\\api_main.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 1
+    "times_seen": 2
   },
   {
     "error_hash": "db2617e899df",
@@ -205,7 +205,7 @@
     "file_path": "web\\api_main.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 1
+    "times_seen": 2
   },
   {
     "error_hash": "03f9c3961207",
@@ -213,7 +213,7 @@
     "file_path": "web\\api_main.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 1
+    "times_seen": 2
   },
   {
     "error_hash": "8dcdb38e3802",
@@ -221,7 +221,7 @@
     "file_path": "web\\api_main.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 1
+    "times_seen": 2
   },
   {
     "error_hash": "737722ccf989",
@@ -229,7 +229,7 @@
     "file_path": "web\\api_main.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 1
+    "times_seen": 2
   },
   {
     "error_hash": "cd41d8e0888a",
@@ -237,7 +237,7 @@
     "file_path": "web\\api_main.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 1
+    "times_seen": 2
   },
   {
     "error_hash": "bc3aa4396c80",
@@ -245,7 +245,7 @@
     "file_path": "web\\api_main.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 1
+    "times_seen": 2
   },
   {
     "error_hash": "33ab65611bdd",
@@ -253,7 +253,7 @@
     "file_path": "web\\api_main.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 1
+    "times_seen": 2
   },
   {
     "error_hash": "85c55d1f0fc5",
@@ -261,7 +261,7 @@
     "file_path": "web\\api_main.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 1
+    "times_seen": 2
   },
   {
     "error_hash": "ec4b6a345e09",
@@ -269,7 +269,7 @@
     "file_path": "web\\api_main.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 1
+    "times_seen": 2
   },
   {
     "error_hash": "2dc00ba7a5f2",
@@ -277,7 +277,7 @@
     "file_path": "web\\api_main.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 1
+    "times_seen": 2
   },
   {
     "error_hash": "d30c2501adfa",
@@ -285,7 +285,7 @@
     "file_path": "web\\api_main.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 1
+    "times_seen": 2
   },
   {
     "error_hash": "1a677a10784a",
@@ -293,7 +293,7 @@
     "file_path": "web\\api_main.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 1
+    "times_seen": 2
   },
   {
     "error_hash": "f9099fa831a7",
@@ -301,7 +301,7 @@
     "file_path": "web\\api_main.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 1
+    "times_seen": 2
   },
   {
     "error_hash": "56b0ecdb29ff",
@@ -309,7 +309,7 @@
     "file_path": "web\\api_main.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 1
+    "times_seen": 2
   },
   {
     "error_hash": "9580a3f0c43c",
@@ -317,7 +317,7 @@
     "file_path": "web\\api_main.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 1
+    "times_seen": 2
   },
   {
     "error_hash": "45c0a00497ba",
@@ -325,7 +325,7 @@
     "file_path": "web\\api_main.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 1
+    "times_seen": 2
   },
   {
     "error_hash": "1cdfedd5fcfb",
@@ -333,7 +333,7 @@
     "file_path": "web\\api_market_features.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 1
+    "times_seen": 2
   },
   {
     "error_hash": "cf37069679b9",
@@ -341,7 +341,7 @@
     "file_path": "web\\api_market_features.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 1
+    "times_seen": 2
   },
   {
     "error_hash": "400d0cb2f6b4",
@@ -349,7 +349,7 @@
     "file_path": "web\\api_polygon.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 1
+    "times_seen": 2
   },
   {
     "error_hash": "f493076c8740",
@@ -357,7 +357,7 @@
     "file_path": "web\\api_polygon.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 1
+    "times_seen": 2
   },
   {
     "error_hash": "6d5315e18a8d",
@@ -365,7 +365,7 @@
     "file_path": "web\\api_polygon.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 1
+    "times_seen": 2
   },
   {
     "error_hash": "ed46b8b1b8dd",
@@ -373,7 +373,7 @@
     "file_path": "web\\api_polygon.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 1
+    "times_seen": 2
   },
   {
     "error_hash": "de1ef1bd7428",
@@ -381,7 +381,7 @@
     "file_path": "web\\api_polygon.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 1
+    "times_seen": 2
   },
   {
     "error_hash": "852004381d86",
@@ -389,7 +389,7 @@
     "file_path": "web\\api_polygon.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 1
+    "times_seen": 2
   },
   {
     "error_hash": "bd438aa76468",
@@ -397,7 +397,7 @@
     "file_path": "web\\api_polygon.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
-    "times_seen": 1
+    "times_seen": 2
   },
   {
     "error_hash": "18928b8a3c2c",
@@ -715,6 +715,46 @@
     "error_hash": "3acc5c7927a0",
     "error_message": "[web\\api_websocket.py] {'file_path': 'web\\\\api_websocket.py', 'line_number': 186, 'category': 'security', 'severity': 'medium', 'title': 'Unprotected Route', 'description': 'Found unprotected_route pattern', 'suggestion': 'Consider adding @login_required', 'auto_fixable': False}",
     "file_path": "web\\api_websocket.py",
+    "cause": "Code issue",
+    "solution": "Auto-fixed by Fixer Expert",
+    "times_seen": 1
+  },
+  {
+    "error_hash": "e4c03067a55a",
+    "error_message": "[web\\api_websocket.py] {'file_path': 'web\\\\api_websocket.py', 'line_number': 125, 'category': 'security', 'severity': 'low', 'title': 'Missing Error Handler', 'description': 'Found missing_error_handler pattern', 'suggestion': 'Add try/except for error handling', 'auto_fixable': True}",
+    "file_path": "web\\api_websocket.py",
+    "cause": "Code issue",
+    "solution": "Auto-fixed by Fixer Expert",
+    "times_seen": 1
+  },
+  {
+    "error_hash": "68e610a37ed7",
+    "error_message": "[web\\api_websocket.py] {'file_path': 'web\\\\api_websocket.py', 'line_number': 186, 'category': 'security', 'severity': 'low', 'title': 'Missing Error Handler', 'description': 'Found missing_error_handler pattern', 'suggestion': 'Add try/except for error handling', 'auto_fixable': True}",
+    "file_path": "web\\api_websocket.py",
+    "cause": "Code issue",
+    "solution": "Auto-fixed by Fixer Expert",
+    "times_seen": 1
+  },
+  {
+    "error_hash": "903bd5d6f51f",
+    "error_message": "[web\\app.py] {'file_path': 'web\\\\app.py', 'line_number': 228, 'category': 'security', 'severity': 'high', 'title': 'Debug Enabled', 'description': 'Found debug_enabled pattern', 'suggestion': 'Set DEBUG=False in production', 'auto_fixable': True}",
+    "file_path": "web\\app.py",
+    "cause": "Code issue",
+    "solution": "Auto-fixed by Fixer Expert",
+    "times_seen": 1
+  },
+  {
+    "error_hash": "e8954ca8d026",
+    "error_message": "[web\\auth.py] {'file_path': 'web\\\\auth.py', 'line_number': 108, 'category': 'security', 'severity': 'medium', 'title': 'Unprotected Route', 'description': 'Found unprotected_route pattern', 'suggestion': 'Consider adding @login_required', 'auto_fixable': False}",
+    "file_path": "web\\auth.py",
+    "cause": "Code issue",
+    "solution": "Auto-fixed by Fixer Expert",
+    "times_seen": 1
+  },
+  {
+    "error_hash": "b722d3ea2b72",
+    "error_message": "[web\\auth.py] {'file_path': 'web\\\\auth.py', 'line_number': 142, 'category': 'security', 'severity': 'medium', 'title': 'Unprotected Route', 'description': 'Found unprotected_route pattern', 'suggestion': 'Consider adding @login_required', 'auto_fixable': False}",
+    "file_path": "web\\auth.py",
     "cause": "Code issue",
     "solution": "Auto-fixed by Fixer Expert",
     "times_seen": 1
