@@ -670,11 +670,11 @@ class UltimateBot:
             # Check bot statuses
             healthy_bots = sum(1 for b in self.bots.values() if b.enabled and b.status != BotStatus.ERROR)
             total_bots = len(self.bots)
-            
+
             if healthy_bots < total_bots:
                 unhealthy = [b.name for b in self.bots.values() if b.status == BotStatus.ERROR]
                 print(f"     ⚠️ {len(unhealthy)} bots have errors: {', '.join(unhealthy[:3])}")
-            
+
             # Check disk space (simple check)
             try:
                 import shutil
@@ -684,11 +684,11 @@ class UltimateBot:
                     print(f"     ⚠️ Low disk space: {free_gb:.1f}GB free")
             except Exception:
                 pass
-            
+
             # Record health in reports
             if self.reports:
                 self.reports.record_issue(f"Health check: {healthy_bots}/{total_bots} bots healthy")
-                
+
         except Exception as e:
             logger.debug(f"Health check error: {e}")
 
