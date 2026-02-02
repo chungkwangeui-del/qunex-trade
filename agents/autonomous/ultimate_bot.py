@@ -366,23 +366,21 @@ class UltimateBot:
                 # Reset cycle flags
                 self._security_alerted_this_cycle = False
 
-                # Phase 0: ALWAYS run the fixer first (proactive fixing)
+                # Phase 1: Fix actual syntax errors
                 await self._run_proactive_fixes()
 
-                # Phase 1: Scan for issues
+                # Phase 2: Health scan (report only - no fake tasks)
                 await self._scan_for_issues()
 
-                # Phase 2: Prioritize and assign tasks
-                await self._assign_tasks()
+                # Phase 3: Run tests periodically (every 5 cycles)
+                if self.cycle_count % 5 == 0:
+                    await self._run_tests()
 
-                # Phase 3: Execute tasks through individual bots
-                await self._execute_tasks()
-
-                # Phase 4: Review results
-                await self._review_results()
-
-                # Phase 5: Final commit for any remaining changes
+                # Phase 4: Commit any fixes
                 await self._auto_commit()
+
+                # Phase 5: Print cycle summary
+                await self._print_cycle_summary()
 
                 # Save state
                 self._save_state()
@@ -390,6 +388,11 @@ class UltimateBot:
                 # Record cycle in reports
                 if self.reports:
                     self.reports.record_cycle()
+
+                # Health check every 5 cycles
+                if self.cycle_count % 5 == 0:
+                    print(f"\n  🏥 Health Check...")
+                    await self._health_check()
 
                 # Wait for next cycle
                 elapsed = (datetime.now() - cycle_start).total_seconds()
@@ -529,96 +532,108 @@ class UltimateBot:
             print(f"     ⚠️ Git: {e}")
 
     async def _scan_for_issues(self):
-        """Scan the codebase for issues that need attention."""
-        print("  🔍 Scanning for issues...")
+        """Scan the codebase for issues - report only, no fake tasks."""
+        print("  🔍 Scanning codebase health...")
 
         try:
-            # Import analyzers
             from .smart_analyzer import SmartAnalyzer
 
             analyzer = SmartAnalyzer()
             analysis = analyzer.analyze_project()
 
-            issues_found = 0
-            skipped_count = 0
+            # Count issues by severity for reporting
+            critical_count = analysis.get('issues_by_severity', {}).get('critical', 0)
+            high_count = analysis.get('issues_by_severity', {}).get('high', 0)
+            total_issues = analysis.get('total_issues', 0)
 
-            # analyze_project returns a dict with 'files' containing file -> issues mapping
-            files_data = analysis.get('files', {})
+            # Report health status (but don't create fake tasks)
+            if critical_count > 0:
+                print(f"     ⚠️ {critical_count} critical issues need manual review")
+            if high_count > 0:
+                print(f"     ⚠️ {high_count} high priority issues detected")
 
-            for file_path, file_info in files_data.items():
-                issues = file_info.get('issues', [])
+            # Calculate health score
+            health_score = analysis.get('health_score', 100)
+            if health_score >= 80:
+                print(f"     ✅ Codebase health: {health_score}% (GOOD)")
+            elif health_score >= 60:
+                print(f"     ⚠️ Codebase health: {health_score}% (NEEDS ATTENTION)")
+            else:
+                print(f"     ❌ Codebase health: {health_score}% (POOR)")
 
-                for issue in issues:
-                    # Get issue details (issue is a dict)
-                    severity = issue.get('severity', 'low')
-                    category = issue.get('category', '')
-                    title = issue.get('title', 'Unknown issue')
-                    auto_fixable = issue.get('auto_fixable', False)
+            # Record in reports
+            if self.reports:
+                self.reports.record_issue(f"Health scan: {total_issues} total issues, score: {health_score}%")
 
-                    # ONLY process issues that can be auto-fixed!
-                    # Skip everything else - bot can't do anything with them
-                    if not auto_fixable:
-                        skipped_count += 1
-                        continue
-
-                    # Also skip issues that are just code style recommendations
-                    skip_titles = [
-                        'high complexity',  # Needs refactoring by human
-                        'too many arguments',  # Design decision
-                        'debug enabled',  # May be intentional
-                    ]
-                    if any(skip in title.lower() for skip in skip_titles):
-                        skipped_count += 1
-                        continue
-
-                    # Create task description - use title, not the whole dict
-                    task_desc = f"[{file_path}] {title}: {issue.get('suggestion', '')}"
-
-                    # Check if similar task already exists
-                    if self._task_exists(task_desc):
-                        continue
-
-                    # Determine priority
-                    if severity == 'critical':
-                        priority = TaskPriority.CRITICAL
-                    elif severity == 'high':
-                        priority = TaskPriority.HIGH
-                    elif severity == 'medium':
-                        priority = TaskPriority.MEDIUM
-                    else:
-                        priority = TaskPriority.LOW
-
-                    # Create task for each issue
-                    task_id = f"issue_{datetime.now().strftime('%Y%m%d%H%M%S')}_{issues_found}"
-
-                    task = UltimateTask(
-                        id=task_id,
-                        description=task_desc,
-                        priority=priority
-                    )
-                    self.task_queue.append(task)
-                    issues_found += 1
-
-            # Also record in reports system
-            if self.reports and issues_found > 0:
-                self.reports.record_issue(f"Found {issues_found} actionable issues")
-
-            # Limit task queue to prevent bloat
-            max_queue = self.config.get('max_task_queue', 100)
-            if len(self.task_queue) > max_queue:
-                # Keep only highest priority tasks
-                self.task_queue.sort(key=lambda t: t.priority.value)
-                self.task_queue = self.task_queue[:max_queue]
-                print(f"     ⚠️ Queue limited to {max_queue} highest priority tasks")
-
-            if skipped_count > 0:
-                print(f"     ✓ Skipped {skipped_count} non-actionable issues")
-            print(f"     Found {issues_found} actionable issues (Queue: {len(self.task_queue)})")
+            # The proactive fix already handles syntax errors
+            # Other issues require manual review - don't create meaningless tasks
+            print(f"     ✓ Scan complete ({total_issues} issues logged for review)")
 
         except ImportError as e:
             logger.warning(f"Could not import analyzer: {e}")
         except Exception as e:
             logger.error(f"Scan error: {e}")
+
+    async def _run_tests(self):
+        """Run tests periodically to ensure code quality."""
+        print("  🧪 Running tests...")
+        try:
+            import subprocess
+            result = subprocess.run(
+                ['python', '-m', 'pytest', 'tests/', '-q', '--tb=no', '--no-header', '-x'],
+                capture_output=True,
+                text=True,
+                timeout=60,
+                cwd=str(self.project_root)
+            )
+
+            if result.returncode == 0:
+                print(f"     ✅ All tests passed!")
+                self.bots['tester'].record_success(1.0)
+            elif result.returncode == 5:
+                print(f"     ⚠️ No tests found")
+            else:
+                # Extract failure info
+                output = result.stdout + result.stderr
+                if 'failed' in output.lower():
+                    # Count failures
+                    import re
+                    match = re.search(r'(\d+) failed', output)
+                    fails = match.group(1) if match else 'some'
+                    print(f"     ❌ {fails} tests failed")
+                else:
+                    print(f"     ⚠️ Test issues detected")
+
+        except subprocess.TimeoutExpired:
+            print(f"     ⚠️ Tests timed out")
+        except FileNotFoundError:
+            print(f"     ⚠️ pytest not installed")
+        except Exception as e:
+            print(f"     ⚠️ Test error: {e}")
+
+    async def _print_cycle_summary(self):
+        """Print summary for this cycle."""
+        # Get stats
+        total_bots = len([b for b in self.bots.values() if b.enabled])
+        active_bots = len([b for b in self.bots.values() if b.enabled and b.success_count > 0])
+
+        # Calculate overall performance
+        total_success = sum(b.success_count for b in self.bots.values())
+        total_tasks = sum(b.total_tasks for b in self.bots.values())
+        performance = (total_success / total_tasks * 100) if total_tasks > 0 else 100
+
+        # Find top performer
+        top_bot = max(self.bots.values(), key=lambda b: b.success_count, default=None)
+        top_name = top_bot.name if top_bot and top_bot.success_count > 0 else "N/A"
+
+        print(f"\n  ┌{'─'*40}┐")
+        print(f"  │ {'CYCLE SUMMARY':<38} │")
+        print(f"  ├{'─'*40}┤")
+        print(f"  │ Cycle:            #{self.cycle_count:<18} │")
+        print(f"  │ Active Experts:    {active_bots}/{total_bots:<17} │")
+        print(f"  │ Performance:      {performance:.1f}%{' '*16} │")
+        print(f"  │ Top Expert:       {top_name[:20]:<18} │")
+        print(f"  └{'─'*40}┘")
 
     def _task_exists(self, description: str) -> bool:
         """Check if a similar task already exists."""

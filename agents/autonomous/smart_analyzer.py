@@ -64,27 +64,29 @@ class SmartAnalyzer:
         self.project_root = Path(__file__).parent.parent.parent
 
         # Security patterns to check
+        # NOTE: auto_fixable should ONLY be True if RealFixerAgent can actually fix it!
+        # Currently RealFixerAgent only fixes Python SYNTAX errors.
         self.security_patterns = [
             {
                 "name": "hardcoded_secret",
                 "pattern": r"(password|secret|api_key|apikey|token)\s*=\s*['\"][^'\"]{8,}['\"]",
                 "severity": "critical",
                 "suggestion": "Move to environment variable",
-                "auto_fixable": True,
+                "auto_fixable": False,  # Requires manual refactoring
             },
             {
                 "name": "sql_injection",
                 "pattern": r"execute\([^%]*%[^%]*\)|execute\([^+]*\+[^+]*\)|f['\"].*SELECT.*{.*}",
                 "severity": "critical",
                 "suggestion": "Use parameterized queries",
-                "auto_fixable": False,
+                "auto_fixable": False,  # Requires code rewrite
             },
             {
                 "name": "debug_enabled",
                 "pattern": r"DEBUG\s*=\s*True|debug\s*=\s*True",
                 "severity": "high",
                 "suggestion": "Set DEBUG=False in production",
-                "auto_fixable": True,
+                "auto_fixable": False,  # May be intentional for dev
             },
             {
                 "name": "weak_random",
@@ -112,19 +114,19 @@ class SmartAnalyzer:
                 "pattern": r"subprocess\..*shell\s*=\s*True|os\.system\(",
                 "severity": "high",
                 "suggestion": "Use subprocess with shell=False",
-                "auto_fixable": True,
+                "auto_fixable": False,  # Requires code restructure
             },
         ]
 
         # Quality patterns
+        # NOTE: auto_fixable=False for all - RealFixerAgent only fixes syntax errors
         self.quality_patterns = [
             {
                 "name": "bare_except",
                 "pattern": r"except\s*:",
                 "severity": "medium",
                 "suggestion": "Use except Exception:",
-                "auto_fixable": True,
-                "fix": ("except Exception:", "except Exception:"),
+                "auto_fixable": False,  # Simple but risky auto-replace
             },
             {
                 "name": "pass_in_except",
@@ -138,7 +140,7 @@ class SmartAnalyzer:
                 "pattern": r"^\s*print\s*\(",
                 "severity": "low",
                 "suggestion": "Use logging instead of print",
-                "auto_fixable": True,
+                "auto_fixable": False,  # Removing prints can break things
             },
             {
                 "name": "magic_number",
@@ -164,13 +166,14 @@ class SmartAnalyzer:
         ]
 
         # Flask-specific patterns
+        # NOTE: All False - requires careful manual review
         self.flask_patterns = [
             {
                 "name": "missing_csrf",
                 "pattern": r"<form[^>]*method=['\"]post['\"][^>]*>(?!.*csrf)",
                 "severity": "high",
                 "suggestion": "Add CSRF token to form",
-                "auto_fixable": True,
+                "auto_fixable": False,  # HTML modification risky
             },
             {
                 "name": "unprotected_route",
@@ -184,7 +187,7 @@ class SmartAnalyzer:
                 "pattern": r"@\w+\.route.*\ndef \w+\([^)]*\):\s*\n(?!\s*try:)",
                 "severity": "low",
                 "suggestion": "Add try/except for error handling",
-                "auto_fixable": True,
+                "auto_fixable": False,  # Adding try/except needs context
             },
         ]
 
@@ -202,7 +205,7 @@ class SmartAnalyzer:
                 "pattern": None,  # Checked via AST
                 "severity": "low",
                 "suggestion": "Remove unused import",
-                "auto_fixable": True,
+                "auto_fixable": False,  # Requires AST analysis
             },
         ]
 
