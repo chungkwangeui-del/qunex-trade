@@ -535,12 +535,12 @@ class UltimateBot:
         try:
             # Import analyzers
             from .smart_analyzer import SmartAnalyzer
-            from .real_fixer import RealFixerAgent
 
             analyzer = SmartAnalyzer()
             analysis = analyzer.analyze_project()
 
             issues_found = 0
+            skipped_count = 0
 
             # analyze_project returns a dict with 'files' containing file -> issues mapping
             files_data = analysis.get('files', {})
@@ -549,16 +549,32 @@ class UltimateBot:
                 issues = file_info.get('issues', [])
 
                 for issue in issues:
-                    # Create task for each issue
-                    task_id = f"issue_{datetime.now().strftime('%Y%m%d%H%M%S')}_{issues_found}"
-
                     # Get issue details (issue is a dict)
                     severity = issue.get('severity', 'low')
                     category = issue.get('category', '')
-                    message = issue.get('message', str(issue))
+                    title = issue.get('title', 'Unknown issue')
+                    auto_fixable = issue.get('auto_fixable', False)
+
+                    # SKIP low-value issues that can't be auto-fixed
+                    # These just spam the queue without any real work being done
+                    if severity in ['low', 'info'] and not auto_fixable:
+                        skipped_count += 1
+                        continue
+
+                    # SKIP non-actionable issues (no auto-fix, no clear action)
+                    if not auto_fixable and 'unprotected route' in title.lower():
+                        skipped_count += 1
+                        continue  # These need manual review, bot can't do anything
+
+                    # Create task description - use title, not the whole dict
+                    task_desc = f"[{file_path}] {title}: {issue.get('suggestion', '')}"
+
+                    # Check if similar task already exists
+                    if self._task_exists(task_desc):
+                        continue
 
                     # Determine priority
-                    if severity == 'critical' or 'security' in category.lower():
+                    if severity == 'critical':
                         priority = TaskPriority.CRITICAL
                     elif severity == 'high':
                         priority = TaskPriority.HIGH
@@ -567,19 +583,20 @@ class UltimateBot:
                     else:
                         priority = TaskPriority.LOW
 
-                    # Check if similar task already exists
-                    if not self._task_exists(message):
-                        task = UltimateTask(
-                            id=task_id,
-                            description=f"[{file_path}] {message}",
-                            priority=priority
-                        )
-                        self.task_queue.append(task)
-                        issues_found += 1
+                    # Create task for each issue
+                    task_id = f"issue_{datetime.now().strftime('%Y%m%d%H%M%S')}_{issues_found}"
+
+                    task = UltimateTask(
+                        id=task_id,
+                        description=task_desc,
+                        priority=priority
+                    )
+                    self.task_queue.append(task)
+                    issues_found += 1
 
             # Also record in reports system
             if self.reports and issues_found > 0:
-                self.reports.record_issue(f"Found {issues_found} issues in codebase")
+                self.reports.record_issue(f"Found {issues_found} actionable issues")
 
             # Limit task queue to prevent bloat
             max_queue = self.config.get('max_task_queue', 100)
@@ -589,7 +606,9 @@ class UltimateBot:
                 self.task_queue = self.task_queue[:max_queue]
                 print(f"     ⚠️ Queue limited to {max_queue} highest priority tasks")
 
-            print(f"     Found {issues_found} new issues (Queue: {len(self.task_queue)})")
+            if skipped_count > 0:
+                print(f"     ✓ Skipped {skipped_count} non-actionable issues")
+            print(f"     Found {issues_found} actionable issues (Queue: {len(self.task_queue)})")
 
         except ImportError as e:
             logger.warning(f"Could not import analyzer: {e}")
@@ -627,25 +646,26 @@ class UltimateBot:
         desc = task.description.lower()
 
         # MOST issues should go to Fixer first (it actually fixes code!)
-        # Only route specific things to other experts
+        # Only route VERY specific things to other experts
 
-        # Security-ONLY issues -> Security Bot (be specific)
-        if any(word in desc for word in ['sql injection', 'xss attack', 'csrf token', 'hardcoded password']):
+        # Critical security vulnerabilities ONLY (specific keywords)
+        if any(word in desc for word in ['sql injection', 'xss attack', 'hardcoded password', 'hardcoded secret']):
             return 'security'
 
-        # Tests -> Tester Bot
-        if any(word in desc for word in ['test fail', 'coverage', 'assert fail']):
+        # Test failures -> Tester Bot
+        if any(word in desc for word in ['test fail', 'assert fail', 'pytest']):
             return 'tester'
 
         # Git operations -> Git Bot
-        if any(word in desc for word in ['commit', 'push', 'merge conflict']):
+        if any(word in desc for word in ['merge conflict', 'git conflict']):
             return 'git'
 
-        # Deploy -> Deployer Bot
-        if 'deploy' in desc:
+        # Deploy requests -> Deployer Bot
+        if 'deploy to production' in desc or 'release' in desc:
             return 'deployer'
 
-        # DEFAULT: Everything else goes to Fixer (it actually fixes code!)
+        # DEFAULT: EVERYTHING goes to Fixer (it actually fixes code!)
+        # This includes: bare_except, unused_import, syntax errors, bugs, etc.
         return 'fixer'
 
     async def _execute_tasks(self):

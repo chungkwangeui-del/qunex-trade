@@ -1,1 +1,330 @@
-[]
+[
+  {
+    "error_hash": "406f17090296",
+    "error_message": "[agents\\cli.py] {'file_path': 'agents\\\\cli.py', 'line_number': 56, 'category': 'security', 'severity': 'high', 'title': 'Shell Injection', 'description': 'Found shell_injection pattern', 'suggestion': 'Use subprocess with shell=False', 'auto_fixable': True}",
+    "file_path": "agents\\cli.py",
+    "cause": "Code issue",
+    "solution": "Auto-fixed by Fixer Expert",
+    "times_seen": 1
+  },
+  {
+    "error_hash": "0b5e461d676f",
+    "error_message": "[agents\\project_scanner.py] {'file_path': 'agents\\\\project_scanner.py', 'line_number': 343, 'category': 'security', 'severity': 'high', 'title': 'Debug Enabled', 'description': 'Found debug_enabled pattern', 'suggestion': 'Set DEBUG=False in production', 'auto_fixable': True}",
+    "file_path": "agents\\project_scanner.py",
+    "cause": "Code issue",
+    "solution": "Auto-fixed by Fixer Expert",
+    "times_seen": 1
+  },
+  {
+    "error_hash": "da178ea41a75",
+    "error_message": "[agents\\welcome.py] {'file_path': 'agents\\\\welcome.py', 'line_number': 35, 'category': 'security', 'severity': 'high', 'title': 'Shell Injection', 'description': 'Found shell_injection pattern', 'suggestion': 'Use subprocess with shell=False', 'auto_fixable': True}",
+    "file_path": "agents\\welcome.py",
+    "cause": "Code issue",
+    "solution": "Auto-fixed by Fixer Expert",
+    "times_seen": 1
+  },
+  {
+    "error_hash": "9bb989c705fd",
+    "error_message": "[ml\\ai_score_system.py] {'file_path': 'ml\\\\ai_score_system.py', 'line_number': 545, 'category': 'security', 'severity': 'high', 'title': 'Pickle Load', 'description': 'Found pickle_load pattern', 'suggestion': 'Pickle can execute arbitrary code', 'auto_fixable': False}",
+    "file_path": "ml\\ai_score_system.py",
+    "cause": "Code issue",
+    "solution": "Auto-fixed by Fixer Expert",
+    "times_seen": 1
+  },
+  {
+    "error_hash": "a1a26de9c105",
+    "error_message": "[ml\\ai_score_system.py] {'file_path': 'ml\\\\ai_score_system.py', 'line_number': 554, 'category': 'security', 'severity': 'high', 'title': 'Pickle Load', 'description': 'Found pickle_load pattern', 'suggestion': 'Pickle can execute arbitrary code', 'auto_fixable': False}",
+    "file_path": "ml\\ai_score_system.py",
+    "cause": "Code issue",
+    "solution": "Auto-fixed by Fixer Expert",
+    "times_seen": 1
+  },
+  {
+    "error_hash": "f86e2c33f3a7",
+    "error_message": "[tests\\conftest.py] {'file_path': 'tests\\\\conftest.py', 'line_number': 147, 'category': 'security', 'severity': 'critical', 'title': 'Hardcoded Secret', 'description': 'Found hardcoded_secret pattern', 'suggestion': 'Move to environment variable', 'auto_fixable': True}",
+    "file_path": "tests\\conftest.py",
+    "cause": "Code issue",
+    "solution": "Auto-fixed by Fixer Expert",
+    "times_seen": 1
+  },
+  {
+    "error_hash": "6c901862cc06",
+    "error_message": "[tests\\conftest.py] {'file_path': 'tests\\\\conftest.py', 'line_number': 154, 'category': 'security', 'severity': 'critical', 'title': 'Hardcoded Secret', 'description': 'Found hardcoded_secret pattern', 'suggestion': 'Move to environment variable', 'auto_fixable': True}",
+    "file_path": "tests\\conftest.py",
+    "cause": "Code issue",
+    "solution": "Auto-fixed by Fixer Expert",
+    "times_seen": 1
+  },
+  {
+    "error_hash": "2faeb84b7137",
+    "error_message": "[web\\api_advanced_sr.py] {'file_path': 'web\\\\api_advanced_sr.py', 'line_number': 83, 'category': 'security', 'severity': 'medium', 'title': 'Unprotected Route', 'description': 'Found unprotected_route pattern', 'suggestion': 'Consider adding @login_required', 'auto_fixable': False}",
+    "file_path": "web\\api_advanced_sr.py",
+    "cause": "Code issue",
+    "solution": "Auto-fixed by Fixer Expert",
+    "times_seen": 1
+  },
+  {
+    "error_hash": "a37f76dec41e",
+    "error_message": "[web\\api_advanced_sr.py] {'file_path': 'web\\\\api_advanced_sr.py', 'line_number': 116, 'category': 'security', 'severity': 'medium', 'title': 'Unprotected Route', 'description': 'Found unprotected_route pattern', 'suggestion': 'Consider adding @login_required', 'auto_fixable': False}",
+    "file_path": "web\\api_advanced_sr.py",
+    "cause": "Code issue",
+    "solution": "Auto-fixed by Fixer Expert",
+    "times_seen": 1
+  },
+  {
+    "error_hash": "ea6925dd5a2f",
+    "error_message": "[web\\api_advanced_sr.py] {'file_path': 'web\\\\api_advanced_sr.py', 'line_number': 171, 'category': 'security', 'severity': 'medium', 'title': 'Unprotected Route', 'description': 'Found unprotected_route pattern', 'suggestion': 'Consider adding @login_required', 'auto_fixable': False}",
+    "file_path": "web\\api_advanced_sr.py",
+    "cause": "Code issue",
+    "solution": "Auto-fixed by Fixer Expert",
+    "times_seen": 1
+  },
+  {
+    "error_hash": "29f1662ecfec",
+    "error_message": "[web\\api_advanced_sr.py] {'file_path': 'web\\\\api_advanced_sr.py', 'line_number': 342, 'category': 'security', 'severity': 'medium', 'title': 'Unprotected Route', 'description': 'Found unprotected_route pattern', 'suggestion': 'Consider adding @login_required', 'auto_fixable': False}",
+    "file_path": "web\\api_advanced_sr.py",
+    "cause": "Code issue",
+    "solution": "Auto-fixed by Fixer Expert",
+    "times_seen": 1
+  },
+  {
+    "error_hash": "c8351410cea9",
+    "error_message": "[web\\api_advanced_sr.py] {'file_path': 'web\\\\api_advanced_sr.py', 'line_number': 83, 'category': 'security', 'severity': 'low', 'title': 'Missing Error Handler', 'description': 'Found missing_error_handler pattern', 'suggestion': 'Add try/except for error handling', 'auto_fixable': True}",
+    "file_path": "web\\api_advanced_sr.py",
+    "cause": "Code issue",
+    "solution": "Auto-fixed by Fixer Expert",
+    "times_seen": 1
+  },
+  {
+    "error_hash": "78ecd90b89ee",
+    "error_message": "[web\\api_advanced_sr.py] {'file_path': 'web\\\\api_advanced_sr.py', 'line_number': 116, 'category': 'security', 'severity': 'low', 'title': 'Missing Error Handler', 'description': 'Found missing_error_handler pattern', 'suggestion': 'Add try/except for error handling', 'auto_fixable': True}",
+    "file_path": "web\\api_advanced_sr.py",
+    "cause": "Code issue",
+    "solution": "Auto-fixed by Fixer Expert",
+    "times_seen": 1
+  },
+  {
+    "error_hash": "141acd31a3db",
+    "error_message": "[web\\api_advanced_sr.py] {'file_path': 'web\\\\api_advanced_sr.py', 'line_number': 171, 'category': 'security', 'severity': 'low', 'title': 'Missing Error Handler', 'description': 'Found missing_error_handler pattern', 'suggestion': 'Add try/except for error handling', 'auto_fixable': True}",
+    "file_path": "web\\api_advanced_sr.py",
+    "cause": "Code issue",
+    "solution": "Auto-fixed by Fixer Expert",
+    "times_seen": 1
+  },
+  {
+    "error_hash": "2576d900b334",
+    "error_message": "[web\\api_advanced_sr.py] {'file_path': 'web\\\\api_advanced_sr.py', 'line_number': 342, 'category': 'security', 'severity': 'low', 'title': 'Missing Error Handler', 'description': 'Found missing_error_handler pattern', 'suggestion': 'Add try/except for error handling', 'auto_fixable': True}",
+    "file_path": "web\\api_advanced_sr.py",
+    "cause": "Code issue",
+    "solution": "Auto-fixed by Fixer Expert",
+    "times_seen": 1
+  },
+  {
+    "error_hash": "190e887bdb55",
+    "error_message": "[web\\api_agents.py] {'file_path': 'web\\\\api_agents.py', 'line_number': 359, 'category': 'security', 'severity': 'medium', 'title': 'Unprotected Route', 'description': 'Found unprotected_route pattern', 'suggestion': 'Consider adding @login_required', 'auto_fixable': False}",
+    "file_path": "web\\api_agents.py",
+    "cause": "Code issue",
+    "solution": "Auto-fixed by Fixer Expert",
+    "times_seen": 1
+  },
+  {
+    "error_hash": "ccf095879136",
+    "error_message": "[web\\api_agents.py] {'file_path': 'web\\\\api_agents.py', 'line_number': 359, 'category': 'security', 'severity': 'low', 'title': 'Missing Error Handler', 'description': 'Found missing_error_handler pattern', 'suggestion': 'Add try/except for error handling', 'auto_fixable': True}",
+    "file_path": "web\\api_agents.py",
+    "cause": "Code issue",
+    "solution": "Auto-fixed by Fixer Expert",
+    "times_seen": 1
+  },
+  {
+    "error_hash": "a81e603a3a5e",
+    "error_message": "[web\\api_chat.py] {'file_path': 'web\\\\api_chat.py', 'line_number': 355, 'category': 'security', 'severity': 'medium', 'title': 'Unprotected Route', 'description': 'Found unprotected_route pattern', 'suggestion': 'Consider adding @login_required', 'auto_fixable': False}",
+    "file_path": "web\\api_chat.py",
+    "cause": "Code issue",
+    "solution": "Auto-fixed by Fixer Expert",
+    "times_seen": 1
+  },
+  {
+    "error_hash": "ef4336d0ed00",
+    "error_message": "[web\\api_chat.py] {'file_path': 'web\\\\api_chat.py', 'line_number': 378, 'category': 'security', 'severity': 'medium', 'title': 'Unprotected Route', 'description': 'Found unprotected_route pattern', 'suggestion': 'Consider adding @login_required', 'auto_fixable': False}",
+    "file_path": "web\\api_chat.py",
+    "cause": "Code issue",
+    "solution": "Auto-fixed by Fixer Expert",
+    "times_seen": 1
+  },
+  {
+    "error_hash": "ebd4be0ab7d3",
+    "error_message": "[web\\api_chat.py] {'file_path': 'web\\\\api_chat.py', 'line_number': 355, 'category': 'security', 'severity': 'low', 'title': 'Missing Error Handler', 'description': 'Found missing_error_handler pattern', 'suggestion': 'Add try/except for error handling', 'auto_fixable': True}",
+    "file_path": "web\\api_chat.py",
+    "cause": "Code issue",
+    "solution": "Auto-fixed by Fixer Expert",
+    "times_seen": 1
+  },
+  {
+    "error_hash": "3865f4a0629c",
+    "error_message": "[web\\api_chat.py] {'file_path': 'web\\\\api_chat.py', 'line_number': 378, 'category': 'security', 'severity': 'low', 'title': 'Missing Error Handler', 'description': 'Found missing_error_handler pattern', 'suggestion': 'Add try/except for error handling', 'auto_fixable': True}",
+    "file_path": "web\\api_chat.py",
+    "cause": "Code issue",
+    "solution": "Auto-fixed by Fixer Expert",
+    "times_seen": 1
+  },
+  {
+    "error_hash": "b3ceecff83a2",
+    "error_message": "[web\\api_main.py] {'file_path': 'web\\\\api_main.py', 'line_number': 18, 'category': 'security', 'severity': 'medium', 'title': 'Unprotected Route', 'description': 'Found unprotected_route pattern', 'suggestion': 'Consider adding @login_required', 'auto_fixable': False}",
+    "file_path": "web\\api_main.py",
+    "cause": "Code issue",
+    "solution": "Auto-fixed by Fixer Expert",
+    "times_seen": 1
+  },
+  {
+    "error_hash": "edcdf045ab64",
+    "error_message": "[web\\api_main.py] {'file_path': 'web\\\\api_main.py', 'line_number': 24, 'category': 'security', 'severity': 'medium', 'title': 'Unprotected Route', 'description': 'Found unprotected_route pattern', 'suggestion': 'Consider adding @login_required', 'auto_fixable': False}",
+    "file_path": "web\\api_main.py",
+    "cause": "Code issue",
+    "solution": "Auto-fixed by Fixer Expert",
+    "times_seen": 1
+  },
+  {
+    "error_hash": "c8e3e2ca3df9",
+    "error_message": "[web\\api_main.py] {'file_path': 'web\\\\api_main.py', 'line_number': 30, 'category': 'security', 'severity': 'medium', 'title': 'Unprotected Route', 'description': 'Found unprotected_route pattern', 'suggestion': 'Consider adding @login_required', 'auto_fixable': False}",
+    "file_path": "web\\api_main.py",
+    "cause": "Code issue",
+    "solution": "Auto-fixed by Fixer Expert",
+    "times_seen": 1
+  },
+  {
+    "error_hash": "68ff465abd13",
+    "error_message": "[web\\api_main.py] {'file_path': 'web\\\\api_main.py', 'line_number': 50, 'category': 'security', 'severity': 'medium', 'title': 'Unprotected Route', 'description': 'Found unprotected_route pattern', 'suggestion': 'Consider adding @login_required', 'auto_fixable': False}",
+    "file_path": "web\\api_main.py",
+    "cause": "Code issue",
+    "solution": "Auto-fixed by Fixer Expert",
+    "times_seen": 1
+  },
+  {
+    "error_hash": "db2617e899df",
+    "error_message": "[web\\api_main.py] {'file_path': 'web\\\\api_main.py', 'line_number': 172, 'category': 'security', 'severity': 'medium', 'title': 'Unprotected Route', 'description': 'Found unprotected_route pattern', 'suggestion': 'Consider adding @login_required', 'auto_fixable': False}",
+    "file_path": "web\\api_main.py",
+    "cause": "Code issue",
+    "solution": "Auto-fixed by Fixer Expert",
+    "times_seen": 1
+  },
+  {
+    "error_hash": "03f9c3961207",
+    "error_message": "[web\\api_main.py] {'file_path': 'web\\\\api_main.py', 'line_number': 178, 'category': 'security', 'severity': 'medium', 'title': 'Unprotected Route', 'description': 'Found unprotected_route pattern', 'suggestion': 'Consider adding @login_required', 'auto_fixable': False}",
+    "file_path": "web\\api_main.py",
+    "cause": "Code issue",
+    "solution": "Auto-fixed by Fixer Expert",
+    "times_seen": 1
+  },
+  {
+    "error_hash": "8dcdb38e3802",
+    "error_message": "[web\\api_main.py] {'file_path': 'web\\\\api_main.py', 'line_number': 336, 'category': 'security', 'severity': 'medium', 'title': 'Unprotected Route', 'description': 'Found unprotected_route pattern', 'suggestion': 'Consider adding @login_required', 'auto_fixable': False}",
+    "file_path": "web\\api_main.py",
+    "cause": "Code issue",
+    "solution": "Auto-fixed by Fixer Expert",
+    "times_seen": 1
+  },
+  {
+    "error_hash": "737722ccf989",
+    "error_message": "[web\\api_main.py] {'file_path': 'web\\\\api_main.py', 'line_number': 353, 'category': 'security', 'severity': 'medium', 'title': 'Unprotected Route', 'description': 'Found unprotected_route pattern', 'suggestion': 'Consider adding @login_required', 'auto_fixable': False}",
+    "file_path": "web\\api_main.py",
+    "cause": "Code issue",
+    "solution": "Auto-fixed by Fixer Expert",
+    "times_seen": 1
+  },
+  {
+    "error_hash": "cd41d8e0888a",
+    "error_message": "[web\\api_main.py] {'file_path': 'web\\\\api_main.py', 'line_number': 368, 'category': 'security', 'severity': 'medium', 'title': 'Unprotected Route', 'description': 'Found unprotected_route pattern', 'suggestion': 'Consider adding @login_required', 'auto_fixable': False}",
+    "file_path": "web\\api_main.py",
+    "cause": "Code issue",
+    "solution": "Auto-fixed by Fixer Expert",
+    "times_seen": 1
+  },
+  {
+    "error_hash": "bc3aa4396c80",
+    "error_message": "[web\\api_main.py] {'file_path': 'web\\\\api_main.py', 'line_number': 709, 'category': 'security', 'severity': 'medium', 'title': 'Unprotected Route', 'description': 'Found unprotected_route pattern', 'suggestion': 'Consider adding @login_required', 'auto_fixable': False}",
+    "file_path": "web\\api_main.py",
+    "cause": "Code issue",
+    "solution": "Auto-fixed by Fixer Expert",
+    "times_seen": 1
+  },
+  {
+    "error_hash": "33ab65611bdd",
+    "error_message": "[web\\api_main.py] {'file_path': 'web\\\\api_main.py', 'line_number': 18, 'category': 'security', 'severity': 'low', 'title': 'Missing Error Handler', 'description': 'Found missing_error_handler pattern', 'suggestion': 'Add try/except for error handling', 'auto_fixable': True}",
+    "file_path": "web\\api_main.py",
+    "cause": "Code issue",
+    "solution": "Auto-fixed by Fixer Expert",
+    "times_seen": 1
+  },
+  {
+    "error_hash": "85c55d1f0fc5",
+    "error_message": "[web\\api_main.py] {'file_path': 'web\\\\api_main.py', 'line_number': 24, 'category': 'security', 'severity': 'low', 'title': 'Missing Error Handler', 'description': 'Found missing_error_handler pattern', 'suggestion': 'Add try/except for error handling', 'auto_fixable': True}",
+    "file_path": "web\\api_main.py",
+    "cause": "Code issue",
+    "solution": "Auto-fixed by Fixer Expert",
+    "times_seen": 1
+  },
+  {
+    "error_hash": "ec4b6a345e09",
+    "error_message": "[web\\api_main.py] {'file_path': 'web\\\\api_main.py', 'line_number': 30, 'category': 'security', 'severity': 'low', 'title': 'Missing Error Handler', 'description': 'Found missing_error_handler pattern', 'suggestion': 'Add try/except for error handling', 'auto_fixable': True}",
+    "file_path": "web\\api_main.py",
+    "cause": "Code issue",
+    "solution": "Auto-fixed by Fixer Expert",
+    "times_seen": 1
+  },
+  {
+    "error_hash": "2dc00ba7a5f2",
+    "error_message": "[web\\api_main.py] {'file_path': 'web\\\\api_main.py', 'line_number': 50, 'category': 'security', 'severity': 'low', 'title': 'Missing Error Handler', 'description': 'Found missing_error_handler pattern', 'suggestion': 'Add try/except for error handling', 'auto_fixable': True}",
+    "file_path": "web\\api_main.py",
+    "cause": "Code issue",
+    "solution": "Auto-fixed by Fixer Expert",
+    "times_seen": 1
+  },
+  {
+    "error_hash": "d30c2501adfa",
+    "error_message": "[web\\api_main.py] {'file_path': 'web\\\\api_main.py', 'line_number': 172, 'category': 'security', 'severity': 'low', 'title': 'Missing Error Handler', 'description': 'Found missing_error_handler pattern', 'suggestion': 'Add try/except for error handling', 'auto_fixable': True}",
+    "file_path": "web\\api_main.py",
+    "cause": "Code issue",
+    "solution": "Auto-fixed by Fixer Expert",
+    "times_seen": 1
+  },
+  {
+    "error_hash": "1a677a10784a",
+    "error_message": "[web\\api_main.py] {'file_path': 'web\\\\api_main.py', 'line_number': 178, 'category': 'security', 'severity': 'low', 'title': 'Missing Error Handler', 'description': 'Found missing_error_handler pattern', 'suggestion': 'Add try/except for error handling', 'auto_fixable': True}",
+    "file_path": "web\\api_main.py",
+    "cause": "Code issue",
+    "solution": "Auto-fixed by Fixer Expert",
+    "times_seen": 1
+  },
+  {
+    "error_hash": "f9099fa831a7",
+    "error_message": "[web\\api_main.py] {'file_path': 'web\\\\api_main.py', 'line_number': 336, 'category': 'security', 'severity': 'low', 'title': 'Missing Error Handler', 'description': 'Found missing_error_handler pattern', 'suggestion': 'Add try/except for error handling', 'auto_fixable': True}",
+    "file_path": "web\\api_main.py",
+    "cause": "Code issue",
+    "solution": "Auto-fixed by Fixer Expert",
+    "times_seen": 1
+  },
+  {
+    "error_hash": "56b0ecdb29ff",
+    "error_message": "[web\\api_main.py] {'file_path': 'web\\\\api_main.py', 'line_number': 353, 'category': 'security', 'severity': 'low', 'title': 'Missing Error Handler', 'description': 'Found missing_error_handler pattern', 'suggestion': 'Add try/except for error handling', 'auto_fixable': True}",
+    "file_path": "web\\api_main.py",
+    "cause": "Code issue",
+    "solution": "Auto-fixed by Fixer Expert",
+    "times_seen": 1
+  },
+  {
+    "error_hash": "9580a3f0c43c",
+    "error_message": "[web\\api_main.py] {'file_path': 'web\\\\api_main.py', 'line_number': 368, 'category': 'security', 'severity': 'low', 'title': 'Missing Error Handler', 'description': 'Found missing_error_handler pattern', 'suggestion': 'Add try/except for error handling', 'auto_fixable': True}",
+    "file_path": "web\\api_main.py",
+    "cause": "Code issue",
+    "solution": "Auto-fixed by Fixer Expert",
+    "times_seen": 1
+  },
+  {
+    "error_hash": "45c0a00497ba",
+    "error_message": "[web\\api_main.py] {'file_path': 'web\\\\api_main.py', 'line_number': 709, 'category': 'security', 'severity': 'low', 'title': 'Missing Error Handler', 'description': 'Found missing_error_handler pattern', 'suggestion': 'Add try/except for error handling', 'auto_fixable': True}",
+    "file_path": "web\\api_main.py",
+    "cause": "Code issue",
+    "solution": "Auto-fixed by Fixer Expert",
+    "times_seen": 1
+  }
+]
