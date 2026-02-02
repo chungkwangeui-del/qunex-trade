@@ -1,6 +1,6 @@
 {
-  "cycle_count": 19,
-  "last_save": "2026-02-02T10:39:25.839420",
+  "cycle_count": 20,
+  "last_save": "2026-02-02T10:42:26.245512",
   "task_queue": [
     {
       "id": "issue_20260202101646_1883",
@@ -19,96 +19,104 @@
       "retries": 0
     },
     {
-      "id": "issue_20260202103400_344",
-      "description": "[agents\\autonomous\\improver.py] High complexity: _analyze_file: Break into smaller functions",
-      "priority": 2,
-      "assigned_bot": "fixer",
-      "status": "pending",
-      "retries": 0
-    },
-    {
-      "id": "issue_20260202103400_358",
-      "description": "[agents\\autonomous\\master.py] High complexity: _analyze_and_escalate_issue: Break into smaller functions",
-      "priority": 2,
-      "assigned_bot": "fixer",
-      "status": "pending",
-      "retries": 0
-    },
-    {
-      "id": "issue_20260202103400_375",
-      "description": "[agents\\autonomous\\real_fixer.py] High complexity: _fix_import_errors: Break into smaller functions",
-      "priority": 2,
-      "assigned_bot": "fixer",
-      "status": "pending",
-      "retries": 0
-    },
-    {
-      "id": "issue_20260202103400_382",
-      "description": "[agents\\autonomous\\reviewer.py] High complexity: _review_python: Break into smaller functions",
-      "priority": 2,
-      "assigned_bot": "fixer",
-      "status": "pending",
-      "retries": 0
-    },
-    {
-      "id": "issue_20260202103643_8",
-      "description": "[agents\\cli.py] Shell Injection: Use subprocess with shell=False",
-      "priority": 2,
-      "assigned_bot": "fixer",
-      "status": "pending",
-      "retries": 0
-    },
-    {
-      "id": "issue_20260202103643_39",
-      "description": "[agents\\project_scanner.py] Debug Enabled: Set DEBUG=False in production",
-      "priority": 2,
-      "assigned_bot": "fixer",
-      "status": "pending",
-      "retries": 0
-    },
-    {
-      "id": "issue_20260202103643_58",
-      "description": "[agents\\welcome.py] Shell Injection: Use subprocess with shell=False",
-      "priority": 2,
-      "assigned_bot": "fixer",
-      "status": "pending",
-      "retries": 0
-    },
-    {
-      "id": "issue_20260202103643_86",
-      "description": "[ml\\ai_score_system.py] Pickle Load: Pickle can execute arbitrary code",
-      "priority": 2,
-      "assigned_bot": "fixer",
-      "status": "pending",
-      "retries": 0
-    },
-    {
-      "id": "issue_20260202103643_349",
-      "description": "[agents\\autonomous\\smart_analyzer.py] High complexity: _ast_analysis: Break into smaller functions",
-      "priority": 2,
-      "assigned_bot": "fixer",
-      "status": "pending",
-      "retries": 0
-    },
-    {
       "id": "issue_20260202103643_356",
       "description": "[agents\\autonomous\\test_runner.py] High complexity: _parse_pytest_output: Break into smaller functions",
       "priority": 2,
       "assigned_bot": "tester",
       "status": "pending",
-      "retries": 0
+      "retries": 1
     },
     {
-      "id": "issue_20260202103643_360",
-      "description": "[agents\\autonomous\\ultimate_bot.py] High complexity: _scan_for_issues: Break into smaller functions",
+      "id": "issue_20260202103936_238",
+      "description": "[web\\swing_service.py] High complexity: _detect_market_structure: Break into smaller functions",
       "priority": 2,
       "assigned_bot": "fixer",
       "status": "pending",
       "retries": 0
     },
     {
-      "id": "issue_20260202103643_362",
-      "description": "[agents\\autonomous\\ultimate_bot.py] High complexity: _run_bot_task: Break into smaller functions",
+      "id": "issue_20260202103936_239",
+      "description": "[web\\swing_service.py] High complexity: _detect_order_blocks: Break into smaller functions",
+      "priority": 2,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103936_241",
+      "description": "[web\\swing_service.py] High complexity: _calculate_confluence: Break into smaller functions",
+      "priority": 2,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103936_242",
+      "description": "[web\\swing_service.py] High complexity: generate_swing_signal: Break into smaller functions",
+      "priority": 2,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103936_274",
+      "description": "[agents\\autonomous\\deployer.py] High complexity: deploy: Break into smaller functions",
+      "priority": 2,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103936_278",
+      "description": "[agents\\autonomous\\developer.py] High complexity: enhance_function_with_logging: Break into smaller functions",
+      "priority": 2,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103936_288",
+      "description": "[agents\\autonomous\\fixer.py] Debug Enabled: Set DEBUG=False in production",
+      "priority": 2,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103936_290",
+      "description": "[agents\\autonomous\\fixer.py] High complexity: create_fix_patterns: Break into smaller functions",
+      "priority": 2,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103936_292",
+      "description": "[agents\\autonomous\\fixer.py] High complexity: detect_unused_imports: Break into smaller functions",
+      "priority": 2,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103936_295",
+      "description": "[agents\\autonomous\\fixer.py] High complexity: _fix_unused_import: Break into smaller functions",
+      "priority": 2,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103936_296",
+      "description": "[agents\\autonomous\\fixer.py] High complexity: scan_and_fix_all: Break into smaller functions",
+      "priority": 2,
+      "assigned_bot": "fixer",
+      "status": "pending",
+      "retries": 0
+    },
+    {
+      "id": "issue_20260202103936_297",
+      "description": "[agents\\autonomous\\fixer.py] High complexity: smart_fix: Break into smaller functions",
       "priority": 2,
       "assigned_bot": "fixer",
       "status": "pending",
