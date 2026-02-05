@@ -611,7 +611,7 @@ class DeployerAgent:
             )
 
             subprocess.run(
-                ['git', 'push', '-f', 'origin', self.config.get('production_branch', 'main')],
+                ['git', 'push', '-', 'origin', self.config.get('production_branch', 'main')],
                 check=True,
                 cwd=self.project_root
             )

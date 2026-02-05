@@ -246,7 +246,7 @@ class AnalysisAgent(BaseAgent):
             return AgentResult(
                 success=True,
                 status=AgentStatus.WARNING,
-                message=f"Pattern recognition may be incomplete",
+                message="Pattern recognition may be incomplete",
                 warnings=[f"Only {len(found)} pattern types found"],
                 data={"pattern_types": found, "line_count": line_count}
             )
@@ -355,7 +355,7 @@ class AnalysisAgent(BaseAgent):
             return AgentResult(
                 success=True,
                 status=AgentStatus.WARNING,
-                message=f"Technical analysis may be incomplete",
+                message="Technical analysis may be incomplete",
                 warnings=[f"Only {len(found)} indicators found"],
                 data={"indicators": found, "line_count": line_count}
             )
@@ -408,7 +408,7 @@ class AnalysisAgent(BaseAgent):
             return AgentResult(
                 success=True,
                 status=AgentStatus.WARNING,
-                message=f"Advanced S/R may be incomplete",
+                message="Advanced S/R may be incomplete",
                 warnings=["Module seems small"],
                 data={"features": features, "line_count": line_count}
             )

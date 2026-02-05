@@ -821,12 +821,12 @@ def _calculate_confluence(
     if premium_discount["in_ote"]:
         if premium_discount["ote_type"] == "bullish":
             bullish_reasons.append({
-                "reason": f"In OTE zone (discount) - Optimal for longs",
+                "reason": "In OTE zone (discount) - Optimal for longs",
                 "strength": 70,
             })
         else:
             bearish_reasons.append({
-                "reason": f"In OTE zone (premium) - Optimal for shorts",
+                "reason": "In OTE zone (premium) - Optimal for shorts",
                 "strength": 70,
             })
     elif premium_discount["current_zone"] == "discount":

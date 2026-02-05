@@ -92,7 +92,7 @@ class AgentRunner:
         # Analysis phase
         if "analysis" in report.get("phases", {}):
             analysis = report["phases"]["analysis"]
-            logger.info(f"\n  Analysis:")
+            logger.info("\n  Analysis:")
             logger.info(f"    Health Score: {analysis.get('health_score', 'N/A')}%")
             logger.info(f"    Issues Found: {analysis.get('issues_found', 0)}")
             logger.info(f"    Opportunities: {analysis.get('opportunities_found', 0)}")
@@ -100,30 +100,30 @@ class AgentRunner:
         # Task creation
         if "task_creation" in report.get("phases", {}):
             creation = report["phases"]["task_creation"]
-            logger.info(f"\n  Task Creation:")
+            logger.info("\n  Task Creation:")
             logger.info(f"    Tasks Created: {creation.get('tasks_created', 0)}")
 
         # Processing
-        logger.info(f"\n  Processing:")
+        logger.info("\n  Processing:")
         logger.info(f"    Tasks Processed: {report.get('tasks_processed', 0)}")
         logger.info(f"    Tasks Completed: {report.get('tasks_completed', 0)}")
         logger.info(f"    Tasks Failed: {report.get('tasks_failed', 0)}")
 
         # Changes
-        logger.info(f"\n  Changes:")
+        logger.info("\n  Changes:")
         logger.info(f"    Applied: {report.get('changes_applied', 0)}")
         logger.info(f"    Rolled Back: {report.get('changes_rolled_back', 0)}")
 
         # Auto fixes
         if "auto_fixes" in report.get("phases", {}):
             fixes = report["phases"]["auto_fixes"]
-            logger.info(f"\n  Auto Fixes:")
+            logger.info("\n  Auto Fixes:")
             logger.info(f"    Files Scanned: {fixes.get('scanned_files', 0)}")
             logger.info(f"    Files Fixed: {fixes.get('fixed_files', 0)}")
 
         # Errors
         if report.get("errors"):
-            logger.info(f"\n  Errors:")
+            logger.info("\n  Errors:")
             for error in report["errors"][:5]:
                 logger.info(f"    - {error}")
 
@@ -182,7 +182,7 @@ Examples:
         logger.info(f"  Running: {status['running']}")
         logger.info(f"  Cycles: {status['cycle_count']}")
         logger.info(f"  Last Cycle: {status['last_cycle'] or 'Never'}")
-        logger.info(f"\n  Task Queue:")
+        logger.info("\n  Task Queue:")
         logger.info(f"    Pending: {status['queue']['pending']}")
         logger.info(f"    In Progress: {status['queue']['in_progress']}")
         logger.info(f"    Completed: {status['queue']['completed']}")

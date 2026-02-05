@@ -272,7 +272,7 @@ class DatabaseAgent(BaseAgent):
                     return AgentResult(
                         success=True,
                         status=AgentStatus.WARNING,
-                        message=f"Some data is stale",
+                        message="Some data is stale",
                         warnings=warnings,
                         suggestions=["Run data refresh scripts"],
                         data=freshness

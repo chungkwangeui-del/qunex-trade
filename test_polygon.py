@@ -26,7 +26,7 @@ def test_polygon():
 
     # Initialize service
     polygon = PolygonService()
-    logger.info(f"\n[OK] Polygon service initialized")
+    logger.info("\n[OK] Polygon service initialized")
     logger.info(f"API Key: {polygon.api_key[:10]}...")
 
     # Test 1: Market Status

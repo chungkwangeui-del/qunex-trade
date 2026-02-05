@@ -1,24 +1,15 @@
 """
-Log Analyzer Agent
-==================
-
-Monitors application logs for errors, patterns, and anomalies.
-Automatically detects and reports issues from runtime errors.
+📋 Log Analyzer
+Analyzes application logs to detect patterns, errors, and anomalies.
 """
-
-import os
 import re
-import logging
-from typing import Dict, List, Optional, Any, Set
-from dataclasses import dataclass, field
-from datetime import datetime, timedelta
-from pathlib import Path
-from collections import defaultdict
 import json
-from datetime import timedelta
-from typing import List
+from pathlib import Path
+from datetime import datetime, timedelta
+from collections import Counter, defaultdict
+from dataclasses import dataclass, field
 from typing import Optional
-from typing import Any
+import logging
 
 logger = logging.getLogger(__name__)
 
@@ -26,563 +17,260 @@ logger = logging.getLogger(__name__)
 @dataclass
 class LogEntry:
     """Parsed log entry."""
-    timestamp: datetime
-    level: str  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+    timestamp: str
+    level: str
     message: str
-    source: str  # file/module
-    line_number: Optional[int] = None
-    traceback: Optional[str] = None
-    extra: Dict[str, Any] = field(default_factory=dict)
+    source: str = ""
+    line_number: int = 0
 
 
 @dataclass
-class LogPattern:
-    """Detected pattern in logs."""
-    pattern: str
-    count: int
-    first_seen: datetime
-    last_seen: datetime
-    severity: str
-    category: str  # 'error', 'security', 'performance', 'api'
-    examples: List[str] = field(default_factory=list)
-
-
-@dataclass
-class LogAlert:
-    """Alert generated from log analysis."""
-    id: str
-    timestamp: datetime
-    severity: str  # 'info', 'warning', 'error', 'critical'
-    title: str
-    message: str
-    pattern: Optional[str] = None
-    count: int = 1
-    suggested_action: Optional[str] = None
-    auto_fixable: bool = False
+class LogAnalysisResult:
+    """Result of log analysis."""
+    total_entries: int = 0
+    error_count: int = 0
+    warning_count: int = 0
+    error_patterns: list = field(default_factory=list)
+    anomalies: list = field(default_factory=list)
+    top_errors: list = field(default_factory=list)
+    recommendations: list = field(default_factory=list)
 
 
 class LogAnalyzer:
     """
-    Real-time log monitoring and analysis.
-
-    Features:
-    - Parse multiple log formats
-    - Detect error patterns
-    - Track frequency/trends
-    - Generate alerts
-    - Suggest fixes
+    Analyzes log files for patterns, errors, and anomalies.
     """
 
-    # Common log patterns
-    LOG_PATTERNS = {
-        'error': [
-            r'(?i)error|exception|failed|failure|traceback',
-        ],
-        'security': [
-            r'(?i)unauthorized|forbidden|invalid.?token|auth.?fail',
-            r'(?i)sql.?injection|xss|csrf',
-            r'(?i)brute.?force|too.?many.?requests|rate.?limit',
-        ],
-        'performance': [
-            r'(?i)timeout|slow.?query|high.?cpu|memory.?leak',
-            r'(?i)connection.?pool|deadlock',
-        ],
-        'api': [
-            r'(?i)api.?error|request.?failed|invalid.?response',
-            r'(?i)polygon|finnhub|external.?service',
-        ],
-        'database': [
-            r'(?i)database|sqlite|sqlalchemy|migration',
-            r'(?i)constraint|integrity|duplicate.?key',
-        ]
-    }
+    def __init__(self, log_dir: Optional[Path] = None):
+        self.log_dir = log_dir or Path("logs")
+        self.results: list[LogAnalysisResult] = []
 
-    # Error patterns with suggested fixes
-    ERROR_FIXES = {
-        r'ModuleNotFoundError: No module named \'(\w+)\'': {
-            'action': 'Install missing module',
-            'command': 'pip install {match}',
-            'auto_fix': True
-        },
-        r'ImportError: cannot import name \'(\w+)\'': {
-            'action': 'Check import path or circular imports',
-            'auto_fix': False
-        },
-        r'OperationalError.*database is locked': {
-            'action': 'Database connection pool exhausted',
-            'command': 'Restart application or increase pool size',
-            'auto_fix': False
-        },
-        r'ConnectionError|ConnectionRefusedError': {
-            'action': 'External service unavailable',
-            'auto_fix': False
-        },
-        r'MemoryError|Out of memory': {
-            'action': 'Memory limit exceeded - consider optimization',
-            'auto_fix': False
-        },
-        r'RateLimitExceeded|429': {
-            'action': 'API rate limit hit - implement backoff',
-            'auto_fix': False
+        # Log patterns to detect
+        self.patterns = {
+            'error': re.compile(r'\b(ERROR|CRITICAL|FATAL|Exception|Traceback)\b', re.IGNORECASE),
+            'warning': re.compile(r'\b(WARNING|WARN)\b', re.IGNORECASE),
+            'info': re.compile(r'\b(INFO)\b', re.IGNORECASE),
+            'debug': re.compile(r'\b(DEBUG)\b', re.IGNORECASE),
         }
-    }
 
-    def __init__(self):
-        self.project_root = Path(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-        self.log_paths = self._find_log_files()
-        self.patterns: Dict[str, LogPattern] = {}
-        self.alerts: List[LogAlert] = []
-        self.seen_errors: Set[str] = set()
-        self.error_counts: Dict[str, int] = defaultdict(int)
-        self.last_positions: Dict[str, int] = {}  # Track file read positions
-
-    def _find_log_files(self) -> List[Path]:
-        """Find all log files in the project."""
-        log_files = []
-
-        # Common log locations
-        log_dirs = [
-            self.project_root / 'logs',
-            self.project_root / 'log',
-            self.project_root / 'data' / 'logs',
-            Path('/var/log'),
+        # Common error patterns
+        self.error_patterns = [
+            (r'ConnectionError|ConnectionRefused|timeout', 'Connection Issues'),
+            (r'MemoryError|OutOfMemory|memory', 'Memory Issues'),
+            (r'PermissionError|Access denied|forbidden', 'Permission Issues'),
+            (r'FileNotFoundError|No such file', 'File Not Found'),
+            (r'ImportError|ModuleNotFoundError', 'Import Errors'),
+            (r'KeyError|IndexError|AttributeError', 'Data Access Errors'),
+            (r'ValueError|TypeError|InvalidArgument', 'Type/Value Errors'),
+            (r'DatabaseError|IntegrityError|OperationalError', 'Database Errors'),
+            (r'AuthenticationError|Unauthorized|401', 'Authentication Issues'),
+            (r'RateLimitError|429|Too many requests', 'Rate Limiting'),
         ]
 
-        for log_dir in log_dirs:
-            if log_dir.exists():
-                log_files.extend(log_dir.glob('*.log'))
-                log_files.extend(log_dir.glob('*.txt'))
-
-        # Also check for Flask/app logs
-        app_log = self.project_root / 'app.log'
-        if app_log.exists():
-            log_files.append(app_log)
-
-        return log_files
-
-    def parse_log_line(self, line: str, source: str = '') -> Optional[LogEntry]:
-        """
-        Parse a single log line.
-
-        Supports multiple formats:
-        - Standard Python logging: 2024-01-01 12:00:00,000 - module - LEVEL - message
-        - Flask/Werkzeug: 127.0.0.1 - - [01/Jan/2024 12:00:00] "GET / HTTP/1.1" 200
-        - Simple: [LEVEL] message
-        """
-        # Python logging format
-        match = re.match(
-            r'(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}(?:,\d{3})?)\s*-?\s*(\w+)?\s*-?\s*(DEBUG|INFO|WARNING|ERROR|CRITICAL)\s*-?\s*(.*)',
-            line
-        )
-        if match:
-            try:
-                ts_str = match.group(1).replace(',', '.')
-                timestamp = datetime.strptime(ts_str[:19], '%Y-%m-%d %H:%M:%S')
-            except ValueError:
-                timestamp = datetime.now()
-
-            return LogEntry(
-                timestamp=timestamp,
-                level=match.group(3),
-                message=match.group(4),
-                source=match.group(2) or source
-            )
-
-        # Flask/Werkzeug access log format
-        match = re.match(
-            r'([\d.]+)\s+-\s+-\s+\[([^\]]+)\]\s+"(\w+)\s+([^"]+)"\s+(\d+)',
-            line
-        )
-        if match:
-            status_code = int(match.group(5))
-            level = 'ERROR' if status_code >= 500 else 'WARNING' if status_code >= 400 else 'INFO'
-
-            return LogEntry(
-                timestamp=datetime.now(),
-                level=level,
-                message=f'{match.group(3)} {match.group(4)} -> {status_code}',
-                source='werkzeug',
-                extra={'ip': match.group(1), 'status': status_code}
-            )
-
-        # Simple format with level in brackets
-        match = re.match(r'\[?(DEBUG|INFO|WARNING|ERROR|CRITICAL)\]?\s*:?\s*(.*)', line, re.I)
-        if match:
-            return LogEntry(
-                timestamp=datetime.now(),
-                level=match.group(1).upper(),
-                message=match.group(2),
-                source=source
-            )
-
-        # If line looks like an error/traceback
-        if re.search(r'(?i)error|exception|traceback|failed', line):
-            return LogEntry(
-                timestamp=datetime.now(),
-                level='ERROR',
-                message=line.strip(),
-                source=source
-            )
-
-        return None
-
-    def analyze_file(self, log_path: Path, since: Optional[datetime] = None) -> List[LogEntry]:
-        """
-        Analyze a log file.
-
-        Args:
-            log_path: Path to the log file
-            since: Only analyze entries after this time
-
-        Returns:
-            List of LogEntry objects
-        """
-        entries = []
-
-        if not log_path.exists():
-            return entries
+    def analyze_file(self, file_path: Path) -> LogAnalysisResult:
+        """Analyze a single log file."""
+        result = LogAnalysisResult()
+        error_messages = []
+        warning_messages = []
+        timestamps = []
 
         try:
-            # Get last read position
-            start_pos = self.last_positions.get(str(log_path), 0)
+            content = file_path.read_text(encoding='utf-8', errors='ignore')
+            lines = content.split('\n')
+            result.total_entries = len(lines)
 
-            with open(log_path, 'r', encoding='utf-8', errors='ignore') as f:
-                f.seek(start_pos)
-                current_entry = None
-                traceback_lines = []
+            for i, line in enumerate(lines):
+                if not line.strip():
+                    continue
 
-                for line in f:
-                    # Check for traceback continuation
-                    if line.startswith('  ') or line.startswith('\t'):
-                        if current_entry:
-                            traceback_lines.append(line.rstrip())
-                        continue
+                # Detect log level
+                if self.patterns['error'].search(line):
+                    result.error_count += 1
+                    error_messages.append(line[:200])  # Truncate long lines
+                elif self.patterns['warning'].search(line):
+                    result.warning_count += 1
+                    warning_messages.append(line[:200])
 
-                    # Save previous entry
-                    if current_entry:
-                        if traceback_lines:
-                            current_entry.traceback = '\n'.join(traceback_lines)
-                            traceback_lines = []
-                        entries.append(current_entry)
+                # Extract timestamp if present
+                ts_match = re.search(r'\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}:\d{2}', line)
+                if ts_match:
+                    timestamps.append(ts_match.group())
 
-                    # Parse new line
-                    current_entry = self.parse_log_line(line.strip(), log_path.name)
+            # Categorize errors
+            error_categories = defaultdict(int)
+            for error in error_messages:
+                categorized = False
+                for pattern, category in self.error_patterns:
+                    if re.search(pattern, error, re.IGNORECASE):
+                        error_categories[category] += 1
+                        categorized = True
+                        break
+                if not categorized:
+                    error_categories['Other'] += 1
 
-                    # Filter by time if specified
-                    if current_entry and since:
-                        if current_entry.timestamp < since:
-                            current_entry = None
+            result.error_patterns = [
+                {'category': cat, 'count': count}
+                for cat, count in sorted(error_categories.items(), key=lambda x: -x[1])
+            ]
 
-                # Don't forget last entry
-                if current_entry:
-                    if traceback_lines:
-                        current_entry.traceback = '\n'.join(traceback_lines)
-                    entries.append(current_entry)
+            # Find top repeated errors
+            error_counter = Counter(error_messages)
+            result.top_errors = [
+                {'message': msg[:100], 'count': count}
+                for msg, count in error_counter.most_common(5)
+            ]
 
-                # Update position
-                self.last_positions[str(log_path)] = f.tell()
+            # Detect anomalies
+            result.anomalies = self._detect_anomalies(timestamps, error_messages)
+
+            # Generate recommendations
+            result.recommendations = self._generate_recommendations(result)
 
         except Exception as e:
-            logger.error(f"Error reading log file {log_path}: {e}")
+            logger.error(f"Error analyzing {file_path}: {e}")
 
-        return entries
+        return result
 
-    def detect_patterns(self, entries: List[LogEntry]) -> List[LogPattern]:
-        """
-        Detect patterns in log entries.
+    def _detect_anomalies(self, timestamps: list, errors: list) -> list:
+        """Detect anomalies in logs."""
+        anomalies = []
 
-        Args:
-            entries: List of log entries to analyze
+        # Check for error bursts
+        if len(errors) > 10:
+            anomalies.append({
+                'type': 'error_burst',
+                'severity': 'high',
+                'message': f'High error rate detected: {len(errors)} errors'
+            })
 
-        Returns:
-            List of detected patterns
-        """
-        pattern_counts: Dict[str, Dict] = defaultdict(lambda: {
-            'count': 0,
-            'first_seen': None,
-            'last_seen': None,
-            'examples': []
-        })
+        # Check for repeated errors
+        error_counter = Counter(errors)
+        for error, count in error_counter.items():
+            if count > 5:
+                anomalies.append({
+                    'type': 'repeated_error',
+                    'severity': 'medium',
+                    'message': f'Error repeated {count} times: {error[:50]}...'
+                })
+                break  # Only report first repeated error
 
-        for entry in entries:
-            # Skip non-error entries for pattern detection
-            if entry.level not in ('WARNING', 'ERROR', 'CRITICAL'):
-                continue
+        return anomalies
 
-            # Normalize message for pattern matching
-            normalized = self._normalize_message(entry.message)
+    def _generate_recommendations(self, result: LogAnalysisResult) -> list:
+        """Generate recommendations based on analysis."""
+        recommendations = []
 
-            # Categorize
-            category = self._categorize_entry(entry)
+        if result.error_count > 100:
+            recommendations.append({
+                'priority': 'high',
+                'message': 'High error volume - investigate root cause immediately'
+            })
 
-            # Update pattern stats
-            pattern_key = f"{category}:{normalized}"
-            pattern_data = pattern_counts[pattern_key]
-            pattern_data['count'] += 1
-            pattern_data['category'] = category
-            pattern_data['severity'] = entry.level
+        for pattern in result.error_patterns:
+            if pattern['category'] == 'Connection Issues' and pattern['count'] > 5:
+                recommendations.append({
+                    'priority': 'high',
+                    'message': 'Multiple connection errors - check network/service availability'
+                })
+            elif pattern['category'] == 'Memory Issues':
+                recommendations.append({
+                    'priority': 'critical',
+                    'message': 'Memory issues detected - review memory usage and leaks'
+                })
+            elif pattern['category'] == 'Database Errors':
+                recommendations.append({
+                    'priority': 'high',
+                    'message': 'Database errors found - check DB connection and queries'
+                })
+            elif pattern['category'] == 'Rate Limiting':
+                recommendations.append({
+                    'priority': 'medium',
+                    'message': 'Rate limiting detected - implement backoff strategy'
+                })
 
-            if pattern_data['first_seen'] is None:
-                pattern_data['first_seen'] = entry.timestamp
-            pattern_data['last_seen'] = entry.timestamp
+        return recommendations
 
-            if len(pattern_data['examples']) < 3:
-                pattern_data['examples'].append(entry.message)
+    def analyze_all(self) -> dict:
+        """Analyze all log files in directory."""
+        if not self.log_dir.exists():
+            return {'status': 'no_logs', 'message': 'Log directory not found'}
 
-        # Convert to LogPattern objects
-        patterns = []
-        for pattern_key, data in pattern_counts.items():
-            if data['count'] >= 2:  # Only patterns that repeat
-                patterns.append(LogPattern(
-                    pattern=pattern_key.split(':', 1)[1],
-                    count=data['count'],
-                    first_seen=data['first_seen'],
-                    last_seen=data['last_seen'],
-                    severity=data['severity'],
-                    category=data['category'],
-                    examples=data['examples']
-                ))
+        log_files = list(self.log_dir.glob("*.log")) + list(self.log_dir.glob("*.txt"))
 
-        return sorted(patterns, key=lambda p: p.count, reverse=True)
+        if not log_files:
+            return {'status': 'no_logs', 'message': 'No log files found'}
 
-    def _normalize_message(self, message: str) -> str:
-        """Normalize a log message for pattern matching."""
-        # Remove variable parts
-        normalized = re.sub(r'\d+', '<NUM>', message)
-        normalized = re.sub(r'0x[0-9a-fA-F]+', '<HEX>', normalized)
-        normalized = re.sub(r'[a-fA-F0-9]{8,}', '<HASH>', normalized)
-        normalized = re.sub(r'/[^\s]+', '<PATH>', normalized)
-        normalized = re.sub(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', '<EMAIL>', normalized)
+        total_errors = 0
+        total_warnings = 0
+        all_patterns = defaultdict(int)
+        all_recommendations = []
 
-        # Truncate
-        return normalized[:100] if len(normalized) > 100 else normalized
+        for log_file in log_files[:10]:  # Limit to 10 files
+            result = self.analyze_file(log_file)
+            self.results.append(result)
+            total_errors += result.error_count
+            total_warnings += result.warning_count
 
-    def _categorize_entry(self, entry: LogEntry) -> str:
-        """Categorize a log entry."""
-        message = entry.message.lower()
+            for pattern in result.error_patterns:
+                all_patterns[pattern['category']] += pattern['count']
 
-        for category, patterns in self.LOG_PATTERNS.items():
-            for pattern in patterns:
-                if re.search(pattern, message, re.I):
-                    return category
-
-        return 'general'
-
-    def generate_alerts(self, entries: List[LogEntry], patterns: List[LogPattern]) -> List[LogAlert]:
-        """
-        Generate alerts from log analysis.
-
-        Args:
-            entries: Log entries
-            patterns: Detected patterns
-
-        Returns:
-            List of alerts
-        """
-        alerts = []
-        alert_counter = 0
-
-        # Alert for critical errors
-        critical_count = sum(1 for e in entries if e.level == 'CRITICAL')
-        if critical_count > 0:
-            alert_counter += 1
-            alerts.append(LogAlert(
-                id=f'ALERT-{alert_counter:04d}',
-                timestamp=datetime.now(),
-                severity='critical',
-                title=f'{critical_count} Critical Errors Detected',
-                message='Critical errors require immediate attention',
-                count=critical_count,
-                suggested_action='Review critical errors and fix immediately'
-            ))
-
-        # Alert for high-frequency patterns
-        for pattern in patterns:
-            if pattern.count >= 10:
-                alert_counter += 1
-                alerts.append(LogAlert(
-                    id=f'ALERT-{alert_counter:04d}',
-                    timestamp=datetime.now(),
-                    severity='warning' if pattern.severity == 'WARNING' else 'error',
-                    title=f'Recurring {pattern.category.title()} Issue',
-                    message=f'Pattern "{pattern.pattern[:50]}..." occurred {pattern.count} times',
-                    pattern=pattern.pattern,
-                    count=pattern.count,
-                    suggested_action=self._get_fix_suggestion(pattern.examples[0] if pattern.examples else '')
-                ))
-
-        # Alert for specific error patterns
-        for entry in entries:
-            if entry.level in ('ERROR', 'CRITICAL'):
-                for pattern, fix_info in self.ERROR_FIXES.items():
-                    match = re.search(pattern, entry.message)
-                    if match:
-                        # Avoid duplicate alerts
-                        error_key = f"{pattern}:{match.group(0)}"
-                        if error_key not in self.seen_errors:
-                            self.seen_errors.add(error_key)
-                            alert_counter += 1
-
-                            action = fix_info['action']
-                            if 'command' in fix_info and match.groups():
-                                action += f"\nCommand: {fix_info['command'].format(match=match.group(1))}"
-
-                            alerts.append(LogAlert(
-                                id=f'ALERT-{alert_counter:04d}',
-                                timestamp=datetime.now(),
-                                severity='error',
-                                title=f'{entry.level}: {match.group(0)[:50]}',
-                                message=entry.message[:200],
-                                suggested_action=action,
-                                auto_fixable=fix_info.get('auto_fix', False)
-                            ))
-
-        return alerts
-
-    def _get_fix_suggestion(self, message: str) -> Optional[str]:
-        """Get fix suggestion for a message."""
-        for pattern, fix_info in self.ERROR_FIXES.items():
-            if re.search(pattern, message):
-                return fix_info['action']
-        return None
-
-    async def analyze_all(self, since_hours: int = 24) -> Dict[str, Any]:
-        """
-        Analyze all log files.
-
-        Args:
-            since_hours: Only analyze logs from the last N hours
-
-        Returns:
-            Analysis results
-        """
-        since = datetime.now() - timedelta(hours=since_hours)
-        all_entries = []
-
-        # Analyze each log file
-        for log_path in self.log_paths:
-            entries = self.analyze_file(log_path, since)
-            all_entries.extend(entries)
-
-        # Detect patterns
-        patterns = self.detect_patterns(all_entries)
-
-        # Generate alerts
-        alerts = self.generate_alerts(all_entries, patterns)
-
-        # Store for later
-        self.patterns = {p.pattern: p for p in patterns}
-        self.alerts = alerts
-
-        # Summary stats
-        level_counts = defaultdict(int)
-        category_counts = defaultdict(int)
-
-        for entry in all_entries:
-            level_counts[entry.level] += 1
-            category_counts[self._categorize_entry(entry)] += 1
+            all_recommendations.extend(result.recommendations)
 
         return {
-            'total_entries': len(all_entries),
-            'time_range': {
-                'start': since.isoformat(),
-                'end': datetime.now().isoformat(),
-                'hours': since_hours
-            },
-            'by_level': dict(level_counts),
-            'by_category': dict(category_counts),
-            'patterns': [
-                {
-                    'pattern': p.pattern,
-                    'count': p.count,
-                    'category': p.category,
-                    'severity': p.severity
-                }
-                for p in patterns[:10]  # Top 10 patterns
-            ],
-            'alerts': [
-                {
-                    'id': a.id,
-                    'severity': a.severity,
-                    'title': a.title,
-                    'message': a.message,
-                    'count': a.count,
-                    'auto_fixable': a.auto_fixable
-                }
-                for a in alerts
-            ],
-            'log_files': [str(p) for p in self.log_paths],
-            'health_score': self._calculate_health_score(all_entries, alerts)
+            'status': 'ok',
+            'files_analyzed': len(log_files),
+            'total_errors': total_errors,
+            'total_warnings': total_warnings,
+            'error_patterns': dict(all_patterns),
+            'recommendations': all_recommendations[:10]  # Top 10
         }
 
-    def _calculate_health_score(self, entries: List[LogEntry], alerts: List[LogAlert]) -> int:
-        """Calculate log health score (0-100)."""
-        if not entries:
-            return 100
+    def generate_report(self, output_path: Optional[Path] = None) -> str:
+        """Generate log analysis report."""
+        output = output_path or Path("reports/log_analysis.md")
+        output.parent.mkdir(parents=True, exist_ok=True)
 
-        score = 100
+        analysis = self.analyze_all()
 
-        # Deduct for errors
-        error_count = sum(1 for e in entries if e.level in ('ERROR', 'CRITICAL'))
-        error_ratio = error_count / len(entries)
-        score -= min(40, int(error_ratio * 200))
+        report = """# 📋 Log Analysis Report
 
-        # Deduct for critical alerts
-        critical_alerts = sum(1 for a in alerts if a.severity == 'critical')
-        score -= min(30, critical_alerts * 10)
+Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 
-        # Deduct for high-frequency patterns
-        high_freq_patterns = sum(1 for p in self.patterns.values() if p.count > 20)
-        score -= min(20, high_freq_patterns * 5)
+## Summary
 
-        return max(0, score)
+| Metric | Value |
+|--------|-------|
+| Files Analyzed | {analysis.get('files_analyzed', 0)} |
+| Total Errors | {analysis.get('total_errors', 0)} |
+| Total Warnings | {analysis.get('total_warnings', 0)} |
 
-    def get_recent_errors(self, limit: int = 20) -> List[Dict]:
-        """Get recent errors from logs."""
-        errors = []
+## Error Categories
 
-        for log_path in self.log_paths:
-            entries = self.analyze_file(log_path)
-            for entry in entries:
-                if entry.level in ('ERROR', 'CRITICAL'):
-                    errors.append({
-                        'timestamp': entry.timestamp.isoformat(),
-                        'level': entry.level,
-                        'message': entry.message,
-                        'source': entry.source,
-                        'traceback': entry.traceback
-                    })
+"""
+        patterns = analysis.get('error_patterns', {})
+        for category, count in sorted(patterns.items(), key=lambda x: -x[1]):
+            report += f"- **{category}**: {count} occurrences\n"
 
-        return sorted(errors, key=lambda x: x['timestamp'], reverse=True)[:limit]
+        report += "\n## Recommendations\n\n"
+        for rec in analysis.get('recommendations', []):
+            priority_icon = "🔴" if rec['priority'] == 'critical' else "🟠" if rec['priority'] == 'high' else "🟡"
+            report += f"- {priority_icon} {rec['message']}\n"
 
-    def watch_logs(self, callback):
-        """
-        Watch logs for new entries (blocking).
+        if not analysis.get('recommendations'):
+            report += "- ✅ No critical issues found in logs\n"
 
-        Args:
-            callback: Function to call with new LogEntry objects
-        """
-        import time
+        report += "\n---\n*Report generated by Log Analyzer*\n"
 
-        while True:
-            for log_path in self.log_paths:
-                entries = self.analyze_file(log_path)
-                for entry in entries:
-                    if entry.level in ('WARNING', 'ERROR', 'CRITICAL'):
-                        callback(entry)
-
-            time.sleep(5)
+        output.write_text(report, encoding='utf-8')
+        return str(output)
 
 
 # Singleton instance
-_analyzer_instance: Optional[LogAnalyzer] = None
+_analyzer: Optional[LogAnalyzer] = None
 
-
-def get_log_analyzer() -> LogAnalyzer:
-    """Get the log analyzer singleton."""
-    global _analyzer_instance
-    if _analyzer_instance is None:
-        _analyzer_instance = LogAnalyzer()
-    return _analyzer_instance
-
-
+def get_log_analyzer(log_dir: Optional[Path] = None) -> LogAnalyzer:
+    """Get or create log analyzer instance."""
+    global _analyzer
+    if _analyzer is None:
+        _analyzer = LogAnalyzer(log_dir)
+    return _analyzer

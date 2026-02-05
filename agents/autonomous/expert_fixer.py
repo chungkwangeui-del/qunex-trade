@@ -250,7 +250,7 @@ class ExpertFixer:
         """
         Fix comparison to None using == instead of is.
 
-        Before: if x == None:
+        Before: if x is None:
         After:  if x is None:
         """
         count = 0
@@ -277,7 +277,7 @@ class ExpertFixer:
         """
         Fix comparison to True/False using == instead of is.
 
-        Before: if x == True:
+        Before: if x:
         After:  if x is True:
 
         Or better: if x:
@@ -340,7 +340,7 @@ class ExpertFixer:
         """
         Fix f-strings that don't have any placeholders.
 
-        Before: f"hello world"
+        Before: "hello world"
         After:  "hello world"
         """
         count = 0
@@ -444,7 +444,7 @@ class ExpertFixer:
         medium = [r for r in self.manual_review if r.severity == 'medium']
         low = [r for r in self.manual_review if r.severity == 'low']
 
-        report = f"""# 🔒 Security & Code Review Report
+        report = """# 🔒 Security & Code Review Report
 
 Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 
@@ -521,12 +521,12 @@ subprocess.run(['rm', filename], check=True)
 """
 
         report_path.write_text(report, encoding='utf-8')
-        print(f"     📝 Report saved: reports/security_review.md")
+        print("     📝 Report saved: reports/security_review.md")
 
     def _format_issue(self, issue: IssueReport) -> str:
         """Format a single issue for the report."""
         rel_path = issue.file_path.replace(str(self.project_root), '').lstrip('/\\')
-        return f"""### {issue.issue_type.replace('_', ' ').title()}
+        return """### {issue.issue_type.replace('_', ' ').title()}
 
 **File:** `{rel_path}` (line {issue.line_number})
 

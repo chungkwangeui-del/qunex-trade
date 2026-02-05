@@ -349,7 +349,7 @@ class HealthAgent(BaseAgent):
             return AgentResult(
                 success=True,
                 status=AgentStatus.WARNING,
-                message=f"Some optional services have issues",
+                message="Some optional services have issues",
                 warnings=warnings,
                 data={"healthy": services}
             )

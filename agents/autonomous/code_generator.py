@@ -697,7 +697,7 @@ class Test{class_name}:
 
             # Form field
             input_type = self._get_input_type(field_type)
-            form_fields.append(f'''
+            form_fields.append('''
                 <div class="form-group">
                     <label for="{field_name}">{field_name.replace("_", " ").title()}</label>
                     <input type="{input_type}" name="{field_name}" id="{field_name}" {"required" if required else ""}>
@@ -825,7 +825,7 @@ class Test{class_name}:
         if response_fields:
             response_fields_code = ", ".join([f'"{f["name"]}": None' for f in response_fields])
 
-        code = f'''
+        code = '''
 @bp.route("/api/{path}", methods=["{method}"])
 @login_required
 def api_{function_name}():

@@ -283,7 +283,7 @@ def test_{function_name}():
                 continue
 
             # Generate basic test file
-            test_content = f'''"""
+            test_content = '''"""
 Tests for {module_name}
 """
 
@@ -489,7 +489,7 @@ class Test{module_name.title().replace("_", "")}:
             for p in params
         ])
 
-        code = f'''def {name}({param_str}) -> {return_type}:
+        code = '''def {name}({param_str}) -> {return_type}:
     """
     {description}
 
@@ -510,7 +510,7 @@ class Test{module_name.title().replace("_", "")}:
             code += '        result = {}\n'
             code += '        # TODO: Implement business logic\n'
 
-        code += f'''        return result
+        code += '''        return result
 
     except Exception as e:
         logger.error(f"{name} error: {{e}}")
@@ -529,12 +529,12 @@ class Test{module_name.title().replace("_", "")}:
         """Generate a Flask API route."""
         function_name = path.replace("/", "_").replace("-", "_").strip("_")
 
-        code = f'''@bp.route("/api/{path}", methods=["{method}"])
+        code = '''@bp.route("/api/{path}", methods=["{method}"])
 '''
         if requires_auth:
             code += '@login_required\n'
 
-        code += f'''def api_{function_name}():
+        code += '''def api_{function_name}():
     """
     {description}
 
@@ -608,7 +608,7 @@ class Test{module_name.title().replace("_", "")}:
             column_code.append(f'    {col_def}')
             to_dict_fields.append(f'            "{col_name}": self.{col_name},')
 
-        code = f'''class {name}(db.Model):
+        code = '''class {name}(db.Model):
     """
     {description or f'{name} model'}
     """
@@ -643,7 +643,7 @@ class Test{module_name.title().replace("_", "")}:
 
         test_methods = []
         for func_name in functions_to_test:
-            test_methods.append(f'''
+            test_methods.append('''
     def test_{func_name}_success(self):
         """Test {func_name} with valid input."""
         # Arrange
@@ -665,7 +665,7 @@ class Test{module_name.title().replace("_", "")}:
         # TODO: Test error handling
         pass''')
 
-        code = f'''"""
+        code = '''"""
 Tests for {module_name}
 """
 

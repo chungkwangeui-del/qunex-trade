@@ -412,7 +412,7 @@ def get_api_status():
                 else:
                     status["polygon"] = {"connected": True, "message": f"PARTIAL: API responds but no price data (key: {_mask_key(polygon_key)})", "label": "Polygon.io (Stocks)", "env_var": "POLYGON_API_KEY"}
             else:
-                status["polygon"] = {"connected": False, "message": f"NO_DATA: Key works but no AAPL data returned", "label": "Polygon.io (Stocks)", "env_var": "POLYGON_API_KEY"}
+                status["polygon"] = {"connected": False, "message": "NO_DATA: Key works but no AAPL data returned", "label": "Polygon.io (Stocks)", "env_var": "POLYGON_API_KEY"}
         except Exception as e:
             error_msg = str(e)
             if "401" in error_msg or "403" in error_msg or "unauthorized" in error_msg.lower():
@@ -463,7 +463,7 @@ def get_api_status():
         try:
             # Test with a common stock to verify API works
             resp = requests.get(
-                f"https://financialmodelingprep.com/api/v3/quote/AAPL",
+                "https://financialmodelingprep.com/api/v3/quote/AAPL",
                 params={"apikey": fmp_key},
                 timeout=10
             )
@@ -489,9 +489,9 @@ def get_api_status():
             elif resp.status_code == 401:
                 status["fmp"] = {"connected": False, "message": f"AUTH_ERROR: Key {_mask_key(fmp_key)} invalid (401)", "label": "FMP (Real-time Data)", "env_var": "FMP_API_KEY"}
             elif resp.status_code == 403:
-                status["fmp"] = {"connected": False, "message": f"LIMIT: Daily limit exceeded or key restricted (403)", "label": "FMP (Real-time Data)", "env_var": "FMP_API_KEY"}
+                status["fmp"] = {"connected": False, "message": "LIMIT: Daily limit exceeded or key restricted (403)", "label": "FMP (Real-time Data)", "env_var": "FMP_API_KEY"}
             elif resp.status_code == 429:
-                status["fmp"] = {"connected": True, "message": f"RATE_LIMIT: API working but rate limited", "label": "FMP (Real-time Data)", "env_var": "FMP_API_KEY"}
+                status["fmp"] = {"connected": True, "message": "RATE_LIMIT: API working but rate limited", "label": "FMP (Real-time Data)", "env_var": "FMP_API_KEY"}
             else:
                 status["fmp"] = {"connected": False, "message": f"HTTP_{resp.status_code}: Unexpected response", "label": "FMP (Real-time Data)", "env_var": "FMP_API_KEY"}
         except requests.exceptions.Timeout:
@@ -770,7 +770,7 @@ def test_ticker_data():
     if twelvedata_key:
         try:
             resp = requests.get(
-                f"https://api.twelvedata.com/quote",
+                "https://api.twelvedata.com/quote",
                 params={"symbol": ticker, "apikey": twelvedata_key},
                 timeout=10
             )
@@ -819,7 +819,7 @@ def test_ticker_data():
     if finnhub_key:
         try:
             resp = requests.get(
-                f"https://finnhub.io/api/v1/quote",
+                "https://finnhub.io/api/v1/quote",
                 params={"symbol": ticker, "token": finnhub_key},
                 timeout=5
             )

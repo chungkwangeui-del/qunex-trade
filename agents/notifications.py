@@ -228,7 +228,7 @@ async def email_handler(notification: AgentNotification) -> None:
             msg = Message(
                 subject=f"[ALERT] {notification.title}",
                 recipients=["admin@example.com"],  # Configure this
-                body=f"""
+                body="""
 Agent Alert
 ===========
 

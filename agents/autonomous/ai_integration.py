@@ -89,7 +89,7 @@ class AIIntegration:
         Returns:
             AIResponse with analysis
         """
-        prompt = f"""Analyze this Python code and identify:
+        prompt = """Analyze this Python code and identify:
 1. Bugs or errors
 2. Security vulnerabilities
 3. Performance issues
@@ -118,7 +118,7 @@ Provide a structured analysis with specific line numbers and fixes."""
         Returns:
             CodeFix with the suggested fix
         """
-        prompt = f"""Fix this Python code issue:
+        prompt = """Fix this Python code issue:
 
 Issue: {issue}
 
@@ -181,7 +181,7 @@ Format your response as JSON:
         Returns:
             Human-readable explanation
         """
-        prompt = f"""Explain this Python error in simple terms that a developer can understand:
+        prompt = """Explain this Python error in simple terms that a developer can understand:
 
 Error:
 {error}
@@ -210,7 +210,7 @@ Provide:
         """
         context_str = ""
         if context:
-            context_str = f"""
+            context_str = """
 Project Context:
 - Models: {', '.join(context.get('models', []))}
 - Services: {', '.join(context.get('services', []))}
@@ -218,7 +218,7 @@ Project Context:
 - Database: SQLite with SQLAlchemy
 """
 
-        prompt = f"""Generate Python code for this feature:
+        prompt = """Generate Python code for this feature:
 
 {description}
 
@@ -261,7 +261,7 @@ Format your response as JSON:
         Returns:
             Test code as string
         """
-        prompt = f"""Generate comprehensive unit tests for this Python code:
+        prompt = """Generate comprehensive unit tests for this Python code:
 
 File: {file_path}
 
@@ -291,7 +291,7 @@ Return only the test code, no explanations."""
         Returns:
             List of improvement suggestions
         """
-        prompt = f"""Suggest improvements for this Python code:
+        prompt = """Suggest improvements for this Python code:
 
 ```python
 {code}

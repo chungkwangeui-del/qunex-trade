@@ -46,7 +46,7 @@ from agents.autonomous.test_runner import TestRunnerAgent, TestResult, TestRepor
 # New Feature Agents
 from agents.autonomous.ai_integration import AIIntegration, AIResponse, CodeFix, get_ai
 from agents.autonomous.deployer import DeployerAgent, DeploymentResult, DeploymentPlan, get_deployer
-from agents.autonomous.log_analyzer import LogAnalyzer, LogEntry, LogPattern, LogAlert, get_log_analyzer
+from agents.autonomous.log_analyzer import LogAnalyzer, LogEntry, LogAnalysisResult, get_log_analyzer
 from agents.autonomous.statistics import StatisticsAgent, AgentStats, DailyStats, Report, get_statistics
 
 # Ultimate Bot - Supreme Controller
@@ -65,6 +65,18 @@ from agents.autonomous.advanced_systems import (
     EmergencyAlertSystem, get_alert_system, AlertLevel,
     AutoTestGenerator, get_test_generator
 )
+
+# Enhanced Systems (NEW!)
+from agents.autonomous.ai_reviewer import AICodeReviewer, get_reviewer
+from agents.autonomous.trend_analyzer import TrendAnalyzer, get_trend_analyzer, DailyMetrics
+from agents.autonomous.dependency_scanner import DependencyScanner, get_dependency_scanner
+from agents.autonomous.backup_manager import BackupManager, get_backup_manager
+from agents.autonomous.resource_monitor import ResourceMonitor, get_resource_monitor
+from agents.autonomous.api_health import APIHealthChecker, get_api_health_checker
+from agents.autonomous.notifier import Notifier, get_notifier, Notification
+from agents.autonomous.test_fixer import TestFixer, get_test_fixer
+from agents.autonomous.performance_optimizer import PerformanceOptimizer, get_performance_optimizer
+from agents.autonomous.dashboard import Dashboard, get_dashboard
 
 __all__ = [
     # Core Agents
@@ -97,8 +109,7 @@ __all__ = [
     # Log Analysis
     "LogAnalyzer",
     "LogEntry",
-    "LogPattern",
-    "LogAlert",
+    "LogAnalysisResult",
     "get_log_analyzer",
 
     # Statistics
@@ -165,4 +176,28 @@ __all__ = [
     "ExpertFixer",
     "FixResult",
     "IssueReport",
+
+    # Enhanced Systems (NEW!)
+    "AICodeReviewer",
+    "get_reviewer",
+    "TrendAnalyzer",
+    "get_trend_analyzer",
+    "DailyMetrics",
+    "DependencyScanner",
+    "get_dependency_scanner",
+    "BackupManager",
+    "get_backup_manager",
+    "ResourceMonitor",
+    "get_resource_monitor",
+    "APIHealthChecker",
+    "get_api_health_checker",
+    "Notifier",
+    "get_notifier",
+    "Notification",
+    "TestFixer",
+    "get_test_fixer",
+    "PerformanceOptimizer",
+    "get_performance_optimizer",
+    "Dashboard",
+    "get_dashboard",
 ]

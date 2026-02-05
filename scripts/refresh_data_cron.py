@@ -255,7 +255,7 @@ def refresh_calendar_data():
             from_date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
             to_date = (datetime.now(timezone.utc) + timedelta(days=30)).strftime("%Y-%m-%d")
 
-            url = f"https://finnhub.io/api/v1/calendar/economic"
+            url = "https://finnhub.io/api/v1/calendar/economic"
             params = {"token": api_key, "from": from_date, "to": to_date}
 
             logger.info(f"Fetching calendar events from {from_date} to {to_date}")

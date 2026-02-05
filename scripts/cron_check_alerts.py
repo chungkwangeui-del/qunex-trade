@@ -160,7 +160,7 @@ def check_price_alerts():
                                     msg = Message(
                                         subject=f"Price Alert: {ticker}",
                                         recipients=[user.email],
-                                        body=f"""
+                                        body="""
 Your price alert for {ticker} has been triggered!
 
 Alert Condition: {alert.condition.upper()} ${alert.threshold}

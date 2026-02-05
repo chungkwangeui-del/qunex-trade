@@ -554,7 +554,7 @@ def send_verification_code():
         from web.extensions import mail
 
         msg = Message("Email Verification Code - Qunex Trade", recipients=[email])
-        msg.body = f"""Welcome to Qunex Trade!
+        msg.body = """Welcome to Qunex Trade!
 
 Your verification code is: {code}
 
@@ -565,7 +565,7 @@ If you didn't request this code, please ignore this email.
 Best regards,
 Qunex Trade Team
 """
-        msg.html = f"""
+        msg.html = """
 <!DOCTYPE html>
 <html>
 <head>
@@ -761,7 +761,7 @@ def forgot_password():
                 reset_url = url_for("auth.reset_password", token=token, _external=True)
 
                 msg = Message("Password Reset Request - Qunex Trade", recipients=[user.email])
-                msg.body = f"""Hello {user.username},
+                msg.body = """Hello {user.username},
 
 You requested a password reset for your Qunex Trade account.
 
@@ -773,7 +773,7 @@ If you didn't request this, please ignore this email. Your password will remain 
 Best regards,
 Qunex Trade Team
 """
-                msg.html = f"""
+                msg.html = """
 <html>
 <body style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto;">
     <div style="background: linear-gradient(135deg, #00f5ff 0%, #7c3aed 100%); padding: 30px; text-align: center;">

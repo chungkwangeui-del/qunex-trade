@@ -452,7 +452,7 @@ def escalate_missing_api_key(api_name: str, source_agent: str) -> Escalation:
         priority=EscalationPriority.HIGH,
         source_agent=source_agent,
         affected_files=[".env"],
-        why_not_auto=f"API keys contain sensitive credentials that only you can provide. "
+        why_not_auto="API keys contain sensitive credentials that only you can provide. "
                      f"Visit {api_info.get('url', 'the provider')} to get your key.",
         manual_steps=api_info.get("steps", []),
     )
@@ -526,7 +526,7 @@ def escalate_complex_refactor(
     ]
 
     return manager.create_escalation(
-        title=f"Complex Refactoring Needed",
+        title="Complex Refactoring Needed",
         description=description,
         reason=EscalationReason.COMPLEX_REFACTOR,
         priority=EscalationPriority.MEDIUM,
@@ -554,7 +554,7 @@ def escalate_architecture_decision(
     ]
 
     return manager.create_escalation(
-        title=f"Architecture Decision Required",
+        title="Architecture Decision Required",
         description=question,
         reason=EscalationReason.REQUIRES_DECISION,
         priority=EscalationPriority.MEDIUM,

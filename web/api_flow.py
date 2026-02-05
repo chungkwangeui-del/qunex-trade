@@ -46,7 +46,7 @@ class OptionsFlowAnalyzer:
             today = datetime.now()
 
             # Get options contracts
-            url = f"https://api.polygon.io/v3/reference/options/contracts"
+            url = "https://api.polygon.io/v3/reference/options/contracts"
             params = {
                 "underlying_ticker": ticker.upper(),
                 "expired": "false",

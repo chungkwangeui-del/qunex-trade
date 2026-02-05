@@ -250,7 +250,7 @@ class NewsCollector:
             List of news items sorted by published time (most recent first)
         """
         logger.info("=" * 60)
-        logger.info(f"[NEWS COLLECTOR] Starting Polygon news collection")
+        logger.info("[NEWS COLLECTOR] Starting Polygon news collection")
         logger.info("=" * 60)
 
         # Collect from Polygon.io with quality filtering

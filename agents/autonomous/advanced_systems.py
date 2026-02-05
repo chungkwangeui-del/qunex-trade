@@ -404,7 +404,7 @@ class AutoTestGenerator:
         """Generate a basic test for a function."""
         module_path = file_path.replace('/', '.').replace('\\', '.').replace('.py', '')
 
-        test_code = f'''"""Auto-generated test for {function_name}"""
+        test_code = '''"""Auto-generated test for {function_name}"""
 import pytest
 from {module_path} import {function_name}
 
@@ -446,7 +446,7 @@ class Test{function_name.title().replace('_', '')}:
 
         imports = f"from {module_path} import {', '.join(functions)}"
 
-        test_content = f'''"""Auto-generated tests for {source_file}"""
+        test_content = '''"""Auto-generated tests for {source_file}"""
 import pytest
 {imports}
 
@@ -454,7 +454,7 @@ import pytest
 '''
 
         for func in functions:
-            test_content += f'''
+            test_content += '''
 class Test{func.title().replace('_', '')}:
     """Tests for {func}"""
 
@@ -692,7 +692,7 @@ class CompetitionSystem:
 
         if daily_leader and daily_leader.daily_points > 0:
             daily_leader.points += self.points['most_tasks_day']
-            self._award_achievement(daily_leader, f"Daily Champion 🏆")
+            self._award_achievement(daily_leader, "Daily Champion 🏆")
 
         # Reset daily points
         for score in self.scores.values():

@@ -55,7 +55,7 @@ def print_welcome():
     """Print welcome screen."""
     os.system('cls' if os.name == 'nt' else 'clear')
 
-    print(f"""
+    print("""
 {c('╔' + '═' * 70 + '╗', Colors.CYAN)}
 {c('║', Colors.CYAN)}                                                                      {c('║', Colors.CYAN)}
 {c('║', Colors.CYAN)}   {c('🤖👑 ULTIMATE BOT', Colors.GOLD + Colors.BOLD)}                                                  {c('║', Colors.CYAN)}
@@ -90,7 +90,7 @@ def print_welcome():
 
 def print_starting():
     """Print starting message."""
-    print(f"""
+    print("""
 {c('  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', Colors.GOLD)}
 
 {c('  🚀 Starting Ultimate Bot...', Colors.GREEN + Colors.BOLD)}
@@ -134,7 +134,7 @@ def main():
     """
     # Check for help
     if len(sys.argv) > 1 and sys.argv[1] in ['--help', '-h', 'help']:
-        print(f"""
+        print("""
 {c('🤖👑 ULTIMATE BOT - Autonomous Agent System', Colors.GOLD + Colors.BOLD)}
 
 {c('Usage:', Colors.WHITE)}

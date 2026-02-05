@@ -167,7 +167,7 @@ IMPORTANT CRITERIA - REAL EVENTS ONLY:
 Respond ONLY with valid JSON, no additional text."""
 
         # User prompt
-        user_prompt = f"""NEWS:
+        user_prompt = """NEWS:
 Title: {title}
 
 Description: {description}

@@ -247,7 +247,7 @@ FORMAT:
 - Include specific numbers from the provided data
 - End with a relevant follow-up question or suggestion"""
 
-            full_prompt = f"""{system_prompt}
+            full_prompt = """{system_prompt}
 
 {context if context else "No specific stock data available for this query."}
 

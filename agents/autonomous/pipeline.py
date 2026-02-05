@@ -403,7 +403,7 @@ async def main():
         print(f"  Running: {status['running']}")
         print(f"  Cycles completed: {status['cycle_count']}")
         print(f"  Last cycle: {status['last_cycle'] or 'Never'}")
-        print(f"\n  Queue:")
+        print("\n  Queue:")
         print(f"    Pending: {status['queue']['pending']}")
         print(f"    In Progress: {status['queue']['in_progress']}")
         print(f"    Completed: {status['queue']['completed']}")

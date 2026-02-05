@@ -529,7 +529,7 @@ class VolumeProfileAnalyzer:
                 "price": node["price"],
                 "strength": node["strength"],
                 "type": "HVN",
-                "label": f"High Volume Node (거래량 집중 구간)",
+                "label": "High Volume Node (거래량 집중 구간)",
             }
             if node["price"] < current_price:
                 supports.append(level)

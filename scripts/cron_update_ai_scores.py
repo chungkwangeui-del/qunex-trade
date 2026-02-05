@@ -102,7 +102,7 @@ def update_ai_scores():
 
             if oldest_stocks:
                 tickers = [stock.ticker for stock in oldest_stocks]
-                logger.info(f"Rate limiting: Updating 20 oldest stocks from AIScore table")
+                logger.info("Rate limiting: Updating 20 oldest stocks from AIScore table")
             else:
                 # First run - get stocks from watchlists
                 watchlist_tickers = db.session.query(Watchlist.ticker).distinct().limit(20).all()
@@ -148,7 +148,7 @@ def update_ai_scores():
             for i, ticker in enumerate(tickers):
                 # RATE LIMITING: 15-second delay between API calls to stay within 4 calls/minute
                 if i > 0:
-                    logger.info(f"Rate limiting: Waiting 15 seconds before next API call...")
+                    logger.info("Rate limiting: Waiting 15 seconds before next API call...")
                     time.sleep(15)
                 try:
                     logger.info(f"Processing {ticker}... ({i+1}/{len(tickers)})")

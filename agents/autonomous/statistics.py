@@ -499,7 +499,7 @@ class StatisticsAgent:
             return json.dumps(asdict(report), indent=2)
 
         # Markdown format
-        md = f"""# {report.title}
+        md = """# {report.title}
 
 **Generated:** {report.generated_at}
 **Period:** {report.period_start} to {report.period_end}

@@ -118,7 +118,7 @@ Respond ONLY with valid JSON, no additional text."""
         full_text = f"Title: {title}\n\nDescription: {description}\n\nContent: {content}"
 
         # User prompt (varies per request)
-        user_prompt = f"""NEWS:
+        user_prompt = """NEWS:
 {full_text}
 
 SOURCE: {source}"""

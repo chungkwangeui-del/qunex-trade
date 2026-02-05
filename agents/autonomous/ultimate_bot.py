@@ -50,6 +50,24 @@ except ImportError:
     ADVANCED_SYSTEMS_AVAILABLE = False
     logger.warning("Advanced systems not available")
 
+# Import new enhanced systems
+try:
+    from .ai_reviewer import get_reviewer, AICodeReviewer
+    from .trend_analyzer import get_trend_analyzer, DailyMetrics
+    from .log_analyzer import get_log_analyzer
+    from .dependency_scanner import get_dependency_scanner
+    from .backup_manager import get_backup_manager
+    from .resource_monitor import get_resource_monitor
+    from .api_health import get_api_health_checker
+    from .notifier import get_notifier, Notification
+    from .test_fixer import get_test_fixer
+    from .performance_optimizer import get_performance_optimizer
+    from .dashboard import get_dashboard
+    ENHANCED_SYSTEMS_AVAILABLE = True
+except ImportError as e:
+    ENHANCED_SYSTEMS_AVAILABLE = False
+    logger.warning(f"Enhanced systems not fully available: {e}")
+
 
 class BotStatus(Enum):
     """Status of individual bots."""
@@ -203,6 +221,32 @@ class UltimateBot:
             self.alerts = None
             self.test_generator = None
 
+        # Initialize enhanced systems
+        if ENHANCED_SYSTEMS_AVAILABLE:
+            self.ai_reviewer = get_reviewer(self.project_root)
+            self.trend_analyzer = get_trend_analyzer()
+            self.log_analyzer = get_log_analyzer()
+            self.dependency_scanner = get_dependency_scanner(self.project_root)
+            self.backup_manager = get_backup_manager(self.project_root)
+            self.resource_monitor = get_resource_monitor()
+            self.api_health = get_api_health_checker()
+            self.notifier = get_notifier()
+            self.test_fixer = get_test_fixer(self.project_root)
+            self.performance_optimizer = get_performance_optimizer(self.project_root)
+            self.dashboard = get_dashboard()
+        else:
+            self.ai_reviewer = None
+            self.trend_analyzer = None
+            self.log_analyzer = None
+            self.dependency_scanner = None
+            self.backup_manager = None
+            self.resource_monitor = None
+            self.api_health = None
+            self.notifier = None
+            self.test_fixer = None
+            self.performance_optimizer = None
+            self.dashboard = None
+
     def _register_bots(self):
         """Register all expert bots."""
         # Each expert has: (id, name, description, specialty)
@@ -330,6 +374,35 @@ class UltimateBot:
         print("  └" + "─"*58 + "┘")
         print()
 
+        # Show enhanced systems status
+        print("  ┌" + "─"*58 + "┐")
+        print("  │  ENHANCED SYSTEMS (NEW!)                                 │")
+        print("  ├" + "─"*58 + "┤")
+        enhanced = [
+            ("🧠 AI Code Reviewer", self.ai_reviewer is not None),
+            ("📈 Trend Analyzer", self.trend_analyzer is not None),
+            ("📋 Log Analyzer", self.log_analyzer is not None),
+            ("🔍 Dependency Scanner", self.dependency_scanner is not None),
+            ("💾 Auto Backup", self.backup_manager is not None),
+            ("📊 Resource Monitor", self.resource_monitor is not None),
+            ("🌐 API Health Check", self.api_health is not None),
+            ("🔔 Notifier (Discord/Slack)", self.notifier is not None),
+            ("🧪 Test Fixer", self.test_fixer is not None),
+            ("⚡ Performance Optimizer", self.performance_optimizer is not None),
+            ("🖥️ Web Dashboard", self.dashboard is not None),
+        ]
+        for name, active in enhanced:
+            status = "✅ Active" if active else "❌ Disabled"
+            print(f"  │  {name:30} {status:>16}     │")
+        print("  └" + "─"*58 + "┘")
+        print()
+
+        # Start web dashboard
+        if self.dashboard:
+            self.dashboard.run(threaded=True)
+            print("  🌐 Dashboard: http://127.0.0.1:5050")
+            print()
+
         print("  " + "─"*60)
         print("  Expert Team:")
         for bot_id, bot in self.bots.items():
@@ -344,6 +417,7 @@ class UltimateBot:
             self._report_generator(),
             self._competition_updater(),
             self._alert_monitor(),
+            self._enhanced_systems_monitor(),
         )
 
     async def stop(self):
@@ -392,7 +466,7 @@ class UltimateBot:
 
                 # Health check every 5 cycles
                 if self.cycle_count % 5 == 0:
-                    print(f"\n  🏥 Health Check...")
+                    print("\n  🏥 Health Check...")
                     await self._health_check()
 
                 # Wait for next cycle
@@ -465,7 +539,7 @@ class UltimateBot:
             # Commit fixes
             await self._commit_fixes(f"🛠️ Auto-fixed {total_fixes} issues in {len(all_files)} files")
         else:
-            print(f"     ✓ No errors to fix")
+            print("     ✓ No errors to fix")
 
     async def _commit_fixes(self, message: str):
         """Immediately commit any fixes."""
@@ -479,7 +553,7 @@ class UltimateBot:
             if lock_file.exists():
                 try:
                     os.remove(lock_file)
-                    print(f"     🔓 Removed git lock file")
+                    print("     🔓 Removed git lock file")
                 except Exception:
                     pass
 
@@ -489,12 +563,12 @@ class UltimateBot:
             # Commit
             success, msg = git.commit(message)
             if success:
-                print(f"     📝 Committed!")
+                print("     📝 Committed!")
 
                 # Push immediately
                 push_ok, push_msg = git.push()
                 if push_ok:
-                    print(f"     🚀 Pushed to GitHub!")
+                    print("     🚀 Pushed to GitHub!")
                     self.bots['git'].record_success(0.5)
                 else:
                     print(f"     ⚠️ Push: {push_msg[:30] if push_msg else 'pending'}")
@@ -506,7 +580,7 @@ class UltimateBot:
                     os.remove(lock_file)
                 success, msg = git.commit(message)
                 if success:
-                    print(f"     📝 Committed (retry)!")
+                    print("     📝 Committed (retry)!")
             else:
                 print(f"     ⚠️ Commit: {msg[:30] if msg else 'issue'}")
         except Exception as e:
@@ -540,7 +614,7 @@ class UltimateBot:
                 success, commit_msg = git.commit("Auto-fix by Ultimate Bot 🤖")
 
                 if success:
-                    print(f"     ✅ Committed")
+                    print("     ✅ Committed")
 
                     # Push to remote
                     push_success, push_msg = git.push()
@@ -616,10 +690,10 @@ class UltimateBot:
             )
 
             if result.returncode == 0:
-                print(f"     ✅ All tests passed!")
+                print("     ✅ All tests passed!")
                 self.bots['tester'].record_success(1.0)
             elif result.returncode == 5:
-                print(f"     ⚠️ No tests found")
+                print("     ⚠️ No tests found")
             else:
                 # Extract failure info
                 output = result.stdout + result.stderr
@@ -630,12 +704,12 @@ class UltimateBot:
                     fails = match.group(1) if match else 'some'
                     print(f"     ❌ {fails} tests failed")
                 else:
-                    print(f"     ⚠️ Test issues detected")
+                    print("     ⚠️ Test issues detected")
 
         except subprocess.TimeoutExpired:
-            print(f"     ⚠️ Tests timed out")
+            print("     ⚠️ Tests timed out")
         except FileNotFoundError:
-            print(f"     ⚠️ pytest not installed")
+            print("     ⚠️ pytest not installed")
         except Exception as e:
             print(f"     ⚠️ Test error: {e}")
 
@@ -1019,7 +1093,7 @@ class UltimateBot:
 
         print()
         print(f"  ┌{'─'*40}┐")
-        print(f"  │ CYCLE SUMMARY                          │")
+        print("  │ CYCLE SUMMARY                          │")
         print(f"  ├{'─'*40}┤")
         print(f"  │ Tasks Remaining: {pending:>4}                   │")
         print(f"  │ Team Performance: {avg_score:>5.1f}%               │")
@@ -1114,6 +1188,116 @@ class UltimateBot:
 
             except Exception as e:
                 logger.error(f"Alert monitor error: {e}")
+
+    async def _enhanced_systems_monitor(self):
+        """Run enhanced systems periodically."""
+        cycle = 0
+        while self.is_running:
+            try:
+                await asyncio.sleep(300)  # Every 5 minutes
+                cycle += 1
+
+                # === Resource Monitoring (every 5 min) ===
+                if self.resource_monitor:
+                    result = self.resource_monitor.monitor()
+                    if result.get('status') == 'critical':
+                        print("\n  🚨 RESOURCE ALERT!")
+                        for alert in result.get('alerts', []):
+                            print(f"     {alert.message}")
+                        # Send notification
+                        if self.notifier:
+                            await self.notifier.send_critical_alert(
+                                "Resource Alert",
+                                "Critical resource usage detected"
+                            )
+                    # Update dashboard
+                    if self.dashboard:
+                        snapshot = result.get('snapshot')
+                        if snapshot:
+                            self.dashboard.add_activity('scan', f"Resource check: CPU {snapshot.cpu_percent:.0f}%, Memory {snapshot.memory_percent:.0f}%")
+
+                # === Backup Check (every 30 min = cycle % 6) ===
+                if cycle % 6 == 0 and self.backup_manager:
+                    schedule = self.backup_manager.schedule_backup(interval_hours=24)
+                    if schedule.get('needed'):
+                        print("\n  💾 Creating scheduled backup...")
+                        backup = self.backup_manager.create_backup()
+                        if backup and self.dashboard:
+                            self.dashboard.add_activity('fix', f"Backup created: {backup.name}")
+
+                # === Dependency Scan (every hour = cycle % 12) ===
+                if cycle % 12 == 0 and self.dependency_scanner:
+                    print("\n  🔍 Scanning dependencies...")
+                    result = self.dependency_scanner.full_scan()
+                    if result.vulnerable_count > 0:
+                        print(f"     ⚠️ {result.vulnerable_count} vulnerable packages!")
+                        if self.notifier:
+                            await self.notifier.send_alert(
+                                "Vulnerable Dependencies",
+                                f"Found {result.vulnerable_count} vulnerable packages",
+                                severity="warning"
+                            )
+
+                # === AI Code Review (every 2 hours = cycle % 24) ===
+                if cycle % 24 == 0 and self.ai_reviewer:
+                    print("\n  🧠 Running AI code review...")
+                    review = await self.ai_reviewer.review_project()
+                    report_path = self.ai_reviewer.generate_report()
+                    print(f"     📝 Review report: {report_path}")
+                    print(f"     Quality: {review.get('average_quality', 0):.0f}/100")
+                    if self.dashboard:
+                        self.dashboard.add_activity('scan', f"AI review: {review.get('average_quality', 0):.0f}/100 quality")
+
+                # === Performance Analysis (every 2 hours = cycle % 24) ===
+                if cycle % 24 == 1 and self.performance_optimizer:
+                    print("\n  ⚡ Analyzing performance...")
+                    issues = self.performance_optimizer.analyze_project()
+                    if issues:
+                        report_path = self.performance_optimizer.generate_report()
+                        summary = self.performance_optimizer.get_summary()
+                        critical = summary.get('by_severity', {}).get('critical', 0)
+                        if critical > 0:
+                            print(f"     ⚠️ {critical} critical performance issues!")
+
+                # === Log Analysis (every hour = cycle % 12) ===
+                if cycle % 12 == 6 and self.log_analyzer:
+                    result = self.log_analyzer.analyze_all()
+                    if result.get('status') == 'ok':
+                        errors = result.get('total_errors', 0)
+                        if errors > 100:
+                            print(f"\n  📋 High error volume in logs: {errors}")
+                            if self.notifier:
+                                await self.notifier.send_alert(
+                                    "Log Alert",
+                                    f"High error volume detected: {errors} errors",
+                                    severity="warning"
+                                )
+
+                # === Trend Recording (every cycle) ===
+                if self.trend_analyzer:
+                    metrics = DailyMetrics(
+                        date=datetime.now().strftime('%Y-%m-%d'),
+                        total_issues=len(self.task_queue),
+                        quality_score=sum(b.performance_score for b in self.bots.values()) / len(self.bots),
+                        auto_fixes=sum(b.tasks_completed for b in self.bots.values())
+                    )
+                    self.trend_analyzer.record_metrics(metrics)
+
+                # === Update Dashboard ===
+                if self.dashboard:
+                    uptime = (datetime.now() - self.start_time).total_seconds() / 3600 if self.start_time else 0
+                    self.dashboard.update(
+                        status='running' if self.is_running else 'stopped',
+                        cycle_count=self.cycle_count,
+                        uptime_hours=uptime,
+                        total_fixes=sum(b.tasks_completed for b in self.bots.values()),
+                        total_issues=len(self.task_queue),
+                        health_score=sum(b.performance_score for b in self.bots.values()) / len(self.bots),
+                        active_bots=len([b for b in self.bots.values() if b.tasks_completed > 0])
+                    )
+
+            except Exception as e:
+                logger.error(f"Enhanced systems monitor error: {e}")
 
     def generate_report(self) -> Dict[str, Any]:
         """Generate a comprehensive status report."""

@@ -248,7 +248,7 @@ class TradingAgent(BaseAgent):
             return AgentResult(
                 success=True,
                 status=AgentStatus.WARNING,
-                message=f"Scalp service may be incomplete",
+                message="Scalp service may be incomplete",
                 warnings=[f"Missing feature: {m}" for m in missing] if missing else ["File seems small"],
                 data={"found_features": found, "missing_features": missing}
             )
@@ -308,7 +308,7 @@ class TradingAgent(BaseAgent):
             return AgentResult(
                 success=True,
                 status=AgentStatus.WARNING,
-                message=f"Swing service may need more ICT concepts",
+                message="Swing service may need more ICT concepts",
                 warnings=[f"Only {len(found)}/5 core ICT concepts found"],
                 data={"found_concepts": found, "line_count": line_count}
             )

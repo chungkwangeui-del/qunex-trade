@@ -135,7 +135,7 @@ def refresh_insider_data():
                         "%Y-%m-%d"
                     )
 
-                    url = f"https://finnhub.io/api/v1/stock/insider-transactions"
+                    url = "https://finnhub.io/api/v1/stock/insider-transactions"
                     params = {
                         "symbol": ticker,
                         "from": start_date,

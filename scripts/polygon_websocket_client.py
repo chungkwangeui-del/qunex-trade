@@ -69,7 +69,7 @@ class PolygonWebSocketClient:
         try:
             import websocket
 
-            ws_url = f"wss://socket.polygon.io/stocks"
+            ws_url = "wss://socket.polygon.io/stocks"
 
             logger.info(f"Connecting to Polygon WebSocket: {ws_url}")
 

@@ -37,7 +37,7 @@ def main():
     now = datetime.now()
     greeting = "Good morning" if now.hour < 12 else "Good afternoon" if now.hour < 18 else "Good evening"
 
-    print(f"""
+    print("""
 {c('╔' + '═' * 70 + '╗', Colors.CYAN)}
 {c('║', Colors.CYAN)}                                                                      {c('║', Colors.CYAN)}
 {c('║', Colors.CYAN)}   {c('🤖👑 ULTIMATE BOT', Colors.GOLD + Colors.BOLD)}                                                  {c('║', Colors.CYAN)}

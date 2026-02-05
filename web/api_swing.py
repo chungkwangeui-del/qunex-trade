@@ -60,9 +60,9 @@ def get_market_status() -> Tuple[bool, str]:
         market_close = now.replace(hour=16, minute=0, second=0, microsecond=0)
 
         if now < market_open:
-            return False, f"Market closed (Pre-market). Opens at 9:30 AM EST"
+            return False, "Market closed (Pre-market). Opens at 9:30 AM EST"
         elif now > market_close:
-            return False, f"Market closed (After-hours). Opens tomorrow 9:30 AM EST"
+            return False, "Market closed (After-hours). Opens tomorrow 9:30 AM EST"
         else:
             return True, "Market open"
     except Exception:

@@ -482,7 +482,7 @@ def _calculate_confluence(
     at_bullish_ob = _check_at_zone(current_price, order_blocks["bullish"])
     if at_bullish_ob:
         bullish_reasons.append({
-            "reason": f"At Bullish Order Block (장악형 지지)",
+            "reason": "At Bullish Order Block (장악형 지지)",
             "strength": at_bullish_ob["strength"],
             "zone": at_bullish_ob
         })
@@ -491,7 +491,7 @@ def _calculate_confluence(
     at_bearish_ob = _check_at_zone(current_price, order_blocks["bearish"])
     if at_bearish_ob:
         bearish_reasons.append({
-            "reason": f"At Bearish Order Block (장악형 저항)",
+            "reason": "At Bearish Order Block (장악형 저항)",
             "strength": at_bearish_ob["strength"],
             "zone": at_bearish_ob
         })
