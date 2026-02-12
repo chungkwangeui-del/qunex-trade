@@ -383,7 +383,6 @@
             {% endwith %}
 
             <form method="POST" action="{{ url_for('auth.signup') }}">
-        {{ csrf_token() }}
                 <input type="hidden" name="csrf_token" value="{{ csrf_token }}"/>
 
                 <div class="form-group">

@@ -597,7 +597,7 @@
         </div>
         <div class="card-body">
             <form method="POST" action="/auth/change-password">
-        {{ csrf_token() }}
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                 <div class="form-group">
                     <label class="form-label">Current Password</label>
                     <input type="password" name="current_password" required class="form-input" placeholder="Enter current password">
