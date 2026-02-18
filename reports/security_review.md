@@ -1,16 +1,16 @@
-# Security & Code Review Report
+# 🔒 Security & Code Review Report
 
-Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+Generated: 2026-02-18 16:33:04
 
 ## Summary
 
 | Severity | Count |
 |----------|-------|
-| 🔴 Critical | {len(critical)} |
-| 🟠 High | {len(high)} |
-| 🟡 Medium | {len(medium)} |
-| 🟢 Low | {len(low)} |
-| **Total** | **{len(self.manual_review)}** |
+| 🔴 Critical | 8 |
+| 🟠 High | 7 |
+| 🟡 Medium | 1 |
+| 🟢 Low | 0 |
+| **Total** | **16** |
 
 ---
 
@@ -18,247 +18,247 @@ Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 
 These issues require immediate attention!
 
-### {issue.issue_type.replace('_', ' ').title()}
+### Unsafe Eval
 
-**File:** `{rel_path}` (line {issue.line_number})
+**File:** `agents\autonomous\ai_reviewer.py` (line 48)
 
-**Description:** {issue.description}
+**Description:** eval/exec can execute arbitrary code
 
 **Code:**
 ```python
-{issue.code_snippet}
+(r'eval\s*\(', 'eval() usage - security risk'),
 ```
 
-**Suggestion:** {issue.suggestion}
+**Suggestion:** Use ast.literal_eval() for safe evaluation, or avoid dynamic code execution
 
 ---
 
-### {issue.issue_type.replace('_', ' ').title()}
+### Unsafe Eval
 
-**File:** `{rel_path}` (line {issue.line_number})
+**File:** `agents\autonomous\ai_reviewer.py` (line 49)
 
-**Description:** {issue.description}
+**Description:** eval/exec can execute arbitrary code
 
 **Code:**
 ```python
-{issue.code_snippet}
+(r'exec\s*\(', 'exec() usage - security risk'),
 ```
 
-**Suggestion:** {issue.suggestion}
+**Suggestion:** Use ast.literal_eval() for safe evaluation, or avoid dynamic code execution
 
 ---
 
-### {issue.issue_type.replace('_', ' ').title()}
+### Sql Injection
 
-**File:** `{rel_path}` (line {issue.line_number})
+**File:** `agents\autonomous\expert_fixer.py` (line 494)
 
-**Description:** {issue.description}
+**Description:** Potential SQL injection vulnerability
 
 **Code:**
 ```python
-{issue.code_snippet}
+cursor.execute(f"SELECT * FROM users WHERE id = {user_id}")
 ```
 
-**Suggestion:** {issue.suggestion}
+**Suggestion:** Use parameterized queries: cursor.execute('SELECT * FROM users WHERE id = ?', (user_id,))
 
 ---
 
-### {issue.issue_type.replace('_', ' ').title()}
+### Hardcoded Secret
 
-**File:** `{rel_path}` (line {issue.line_number})
+**File:** `agents\autonomous\expert_fixer.py` (line 503)
 
-**Description:** {issue.description}
+**Description:** Hardcoded secret detected
 
 **Code:**
 ```python
-{issue.code_snippet}
+API_KEY = "sk-abc123secret"
 ```
 
-**Suggestion:** {issue.suggestion}
+**Suggestion:** Move to environment variable: os.environ.get('SECRET_KEY')
 
 ---
 
-### {issue.issue_type.replace('_', ' ').title()}
+### Unsafe Eval
 
-**File:** `{rel_path}` (line {issue.line_number})
+**File:** `agents\autonomous\reviewer.py` (line 79)
 
-**Description:** {issue.description}
+**Description:** eval/exec can execute arbitrary code
 
 **Code:**
 ```python
-{issue.code_snippet}
+(r'eval\s*\(', "Dangerous eval() usage"),
 ```
 
-**Suggestion:** {issue.suggestion}
+**Suggestion:** Use ast.literal_eval() for safe evaluation, or avoid dynamic code execution
 
 ---
 
-### {issue.issue_type.replace('_', ' ').title()}
+### Unsafe Eval
 
-**File:** `{rel_path}` (line {issue.line_number})
+**File:** `agents\autonomous\reviewer.py` (line 80)
 
-**Description:** {issue.description}
+**Description:** eval/exec can execute arbitrary code
 
 **Code:**
 ```python
-{issue.code_snippet}
+(r'exec\s*\(', "Dangerous exec() usage"),
 ```
 
-**Suggestion:** {issue.suggestion}
+**Suggestion:** Use ast.literal_eval() for safe evaluation, or avoid dynamic code execution
 
 ---
 
-### {issue.issue_type.replace('_', ' ').title()}
+### Unsafe Eval
 
-**File:** `{rel_path}` (line {issue.line_number})
+**File:** `agents\autonomous\reviewer.py` (line 250)
 
-**Description:** {issue.description}
+**Description:** eval/exec can execute arbitrary code
 
 **Code:**
 ```python
-{issue.code_snippet}
+if 'eval(' in content:
 ```
 
-**Suggestion:** {issue.suggestion}
+**Suggestion:** Use ast.literal_eval() for safe evaluation, or avoid dynamic code execution
 
 ---
 
-### {issue.issue_type.replace('_', ' ').title()}
+### Unsafe Eval
 
-**File:** `{rel_path}` (line {issue.line_number})
+**File:** `agents\autonomous\reviewer.py` (line 251)
 
-**Description:** {issue.description}
+**Description:** eval/exec can execute arbitrary code
 
 **Code:**
 ```python
-{issue.code_snippet}
+result.add_issue("Dangerous eval() usage", "security")
 ```
 
-**Suggestion:** {issue.suggestion}
+**Suggestion:** Use ast.literal_eval() for safe evaluation, or avoid dynamic code execution
 
 ---
 
 ## 🟠 High Priority Issues
 
-### {issue.issue_type.replace('_', ' ').title()}
+### Shell Injection
 
-**File:** `{rel_path}` (line {issue.line_number})
+**File:** `agents\cli.py` (line 56)
 
-**Description:** {issue.description}
+**Description:** Potential shell injection vulnerability
 
 **Code:**
 ```python
-{issue.code_snippet}
+os.system('cls' if os.name == 'nt' else 'clear')
 ```
 
-**Suggestion:** {issue.suggestion}
+**Suggestion:** Use subprocess.run() with shell=False and pass args as list
 
 ---
 
-### {issue.issue_type.replace('_', ' ').title()}
+### Shell Injection
 
-**File:** `{rel_path}` (line {issue.line_number})
+**File:** `agents\welcome.py` (line 35)
 
-**Description:** {issue.description}
+**Description:** Potential shell injection vulnerability
 
 **Code:**
 ```python
-{issue.code_snippet}
+os.system('cls' if os.name == 'nt' else 'clear')
 ```
 
-**Suggestion:** {issue.suggestion}
+**Suggestion:** Use subprocess.run() with shell=False and pass args as list
 
 ---
 
-### {issue.issue_type.replace('_', ' ').title()}
+### Unsafe Pickle
 
-**File:** `{rel_path}` (line {issue.line_number})
+**File:** `ml\ai_score_system.py` (line 545)
 
-**Description:** {issue.description}
+**Description:** Pickle can execute arbitrary code
 
 **Code:**
 ```python
-{issue.code_snippet}
+model_data = pickle.load(f)  # nosec B301 - loading trusted model files
 ```
 
-**Suggestion:** {issue.suggestion}
+**Suggestion:** Use json for data serialization, or validate pickle source
 
 ---
 
-### {issue.issue_type.replace('_', ' ').title()}
+### Unsafe Pickle
 
-**File:** `{rel_path}` (line {issue.line_number})
+**File:** `ml\ai_score_system.py` (line 554)
 
-**Description:** {issue.description}
+**Description:** Pickle can execute arbitrary code
 
 **Code:**
 ```python
-{issue.code_snippet}
+model_data = pickle.load(f, encoding="latin1")  # nosec B301
 ```
 
-**Suggestion:** {issue.suggestion}
+**Suggestion:** Use json for data serialization, or validate pickle source
 
 ---
 
-### {issue.issue_type.replace('_', ' ').title()}
+### Unsafe Pickle
 
-**File:** `{rel_path}` (line {issue.line_number})
+**File:** `agents\autonomous\expert_fixer.py` (line 411)
 
-**Description:** {issue.description}
+**Description:** Pickle can execute arbitrary code
 
 **Code:**
 ```python
-{issue.code_snippet}
+if 'pickle.load' in line or 'pickle.loads' in line:
 ```
 
-**Suggestion:** {issue.suggestion}
+**Suggestion:** Use json for data serialization, or validate pickle source
 
 ---
 
-### {issue.issue_type.replace('_', ' ').title()}
+### Shell Injection
 
-**File:** `{rel_path}` (line {issue.line_number})
+**File:** `agents\autonomous\expert_fixer.py` (line 512)
 
-**Description:** {issue.description}
+**Description:** Potential shell injection vulnerability
 
 **Code:**
 ```python
-{issue.code_snippet}
+os.system(f"rm {filename}")
 ```
 
-**Suggestion:** {issue.suggestion}
+**Suggestion:** Use subprocess.run() with shell=False and pass args as list
 
 ---
 
-### {issue.issue_type.replace('_', ' ').title()}
+### Shell Injection
 
-**File:** `{rel_path}` (line {issue.line_number})
+**File:** `agents\autonomous\fixer.py` (line 235)
 
-**Description:** {issue.description}
+**Description:** Potential shell injection vulnerability
 
 **Code:**
 ```python
-{issue.code_snippet}
+"Change subprocess shell=True to shell=False",
 ```
 
-**Suggestion:** {issue.suggestion}
+**Suggestion:** Use subprocess.run() with shell=False and pass args as list
 
 ---
 
 ## 🟡 Medium Priority Issues
 
-### {issue.issue_type.replace('_', ' ').title()}
+### Mutable Default Arg
 
-**File:** `{rel_path}` (line {issue.line_number})
+**File:** `agents\autonomous\expert_fixer.py` (line 225)
 
-**Description:** {issue.description}
+**Description:** Mutable default argument detected
 
 **Code:**
 ```python
-{issue.code_snippet}
+def func(items=[])
 ```
 
-**Suggestion:** {issue.suggestion}
+**Suggestion:** Use None as default and initialize in function body
 
 ---
 

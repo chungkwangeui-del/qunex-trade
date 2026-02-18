@@ -14,7 +14,7 @@ Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 
 ## Issues by Type
 
-- **Pandas Iterrows**: 4
+- **Pandas Iterrows**: 2
 - **String Concat Loop**: 1
 - **Read Entire File**: 1
 - **Global Import In Function**: 13
@@ -24,337 +24,282 @@ Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 
 ## Top Issues to Address
 
-### 🟠 Using iterrows() on DataFrame
+### {severity_icon} {issue.description}
 
-**File:** `C:\Users\chung\.openclaw\workspace\qunex-trade\web\api_earnings.py` (line 138)
+**File:** `{issue.file_path}` (line {issue.line_number})
 
-**Impact:** Significant performance loss
+**Impact:** {issue.estimated_impact}
 
-**Suggestion:** Use vectorized operations, apply(), or itertuples()
+**Suggestion:** {issue.suggestion}
 
 ```python
-                for idx, row in hist.iterrows():
-                    earnings_history.append({
-                        "date": str(idx) if hasattr(idx, '__str__') else str(idx),
-                      
+{issue.code_snippet}
 ```
 
 ---
 
-### 🟠 Using iterrows() on DataFrame
+### {severity_icon} {issue.description}
 
-**File:** `C:\Users\chung\.openclaw\workspace\qunex-trade\web\api_earnings.py` (line 153)
+**File:** `{issue.file_path}` (line {issue.line_number})
 
-**Impact:** Significant performance loss
+**Impact:** {issue.estimated_impact}
 
-**Suggestion:** Use vectorized operations, apply(), or itertuples()
+**Suggestion:** {issue.suggestion}
 
 ```python
-                for idx, row in q_earnings.iterrows():
-                    quarterly.append({
-                        "quarter": str(idx),
-                        "revenue": row.get("Revenue"),
+{issue.code_snippet}
 ```
 
 ---
 
-### 🟠 Using iterrows() on DataFrame
+### {severity_icon} {issue.description}
 
-**File:** `C:\Users\chung\.openclaw\workspace\qunex-trade\web\api_options.py` (line 180)
+**File:** `{issue.file_path}` (line {issue.line_number})
 
-**Impact:** Significant performance loss
+**Impact:** {issue.estimated_impact}
 
-**Suggestion:** Use vectorized operations, apply(), or itertuples()
+**Suggestion:** {issue.suggestion}
 
 ```python
-                    for _, row in opts.calls.iterrows():
-                        volume = int(row.get("volume", 0)) if row.get("volume") else 0
-                        oi = int(row.get("openInterest",
+{issue.code_snippet}
 ```
 
 ---
 
-### 🟠 Using iterrows() on DataFrame
+### {severity_icon} {issue.description}
 
-**File:** `C:\Users\chung\.openclaw\workspace\qunex-trade\web\api_options.py` (line 200)
+**File:** `{issue.file_path}` (line {issue.line_number})
 
-**Impact:** Significant performance loss
+**Impact:** {issue.estimated_impact}
 
-**Suggestion:** Use vectorized operations, apply(), or itertuples()
+**Suggestion:** {issue.suggestion}
 
 ```python
-                    for _, row in opts.puts.iterrows():
-                        volume = int(row.get("volume", 0)) if row.get("volume") else 0
-                        oi = int(row.get("openInterest", 
+{issue.code_snippet}
 ```
 
 ---
 
-### 🟠 String concatenation in loop
+### {severity_icon} {issue.description}
 
-**File:** `C:\Users\chung\.openclaw\workspace\qunex-trade\agents\autonomous\advanced_systems.py` (line 456)
+**File:** `{issue.file_path}` (line {issue.line_number})
 
-**Impact:** O(n²) → O(n)
+**Impact:** {issue.estimated_impact}
 
-**Suggestion:** Use list comprehension with join(), or StringIO
+**Suggestion:** {issue.suggestion}
 
 ```python
-        for func in functions:
-            test_content += '''
-class Test{func.title().replace('_', '')}:
-    """Tests for {func}"""
+{issue.code_snippet}
 ```
 
 ---
 
-### 🟡 Reading entire file into memory
+### {severity_icon} {issue.description}
 
-**File:** `C:\Users\chung\.openclaw\workspace\qunex-trade\agents\codebase_knowledge.py` (line 378)
+**File:** `{issue.file_path}` (line {issue.line_number})
 
-**Impact:** Memory usage
+**Impact:** {issue.estimated_impact}
 
-**Suggestion:** Consider streaming with iterators for large files
+**Suggestion:** {issue.suggestion}
 
 ```python
-                content = f.read()
-
-            tree = ast.parse(content)
-
+{issue.code_snippet}
 ```
 
 ---
 
-### 🟡 Import inside function
+### {severity_icon} {issue.description}
 
-**File:** `C:\Users\chung\.openclaw\workspace\qunex-trade\agents\scheduler.py` (line 35)
+**File:** `{issue.file_path}` (line {issue.line_number})
 
-**Impact:** Repeated import overhead
+**Impact:** {issue.estimated_impact}
 
-**Suggestion:** Move import to module level (unless conditional)
+**Suggestion:** {issue.suggestion}
 
 ```python
-    def __init__(self, check_interval: int = 30):
-        """
-        Initialize scheduler.
-
+{issue.code_snippet}
 ```
 
 ---
 
-### 🟡 Synchronous HTTP requests
+### {severity_icon} {issue.description}
 
-**File:** `C:\Users\chung\.openclaw\workspace\qunex-trade\scripts\cron_refresh_insider.py` (line 146)
+**File:** `{issue.file_path}` (line {issue.line_number})
 
-**Impact:** Blocking I/O
+**Impact:** {issue.estimated_impact}
 
-**Suggestion:** Consider async with aiohttp for concurrent requests
+**Suggestion:** {issue.suggestion}
 
 ```python
-                    response = requests.get(url, params=params, timeout=10)
-
-                    if response.status_code != 200:
-                        logger.warning(f"Failed to fetch insider data f
+{issue.code_snippet}
 ```
 
 ---
 
-### 🟡 Import inside function
+### {severity_icon} {issue.description}
 
-**File:** `C:\Users\chung\.openclaw\workspace\qunex-trade\scripts\refresh_data_cron.py` (line 33)
+**File:** `{issue.file_path}` (line {issue.line_number})
 
-**Impact:** Repeated import overhead
+**Impact:** {issue.estimated_impact}
 
-**Suggestion:** Move import to module level (unless conditional)
+**Suggestion:** {issue.suggestion}
 
 ```python
-def refresh_news_data():
-    """
-    Fetch and analyze latest news articles from Polygon News API.
-
+{issue.code_snippet}
 ```
 
 ---
 
-### 🟡 Synchronous HTTP requests
+### {severity_icon} {issue.description}
 
-**File:** `C:\Users\chung\.openclaw\workspace\qunex-trade\scripts\refresh_data_cron.py` (line 264)
+**File:** `{issue.file_path}` (line {issue.line_number})
 
-**Impact:** Blocking I/O
+**Impact:** {issue.estimated_impact}
 
-**Suggestion:** Consider async with aiohttp for concurrent requests
+**Suggestion:** {issue.suggestion}
 
 ```python
-            response = requests.get(url, params=params, timeout=30)
-            response.raise_for_status()
-
-            api_data = response.json()
+{issue.code_snippet}
 ```
 
 ---
 
-### 🟡 Synchronous HTTP requests
+### {severity_icon} {issue.description}
 
-**File:** `C:\Users\chung\.openclaw\workspace\qunex-trade\src\news_collector.py` (line 87)
+**File:** `{issue.file_path}` (line {issue.line_number})
 
-**Impact:** Blocking I/O
+**Impact:** {issue.estimated_impact}
 
-**Suggestion:** Consider async with aiohttp for concurrent requests
+**Suggestion:** {issue.suggestion}
 
 ```python
-            response = requests.get(url, params=params, timeout=10)
-
-            if response.status_code == 200:
-                data = response.json()
+{issue.code_snippet}
 ```
 
 ---
 
-### 🟡 Synchronous HTTP requests
+### {severity_icon} {issue.description}
 
-**File:** `C:\Users\chung\.openclaw\workspace\qunex-trade\web\advanced_sr_analysis.py` (line 107)
+**File:** `{issue.file_path}` (line {issue.line_number})
 
-**Impact:** Blocking I/O
+**Impact:** {issue.estimated_impact}
 
-**Suggestion:** Consider async with aiohttp for concurrent requests
+**Suggestion:** {issue.suggestion}
 
 ```python
-            response = requests.get(url, params=params, timeout=10)
-            response.raise_for_status()
-            data = response.json()
-
+{issue.code_snippet}
 ```
 
 ---
 
-### 🟡 Synchronous HTTP requests
+### {severity_icon} {issue.description}
 
-**File:** `C:\Users\chung\.openclaw\workspace\qunex-trade\web\advanced_sr_analysis.py` (line 132)
+**File:** `{issue.file_path}` (line {issue.line_number})
 
-**Impact:** Blocking I/O
+**Impact:** {issue.estimated_impact}
 
-**Suggestion:** Consider async with aiohttp for concurrent requests
+**Suggestion:** {issue.suggestion}
 
 ```python
-                    response = requests.get(url, params=params, timeout=10)
-
-                    if response.status_code == 451:  # Geo-restricted
-                        continue
+{issue.code_snippet}
 ```
 
 ---
 
-### 🟡 Import inside function
+### {severity_icon} {issue.description}
 
-**File:** `C:\Users\chung\.openclaw\workspace\qunex-trade\web\api_chat.py` (line 42)
+**File:** `{issue.file_path}` (line {issue.line_number})
 
-**Impact:** Repeated import overhead
+**Impact:** {issue.estimated_impact}
 
-**Suggestion:** Move import to module level (unless conditional)
+**Suggestion:** {issue.suggestion}
 
 ```python
-    def polygon(self):
-        """Lazy-load polygon service to avoid initialization issues"""
-        if self._polygon is None:
-            self._polygon = get_polygon_service()
+{issue.code_snippet}
 ```
 
 ---
 
-### 🟡 Synchronous HTTP requests
+### {severity_icon} {issue.description}
 
-**File:** `C:\Users\chung\.openclaw\workspace\qunex-trade\web\api_flow.py` (line 57)
+**File:** `{issue.file_path}` (line {issue.line_number})
 
-**Impact:** Blocking I/O
+**Impact:** {issue.estimated_impact}
 
-**Suggestion:** Consider async with aiohttp for concurrent requests
+**Suggestion:** {issue.suggestion}
 
 ```python
-            response = requests.get(url, params=params, timeout=15)
-            response.raise_for_status()
-            data = response.json()
-
+{issue.code_snippet}
 ```
 
 ---
 
-### 🟡 Import inside function
+### {severity_icon} {issue.description}
 
-**File:** `C:\Users\chung\.openclaw\workspace\qunex-trade\web\api_main.py` (line 19)
+**File:** `{issue.file_path}` (line {issue.line_number})
 
-**Impact:** Repeated import overhead
+**Impact:** {issue.estimated_impact}
 
-**Suggestion:** Move import to module level (unless conditional)
+**Suggestion:** {issue.suggestion}
 
 ```python
-def get_news():
-    """Get all news articles"""
-    articles = DatabaseService.get_news_articles(limit=50)
-    return jsonify({"success": True, "articles": articles})
+{issue.code_snippet}
 ```
 
 ---
 
-### 🟡 Synchronous HTTP requests
+### {severity_icon} {issue.description}
 
-**File:** `C:\Users\chung\.openclaw\workspace\qunex-trade\web\api_main.py` (line 152)
+**File:** `{issue.file_path}` (line {issue.line_number})
 
-**Impact:** Blocking I/O
+**Impact:** {issue.estimated_impact}
 
-**Suggestion:** Consider async with aiohttp for concurrent requests
+**Suggestion:** {issue.suggestion}
 
 ```python
-            resp = requests.get("https://api.twelvedata.com/quote", params={"symbol": "AAPL", "apikey": twelvedata_key}, timeout=10)
-            if resp.status_code == 200:
-                data = resp
+{issue.code_snippet}
 ```
 
 ---
 
-### 🟡 Synchronous HTTP requests
+### {severity_icon} {issue.description}
 
-**File:** `C:\Users\chung\.openclaw\workspace\qunex-trade\web\api_main.py` (line 162)
+**File:** `{issue.file_path}` (line {issue.line_number})
 
-**Impact:** Blocking I/O
+**Impact:** {issue.estimated_impact}
 
-**Suggestion:** Consider async with aiohttp for concurrent requests
+**Suggestion:** {issue.suggestion}
 
 ```python
-        resp = requests.get("https://api.binance.us/api/v3/ping", timeout=5)
-        if resp.status_code == 200:
-            status["binance"] = {"connected": True, "message": "OK: Binance.US working"
+{issue.code_snippet}
 ```
 
 ---
 
-### 🟡 Synchronous HTTP requests
+### {severity_icon} {issue.description}
 
-**File:** `C:\Users\chung\.openclaw\workspace\qunex-trade\web\api_main.py` (line 177)
+**File:** `{issue.file_path}` (line {issue.line_number})
 
-**Impact:** Blocking I/O
+**Impact:** {issue.estimated_impact}
 
-**Suggestion:** Consider async with aiohttp for concurrent requests
+**Suggestion:** {issue.suggestion}
 
 ```python
-            resp = requests.get(f"https://finnhub.io/api/v1/stock/symbol?exchange=US&token={finnhub_key}", timeout=5)
-            if resp.status_code == 200:
-                status["finnhub"] = {"conn
+{issue.code_snippet}
 ```
 
 ---
 
-### 🟡 Synchronous HTTP requests
+### {severity_icon} {issue.description}
 
-**File:** `C:\Users\chung\.openclaw\workspace\qunex-trade\web\api_market_features.py` (line 62)
+**File:** `{issue.file_path}` (line {issue.line_number})
 
-**Impact:** Blocking I/O
+**Impact:** {issue.estimated_impact}
 
-**Suggestion:** Consider async with aiohttp for concurrent requests
+**Suggestion:** {issue.suggestion}
 
 ```python
-            response = requests.get(url, params={"symbol": tickers_str, "apikey": twelvedata_key}, timeout=15)
-
-            if response.ok:
-                data = response.json()
+{issue.code_snippet}
 ```
 
 ---

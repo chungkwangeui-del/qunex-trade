@@ -486,6 +486,9 @@ class UltimateBot:
                         }
                         with open(progress_file, "w", encoding="utf-8") as f:
                             json.dump(progress_data, f)
+
+                        # Stop after reporting once to satisfy cron
+                        self.is_running = False
                     except Exception:
                         pass
 
