@@ -31,7 +31,7 @@ class APIGovernor:
     def __init__(self):
         if self._initialized:
             return
-        
+
         # Default quotas for different providers/models
         # These can be adjusted based on actual plan limits
         self.quotas = {
@@ -86,7 +86,7 @@ class APIGovernor:
                     await asyncio.sleep(delay)
                 else:
                     raise e
-        
+
         raise Exception("Max retries exceeded for API call")
 
 def get_governor() -> APIGovernor:

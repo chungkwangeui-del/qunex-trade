@@ -1199,7 +1199,7 @@ class UltimateBot:
         from agents.api_governor import get_governor
         governor = get_governor()
         cycle = 0
-        
+
         while self.is_running:
             try:
                 # Base sleep + Jitter to spread out API calls
@@ -1215,14 +1215,14 @@ class UltimateBot:
                         print("\n  RESOURCE ALERT!")
                         for alert in result.get('alerts', []):
                             print(f"     {alert.message}")
-                        
+
                         # Only notify if we have quota
                         if self.notifier and await governor.acquire_permission("default"):
                             await self.notifier.send_critical_alert(
                                 "Resource Alert",
                                 "Critical resource usage detected"
                             )
-                    
+
                     if self.dashboard:
                         snapshot = result.get('snapshot')
                         if snapshot:
