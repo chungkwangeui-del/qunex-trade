@@ -133,6 +133,15 @@ def main():
         python -m agents.cli           # Start Ultimate Bot
         python -m agents.cli --help    # Show help
     """
+    # Fix Windows console encoding issues for emojis
+    import sys
+    if sys.platform == 'win32':
+        try:
+            sys.stdout.reconfigure(encoding='utf-8')
+            sys.stderr.reconfigure(encoding='utf-8')
+        except (AttributeError, Exception):
+            pass
+
     # Check for help
     if len(sys.argv) > 1 and sys.argv[1] in ['--help', '-h', 'help']:
         print("""

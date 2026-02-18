@@ -10,7 +10,7 @@ from flask import Blueprint, jsonify, request
 from flask_login import login_required
 from datetime import datetime, timedelta
 import logging
-from datetime import timedelta
+import pandas as pd
 
 try:
     from web.polygon_service import get_polygon_service
@@ -64,32 +64,34 @@ def get_options_chain(ticker):
         opts = stock.option_chain(exp_date)
 
         # Format calls
-        calls = []
-        for _, row in opts.calls.iterrows():
-            calls.append({
-                "strike": row.get("strike"),
-                "last_price": row.get("lastPrice"),
-                "bid": row.get("bid"),
-                "ask": row.get("ask"),
-                "volume": int(row.get("volume", 0)) if row.get("volume") else 0,
-                "open_interest": int(row.get("openInterest", 0)) if row.get("openInterest") else 0,
-                "implied_volatility": row.get("impliedVolatility"),
-                "in_the_money": row.get("inTheMoney"),
-            })
+        calls = [
+            {
+                "strike": row.strike,
+                "last_price": row.lastPrice,
+                "bid": row.bid,
+                "ask": row.ask,
+                "volume": int(row.volume) if hasattr(row, 'volume') and row.volume and not pd.isna(row.volume) else 0,
+                "open_interest": int(row.openInterest) if hasattr(row, 'openInterest') and row.openInterest and not pd.isna(row.openInterest) else 0,
+                "implied_volatility": row.impliedVolatility,
+                "in_the_money": row.inTheMoney,
+            }
+            for row in opts.calls.itertuples()
+        ]
 
         # Format puts
-        puts = []
-        for _, row in opts.puts.iterrows():
-            puts.append({
-                "strike": row.get("strike"),
-                "last_price": row.get("lastPrice"),
-                "bid": row.get("bid"),
-                "ask": row.get("ask"),
-                "volume": int(row.get("volume", 0)) if row.get("volume") else 0,
-                "open_interest": int(row.get("openInterest", 0)) if row.get("openInterest") else 0,
-                "implied_volatility": row.get("impliedVolatility"),
-                "in_the_money": row.get("inTheMoney"),
-            })
+        puts = [
+            {
+                "strike": row.strike,
+                "last_price": row.lastPrice,
+                "bid": row.bid,
+                "ask": row.ask,
+                "volume": int(row.volume) if hasattr(row, 'volume') and row.volume and not pd.isna(row.volume) else 0,
+                "open_interest": int(row.openInterest) if hasattr(row, 'openInterest') and row.openInterest and not pd.isna(row.openInterest) else 0,
+                "implied_volatility": row.impliedVolatility,
+                "in_the_money": row.inTheMoney,
+            }
+            for row in opts.puts.itertuples()
+        ]
 
         # Get current stock price
         info = stock.info or {}
@@ -175,41 +177,41 @@ def get_unusual_activity():
                     opts = stock.option_chain(exp)
 
                     # Check calls
-                    for _, row in opts.calls.iterrows():
-                        volume = int(row.get("volume", 0)) if row.get("volume") else 0
-                        oi = int(row.get("openInterest", 0)) if row.get("openInterest") else 0
+                    for row in opts.calls.itertuples():
+                        volume = int(row.volume) if hasattr(row, 'volume') and row.volume and not pd.isna(row.volume) else 0
+                        oi = int(row.openInterest) if hasattr(row, 'openInterest') and row.openInterest and not pd.isna(row.openInterest) else 0
 
                         # Unusual if volume > 5x OI and volume > 1000
                         if oi > 0 and volume > oi * 5 and volume > 1000:
                             unusual.append({
                                 "ticker": ticker,
                                 "type": "CALL",
-                                "strike": row.get("strike"),
+                                "strike": row.strike,
                                 "expiration": exp,
                                 "volume": volume,
                                 "open_interest": oi,
                                 "vol_oi_ratio": round(volume / oi, 1) if oi > 0 else 0,
-                                "last_price": row.get("lastPrice"),
-                                "implied_volatility": row.get("impliedVolatility"),
+                                "last_price": row.lastPrice,
+                                "implied_volatility": row.impliedVolatility,
                                 "sentiment": "bullish",
                             })
 
                     # Check puts
-                    for _, row in opts.puts.iterrows():
-                        volume = int(row.get("volume", 0)) if row.get("volume") else 0
-                        oi = int(row.get("openInterest", 0)) if row.get("openInterest") else 0
+                    for row in opts.puts.itertuples():
+                        volume = int(row.volume) if hasattr(row, 'volume') and row.volume and not pd.isna(row.volume) else 0
+                        oi = int(row.openInterest) if hasattr(row, 'openInterest') and row.openInterest and not pd.isna(row.openInterest) else 0
 
                         if oi > 0 and volume > oi * 5 and volume > 1000:
                             unusual.append({
                                 "ticker": ticker,
                                 "type": "PUT",
-                                "strike": row.get("strike"),
+                                "strike": row.strike,
                                 "expiration": exp,
                                 "volume": volume,
                                 "open_interest": oi,
                                 "vol_oi_ratio": round(volume / oi, 1) if oi > 0 else 0,
-                                "last_price": row.get("lastPrice"),
-                                "implied_volatility": row.get("impliedVolatility"),
+                                "last_price": row.lastPrice,
+                                "implied_volatility": row.impliedVolatility,
                                 "sentiment": "bearish",
                             })
 

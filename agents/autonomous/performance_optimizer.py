@@ -105,7 +105,7 @@ class PerformanceOptimizer:
             'description': 'Regex compilation in loop',
             'severity': 'medium',
             'suggestion': 'Pre-compile regex with re.compile() outside loop',
-            'impact': 'Repeated compilation overhead'
+            'impact': 'Regex compilation overhead'
         },
         {
             'name': 'exception_in_loop',
@@ -196,7 +196,10 @@ class PerformanceOptimizer:
 
     def analyze_project(self) -> list[PerformanceIssue]:
         """Analyze entire project for performance issues."""
-        print("  ⚡ Analyzing performance...")
+        try:
+            print("  Analyzing performance...")
+        except UnicodeEncodeError:
+            print("  Analyzing performance...")
 
         all_issues = []
 
@@ -217,7 +220,10 @@ class PerformanceOptimizer:
         severity_order = {'critical': 0, 'high': 1, 'medium': 2, 'low': 3}
         self.issues.sort(key=lambda x: severity_order.get(x.severity, 4))
 
-        print(f"     📊 Found {len(all_issues)} performance issues")
+        try:
+            print(f"     Found {len(all_issues)} performance issues")
+        except UnicodeEncodeError:
+            print(f"     Found {len(all_issues)} performance issues")
 
         return all_issues
 
@@ -260,7 +266,7 @@ class PerformanceOptimizer:
 
         summary = self.get_summary()
 
-        report = """# ⚡ Performance Analysis Report
+        report = """# Performance Analysis Report
 
 Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 
@@ -268,10 +274,10 @@ Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 
 | Severity | Count |
 |----------|-------|
-| 🔴 Critical | {summary.get('by_severity', {}).get('critical', 0)} |
-| 🟠 High | {summary.get('by_severity', {}).get('high', 0)} |
-| 🟡 Medium | {summary.get('by_severity', {}).get('medium', 0)} |
-| 🟢 Low | {summary.get('by_severity', {}).get('low', 0)} |
+| CRITICAL | {summary.get('by_severity', {}).get('critical', 0)} |
+| HIGH | {summary.get('by_severity', {}).get('high', 0)} |
+| MEDIUM | {summary.get('by_severity', {}).get('medium', 0)} |
+| LOW | {summary.get('by_severity', {}).get('low', 0)} |
 | **Total** | **{summary.get('total', 0)}** |
 
 ## Issues by Type
@@ -283,14 +289,9 @@ Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
         report += "\n## Top Issues to Address\n\n"
 
         for issue in self.issues[:20]:
-            severity_icon = {
-                'critical': '🔴',
-                'high': '🟠',
-                'medium': '🟡',
-                'low': '🟢'
-            }.get(issue.severity, '⚪')
+            severity_label = issue.severity.upper()
 
-            report += """### {severity_icon} {issue.description}
+            report += """### {severity_label} {issue.description}
 
 **File:** `{issue.file_path}` (line {issue.line_number})
 
@@ -344,5 +345,3 @@ def get_performance_optimizer(project_root: Optional[Path] = None) -> Performanc
     if _optimizer is None:
         _optimizer = PerformanceOptimizer(project_root)
     return _optimizer
-
-

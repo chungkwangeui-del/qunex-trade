@@ -1,4 +1,4 @@
-# 🔒 Security & Code Review Report
+# Security & Code Review Report
 
 Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 

@@ -444,7 +444,7 @@ class ExpertFixer:
         medium = [r for r in self.manual_review if r.severity == 'medium']
         low = [r for r in self.manual_review if r.severity == 'low']
 
-        report = """# 🔒 Security & Code Review Report
+        report = """# Security & Code Review Report
 
 Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 
@@ -542,4 +542,3 @@ subprocess.run(['rm', filename], check=True)
 ---
 
 """
-

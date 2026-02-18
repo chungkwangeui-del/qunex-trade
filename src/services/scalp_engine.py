@@ -1776,7 +1776,7 @@ class ScalpAnalyzer:
             primary = candle_analysis.get("primary_pattern")
             pattern_info = f"{primary['name']} (Strength: {primary['strength']})" if primary else "None"
 
-            prompt = f"""You are a professional scalp trader. Analyze this setup for {ticker} on {interval}-minute chart.
+            prompt = """You are a professional scalp trader. Analyze this setup for {ticker} on {interval}-minute chart.
 
 CANDLESTICK PATTERN:
 - Primary Pattern: {pattern_info}
@@ -1830,7 +1830,7 @@ Be direct. Use <strong> tags for key points. Focus ONLY on candlesticks and volu
         if signal == "LONG" and primary:
             vol_text = "with volume confirmation" if volume_confirmed else "waiting for volume spike"
             invalidation = primary.get('invalidation') or (current_price * 0.995 if current_price else 0)
-            return f"""<strong>{primary['name']} detected</strong> - bullish reversal pattern {vol_text}.
+            return """<strong>{primary['name']} detected</strong> - bullish reversal pattern {vol_text}.
             {primary.get('entry_logic', 'Enter on confirmation')}.
             <strong>Stop below ${invalidation:.2f}</strong> (pattern invalidation).
             Target 2:1 reward at VWAP ${vwap:.2f} or next resistance."""
@@ -1838,7 +1838,7 @@ Be direct. Use <strong> tags for key points. Focus ONLY on candlesticks and volu
         elif signal == "SHORT" and primary:
             vol_text = "with volume confirmation" if volume_confirmed else "waiting for volume spike"
             invalidation = primary.get('invalidation') or (current_price * 1.005 if current_price else 0)
-            return f"""<strong>{primary['name']} detected</strong> - bearish reversal pattern {vol_text}.
+            return """<strong>{primary['name']} detected</strong> - bearish reversal pattern {vol_text}.
             {primary.get('entry_logic', 'Enter on confirmation')}.
             <strong>Stop above ${invalidation:.2f}</strong> (pattern invalidation).
             Target 2:1 reward at support or VWAP ${vwap:.2f}."""
@@ -1852,7 +1852,7 @@ Be direct. Use <strong> tags for key points. Focus ONLY on candlesticks and volu
             resistance_text = f"${resistance_price:.2f}" if resistance_price else "N/A"
             vol_ratio = volume_analysis.get('volume_ratio') or 0
 
-            return f"""<strong>No actionable pattern</strong> - wait for clear candlestick setup with volume spike.
+            return """<strong>No actionable pattern</strong> - wait for clear candlestick setup with volume spike.
             Current price ${current_price:.2f}, VWAP ${vwap:.2f}.
             Watch for patterns at <strong>support {support_text}</strong> or <strong>resistance {resistance_text}</strong>.
             Volume currently {vol_ratio:.1f}x average."""

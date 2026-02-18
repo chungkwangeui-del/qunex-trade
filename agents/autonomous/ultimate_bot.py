@@ -25,6 +25,8 @@ Advanced Features:
 import asyncio
 import logging
 import json
+import secrets
+import random
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Any
 from dataclasses import dataclass, field
@@ -472,6 +474,21 @@ class UltimateBot:
                     print("\n  Health Check...")
                     await self._health_check()
 
+                # Report Progress to Main Agent
+                if self.cycle_count % 5 == 0:
+                    try:
+                        progress_file = self.project_root.parent / "memory" / "ultimate_bot_progress.json"
+                        progress_data = {
+                            "cycle": self.cycle_count,
+                            "timestamp": datetime.now().isoformat(),
+                            "status": "Running autonomously",
+                            "fixes": sum(b.tasks_completed for b in self.bots.values())
+                        }
+                        with open(progress_file, "w", encoding="utf-8") as f:
+                            json.dump(progress_data, f)
+                    except Exception:
+                        pass
+
                 # Wait for next cycle
                 elapsed = (datetime.now() - cycle_start).total_seconds()
                 wait_time = max(0, self.config['cycle_interval'] - elapsed)
@@ -717,7 +734,7 @@ class UltimateBot:
             print(f"     Test error: {e}")
 
     async def _print_cycle_summary(self):
-        """Print summary for this cycle."""
+        """Print summary for this cycle and save for proactive reporting."""
         # Get stats
         total_bots = len([b for b in self.bots.values() if b.enabled])
         active_bots = len([b for b in self.bots.values() if b.enabled and b.tasks_completed > 0])
@@ -734,6 +751,7 @@ class UltimateBot:
         import re
         top_name = re.sub(r'[^\x00-\x7F]+', '', top_bot.name).strip() if top_bot and top_bot.tasks_completed > 0 else "N/A"
 
+        summary_text = f"Cycle #{self.cycle_count} Complete. Experts: {active_bots}/{total_bots}, Performance: {performance:.1f}%, Top: {top_name}"
         print(f"\n  +{'-'*40}+")
         print(f"  | {'CYCLE SUMMARY':<38} |")
         print(f"  +{'-'*40}+")
@@ -742,6 +760,20 @@ class UltimateBot:
         print(f"  | Performance:      {performance:.1f}%{' '*16} |")
         print(f"  | Top Expert:       {top_name[:20]:<18} |")
         print(f"  +{'-'*40}+")
+
+        # Proactive Report: Save to a specific file for the Main Agent to pick up
+        try:
+            report_data = {
+                "timestamp": datetime.now().isoformat(),
+                "cycle": self.cycle_count,
+                "summary": summary_text,
+                "status": "READY_TO_PUSH"
+            }
+            report_path = self.project_root.parent / "memory" / "proactive_report.json"
+            with open(report_path, "w", encoding="utf-8") as f:
+                json.dump(report_data, f, indent=2)
+        except Exception as e:
+            logger.error(f"Failed to save proactive report: {e}")
 
     async def _health_check(self):
         """Perform health check on all systems."""
@@ -1405,7 +1437,8 @@ class UltimateBot:
 
     def add_task(self, description: str, priority: TaskPriority = TaskPriority.MEDIUM):
         """Manually add a task."""
-        task_id = f"manual_{datetime.now().strftime('%Y%m%d%H%M%S')}"
+        # Security: Use secrets for secure task ID generation
+        task_id = f"manual_{secrets.token_hex(8)}"
         task = UltimateTask(
             id=task_id,
             description=description,

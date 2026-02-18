@@ -168,7 +168,7 @@ def get_api_status():
     # Check Gemini
     gemini_key = os.environ.get("GEMINI_API_KEY", "")
     if gemini_key:
-        status["gemini"] = {"connected": True, "message": f"OK: Configured", "label": "Gemini AI", "env_var": "GEMINI_API_KEY"}
+        status["gemini"] = {"connected": True, "message": "OK: Configured", "label": "Gemini AI", "env_var": "GEMINI_API_KEY"}
 
     # Check Finnhub
     finnhub_key = os.environ.get("FINNHUB_API_KEY", "")
