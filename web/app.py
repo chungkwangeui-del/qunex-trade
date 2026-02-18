@@ -3,7 +3,16 @@ Flask Web Application - Qunex Trade
 Professional trading tools with real-time market data
 """
 
-from flask import Flask, Response, request, g, render_template, jsonify, redirect, url_for
+from flask import (
+    Flask,
+    Response,
+    request,
+    g,
+    render_template,
+    jsonify,
+    redirect,
+    url_for,
+)
 from werkzeug.middleware.proxy_fix import ProxyFix
 import os
 import sys
@@ -20,11 +29,13 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 # Configure structured logging
 try:
     from web.logging_config import configure_structured_logging, get_logger
+
     configure_structured_logging()
     logger = get_logger(__name__)
 except ImportError:
     # Fallback to standard logging
     logger = logging.getLogger(__name__)
+
 
 def create_app(config_class=Config):
     app = Flask(__name__)
@@ -140,9 +151,18 @@ def create_app(config_class=Config):
         ("auth.forgot_password", "3 per minute"),
         ("auth.reset_password", "5 per minute"),
         ("auth.send_verification_code", "3 per minute"),
-        ("auth.verify_code", f"{app.config['RATE_LIMITS']['auth_per_minute']} per minute"),
-        ("auth.google_login", f"{app.config['RATE_LIMITS']['auth_per_minute']} per minute"),
-        ("auth.google_callback", f"{app.config['RATE_LIMITS']['auth_per_minute']} per minute"),
+        (
+            "auth.verify_code",
+            f"{app.config['RATE_LIMITS']['auth_per_minute']} per minute",
+        ),
+        (
+            "auth.google_login",
+            f"{app.config['RATE_LIMITS']['auth_per_minute']} per minute",
+        ),
+        (
+            "auth.google_callback",
+            f"{app.config['RATE_LIMITS']['auth_per_minute']} per minute",
+        ),
     ]
 
     for route_name, rate_limit in auth_routes:
@@ -154,9 +174,12 @@ def create_app(config_class=Config):
     # Initialize Flask-Admin
     try:
         from web.admin_views import init_admin
+
         init_admin(app)
     except ImportError as e:
-        logger.warning(f"Failed to import admin_views: {e}. Admin interface will not be available.")
+        logger.warning(
+            f"Failed to import admin_views: {e}. Admin interface will not be available."
+        )
 
     @app.before_request
     def set_request_context():
@@ -168,7 +191,9 @@ def create_app(config_class=Config):
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["X-Frame-Options"] = "SAMEORIGIN"
         response.headers["X-XSS-Protection"] = "1; mode=block"
-        response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+        response.headers["Strict-Transport-Security"] = (
+            "max-age=31536000; includeSubDomains"
+        )
         response.headers["Content-Security-Policy"] = (
             "default-src 'self'; script-src 'self' 'unsafe-inline' https://accounts.google.com https://cdn.jsdelivr.net https://fonts.googleapis.com https://unpkg.com https://s3.tradingview.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://accounts.google.com; frame-src 'self' https://accounts.google.com https://www.tradingview.com https://s.tradingview.com;"
         )
@@ -189,6 +214,7 @@ def create_app(config_class=Config):
 
     return app
 
+
 app = create_app()
 
 
@@ -202,7 +228,11 @@ def _wants_json() -> bool:
 # Global error handlers with content negotiation
 @app.errorhandler(400)
 def bad_request(error):
-    payload = {"error": "Bad Request", "message": getattr(error, "description", ""), "request_id": getattr(g, "request_id", None)}
+    payload = {
+        "error": "Bad Request",
+        "message": getattr(error, "description", ""),
+        "request_id": getattr(g, "request_id", None),
+    }
     if _wants_json():
         return payload, 400
     return render_template("400.html", **payload), 400
@@ -210,7 +240,11 @@ def bad_request(error):
 
 @app.errorhandler(404)
 def not_found(error):
-    payload = {"error": "Not Found", "message": getattr(error, "description", ""), "request_id": getattr(g, "request_id", None)}
+    payload = {
+        "error": "Not Found",
+        "message": getattr(error, "description", ""),
+        "request_id": getattr(g, "request_id", None),
+    }
     if _wants_json():
         return payload, 404
     return render_template("errors/404.html", **payload), 404
@@ -218,7 +252,11 @@ def not_found(error):
 
 @app.errorhandler(500)
 def internal_error(error):
-    payload = {"error": "Server Error", "message": "An unexpected error occurred.", "request_id": getattr(g, "request_id", None)}
+    payload = {
+        "error": "Server Error",
+        "message": "An unexpected error occurred.",
+        "request_id": getattr(g, "request_id", None),
+    }
     if _wants_json():
         return payload, 500
     return render_template("errors/500.html", **payload), 500

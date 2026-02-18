@@ -347,67 +347,70 @@ class UltimateBot:
             self.rollback.create_checkpoint("Ultimate Bot startup")
 
         print()
-        print("  ╔" + "═"*58 + "╗")
-        print("  ║" + " "*15 + "🤖👑 ULTIMATE BOT ACTIVATED" + " "*16 + "║")
-        print("  ╚" + "═"*58 + "╝")
+        print("  +" + "="*58 + "+")
+        print("  |" + " "*15 + "ULTIMATE BOT ACTIVATED" + " "*19 + "|")
+        print("  +" + "="*58 + "+")
         print()
-        print(f"  📊 Managing {len(self.bots)} expert bots")
-        print(f"  ⚙️  Auto-fix: {'ENABLED' if self.config['auto_fix_enabled'] else 'DISABLED'}")
-        print(f"  ⏱️  Cycle: Every {self.config['cycle_interval']} seconds")
+        print(f"  Managing {len(self.bots)} expert bots")
+        print(f"  Auto-fix: {'ENABLED' if self.config['auto_fix_enabled'] else 'DISABLED'}")
+        print(f"  Cycle: Every {self.config['cycle_interval']} seconds")
         print()
 
         # Show advanced systems status
-        print("  ┌" + "─"*58 + "┐")
-        print("  │  ADVANCED SYSTEMS                                        │")
-        print("  ├" + "─"*58 + "┤")
+        print("  +" + "-"*58 + "+")
+        print("  |  ADVANCED SYSTEMS                                        |")
+        print("  +" + "-"*58 + "+")
         systems = [
-            ("💬 Expert Communication", self.comm_hub is not None),
-            ("🧠 Learning System", self.learning is not None),
-            ("📊 Daily Reports", self.reports is not None),
-            ("⏪ Rollback System", self.rollback is not None),
-            ("🏆 Competition System", self.competition is not None),
-            ("🚨 Emergency Alerts", self.alerts is not None),
+            ("Expert Communication", self.comm_hub is not None),
+            ("Learning System", self.learning is not None),
+            ("Daily Reports", self.reports is not None),
+            ("Rollback System", self.rollback is not None),
+            ("Competition System", self.competition is not None),
+            ("Emergency Alerts", self.alerts is not None),
         ]
         for name, active in systems:
-            status = "✅ Active" if active else "❌ Disabled"
-            print(f"  │  {name:30} {status:>16}     │")
-        print("  └" + "─"*58 + "┘")
+            status = "[Active] " if active else "[Disabled]"
+            print(f"  |  {name:30} {status:>16}     |")
+        print("  +" + "-"*58 + "+")
         print()
 
         # Show enhanced systems status
-        print("  ┌" + "─"*58 + "┐")
-        print("  │  ENHANCED SYSTEMS (NEW!)                                 │")
-        print("  ├" + "─"*58 + "┤")
+        print("  +" + "-"*58 + "+")
+        print("  |  ENHANCED SYSTEMS (NEW!)                                 |")
+        print("  +" + "-"*58 + "+")
         enhanced = [
-            ("🧠 AI Code Reviewer", self.ai_reviewer is not None),
-            ("📈 Trend Analyzer", self.trend_analyzer is not None),
-            ("📋 Log Analyzer", self.log_analyzer is not None),
-            ("🔍 Dependency Scanner", self.dependency_scanner is not None),
-            ("💾 Auto Backup", self.backup_manager is not None),
-            ("📊 Resource Monitor", self.resource_monitor is not None),
-            ("🌐 API Health Check", self.api_health is not None),
-            ("🔔 Notifier (Discord/Slack)", self.notifier is not None),
-            ("🧪 Test Fixer", self.test_fixer is not None),
-            ("⚡ Performance Optimizer", self.performance_optimizer is not None),
-            ("🖥️ Web Dashboard", self.dashboard is not None),
+            ("AI Code Reviewer", self.ai_reviewer is not None),
+            ("Trend Analyzer", self.trend_analyzer is not None),
+            ("Log Analyzer", self.log_analyzer is not None),
+            ("Dependency Scanner", self.dependency_scanner is not None),
+            ("Auto Backup", self.backup_manager is not None),
+            ("Resource Monitor", self.resource_monitor is not None),
+            ("API Health Check", self.api_health is not None),
+            ("Notifier", self.notifier is not None),
+            ("Test Fixer", self.test_fixer is not None),
+            ("Performance Optimizer", self.performance_optimizer is not None),
+            ("Web Dashboard", self.dashboard is not None),
         ]
         for name, active in enhanced:
-            status = "✅ Active" if active else "❌ Disabled"
-            print(f"  │  {name:30} {status:>16}     │")
-        print("  └" + "─"*58 + "┘")
+            status = "[Active] " if active else "[Disabled]"
+            print(f"  |  {name:30} {status:>16}     |")
+        print("  +" + "-"*58 + "+")
         print()
 
         # Start web dashboard
         if self.dashboard:
             self.dashboard.run(threaded=True)
-            print("  🌐 Dashboard: http://127.0.0.1:5050")
+            print("  Dashboard: http://127.0.0.1:5050")
             print()
 
-        print("  " + "─"*60)
+        print("  " + "-"*60)
         print("  Expert Team:")
         for bot_id, bot in self.bots.items():
-            print(f"    {bot.name:22} → {bot.specialty}")
-        print("  " + "─"*60)
+            # Remove emojis for console compatibility
+            import re
+            name_clean = re.sub(r'[^\x00-\x7F]+', '', bot.name).strip()
+            print(f"    {name_clean:22} -> {bot.specialty}")
+        print("  " + "-"*60)
         print()
 
         # Start all subsystems
@@ -434,9 +437,9 @@ class UltimateBot:
                 self.cycle_count += 1
                 cycle_start = datetime.now()
 
-                print(f"\n{'─'*50}")
-                print(f"  📍 Cycle #{self.cycle_count} - {cycle_start.strftime('%H:%M:%S')}")
-                print(f"{'─'*50}")
+                print(f"\n{'='*50}")
+                print(f"  Cycle #{self.cycle_count} - {cycle_start.strftime('%H:%M:%S')}")
+                print(f"{'='*50}")
 
                 # Reset cycle flags
                 self._security_alerted_this_cycle = False
@@ -484,7 +487,7 @@ class UltimateBot:
 
     async def _run_proactive_fixes(self):
         """Run the fixer proactively every cycle."""
-        print("  🛠️ Running proactive fixes...")
+        print("  Running proactive fixes...")
 
         total_fixes = 0
         all_files = set()
@@ -501,7 +504,7 @@ class UltimateBot:
             if fixed > 0:
                 total_fixes += fixed
                 all_files.update(files)
-                print(f"     ✅ Syntax: Fixed {fixed} errors")
+                print(f"     Syntax: Fixed {fixed} errors")
 
         except Exception as e:
             logger.debug(f"RealFixer error: {e}")
@@ -519,17 +522,17 @@ class UltimateBot:
             if expert_fixes > 0:
                 total_fixes += expert_fixes
                 all_files.update(expert_files)
-                print(f"     ✅ Expert: Fixed {expert_fixes} code quality issues")
+                print(f"     Expert: Fixed {expert_fixes} code quality issues")
 
             if manual_count > 0:
-                print(f"     📋 {manual_count} issues need manual review (see reports/)")
+                print(f"     {manual_count} issues need manual review (see reports/)")
 
         except Exception as e:
             logger.debug(f"ExpertFixer error: {e}")
 
         # Summary and commit
         if total_fixes > 0:
-            print(f"     🎯 Total: {total_fixes} fixes in {len(all_files)} files")
+            print(f"     Total: {total_fixes} fixes in {len(all_files)} files")
 
             # Update expert stats
             self.bots['fixer'].record_success(1.0)
@@ -537,9 +540,9 @@ class UltimateBot:
                 self.competition.record_task_success('fixer', 1.0)
 
             # Commit fixes
-            await self._commit_fixes(f"🛠️ Auto-fixed {total_fixes} issues in {len(all_files)} files")
+            await self._commit_fixes(f"Auto-fixed {total_fixes} issues in {len(all_files)} files")
         else:
-            print("     ✓ No errors to fix")
+            print("     No errors to fix")
 
     async def _commit_fixes(self, message: str):
         """Immediately commit any fixes."""
@@ -605,37 +608,37 @@ class UltimateBot:
             has_changes = status.get('modified', []) or status.get('staged', []) or status.get('untracked', [])
 
             if has_changes:
-                print("  🔄 Auto-committing...")
+                print("  Auto-committing...")
 
                 # Stage all changes
                 git.run_git("add", "-A")
 
                 # Commit
-                success, commit_msg = git.commit("Auto-fix by Ultimate Bot 🤖")
+                success, commit_msg = git.commit("Auto-fix by Ultimate Bot")
 
                 if success:
-                    print("     ✅ Committed")
+                    print("     Committed")
 
                     # Push to remote
                     push_success, push_msg = git.push()
                     if push_success:
-                        print("     ✅ Pushed to GitHub")
+                        print("     Pushed to GitHub")
                         if self.reports:
                             self.reports.record_commit()
                         self.bots['git'].record_success(1.0)
                     else:
-                        print(f"     ⚠️ Push: {push_msg[:40] if push_msg else 'pending'}")
+                        print(f"     Push: {push_msg[:40] if push_msg else 'pending'}")
                 elif commit_msg and "nothing to commit" in commit_msg.lower():
                     pass  # Silent
                 else:
-                    print(f"     ⚠️ {commit_msg[:40] if commit_msg else ''}")
+                    print(f"     {commit_msg[:40] if commit_msg else ''}")
 
         except Exception as e:
-            print(f"     ⚠️ Git: {e}")
+            print(f"     Git: {e}")
 
     async def _scan_for_issues(self):
         """Scan the codebase for issues - report only, no fake tasks."""
-        print("  🔍 Scanning codebase health...")
+        print("  Scanning codebase health...")
 
         try:
             from .smart_analyzer import SmartAnalyzer
@@ -650,18 +653,18 @@ class UltimateBot:
 
             # Report health status (but don't create fake tasks)
             if critical_count > 0:
-                print(f"     ⚠️ {critical_count} critical issues need manual review")
+                print(f"     {critical_count} critical issues need manual review")
             if high_count > 0:
-                print(f"     ⚠️ {high_count} high priority issues detected")
+                print(f"     {high_count} high priority issues detected")
 
             # Calculate health score
             health_score = analysis.get('health_score', 100)
             if health_score >= 80:
-                print(f"     ✅ Codebase health: {health_score}% (GOOD)")
+                print(f"     Codebase health: {health_score}% (GOOD)")
             elif health_score >= 60:
-                print(f"     ⚠️ Codebase health: {health_score}% (NEEDS ATTENTION)")
+                print(f"     Codebase health: {health_score}% (NEEDS ATTENTION)")
             else:
-                print(f"     ❌ Codebase health: {health_score}% (POOR)")
+                print(f"     Codebase health: {health_score}% (POOR)")
 
             # Record in reports
             if self.reports:
@@ -669,7 +672,7 @@ class UltimateBot:
 
             # The proactive fix already handles syntax errors
             # Other issues require manual review - don't create meaningless tasks
-            print(f"     ✓ Scan complete ({total_issues} issues logged for review)")
+            print(f"     Scan complete ({total_issues} issues logged for review)")
 
         except ImportError as e:
             logger.warning(f"Could not import analyzer: {e}")
@@ -678,7 +681,7 @@ class UltimateBot:
 
     async def _run_tests(self):
         """Run tests periodically to ensure code quality."""
-        print("  🧪 Running tests...")
+        print("  Running tests...")
         try:
             import subprocess
             result = subprocess.run(
@@ -690,10 +693,10 @@ class UltimateBot:
             )
 
             if result.returncode == 0:
-                print("     ✅ All tests passed!")
+                print("     All tests passed!")
                 self.bots['tester'].record_success(1.0)
             elif result.returncode == 5:
-                print("     ⚠️ No tests found")
+                print("     No tests found")
             else:
                 # Extract failure info
                 output = result.stdout + result.stderr
@@ -702,16 +705,16 @@ class UltimateBot:
                     import re
                     match = re.search(r'(\d+) failed', output)
                     fails = match.group(1) if match else 'some'
-                    print(f"     ❌ {fails} tests failed")
+                    print(f"     {fails} tests failed")
                 else:
-                    print("     ⚠️ Test issues detected")
+                    print("     Test issues detected")
 
         except subprocess.TimeoutExpired:
-            print("     ⚠️ Tests timed out")
+            print("     Tests timed out")
         except FileNotFoundError:
-            print("     ⚠️ pytest not installed")
+            print("     pytest not installed")
         except Exception as e:
-            print(f"     ⚠️ Test error: {e}")
+            print(f"     Test error: {e}")
 
     async def _print_cycle_summary(self):
         """Print summary for this cycle."""
@@ -727,16 +730,18 @@ class UltimateBot:
 
         # Find top performer
         top_bot = max(self.bots.values(), key=lambda b: b.tasks_completed, default=None)
-        top_name = top_bot.name if top_bot and top_bot.tasks_completed > 0 else "N/A"
+        # Remove emojis from bot name
+        import re
+        top_name = re.sub(r'[^\x00-\x7F]+', '', top_bot.name).strip() if top_bot and top_bot.tasks_completed > 0 else "N/A"
 
-        print(f"\n  ┌{'─'*40}┐")
-        print(f"  │ {'CYCLE SUMMARY':<38} │")
-        print(f"  ├{'─'*40}┤")
-        print(f"  │ Cycle:            #{self.cycle_count:<18} │")
-        print(f"  │ Active Experts:    {active_bots}/{total_bots:<17} │")
-        print(f"  │ Performance:      {performance:.1f}%{' '*16} │")
-        print(f"  │ Top Expert:       {top_name[:20]:<18} │")
-        print(f"  └{'─'*40}┘")
+        print(f"\n  +{'-'*40}+")
+        print(f"  | {'CYCLE SUMMARY':<38} |")
+        print(f"  +{'-'*40}+")
+        print(f"  | Cycle:            #{self.cycle_count:<18} |")
+        print(f"  | Active Experts:    {active_bots}/{total_bots:<17} |")
+        print(f"  | Performance:      {performance:.1f}%{' '*16} |")
+        print(f"  | Top Expert:       {top_name[:20]:<18} |")
+        print(f"  +{'-'*40}+")
 
     async def _health_check(self):
         """Perform health check on all systems."""
@@ -747,7 +752,7 @@ class UltimateBot:
 
             if healthy_bots < total_bots:
                 unhealthy = [b.name for b in self.bots.values() if b.status == BotStatus.ERROR]
-                print(f"     ⚠️ {len(unhealthy)} bots have errors: {', '.join(unhealthy[:3])}")
+                print(f"     {len(unhealthy)} bots have errors: {', '.join(unhealthy[:3])}")
 
             # Check disk space (simple check)
             try:
@@ -755,7 +760,7 @@ class UltimateBot:
                 total, used, free = shutil.disk_usage(self.project_root)
                 free_gb = free / (1024**3)
                 if free_gb < 1:
-                    print(f"     ⚠️ Low disk space: {free_gb:.1f}GB free")
+                    print(f"     Low disk space: {free_gb:.1f}GB free")
             except Exception:
                 pass
 
@@ -1332,54 +1337,59 @@ class UltimateBot:
         """Get a text-based dashboard view."""
         lines = []
         lines.append("")
-        lines.append("  ╔" + "═"*66 + "╗")
-        lines.append("  ║" + " "*20 + "🤖👑 ULTIMATE BOT DASHBOARD" + " "*19 + "║")
-        lines.append("  ╚" + "═"*66 + "╝")
+        lines.append("  [" + "="*66 + "]")
+        lines.append("  [" + " "*20 + "ULTIMATE BOT DASHBOARD" + " "*19 + "]")
+        lines.append("  [" + "="*66 + "]")
 
         # Uptime and stats
         if self.start_time:
             uptime = datetime.now() - self.start_time
-            lines.append(f"  ⏱️  Uptime: {str(uptime).split('.')[0]}")
-        lines.append(f"  🔄 Cycles Completed: {self.cycle_count}")
-        lines.append(f"  📋 Pending Tasks: {len(self.task_queue)}")
+            lines.append(f"  Uptime: {str(uptime).split('.')[0]}")
+        lines.append(f"  Cycles Completed: {self.cycle_count}")
+        lines.append(f"  Pending Tasks: {len(self.task_queue)}")
 
         # Expert Performance Table
         lines.append("")
-        lines.append("  ┌" + "─"*66 + "┐")
-        lines.append("  │  EXPERT PERFORMANCE EVALUATION" + " "*34 + "│")
-        lines.append("  ├" + "─"*66 + "┤")
-        lines.append("  │  Expert              │ Status  │ Done │ Fail │ Score │ Rating │")
-        lines.append("  ├" + "─"*66 + "┤")
+        lines.append("  [" + "-"*66 + "]")
+        lines.append("  [  EXPERT PERFORMANCE EVALUATION" + " "*34 + "]")
+        lines.append("  [" + "-"*66 + "]")
+        lines.append("  [  Expert              | Status  | Done | Fail | Score | Rating ]")
+        lines.append("  [" + "-"*66 + "]")
 
         for bot_id, bot in self.bots.items():
             status_icon = {
-                BotStatus.IDLE: "💤 Idle ",
-                BotStatus.WORKING: "⚡ Work ",
-                BotStatus.ERROR: "❌ Error",
-                BotStatus.DISABLED: "🚫 Off  ",
-                BotStatus.RESTARTING: "🔄 Reset"
-            }.get(bot.status, "❓ ???  ")
+                BotStatus.IDLE: "Idle ",
+                BotStatus.WORKING: "Work ",
+                BotStatus.ERROR: "Error",
+                BotStatus.DISABLED: "Off  ",
+                BotStatus.RESTARTING: "Reset"
+            }.get(bot.status, "???  ")
 
             # Format score and rating
             score = f"{bot.performance_score:.0f}%"
-            rating = "★" * int(bot.quality_rating) + "☆" * (5 - int(bot.quality_rating))
+            rating = "*" * int(bot.quality_rating) + "." * (5 - int(bot.quality_rating))
 
             name_short = bot.name[:18].ljust(18)
-            lines.append(f"  │  {name_short} │ {status_icon} │ {bot.tasks_completed:4} │ {bot.tasks_failed:4} │ {score:>5} │ {rating} │")
+            # Remove emojis from bot name if they exist
+            import re
+            name_clean = re.sub(r'[^\x00-\x7F]+', '', name_short).strip()
+            name_clean = name_clean.ljust(18)
 
-        lines.append("  └" + "─"*66 + "┘")
+            lines.append(f"  [  {name_clean} | {status_icon} | {bot.tasks_completed:4} | {bot.tasks_failed:4} | {score:>5} | {rating} ]")
+
+        lines.append("  [" + "-"*66 + "]")
 
         # Current tasks
         if self.task_queue:
             lines.append("")
-            lines.append("  📋 CURRENT TASKS:")
+            lines.append("  PENDING TASKS:")
             for task in self.task_queue[:5]:
                 priority_icon = {
-                    TaskPriority.CRITICAL: "🔴",
-                    TaskPriority.HIGH: "🟠",
-                    TaskPriority.MEDIUM: "🟡",
-                    TaskPriority.LOW: "🟢"
-                }.get(task.priority, "⚪")
+                    TaskPriority.CRITICAL: "(!)",
+                    TaskPriority.HIGH: "!! ",
+                    TaskPriority.MEDIUM: "!  ",
+                    TaskPriority.LOW: ".  "
+                }.get(task.priority, "   ")
                 assigned = task.assigned_bot or "unassigned"
                 lines.append(f"     {priority_icon} [{assigned:10}] {task.description[:40]}...")
 

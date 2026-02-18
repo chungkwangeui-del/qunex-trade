@@ -28,7 +28,7 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     # Engine options - only use pooling for PostgreSQL, not SQLite
-    if SQLALCHEMY_DATABASE_URI and "postgresql" in SQLALCHEMY_DATABASE_URI:
+    if SQLALCHEMY_DATABASE_URI and ("postgresql" in SQLALCHEMY_DATABASE_URI or "mysql" in SQLALCHEMY_DATABASE_URI):
         SQLALCHEMY_ENGINE_OPTIONS = {
             "pool_size": 10,
             "pool_recycle": 3600,
@@ -37,7 +37,10 @@ class Config:
             "pool_timeout": 30,
         }
     else:
-        SQLALCHEMY_ENGINE_OPTIONS = {}
+        # SQLite does not support these pooling options in create_engine via Flask-SQLAlchemy
+        SQLALCHEMY_ENGINE_OPTIONS = {
+            "pool_pre_ping": True,
+        }
 
     # Security Headers & Cookies
     SESSION_COOKIE_SECURE = os.getenv("RENDER") is not None  # Only True in production
@@ -55,9 +58,11 @@ class Config:
     MAIL_DEFAULT_SENDER = os.getenv("MAIL_USERNAME", "noreply@qunextrade.com")
 
     # Redis / Cache
-    REDIS_URL = os.getenv("REDIS_URL", "memory://")
-    if not REDIS_URL or REDIS_URL.strip() == "":
+    _raw_redis_url = os.getenv("REDIS_URL", "memory://")
+    if not _raw_redis_url or _raw_redis_url.strip() == "" or _raw_redis_url == "redis://default:password@host:port":
         REDIS_URL = "memory://"
+    else:
+        REDIS_URL = _raw_redis_url
 
     CACHE_TYPE = "RedisCache" if REDIS_URL != "memory://" else "SimpleCache"
     CACHE_REDIS_URL = REDIS_URL if REDIS_URL != "memory://" else None

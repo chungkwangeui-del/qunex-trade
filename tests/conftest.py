@@ -24,6 +24,7 @@ class TestConfig(Config):
     """Test configuration"""
     TESTING = True
     SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
+    SQLALCHEMY_ENGINE_OPTIONS = {}  # Force empty for SQLite in tests
     WTF_CSRF_ENABLED = False
     SECRET_KEY = "test-secret-key"
     CACHE_TYPE = "SimpleCache"
@@ -46,6 +47,11 @@ def client(app):
     """Create test client"""
     with app.test_client() as client:
         yield client
+    # Clean up database after each test
+    with app.app_context():
+        db.session.remove()
+        db.drop_all()
+        db.create_all()
 
 @pytest.fixture(scope="function")
 def app_context(app):
@@ -66,14 +72,14 @@ def test_user(app_context, db_session):
     user = User(
         username="testuser",
         email="test@example.com",
-        is_verified=True
+        email_verified=True
     )
     user.set_password("testpassword123")
     db.session.add(user)
     db.session.commit()
     yield user
-    db.session.delete(user)
-    db.session.commit()
+    # Do not delete user here to avoid NOT NULL constraint errors on related objects
+    # client fixture will drop all tables anyway
 
 @pytest.fixture
 def authenticated_client(client, test_user):

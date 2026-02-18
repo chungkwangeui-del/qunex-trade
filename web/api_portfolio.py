@@ -4,10 +4,10 @@ Portfolio API endpoints for managing user holdings and transactions.
 
 from flask import Blueprint, jsonify, request
 from flask_login import login_required, current_user
-from web.database import db, Transaction
+from web.database import db, Transaction, User
 from web.polygon_service import get_polygon_service
 from web.extensions import csrf
-from datetime import datetime
+from datetime import datetime, timezone
 from sqlalchemy import func
 from decimal import Decimal
 import logging
@@ -209,9 +209,9 @@ def add_transaction():
             try:
                 transaction_date = datetime.strptime(transaction_date, '%Y-%m-%d')
             except ValueError:
-                transaction_date = datetime.utcnow()
+                transaction_date = datetime.now(timezone.utc)
     else:
-        transaction_date = datetime.utcnow()
+        transaction_date = datetime.now(timezone.utc)
 
     # Create transaction
     transaction = Transaction(
@@ -224,7 +224,12 @@ def add_transaction():
     )
 
     db.session.add(transaction)
-    db.session.commit()
+    try:
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"Error adding transaction: {e}")
+        return jsonify({'success': False, 'message': 'Database error occurred'}), 500
 
     return jsonify({
         'success': True,
@@ -262,11 +267,16 @@ def update_holding(ticker):
         shares=Decimal(str(shares)),
         price=Decimal(str(price)),
         transaction_type='buy',
-        transaction_date=datetime.utcnow()
+        transaction_date=datetime.now(timezone.utc)
     )
 
     db.session.add(transaction)
-    db.session.commit()
+    try:
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"Error updating holding: {e}")
+        return jsonify({'success': False, 'message': 'Database error occurred'}), 500
 
     return jsonify({
         'success': True,

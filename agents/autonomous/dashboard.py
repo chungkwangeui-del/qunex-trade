@@ -573,11 +573,11 @@ class Dashboard:
         """Start the dashboard server."""
         if not HAS_FLASK:
             logger.warning("Flask not installed. Dashboard unavailable.")
-            print("  ⚠️ Dashboard requires Flask: pip install flask")
+            print("  Dashboard requires Flask: pip install flask")
             return False
 
         try:
-            print(f"  🌐 Dashboard starting at http://{self.host}:{self.port}")
+            print(f"  Dashboard starting at http://{self.host}:{self.port}")
             self._running = True
 
             if threaded:
@@ -604,7 +604,7 @@ class Dashboard:
 
         except Exception as e:
             logger.error(f"Dashboard error: {e}")
-            print(f"  ❌ Dashboard failed to start: {e}")
+            print(f"  Dashboard failed to start: {e}")
             return False
 
     def stop(self):

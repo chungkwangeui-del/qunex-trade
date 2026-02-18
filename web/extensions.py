@@ -18,9 +18,11 @@ cache = Cache()
 
 # Get Redis URL from environment for rate limiter
 # Falls back to memory:// for development
-_redis_url = os.getenv("REDIS_URL", "memory://")
-if not _redis_url or _redis_url.strip() == "":
+_raw_redis_url = os.getenv("REDIS_URL", "memory://")
+if not _raw_redis_url or _raw_redis_url.strip() == "" or _raw_redis_url == "redis://default:password@host:port":
     _redis_url = "memory://"
+else:
+    _redis_url = _raw_redis_url
 
 limiter = Limiter(
     key_func=get_remote_address,

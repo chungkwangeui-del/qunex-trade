@@ -11,6 +11,7 @@ from typing import Optional
 
 db = SQLAlchemy()
 
+
 class User(UserMixin, db.Model):
     """User model for authentication"""
 
@@ -19,11 +20,15 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(80), unique=True, nullable=False, index=True)
     password_hash = db.Column(db.String(200), nullable=True)  # Nullable for OAuth users
     # Fix deprecated datetime.utcnow() - use timezone-aware datetime
-    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), index=True)
+    created_at = db.Column(
+        db.DateTime, default=lambda: datetime.now(timezone.utc), index=True
+    )
 
     # OAuth fields
     google_id = db.Column(db.String(200), unique=True, nullable=True, index=True)
-    oauth_provider = db.Column(db.String(50), nullable=True, index=True)  # 'google', 'apple', etc
+    oauth_provider = db.Column(
+        db.String(50), nullable=True, index=True
+    )  # 'google', 'apple', etc
     profile_picture = db.Column(db.String(500), nullable=True)
 
     # Email verification
@@ -67,60 +72,86 @@ class User(UserMixin, db.Model):
 
     def is_premium(self):
         """Check if user has Premium subscription"""
-        return self.subscription_tier == "premium" and self.subscription_status == "active"
+        return (
+            self.subscription_tier == "premium" and self.subscription_status == "active"
+        )
 
     def is_developer(self):
         """Check if user is Developer (site creator)"""
-        return self.subscription_tier == "developer" and self.subscription_status == "active"
+        return (
+            self.subscription_tier == "developer"
+            and self.subscription_status == "active"
+        )
 
     def __repr__(self):
         return f"<User {self.username}>"
+
 
 class Payment(db.Model):
     """Payment history model"""
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False, index=True)
+    user_id = db.Column(
+        db.Integer, db.ForeignKey("user.id"), nullable=False, index=True
+    )
     amount = db.Column(db.Float, nullable=False)
     currency = db.Column(db.String(10), default="USD")
-    status = db.Column(db.String(20), nullable=False, index=True)  # succeeded, failed, pending
+    status = db.Column(
+        db.String(20), nullable=False, index=True
+    )  # succeeded, failed, pending
     stripe_payment_id = db.Column(db.String(100), nullable=True, index=True)
-    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), index=True)
+    created_at = db.Column(
+        db.DateTime, default=lambda: datetime.now(timezone.utc), index=True
+    )
 
     user = db.relationship("User", backref=db.backref("payments", lazy=True))
 
     def __repr__(self):
         return f"<Payment {self.id} - ${self.amount}>"
 
+
 class Watchlist(db.Model):
     """User watchlist for tracking favorite stocks"""
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False, index=True)
+    user_id = db.Column(
+        db.Integer, db.ForeignKey("user.id"), nullable=False, index=True
+    )
     ticker = db.Column(db.String(10), nullable=False, index=True)
     company_name = db.Column(db.String(200), nullable=True)
-    added_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), index=True)
+    added_at = db.Column(
+        db.DateTime, default=lambda: datetime.now(timezone.utc), index=True
+    )
     notes = db.Column(db.Text, nullable=True)  # User's personal notes about the stock
 
     # Price alerts (optional)
-    alert_price_above = db.Column(db.Float, nullable=True)  # Alert when price goes above this
-    alert_price_below = db.Column(db.Float, nullable=True)  # Alert when price goes below this
+    alert_price_above = db.Column(
+        db.Float, nullable=True
+    )  # Alert when price goes above this
+    alert_price_below = db.Column(
+        db.Float, nullable=True
+    )  # Alert when price goes below this
 
     user = db.relationship(
         "User", backref=db.backref("watchlist", lazy=True, cascade="all, delete-orphan")
     )
 
     # Unique constraint: one ticker per user
-    __table_args__ = (db.UniqueConstraint("user_id", "ticker", name="unique_user_ticker"),)
+    __table_args__ = (
+        db.UniqueConstraint("user_id", "ticker", name="unique_user_ticker"),
+    )
 
     def __repr__(self):
         return f"<Watchlist {self.user_id} - {self.ticker}>"
+
 
 class SavedScreener(db.Model):
     """Saved screener criteria for quick access"""
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False, index=True)
+    user_id = db.Column(
+        db.Integer, db.ForeignKey("user.id"), nullable=False, index=True
+    )
     name = db.Column(db.String(100), nullable=False)  # User-defined name
     description = db.Column(db.Text, nullable=True)
 
@@ -138,15 +169,19 @@ class SavedScreener(db.Model):
     rsi_max = db.Column(db.Float, nullable=True)
     has_macd_signal = db.Column(db.Boolean, default=False)
 
-    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), index=True)
+    created_at = db.Column(
+        db.DateTime, default=lambda: datetime.now(timezone.utc), index=True
+    )
     last_used = db.Column(db.DateTime, nullable=True)
 
     user = db.relationship(
-        "User", backref=db.backref("saved_screeners", lazy=True, cascade="all, delete-orphan")
+        "User",
+        backref=db.backref("saved_screeners", lazy=True, cascade="all, delete-orphan"),
     )
 
     def __repr__(self):
         return f"<SavedScreener {self.name} by User {self.user_id}>"
+
 
 class NewsArticle(db.Model):
     """Cached news articles with AI analysis"""
@@ -163,10 +198,14 @@ class NewsArticle(db.Model):
     # AI Analysis fields
     ai_rating = db.Column(db.Integer, nullable=True, index=True)  # 1-5 stars
     ai_analysis = db.Column(db.Text, nullable=True)  # Claude's analysis
-    sentiment = db.Column(db.String(20), nullable=True, index=True)  # positive, negative, neutral
+    sentiment = db.Column(
+        db.String(20), nullable=True, index=True
+    )  # positive, negative, neutral
 
     # Metadata
-    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), index=True)
+    created_at = db.Column(
+        db.DateTime, default=lambda: datetime.now(timezone.utc), index=True
+    )
     updated_at = db.Column(
         db.DateTime,
         default=lambda: datetime.now(timezone.utc),
@@ -191,6 +230,7 @@ class NewsArticle(db.Model):
             "created_at": self.created_at.isoformat() if self.created_at else None,
         }
 
+
 class EconomicEvent(db.Model):
     """Economic calendar events"""
 
@@ -202,7 +242,9 @@ class EconomicEvent(db.Model):
     date = db.Column(db.DateTime, nullable=False, index=True)
     time = db.Column(db.String(20), nullable=True)  # e.g., "8:30 AM EST"
     country = db.Column(db.String(50), nullable=True, index=True)
-    importance = db.Column(db.String(20), nullable=True, index=True)  # low, medium, high
+    importance = db.Column(
+        db.String(20), nullable=True, index=True
+    )  # low, medium, high
 
     # Impact fields
     actual = db.Column(db.String(50), nullable=True)
@@ -211,7 +253,9 @@ class EconomicEvent(db.Model):
 
     # Metadata
     source = db.Column(db.String(100), nullable=True)
-    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), index=True)
+    created_at = db.Column(
+        db.DateTime, default=lambda: datetime.now(timezone.utc), index=True
+    )
     updated_at = db.Column(
         db.DateTime,
         default=lambda: datetime.now(timezone.utc),
@@ -244,6 +288,7 @@ class EconomicEvent(db.Model):
             "source": self.source,
         }
 
+
 class AIScore(db.Model):
     """Pre-computed AI scores for stocks with SHAP explainability and multi-timeframe support"""
 
@@ -254,7 +299,9 @@ class AIScore(db.Model):
 
     # Medium-term scores (20-day, primary/default)
     score = db.Column(db.Integer, nullable=False, index=True)  # 0-100
-    rating = db.Column(db.String(20), nullable=False)  # Strong Buy/Buy/Hold/Sell/Strong Sell
+    rating = db.Column(
+        db.String(20), nullable=False
+    )  # Strong Buy/Buy/Hold/Sell/Strong Sell
 
     # Short-term scores (5-day) - for day/swing traders
     short_term_score = db.Column(db.Integer, nullable=True, index=True)  # 0-100
@@ -265,7 +312,9 @@ class AIScore(db.Model):
     long_term_rating = db.Column(db.String(20), nullable=True)
 
     features_json = db.Column(db.Text, nullable=True)  # JSON string of features
-    explanation_json = db.Column(db.Text, nullable=True)  # SHAP values (feature contributions)
+    explanation_json = db.Column(
+        db.Text, nullable=True
+    )  # SHAP values (feature contributions)
     updated_at = db.Column(
         db.DateTime,
         default=lambda: datetime.now(timezone.utc),
@@ -290,9 +339,12 @@ class AIScore(db.Model):
             "long_term_rating": self.long_term_rating,
             # Metadata
             "features": json.loads(self.features_json) if self.features_json else {},
-            "explanation": json.loads(self.explanation_json) if self.explanation_json else {},
+            "explanation": (
+                json.loads(self.explanation_json) if self.explanation_json else {}
+            ),
             "updated_at": self.updated_at.isoformat() if self.updated_at else None,
         }
+
 
 class Transaction(db.Model):
     """
@@ -305,13 +357,19 @@ class Transaction(db.Model):
     __tablename__ = "transactions"
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False, index=True)
+    user_id = db.Column(
+        db.Integer, db.ForeignKey("user.id"), nullable=False, index=True
+    )
     ticker = db.Column(db.String(10), nullable=False, index=True)
     shares = db.Column(
         db.Numeric(precision=10, scale=4), nullable=False
     )  # Supports fractional shares
-    price = db.Column(db.Numeric(precision=10, scale=2), nullable=False)  # Price per share
-    transaction_type = db.Column(db.String(10), nullable=False, index=True)  # 'buy' or 'sell'
+    price = db.Column(
+        db.Numeric(precision=10, scale=2), nullable=False
+    )  # Price per share
+    transaction_type = db.Column(
+        db.String(10), nullable=False, index=True
+    )  # 'buy' or 'sell'
     transaction_date = db.Column(
         db.DateTime, default=lambda: datetime.now(timezone.utc), index=True
     )
@@ -339,6 +397,7 @@ class Transaction(db.Model):
             "notes": self.notes,
         }
 
+
 class BacktestJob(db.Model):
     """
     Backtest job for testing AI trading strategies.
@@ -350,7 +409,9 @@ class BacktestJob(db.Model):
     __tablename__ = "backtest_jobs"
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False, index=True)
+    user_id = db.Column(
+        db.Integer, db.ForeignKey("user.id"), nullable=False, index=True
+    )
     status = db.Column(
         db.String(20), default="pending", index=True
     )  # pending, running, completed, failed
@@ -360,7 +421,9 @@ class BacktestJob(db.Model):
     initial_capital = db.Column(db.Numeric(precision=12, scale=2), default=10000)
     result_json = db.Column(db.Text, nullable=True)  # Backtest results as JSON
     error_message = db.Column(db.Text, nullable=True)  # Error message if failed
-    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), index=True)
+    created_at = db.Column(
+        db.DateTime, default=lambda: datetime.now(timezone.utc), index=True
+    )
     completed_at = db.Column(db.DateTime, nullable=True)
 
     # Relationship
@@ -380,12 +443,17 @@ class BacktestJob(db.Model):
             "ticker": self.ticker,
             "start_date": self.start_date.isoformat() if self.start_date else None,
             "end_date": self.end_date.isoformat() if self.end_date else None,
-            "initial_capital": float(self.initial_capital) if self.initial_capital else 10000,
+            "initial_capital": (
+                float(self.initial_capital) if self.initial_capital else 10000
+            ),
             "result": json.loads(self.result_json) if self.result_json else None,
             "error_message": self.error_message,
             "created_at": self.created_at.isoformat() if self.created_at else None,
-            "completed_at": self.completed_at.isoformat() if self.completed_at else None,
+            "completed_at": (
+                self.completed_at.isoformat() if self.completed_at else None
+            ),
         }
+
 
 class PriceAlert(db.Model):
     """
@@ -398,14 +466,20 @@ class PriceAlert(db.Model):
     __tablename__ = "price_alerts"
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False, index=True)
+    user_id = db.Column(
+        db.Integer, db.ForeignKey("user.id"), nullable=False, index=True
+    )
     ticker = db.Column(db.String(10), nullable=False, index=True)
     condition = db.Column(db.String(10), nullable=False)  # 'above' or 'below'
-    threshold = db.Column(db.Numeric(precision=10, scale=2), nullable=False)  # Alert price
+    threshold = db.Column(
+        db.Numeric(precision=10, scale=2), nullable=False
+    )  # Alert price
     is_triggered = db.Column(db.Boolean, default=False, index=True)
     triggered_at = db.Column(db.DateTime, nullable=True)
     triggered_price = db.Column(db.Numeric(precision=10, scale=2), nullable=True)
-    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), index=True)
+    created_at = db.Column(
+        db.DateTime, default=lambda: datetime.now(timezone.utc), index=True
+    )
 
     # Relationship
     user = db.relationship("User", backref=db.backref("price_alerts", lazy=True))
@@ -422,10 +496,15 @@ class PriceAlert(db.Model):
             "condition": self.condition,
             "threshold": float(self.threshold),
             "is_triggered": self.is_triggered,
-            "triggered_at": self.triggered_at.isoformat() if self.triggered_at else None,
-            "triggered_price": float(self.triggered_price) if self.triggered_price else None,
+            "triggered_at": (
+                self.triggered_at.isoformat() if self.triggered_at else None
+            ),
+            "triggered_price": (
+                float(self.triggered_price) if self.triggered_price else None
+            ),
             "created_at": self.created_at.isoformat() if self.created_at else None,
         }
+
 
 class InsiderTrade(db.Model):
     """
@@ -441,20 +520,28 @@ class InsiderTrade(db.Model):
     ticker = db.Column(db.String(10), nullable=False, index=True)
     insider_name = db.Column(db.String(200), nullable=False)
     position = db.Column(db.String(100), nullable=True)  # CEO, CFO, Director, etc.
-    transaction_type = db.Column(db.String(10), nullable=False, index=True)  # 'buy' or 'sell'
+    transaction_type = db.Column(
+        db.String(10), nullable=False, index=True
+    )  # 'buy' or 'sell'
     shares = db.Column(db.Integer, nullable=False)
     price = db.Column(db.Numeric(precision=10, scale=2), nullable=True)
     transaction_date = db.Column(db.Date, nullable=False, index=True)
     filing_date = db.Column(db.Date, nullable=False, index=True)
-    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), index=True)
+    created_at = db.Column(
+        db.DateTime, default=lambda: datetime.now(timezone.utc), index=True
+    )
 
     # Unique constraint to avoid duplicates
     __table_args__ = (
-        db.UniqueConstraint("ticker", "filing_date", "insider_name", name="unique_insider_trade"),
+        db.UniqueConstraint(
+            "ticker", "filing_date", "insider_name", name="unique_insider_trade"
+        ),
     )
 
     def __repr__(self):
-        return f"<InsiderTrade {self.ticker} {self.insider_name} {self.transaction_type}>"
+        return (
+            f"<InsiderTrade {self.ticker} {self.insider_name} {self.transaction_type}>"
+        )
 
     def to_dict(self):
         """Convert to dictionary for JSON serialization"""
@@ -472,6 +559,7 @@ class InsiderTrade(db.Model):
             "filing_date": self.filing_date.isoformat() if self.filing_date else None,
             "created_at": self.created_at.isoformat() if self.created_at else None,
         }
+
 
 class Signal(db.Model):
     """
@@ -497,7 +585,9 @@ class Signal(db.Model):
     actual_return = db.Column(db.Float, nullable=True)  # Percentage return
 
     # Timing
-    signal_date = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), index=True)
+    signal_date = db.Column(
+        db.DateTime, default=lambda: datetime.now(timezone.utc), index=True
+    )
     closed_at = db.Column(db.DateTime, nullable=True)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
 
@@ -521,17 +611,24 @@ class Signal(db.Model):
             "created_at": self.created_at.isoformat() if self.created_at else None,
         }
 
+
 class Announcement(db.Model):
     """Site-wide announcement banner managed by admin"""
 
     id = db.Column(db.Integer, primary_key=True)
     message = db.Column(db.String(500), nullable=False)
     link_text = db.Column(db.String(100), nullable=True)  # Optional link text
-    link_url = db.Column(db.String(500), nullable=True)   # Optional link URL
-    banner_type = db.Column(db.String(20), default="info")  # info, warning, success, error
+    link_url = db.Column(db.String(500), nullable=True)  # Optional link URL
+    banner_type = db.Column(
+        db.String(20), default="info"
+    )  # info, warning, success, error
     is_active = db.Column(db.Boolean, default=True, index=True)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
-    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
+    updated_at = db.Column(
+        db.DateTime,
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc),
+    )
     created_by = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=True)
 
     def __repr__(self):
@@ -548,6 +645,7 @@ class Announcement(db.Model):
             "created_at": self.created_at.isoformat() if self.created_at else None,
         }
 
+
 class PaperAccount(db.Model):
     """
     Paper trading account for practice trading with virtual money.
@@ -557,8 +655,12 @@ class PaperAccount(db.Model):
     __tablename__ = "paper_accounts"
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False, unique=True, index=True)
-    balance = db.Column(db.Numeric(precision=12, scale=2), default=100000)  # Starting $100k
+    user_id = db.Column(
+        db.Integer, db.ForeignKey("user.id"), nullable=False, unique=True, index=True
+    )
+    balance = db.Column(
+        db.Numeric(precision=12, scale=2), default=100000
+    )  # Starting $100k
     initial_balance = db.Column(db.Numeric(precision=12, scale=2), default=100000)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     last_reset = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
@@ -577,6 +679,7 @@ class PaperAccount(db.Model):
             "last_reset": self.last_reset.isoformat() if self.last_reset else None,
         }
 
+
 class PaperTrade(db.Model):
     """
     Paper trade records - buy/sell with virtual money.
@@ -585,12 +688,16 @@ class PaperTrade(db.Model):
     __tablename__ = "paper_trades"
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False, index=True)
+    user_id = db.Column(
+        db.Integer, db.ForeignKey("user.id"), nullable=False, index=True
+    )
     ticker = db.Column(db.String(10), nullable=False, index=True)
     shares = db.Column(db.Numeric(precision=10, scale=4), nullable=False)
     price = db.Column(db.Numeric(precision=10, scale=2), nullable=False)
     trade_type = db.Column(db.String(10), nullable=False, index=True)  # 'buy' or 'sell'
-    trade_date = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), index=True)
+    trade_date = db.Column(
+        db.DateTime, default=lambda: datetime.now(timezone.utc), index=True
+    )
     notes = db.Column(db.Text, nullable=True)
 
     # For closed positions - track P&L
@@ -620,6 +727,7 @@ class PaperTrade(db.Model):
             "total_value": float(self.shares * self.price),
         }
 
+
 class TradeJournal(db.Model):
     """
     Trade Journal for tracking and improving trading performance.
@@ -631,7 +739,9 @@ class TradeJournal(db.Model):
     __tablename__ = "trade_journal"
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False, index=True)
+    user_id = db.Column(
+        db.Integer, db.ForeignKey("user.id"), nullable=False, index=True
+    )
     ticker = db.Column(db.String(10), nullable=False, index=True)
 
     # Trade details
@@ -641,9 +751,15 @@ class TradeJournal(db.Model):
     shares = db.Column(db.Numeric(precision=10, scale=4), nullable=False)
 
     # Strategy & Setup
-    strategy = db.Column(db.String(50), nullable=True)  # 'scalp', 'swing', 'breakout', 'reversal'
-    setup_type = db.Column(db.String(100), nullable=True)  # 'order_block', 'fvg', 'liquidity_sweep'
-    timeframe = db.Column(db.String(10), nullable=True)  # '1m', '5m', '15m', '1h', '4h', 'D'
+    strategy = db.Column(
+        db.String(50), nullable=True
+    )  # 'scalp', 'swing', 'breakout', 'reversal'
+    setup_type = db.Column(
+        db.String(100), nullable=True
+    )  # 'order_block', 'fvg', 'liquidity_sweep'
+    timeframe = db.Column(
+        db.String(10), nullable=True
+    )  # '1m', '5m', '15m', '1h', '4h', 'D'
 
     # Risk management
     stop_loss = db.Column(db.Numeric(precision=10, scale=4), nullable=True)
@@ -654,10 +770,14 @@ class TradeJournal(db.Model):
     # Outcome
     pnl = db.Column(db.Numeric(precision=12, scale=2), nullable=True)
     pnl_percent = db.Column(db.Float, nullable=True)
-    outcome = db.Column(db.String(20), nullable=True, index=True)  # 'win', 'loss', 'breakeven'
+    outcome = db.Column(
+        db.String(20), nullable=True, index=True
+    )  # 'win', 'loss', 'breakeven'
 
     # Psychology & Self-Assessment
-    emotion_before = db.Column(db.String(50), nullable=True)  # 'confident', 'fearful', 'fomo', 'revenge'
+    emotion_before = db.Column(
+        db.String(50), nullable=True
+    )  # 'confident', 'fearful', 'fomo', 'revenge'
     emotion_after = db.Column(db.String(50), nullable=True)
     confidence_level = db.Column(db.Integer, nullable=True)  # 1-10
     followed_plan = db.Column(db.Boolean, default=True)
@@ -674,15 +794,20 @@ class TradeJournal(db.Model):
     exit_screenshot = db.Column(db.Text, nullable=True)
 
     # Market context
-    market_condition = db.Column(db.String(50), nullable=True)  # 'trending', 'ranging', 'volatile'
+    market_condition = db.Column(
+        db.String(50), nullable=True
+    )  # 'trending', 'ranging', 'volatile'
     news_catalyst = db.Column(db.String(200), nullable=True)
 
     # Timestamps
     entry_date = db.Column(db.DateTime, nullable=False, index=True)
     exit_date = db.Column(db.DateTime, nullable=True)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
-    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc),
-                          onupdate=lambda: datetime.now(timezone.utc))
+    updated_at = db.Column(
+        db.DateTime,
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc),
+    )
 
     # Relationship
     user = db.relationship("User", backref=db.backref("trade_journal", lazy=True))
@@ -724,6 +849,7 @@ class TradeJournal(db.Model):
             "created_at": self.created_at.isoformat() if self.created_at else None,
         }
 
+
 class PortfolioSnapshot(db.Model):
     """
     Daily portfolio snapshots for tracking performance over time.
@@ -734,7 +860,9 @@ class PortfolioSnapshot(db.Model):
     __tablename__ = "portfolio_snapshots"
 
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False, index=True)
+    user_id = db.Column(
+        db.Integer, db.ForeignKey("user.id"), nullable=False, index=True
+    )
     snapshot_date = db.Column(db.Date, nullable=False, index=True)
 
     # Portfolio values
@@ -754,7 +882,9 @@ class PortfolioSnapshot(db.Model):
     positions_count = db.Column(db.Integer, default=0)
 
     # Risk metrics
-    largest_position_pct = db.Column(db.Float, nullable=True)  # % of portfolio in largest position
+    largest_position_pct = db.Column(
+        db.Float, nullable=True
+    )  # % of portfolio in largest position
 
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
 
@@ -768,7 +898,9 @@ class PortfolioSnapshot(db.Model):
     def to_dict(self):
         return {
             "id": self.id,
-            "snapshot_date": self.snapshot_date.isoformat() if self.snapshot_date else None,
+            "snapshot_date": (
+                self.snapshot_date.isoformat() if self.snapshot_date else None
+            ),
             "total_value": float(self.total_value) if self.total_value else 0,
             "cash_balance": float(self.cash_balance) if self.cash_balance else 0,
             "invested_value": float(self.invested_value) if self.invested_value else 0,
@@ -778,6 +910,7 @@ class PortfolioSnapshot(db.Model):
             "total_pnl_percent": self.total_pnl_percent,
             "positions_count": self.positions_count,
         }
+
 
 class SentimentData(db.Model):
     """
@@ -792,7 +925,9 @@ class SentimentData(db.Model):
     ticker = db.Column(db.String(10), nullable=False, index=True)
 
     # Sentiment scores (0-100)
-    overall_score = db.Column(db.Integer, nullable=False)  # 0=very bearish, 50=neutral, 100=very bullish
+    overall_score = db.Column(
+        db.Integer, nullable=False
+    )  # 0=very bearish, 50=neutral, 100=very bullish
     reddit_score = db.Column(db.Integer, nullable=True)
     twitter_score = db.Column(db.Integer, nullable=True)
     news_score = db.Column(db.Integer, nullable=True)
@@ -813,11 +948,16 @@ class SentimentData(db.Model):
     sources_count = db.Column(db.Integer, default=0)
     data_quality = db.Column(db.String(20), default="medium")  # low, medium, high
 
-    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc),
-                          onupdate=lambda: datetime.now(timezone.utc), index=True)
+    updated_at = db.Column(
+        db.DateTime,
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc),
+        index=True,
+    )
 
     def to_dict(self):
         import json
+
         return {
             "ticker": self.ticker,
             "overall_score": self.overall_score,
@@ -832,6 +972,7 @@ class SentimentData(db.Model):
             "keywords": json.loads(self.keywords) if self.keywords else [],
             "updated_at": self.updated_at.isoformat() if self.updated_at else None,
         }
+
 
 class ChartPattern(db.Model):
     """
@@ -852,7 +993,9 @@ class ChartPattern(db.Model):
     #        'triangle_descending', 'wedge_rising', 'wedge_falling', 'flag', 'pennant',
     #        'cup_handle', 'channel_up', 'channel_down'
 
-    pattern_direction = db.Column(db.String(10), nullable=False)  # 'bullish', 'bearish', 'neutral'
+    pattern_direction = db.Column(
+        db.String(10), nullable=False
+    )  # 'bullish', 'bearish', 'neutral'
 
     # Price levels
     pattern_start_price = db.Column(db.Numeric(precision=10, scale=4), nullable=True)
@@ -863,7 +1006,9 @@ class ChartPattern(db.Model):
 
     # Confidence & Status
     confidence = db.Column(db.Integer, nullable=False)  # 0-100
-    status = db.Column(db.String(20), default="forming")  # 'forming', 'complete', 'triggered', 'failed'
+    status = db.Column(
+        db.String(20), default="forming"
+    )  # 'forming', 'complete', 'triggered', 'failed'
 
     # Dates
     pattern_start_date = db.Column(db.DateTime, nullable=True)
@@ -877,7 +1022,9 @@ class ChartPattern(db.Model):
             "timeframe": self.timeframe,
             "pattern_type": self.pattern_type,
             "pattern_direction": self.pattern_direction,
-            "breakout_level": float(self.breakout_level) if self.breakout_level else None,
+            "breakout_level": (
+                float(self.breakout_level) if self.breakout_level else None
+            ),
             "target_price": float(self.target_price) if self.target_price else None,
             "stop_loss": float(self.stop_loss) if self.stop_loss else None,
             "confidence": self.confidence,
