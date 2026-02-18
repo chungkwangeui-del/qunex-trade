@@ -487,8 +487,10 @@ class UltimateBot:
                         with open(progress_file, "w", encoding="utf-8") as f:
                             json.dump(progress_data, f)
 
-                        # Use stop method for clean exit
-                        asyncio.create_task(self.stop())
+                        # Stop after reporting once to satisfy cron
+                        print("Reporting complete. Shutting down for this cron turn.")
+                        import os
+                        os._exit(0)
                     except Exception:
                         pass
 
