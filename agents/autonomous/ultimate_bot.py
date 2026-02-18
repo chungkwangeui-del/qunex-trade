@@ -475,7 +475,7 @@ class UltimateBot:
                     await self._health_check()
 
                 # Report Progress to Main Agent
-                if self.cycle_count % 5 == 0:
+                if self.cycle_count % 1 == 0:
                     try:
                         progress_file = self.project_root.parent / "memory" / "ultimate_bot_progress.json"
                         progress_data = {
