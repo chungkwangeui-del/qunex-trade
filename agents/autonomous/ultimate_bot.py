@@ -425,10 +425,10 @@ class UltimateBot:
 
     async def stop(self):
         """Stop the Ultimate Bot gracefully."""
-        print("\n🛑 Ultimate Bot shutting down...")
+        print("\nUltimate Bot shutting down...")
         self.is_running = False
         self._save_state()
-        print("✅ State saved. Goodbye!")
+        print("State saved. Goodbye!")
 
     async def _main_loop(self):
         """Main control loop - the brain of the Ultimate Bot."""
@@ -469,7 +469,7 @@ class UltimateBot:
 
                 # Health check every 5 cycles
                 if self.cycle_count % 5 == 0:
-                    print("\n  🏥 Health Check...")
+                    print("\n  Health Check...")
                     await self._health_check()
 
                 # Wait for next cycle
@@ -477,12 +477,12 @@ class UltimateBot:
                 wait_time = max(0, self.config['cycle_interval'] - elapsed)
 
                 if wait_time > 0:
-                    print(f"\n  ⏳ Next cycle in {wait_time:.0f}s...")
+                    print(f"\n  Next cycle in {wait_time:.0f}s...")
                     await asyncio.sleep(wait_time)
 
             except Exception as e:
                 logger.error(f"Main loop error: {e}")
-                print(f"  ❌ Error: {e}")
+                print(f"  Error: {e}")
                 await asyncio.sleep(10)  # Brief pause on error
 
     async def _run_proactive_fixes(self):
@@ -556,7 +556,7 @@ class UltimateBot:
             if lock_file.exists():
                 try:
                     os.remove(lock_file)
-                    print("     🔓 Removed git lock file")
+                    print("     Unlocked git")
                 except Exception:
                     pass
 
@@ -566,15 +566,15 @@ class UltimateBot:
             # Commit
             success, msg = git.commit(message)
             if success:
-                print("     📝 Committed!")
+                print("     Committed!")
 
                 # Push immediately
                 push_ok, push_msg = git.push()
                 if push_ok:
-                    print("     🚀 Pushed to GitHub!")
+                    print("     Pushed to GitHub!")
                     self.bots['git'].record_success(0.5)
                 else:
-                    print(f"     ⚠️ Push: {push_msg[:30] if push_msg else 'pending'}")
+                    print(f"     Push: {push_msg[:30] if push_msg else 'pending'}")
             elif "nothing to commit" in msg.lower() if msg else False:
                 pass  # Silent - no changes
             elif "Unable to create" in msg if msg else False:
@@ -583,11 +583,11 @@ class UltimateBot:
                     os.remove(lock_file)
                 success, msg = git.commit(message)
                 if success:
-                    print("     📝 Committed (retry)!")
+                    print("     Committed (retry)!")
             else:
-                print(f"     ⚠️ Commit: {msg[:30] if msg else 'issue'}")
+                print(f"     Commit: {msg[:30] if msg else 'issue'}")
         except Exception as e:
-            print(f"     ⚠️ Commit error: {e}")
+            print(f"     Commit error: {e}")
 
     async def _auto_commit(self):
         """Auto-commit changes if any."""
@@ -901,7 +901,7 @@ class UltimateBot:
 
     async def _execute_tasks(self):
         """Execute assigned tasks through expert bots."""
-        print("  ⚡ Delegating to experts...")
+        print("  Delegating to experts...")
 
         # Get tasks ready for execution
         ready_tasks = [
@@ -910,7 +910,7 @@ class UltimateBot:
         ][:self.config['max_concurrent_tasks']]
 
         if not ready_tasks:
-            print("     ✓ No pending tasks")
+            print("     No pending tasks")
             return
 
         for task in ready_tasks:
@@ -921,7 +921,7 @@ class UltimateBot:
                 bot.status = BotStatus.WORKING
                 bot.current_task = task.description[:50]
 
-                print(f"     → {bot.name}: {task.description[:35]}...")
+                print(f"     -> {bot.name}: {task.description[:35]}...")
 
                 # Execute based on expert type
                 success = await self._run_bot_task(task)
@@ -932,7 +932,7 @@ class UltimateBot:
                     task.status = 'completed'
                     task.completed_at = datetime.now()
                     bot.record_success(task_time)
-                    print(f"       ✅ Done in {task_time:.1f}s | {bot.evaluate()}")
+                    print(f"       Done in {task_time:.1f}s | {bot.evaluate()}")
 
                     # Record in advanced systems
                     if self.reports:
@@ -952,7 +952,7 @@ class UltimateBot:
                     if task.retries >= task.max_retries:
                         task.status = 'failed'
                         bot.record_failure()
-                        print(f"       ❌ Failed | {bot.evaluate()}")
+                        print(f"       Failed | {bot.evaluate()}")
 
                         # Record failure in systems
                         if self.reports:
@@ -968,7 +968,7 @@ class UltimateBot:
                             )
                     else:
                         task.status = 'pending'
-                        print(f"       ⚠️ Retry {task.retries}/{task.max_retries}")
+                        print(f"       Retry {task.retries}/{task.max_retries}")
 
                 bot.status = BotStatus.IDLE
                 bot.current_task = None
@@ -1112,16 +1112,16 @@ class UltimateBot:
             try:
                 await asyncio.sleep(self.config['health_check_interval'])
 
-                print("\n  🏥 Health Check...")
+                print("\n  Health Check...")
 
                 for bot_id, bot in self.bots.items():
                     if bot.status == BotStatus.ERROR:
-                        print(f"     ⚠️ {bot.name} in error state, attempting recovery...")
+                        print(f"     {bot.name} in error state, attempting recovery...")
                         bot.status = BotStatus.RESTARTING
                         await asyncio.sleep(1)
                         bot.status = BotStatus.IDLE
                         bot.error_message = None
-                        print(f"     ✅ {bot.name} recovered")
+                        print(f"     {bot.name} recovered")
 
             except Exception as e:
                 logger.error(f"Health monitor error: {e}")
@@ -1188,70 +1188,59 @@ class UltimateBot:
                     if critical:
                         for alert in critical:
                             if not alert.acknowledged:
-                                print(f"\n  🚨 ALERT: {alert.title}")
+                                print(f"\n  ALERT: {alert.title}")
                                 print(f"     {alert.message}")
 
             except Exception as e:
                 logger.error(f"Alert monitor error: {e}")
 
     async def _enhanced_systems_monitor(self):
-        """Run enhanced systems periodically."""
+        """Run enhanced systems periodically with jitter to prevent API spikes."""
+        from agents.api_governor import get_governor
+        governor = get_governor()
         cycle = 0
+        
         while self.is_running:
             try:
-                await asyncio.sleep(300)  # Every 5 minutes
+                # Base sleep + Jitter to spread out API calls
+                jitter = random.uniform(0, 30)
+                await asyncio.sleep(300 + jitter)
                 cycle += 1
 
                 # === Resource Monitoring (every 5 min) ===
                 if self.resource_monitor:
+                    # Resource check usually doesn't hit external AI APIs
                     result = self.resource_monitor.monitor()
                     if result.get('status') == 'critical':
-                        print("\n  🚨 RESOURCE ALERT!")
+                        print("\n  RESOURCE ALERT!")
                         for alert in result.get('alerts', []):
                             print(f"     {alert.message}")
-                        # Send notification
-                        if self.notifier:
+                        
+                        # Only notify if we have quota
+                        if self.notifier and await governor.acquire_permission("default"):
                             await self.notifier.send_critical_alert(
                                 "Resource Alert",
                                 "Critical resource usage detected"
                             )
-                    # Update dashboard
+                    
                     if self.dashboard:
                         snapshot = result.get('snapshot')
                         if snapshot:
                             self.dashboard.add_activity('scan', f"Resource check: CPU {snapshot.cpu_percent:.0f}%, Memory {snapshot.memory_percent:.0f}%")
 
-                # === Backup Check (every 30 min = cycle % 6) ===
-                if cycle % 6 == 0 and self.backup_manager:
-                    schedule = self.backup_manager.schedule_backup(interval_hours=24)
-                    if schedule.get('needed'):
-                        print("\n  💾 Creating scheduled backup...")
-                        backup = self.backup_manager.create_backup()
-                        if backup and self.dashboard:
-                            self.dashboard.add_activity('fix', f"Backup created: {backup.name}")
-
-                # === Dependency Scan (every hour = cycle % 12) ===
-                if cycle % 12 == 0 and self.dependency_scanner:
-                    print("\n  🔍 Scanning dependencies...")
-                    result = self.dependency_scanner.full_scan()
-                    if result.vulnerable_count > 0:
-                        print(f"     ⚠️ {result.vulnerable_count} vulnerable packages!")
-                        if self.notifier:
-                            await self.notifier.send_alert(
-                                "Vulnerable Dependencies",
-                                f"Found {result.vulnerable_count} vulnerable packages",
-                                severity="warning"
-                            )
-
                 # === AI Code Review (every 2 hours = cycle % 24) ===
                 if cycle % 24 == 0 and self.ai_reviewer:
-                    print("\n  🧠 Running AI code review...")
-                    review = await self.ai_reviewer.review_project()
-                    report_path = self.ai_reviewer.generate_report()
-                    print(f"     📝 Review report: {report_path}")
-                    print(f"     Quality: {review.get('average_quality', 0):.0f}/100")
-                    if self.dashboard:
-                        self.dashboard.add_activity('scan', f"AI review: {review.get('average_quality', 0):.0f}/100 quality")
+                    # AI Review is heavy, check quota first
+                    if await governor.acquire_permission("gemini-pro", estimated_tokens=5000):
+                        print("\n  🧠 Running AI code review...")
+                        review = await self.ai_reviewer.review_project()
+                        report_path = self.ai_reviewer.generate_report()
+                        print(f"     📝 Review report: {report_path}")
+                        print(f"     Quality: {review.get('average_quality', 0):.0f}/100")
+                        if self.dashboard:
+                            self.dashboard.add_activity('scan', f"AI review: {review.get('average_quality', 0):.0f}/100 quality")
+                    else:
+                        print("\n  ⚠️ AI Review skipped this cycle due to API quota limits.")
 
                 # === Performance Analysis (every 2 hours = cycle % 24) ===
                 if cycle % 24 == 1 and self.performance_optimizer:
@@ -1270,7 +1259,7 @@ class UltimateBot:
                     if result.get('status') == 'ok':
                         errors = result.get('total_errors', 0)
                         if errors > 100:
-                            print(f"\n  📋 High error volume in logs: {errors}")
+                            print(f"\n  High error volume in logs: {errors}")
                             if self.notifier:
                                 await self.notifier.send_alert(
                                     "Log Alert",
