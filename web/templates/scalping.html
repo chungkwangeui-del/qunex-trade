@@ -1740,7 +1740,7 @@
 <!-- Search Section -->
 <div class="search-section">
     <div class="search-row">
-        <form class="search-form" id="searchForm" onsubmit="return analyzeStock(event)">
+        <form class="search-form" id="searchForm" onsubmit="analyzeStock(event); return false;">
             <input type="text" class="search-input" id="tickerInput" placeholder="AAPL or BTCUSDT" maxlength="12" required>
             <button type="submit" class="search-btn" id="analyzeBtn">Analyze</button>
             <button type="button" class="watchlist-btn" id="watchlistBtn" onclick="toggleWatchlist()" title="Add to Watchlist">+ Watch</button>

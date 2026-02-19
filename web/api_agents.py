@@ -62,8 +62,6 @@ def require_admin(f):
 def get_all_status():
     """Get status of all agents."""
     try:
-        from agents.orchestrator import quick_status
-
         result = run_async(quick_status())
 
         return jsonify({
@@ -84,8 +82,6 @@ def get_all_status():
 def diagnose_all():
     """Run diagnostics on all agents."""
     try:
-        from agents.orchestrator import quick_diagnose
-
         result = run_async(quick_diagnose())
 
         return jsonify({
@@ -106,8 +102,6 @@ def diagnose_all():
 def fix_all():
     """Attempt to fix issues."""
     try:
-        from agents.orchestrator import quick_fix
-
         data = request.get_json() or {}
         auto_fix = data.get("auto_fix", False)
 
@@ -131,8 +125,6 @@ def fix_all():
 def get_development_suggestions():
     """Get development suggestions from all agents."""
     try:
-        from agents.orchestrator import quick_develop
-
         result = run_async(quick_develop())
 
         return jsonify({
@@ -153,8 +145,6 @@ def get_development_suggestions():
 def list_agents():
     """List all available agents."""
     try:
-        from agents.orchestrator import AgentOrchestrator
-
         orchestrator = AgentOrchestrator.get_instance()
 
         agents = []
@@ -197,8 +187,6 @@ def list_agents():
 def get_agent_status(agent_name: str):
     """Get status of a specific agent."""
     try:
-        from agents.orchestrator import AgentOrchestrator
-
         orchestrator = AgentOrchestrator.get_instance()
         agent = orchestrator.get_agent_by_name(agent_name)
 
@@ -231,8 +219,6 @@ def get_agent_status(agent_name: str):
 def diagnose_agent(agent_name: str):
     """Run diagnostics on a specific agent."""
     try:
-        from agents.orchestrator import AgentOrchestrator
-
         orchestrator = AgentOrchestrator.get_instance()
         agent = orchestrator.get_agent_by_name(agent_name)
 
@@ -262,8 +248,6 @@ def diagnose_agent(agent_name: str):
 def fix_agent(agent_name: str):
     """Attempt to fix issues for a specific agent."""
     try:
-        from agents.orchestrator import AgentOrchestrator
-
         orchestrator = AgentOrchestrator.get_instance()
         agent = orchestrator.get_agent_by_name(agent_name)
 
@@ -296,8 +280,6 @@ def fix_agent(agent_name: str):
 def get_agent_suggestions(agent_name: str):
     """Get development suggestions for a specific agent."""
     try:
-        from agents.orchestrator import AgentOrchestrator
-
         orchestrator = AgentOrchestrator.get_instance()
         agent = orchestrator.get_agent_by_name(agent_name)
 
@@ -327,8 +309,6 @@ def get_agent_suggestions(agent_name: str):
 def run_task(agent_name: str, task_id: str):
     """Run a specific task on an agent."""
     try:
-        from agents.orchestrator import AgentOrchestrator
-
         orchestrator = AgentOrchestrator.get_instance()
 
         result = run_async(orchestrator.run_agent_task(agent_name, task_id))
@@ -351,8 +331,6 @@ def run_task(agent_name: str, task_id: str):
 def get_summary():
     """Get comprehensive summary of all agents."""
     try:
-        from agents.orchestrator import AgentOrchestrator
-
         orchestrator = AgentOrchestrator.get_instance()
 
         return jsonify({
@@ -371,8 +349,6 @@ def get_summary():
 def agent_health():
     """Quick health check for agents (no auth required)."""
     try:
-        from agents.orchestrator import AgentOrchestrator
-
         orchestrator = AgentOrchestrator.get_instance()
         status = orchestrator.get_comprehensive_status()
 
@@ -399,8 +375,6 @@ def agent_health():
 def get_dashboard_data():
     """Get comprehensive dashboard data."""
     try:
-        from agents.autonomous.statistics import get_statistics
-
         stats = get_statistics()
         data = stats.get_dashboard_data()
 
@@ -422,8 +396,6 @@ def get_dashboard_data():
 def get_report(report_type: str):
     """Generate a report."""
     try:
-        from agents.autonomous.statistics import get_statistics
-
         stats = get_statistics()
         report = stats.generate_report(report_type)
 
@@ -455,8 +427,6 @@ def get_report(report_type: str):
 def get_ai_status():
     """Get AI integration status."""
     try:
-        from agents.autonomous.ai_integration import get_ai
-
         ai = get_ai()
 
         return jsonify({
@@ -477,8 +447,6 @@ def get_ai_status():
 def ai_analyze():
     """Analyze code with AI."""
     try:
-        from agents.autonomous.ai_integration import get_ai
-
         data = request.get_json() or {}
         code = data.get('query', '')
         context = data.get('context', '')
@@ -509,8 +477,6 @@ def ai_analyze():
 def ai_generate():
     """Generate code with AI."""
     try:
-        from agents.autonomous.ai_integration import get_ai
-
         data = request.get_json() or {}
         description = data.get('description', '')
 
@@ -535,8 +501,6 @@ def ai_generate():
 def ai_explain():
     """Explain error with AI."""
     try:
-        from agents.autonomous.ai_integration import get_ai
-
         data = request.get_json() or {}
         error = data.get('error', '')
         code = data.get('code', '')
@@ -564,8 +528,6 @@ def ai_explain():
 def ai_tests():
     """Generate tests with AI."""
     try:
-        from agents.autonomous.ai_integration import get_ai
-
         data = request.get_json() or {}
         code = data.get('code', '')
         file_path = data.get('file_path', 'unknown.py')
@@ -597,8 +559,6 @@ def ai_tests():
 def get_deploy_status():
     """Get deployment status."""
     try:
-        from agents.autonomous.deployer import get_deployer
-
         deployer = get_deployer()
         status = deployer.get_status()
 
@@ -620,8 +580,6 @@ def get_deploy_status():
 def run_deploy():
     """Run deployment."""
     try:
-        from agents.autonomous.deployer import get_deployer
-
         data = request.get_json() or {}
         environment = data.get('environment', 'staging')
         dry_run = data.get('dry_run', True)
@@ -658,8 +616,6 @@ def run_deploy():
 def get_deploy_history():
     """Get deployment history."""
     try:
-        from agents.autonomous.deployer import get_deployer
-
         deployer = get_deployer()
         history = deployer.get_deployment_history()
 
@@ -687,8 +643,6 @@ def get_deploy_history():
 def analyze_logs():
     """Analyze application logs."""
     try:
-        from agents.autonomous.log_analyzer import get_log_analyzer
-
         hours = int(request.args.get('hours', 24))
 
         analyzer = get_log_analyzer()

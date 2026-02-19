@@ -665,7 +665,7 @@
     <!-- Search Section -->
     <div class="search-section">
         <div class="search-row">
-            <form class="search-form" id="searchForm" onsubmit="return analyzeStock(event)">
+            <form class="search-form" id="searchForm" onsubmit="analyzeStock(event); return false;">
                 <input type="text"
                        class="search-input"
                        id="tickerInput"
