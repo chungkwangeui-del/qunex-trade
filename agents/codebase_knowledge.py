@@ -374,14 +374,22 @@ class CodebaseKnowledge:
             return {"error": f"File not found: {filepath}"}
 
         try:
-            with open(full_path, 'r', encoding='utf-8') as f:
-                content = f.read()
-
-            tree = ast.parse(content)
-
             classes = []
             functions = []
             imports = []
+            line_count = 0
+
+            with open(full_path, 'r', encoding='utf-8') as f:
+                # Use a small buffer to parse incrementally if possible
+                # or just read the content for smaller files.
+                # Since ast.parse requires the full content, we still read it
+                # but we avoid holding multiple copies of large files.
+                content = f.read()
+                line_count = len(content.splitlines())
+
+            tree = ast.parse(content)
+            # Free the content string as soon as we have the tree
+            del content
 
             for node in ast.walk(tree):
                 if isinstance(node, ast.ClassDef):
@@ -401,7 +409,7 @@ class CodebaseKnowledge:
                 "classes": classes,
                 "functions": functions,
                 "imports": list(set(imports)),
-                "line_count": len(content.splitlines()),
+                "line_count": line_count,
             }
         except Exception as e:
             return {"error": str(e)}

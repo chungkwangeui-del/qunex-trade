@@ -17,6 +17,10 @@ from datetime import timezone
 from typing import Optional
 from typing import Any
 
+from agents.orchestrator import AgentOrchestrator
+from agents.notifications import NotificationManager, AgentNotification, NotificationPriority, NotificationChannel
+from agents.metrics import MetricsCollector
+
 logger = logging.getLogger(__name__)
 
 class AgentScheduler:
@@ -117,10 +121,6 @@ class AgentScheduler:
 
     async def _scheduler_loop(self) -> None:
         """Main scheduler loop."""
-        from agents.orchestrator import AgentOrchestrator
-        from agents.notifications import NotificationManager, AgentNotification, NotificationPriority, NotificationChannel
-        from agents.metrics import MetricsCollector
-
         orchestrator = AgentOrchestrator.get_instance()
         notifier = NotificationManager.get_instance()
         metrics = MetricsCollector.get_instance()
