@@ -2,11 +2,11 @@
 Database models for user authentication and subscriptions
 """
 
+import json
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timezone
-from datetime import timezone
 from typing import Optional
 
 db = SQLAlchemy()
@@ -324,8 +324,6 @@ class AIScore(db.Model):
 
     def to_dict(self):
         """Convert to dictionary for JSON serialization with all timeframes"""
-        import json
-
         return {
             "ticker": self.ticker,
             # Medium-term (default/primary)
@@ -434,8 +432,6 @@ class BacktestJob(db.Model):
 
     def to_dict(self):
         """Convert to dictionary for JSON serialization"""
-        import json
-
         return {
             "id": self.id,
             "user_id": self.user_id,
@@ -956,8 +952,6 @@ class SentimentData(db.Model):
     )
 
     def to_dict(self):
-        import json
-
         return {
             "ticker": self.ticker,
             "overall_score": self.overall_score,
