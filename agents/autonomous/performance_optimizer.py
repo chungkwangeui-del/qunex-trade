@@ -266,16 +266,16 @@ class PerformanceOptimizer:
 
         summary = self.get_summary()
 
-        # Severity icons mapping
-        severity_icons = {
-            'critical': 'CRITICAL',
-            'high': 'HIGH',
-            'medium': 'MEDIUM',
-            'low': 'LOW'
+        # Severity icons mapping - use plain text labels
+        severity_labels = {
+            'critical': '[CRITICAL]',
+            'high': '[HIGH]',
+            'medium': '[MEDIUM]',
+            'low': '[LOW]'
         }
 
         now_str = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-
+        
         # Build the report using a list of lines joined at the end
         report = [
             "# Performance Analysis Report",
@@ -306,7 +306,7 @@ class PerformanceOptimizer:
         ])
 
         for issue in self.issues[:20]:
-            label = severity_icons.get(issue.severity, 'INFO')
+            label = severity_labels.get(issue.severity, '[INFO]')
             report.append("### " + label + " " + str(issue.description))
             report.append("")
             report.append("**File:** `" + str(issue.file_path) + "` (line " + str(issue.line_number) + ")")
