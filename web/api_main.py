@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from web.database import NewsArticle, EconomicEvent, db
+from web.database import NewsArticle, EconomicEvent, db, User
 from src.services.db_service import DatabaseService
 from src.services.market_data_service import MarketDataService
 from web.polygon_service import get_polygon_service
@@ -116,9 +116,6 @@ def _mask_key(key: str, show_chars: int = 4) -> str:
 @api_main.route("/api/status")
 def get_api_status():
     """Check status of all external APIs and services with actual connectivity tests."""
-    import os
-    import requests
-
     status = {
         "polygon": {"connected": False, "message": "ENV: POLYGON_API_KEY not set", "label": "Polygon.io (Stocks)", "env_var": "POLYGON_API_KEY"},
         "twelvedata": {"connected": False, "message": "ENV: TWELVEDATA_API_KEY not set", "label": "Twelve Data (800/day)", "env_var": "TWELVEDATA_API_KEY"},
@@ -182,7 +179,6 @@ def get_api_status():
 
     # Check Database
     try:
-        from web.database import User
         user_count = User.query.count()
         status["database"] = {"connected": True, "message": f"OK: {user_count} users", "label": "Database", "env_var": "DATABASE_URL"}
     except Exception as e:

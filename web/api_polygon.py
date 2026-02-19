@@ -9,6 +9,7 @@ import csv
 import io
 import re
 import logging
+import os
 from datetime import timedelta
 from typing import Dict
 
@@ -505,8 +506,6 @@ def health_check():
             - market_status (dict): Market status response or error details
             - timestamp (str): ISO timestamp
     """
-    import os
-
     polygon = get_polygon_service()
 
     # Check API key

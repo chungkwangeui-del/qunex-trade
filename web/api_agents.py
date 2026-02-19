@@ -12,6 +12,19 @@ import asyncio
 import logging
 from typing import List
 import json
+from functools import wraps
+
+from agents.orchestrator import (
+    quick_status,
+    quick_diagnose,
+    quick_fix,
+    quick_develop,
+    AgentOrchestrator
+)
+from agents.autonomous.statistics import get_statistics
+from agents.autonomous.ai_integration import get_ai
+from agents.autonomous.deployer import get_deployer
+from agents.autonomous.log_analyzer import get_log_analyzer
 
 logger = logging.getLogger(__name__)
 
@@ -30,8 +43,6 @@ def run_async(coro):
 
 def require_admin(f):
     """Decorator to require admin access."""
-    from functools import wraps
-
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if not current_user.is_authenticated:

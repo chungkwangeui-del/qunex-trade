@@ -1,6 +1,6 @@
 # Performance Analysis Report
 
-Generated: 2026-02-18 18:53:14
+Generated: 2026-02-18 22:22:15
 
 ## Summary
 
@@ -8,14 +8,14 @@ Generated: 2026-02-18 18:53:14
 |----------|-------|
 | CRITICAL | 0 |
 | HIGH | 0 |
-| MEDIUM | 32 |
+| MEDIUM | 28 |
 | LOW | 39 |
-| **Total** | **71** |
+| **Total** | **67** |
 
 ## Issues by Type
 
 - **Read Entire File**: 1
-- **Global Import In Function**: 13
+- **Global Import In Function**: 9
 - **Synchronous Io**: 18
 - **Unnecessary List Conversion**: 7
 - **Exception In Loop**: 32
@@ -24,7 +24,7 @@ Generated: 2026-02-18 18:53:14
 
 ### MEDIUM Reading entire file into memory
 
-**File:** `C:\Users\chung\.openclaw\workspace\qunex-trade\agents\codebase_knowledge.py` (line 378)
+**File:** `C:\Users\chung\.openclaw\workspace\qunex-trade\agents\codebase_knowledge.py` (line 387)
 
 **Impact:** Memory usage
 
@@ -32,16 +32,16 @@ Generated: 2026-02-18 18:53:14
 
 ```python
                 content = f.read()
+                line_count = len(content.splitlines())
 
             tree = ast.parse(content)
-
 ```
 
 ---
 
 ### MEDIUM Import inside function
 
-**File:** `C:\Users\chung\.openclaw\workspace\qunex-trade\agents\scheduler.py` (line 35)
+**File:** `C:\Users\chung\.openclaw\workspace\qunex-trade\agents\scheduler.py` (line 39)
 
 **Impact:** Repeated import overhead
 
@@ -158,23 +158,6 @@ def refresh_news_data():
 
 ---
 
-### MEDIUM Import inside function
-
-**File:** `C:\Users\chung\.openclaw\workspace\qunex-trade\web\api_chat.py` (line 42)
-
-**Impact:** Repeated import overhead
-
-**Suggestion:** Move import to module level (unless conditional)
-
-```python
-    def polygon(self):
-        """Lazy-load polygon service to avoid initialization issues"""
-        if self._polygon is None:
-            self._polygon = get_polygon_service()
-```
-
----
-
 ### MEDIUM Synchronous HTTP requests
 
 **File:** `C:\Users\chung\.openclaw\workspace\qunex-trade\web\api_flow.py` (line 57)
@@ -192,26 +175,9 @@ def refresh_news_data():
 
 ---
 
-### MEDIUM Import inside function
-
-**File:** `C:\Users\chung\.openclaw\workspace\qunex-trade\web\api_main.py` (line 19)
-
-**Impact:** Repeated import overhead
-
-**Suggestion:** Move import to module level (unless conditional)
-
-```python
-def get_news():
-    """Get all news articles"""
-    articles = DatabaseService.get_news_articles(limit=50)
-    return jsonify({"success": True, "articles": articles})
-```
-
----
-
 ### MEDIUM Synchronous HTTP requests
 
-**File:** `C:\Users\chung\.openclaw\workspace\qunex-trade\web\api_main.py` (line 152)
+**File:** `C:\Users\chung\.openclaw\workspace\qunex-trade\web\api_main.py` (line 149)
 
 **Impact:** Blocking I/O
 
@@ -227,7 +193,7 @@ def get_news():
 
 ### MEDIUM Synchronous HTTP requests
 
-**File:** `C:\Users\chung\.openclaw\workspace\qunex-trade\web\api_main.py` (line 162)
+**File:** `C:\Users\chung\.openclaw\workspace\qunex-trade\web\api_main.py` (line 159)
 
 **Impact:** Blocking I/O
 
@@ -243,7 +209,7 @@ def get_news():
 
 ### MEDIUM Synchronous HTTP requests
 
-**File:** `C:\Users\chung\.openclaw\workspace\qunex-trade\web\api_main.py` (line 177)
+**File:** `C:\Users\chung\.openclaw\workspace\qunex-trade\web\api_main.py` (line 174)
 
 **Impact:** Blocking I/O
 
@@ -270,40 +236,6 @@ def get_news():
 
             if response.ok:
                 data = response.json()
-```
-
----
-
-### MEDIUM Import inside function
-
-**File:** `C:\Users\chung\.openclaw\workspace\qunex-trade\web\api_polygon.py` (line 44)
-
-**Impact:** Repeated import overhead
-
-**Suggestion:** Move import to module level (unless conditional)
-
-```python
-def get_quote(ticker):
-    """
-    Get latest real-time quote for a stock.
-
-```
-
----
-
-### MEDIUM Import inside function
-
-**File:** `C:\Users\chung\.openclaw\workspace\qunex-trade\web\api_portfolio.py` (line 22)
-
-**Impact:** Repeated import overhead
-
-**Suggestion:** Move import to module level (unless conditional)
-
-```python
-def get_current_price(ticker):
-    """
-    Get current price for a ticker.
-    Tries multiple sources: Polygon snapshot, Polygon previous close, Twelve Data
 ```
 
 ---
@@ -355,6 +287,74 @@ def get_current_price(ticker):
             response.raise_for_status()
             data = response.json()
 
+```
+
+---
+
+### MEDIUM Synchronous HTTP requests
+
+**File:** `C:\Users\chung\.openclaw\workspace\qunex-trade\web\auth.py` (line 73)
+
+**Impact:** Blocking I/O
+
+**Suggestion:** Consider async with aiohttp for concurrent requests
+
+```python
+        resp = requests.post(
+            RECAPTCHA_VERIFY_URL,
+            data={"secret": RECAPTCHA_SECRET_KEY, "response": token},
+            timeout=5,
+```
+
+---
+
+### MEDIUM Import inside function
+
+**File:** `C:\Users\chung\.openclaw\workspace\qunex-trade\web\database.py` (line 55)
+
+**Impact:** Repeated import overhead
+
+**Suggestion:** Move import to module level (unless conditional)
+
+```python
+    def set_password(self, password):
+        """Hash and set password"""
+        if password:
+            self.password_hash = generate_password_hash(password)
+```
+
+---
+
+### MEDIUM Import inside function
+
+**File:** `C:\Users\chung\.openclaw\workspace\qunex-trade\web\database.py` (line 384)
+
+**Impact:** Repeated import overhead
+
+**Suggestion:** Move import to module level (unless conditional)
+
+```python
+    def to_dict(self):
+        """Convert to dictionary for JSON serialization"""
+        return {
+            "id": self.id,
+```
+
+---
+
+### MEDIUM Import inside function
+
+**File:** `C:\Users\chung\.openclaw\workspace\qunex-trade\web\database.py` (line 958)
+
+**Impact:** Repeated import overhead
+
+**Suggestion:** Move import to module level (unless conditional)
+
+```python
+    def to_dict(self):
+        import json
+
+        return {
 ```
 
 ---

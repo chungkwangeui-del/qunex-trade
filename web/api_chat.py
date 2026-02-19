@@ -16,6 +16,8 @@ from web.polygon_service import get_polygon_service
 from web.database import db, Watchlist, PaperTrade, PaperAccount
 import os
 import logging
+import time
+import google.generativeai as genai
 
 import re
 from datetime import datetime, timedelta
@@ -47,13 +49,10 @@ class StockChatAssistant:
 
     def _get_model(self):
         """Get or create cached Gemini model"""
-        import time
-
         if self._model is not None:
             return self._model
 
         try:
-            import google.generativeai as genai
             genai.configure(api_key=self.gemini_key)
 
             # Try different model names
@@ -142,8 +141,6 @@ class StockChatAssistant:
 
     def chat(self, message: str, user_id: int = None, conversation_history: list = None) -> dict:
         """Process chat message and generate AI response"""
-        import time
-
         try:
             # Check for API key first
             if not self.gemini_key:

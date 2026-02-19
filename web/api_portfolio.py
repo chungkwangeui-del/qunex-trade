@@ -10,8 +10,11 @@ from web.extensions import csrf
 from datetime import datetime, timezone
 from sqlalchemy import func
 from decimal import Decimal
+from collections import defaultdict
 import logging
 import json
+import os
+import requests
 from typing import Optional
 
 logger = logging.getLogger(__name__)
@@ -24,9 +27,6 @@ def get_current_price(ticker):
     Get current price for a ticker.
     Tries multiple sources: Polygon snapshot, Polygon previous close, Twelve Data
     """
-    import os
-    import requests
-
     # Try Polygon snapshot first
     try:
         polygon = get_polygon_service()
@@ -378,10 +378,6 @@ def portfolio_analysis():
     - Risk indicators
     - Top performers/losers
     """
-    from web.polygon_service import get_polygon_service
-    from collections import defaultdict
-    from decimal import Decimal
-
     transactions = Transaction.query.filter_by(user_id=current_user.id).all()
 
     if not transactions:
