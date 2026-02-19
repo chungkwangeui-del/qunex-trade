@@ -14,21 +14,32 @@ from web.extensions import csrf, cache
 from web.database import db, InsiderTrade
 from web.polygon_service import get_polygon_service
 from web.finnhub_service import get_finnhub_service
-import os
 import logging
+import asyncio
+import os
 import requests
 from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional
-from datetime import timedelta
-from datetime import timezone
 import json
-from typing import List
-from typing import Optional
+
+try:
+    from src.services.async_http_service import AsyncHttpClient
+except ImportError:
+    AsyncHttpClient = None
 
 logger = logging.getLogger(__name__)
 
 api_flow = Blueprint("api_flow", __name__)
 csrf.exempt(api_flow)
+
+def run_async(coro):
+    """Run a coroutine from synchronous code"""
+    try:
+        loop = asyncio.get_event_loop()
+    except RuntimeError:
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+    return loop.run_until_complete(coro)
 
 class OptionsFlowAnalyzer:
     """Analyze options flow for unusual activity"""
@@ -54,9 +65,15 @@ class OptionsFlowAnalyzer:
                 "apiKey": self.polygon_key
             }
 
-            response = requests.get(url, params=params, timeout=15)
-            response.raise_for_status()
-            data = response.json()
+            if AsyncHttpClient:
+                data = run_async(AsyncHttpClient.get(url, params=params, timeout=15))
+            else:
+                response = requests.get(url, params=params, timeout=15)
+                response.raise_for_status()
+                data = response.json()
+
+            if not data:
+                return {"error": "Failed to fetch options data"}
 
             contracts = data.get("results", [])
 

@@ -1,6 +1,6 @@
 # Performance Analysis Report
 
-Generated: 2026-02-19 02:12:18
+Generated: 2026-02-19 02:17:28
 
 ## Summary
 
@@ -24,7 +24,7 @@ Generated: 2026-02-19 02:12:18
 
 ### [MEDIUM] Reading entire file into memory
 
-**File:** qunex-trade\agents\codebase_knowledge.py (line 387)
+**File:** C:\Users\chung\.openclaw\workspace\qunex-trade\agents\codebase_knowledge.py (line 387)
 
 **Impact:** Memory usage
 
@@ -41,7 +41,7 @@ Generated: 2026-02-19 02:12:18
 
 ### [MEDIUM] Import inside function
 
-**File:** qunex-trade\agents\scheduler.py (line 39)
+**File:** C:\Users\chung\.openclaw\workspace\qunex-trade\agents\scheduler.py (line 39)
 
 **Impact:** Repeated import overhead
 
@@ -58,7 +58,7 @@ Generated: 2026-02-19 02:12:18
 
 ### [MEDIUM] Synchronous HTTP requests
 
-**File:** qunex-trade\scripts\cron_refresh_insider.py (line 156)
+**File:** C:\Users\chung\.openclaw\workspace\qunex-trade\scripts\cron_refresh_insider.py (line 156)
 
 **Impact:** Blocking I/O
 
@@ -74,7 +74,7 @@ Generated: 2026-02-19 02:12:18
 
 ### [MEDIUM] Synchronous HTTP requests
 
-**File:** qunex-trade\scripts\refresh_data_cron.py (line 258)
+**File:** C:\Users\chung\.openclaw\workspace\qunex-trade\scripts\refresh_data_cron.py (line 258)
 
 **Impact:** Blocking I/O
 
@@ -91,7 +91,7 @@ Generated: 2026-02-19 02:12:18
 
 ### [MEDIUM] Synchronous HTTP requests
 
-**File:** qunex-trade\src\news_collector.py (line 87)
+**File:** C:\Users\chung\.openclaw\workspace\qunex-trade\src\news_collector.py (line 87)
 
 **Impact:** Blocking I/O
 
@@ -108,7 +108,7 @@ Generated: 2026-02-19 02:12:18
 
 ### [MEDIUM] Synchronous HTTP requests
 
-**File:** qunex-trade\web\advanced_sr_analysis.py (line 107)
+**File:** C:\Users\chung\.openclaw\workspace\qunex-trade\web\advanced_sr_analysis.py (line 107)
 
 **Impact:** Blocking I/O
 
@@ -125,7 +125,7 @@ Generated: 2026-02-19 02:12:18
 
 ### [MEDIUM] Synchronous HTTP requests
 
-**File:** qunex-trade\web\advanced_sr_analysis.py (line 132)
+**File:** C:\Users\chung\.openclaw\workspace\qunex-trade\web\advanced_sr_analysis.py (line 132)
 
 **Impact:** Blocking I/O
 
@@ -142,7 +142,7 @@ Generated: 2026-02-19 02:12:18
 
 ### [MEDIUM] Synchronous HTTP requests
 
-**File:** qunex-trade\web\api_flow.py (line 57)
+**File:** C:\Users\chung\.openclaw\workspace\qunex-trade\web\api_flow.py (line 57)
 
 **Impact:** Blocking I/O
 
@@ -159,7 +159,7 @@ Generated: 2026-02-19 02:12:18
 
 ### [MEDIUM] Synchronous HTTP requests
 
-**File:** qunex-trade\web\api_main.py (line 169)
+**File:** C:\Users\chung\.openclaw\workspace\qunex-trade\web\api_main.py (line 169)
 
 **Impact:** Blocking I/O
 
@@ -175,7 +175,7 @@ Generated: 2026-02-19 02:12:18
 
 ### [MEDIUM] Synchronous HTTP requests
 
-**File:** qunex-trade\web\api_main.py (line 189)
+**File:** C:\Users\chung\.openclaw\workspace\qunex-trade\web\api_main.py (line 189)
 
 **Impact:** Blocking I/O
 
@@ -191,7 +191,7 @@ Generated: 2026-02-19 02:12:18
 
 ### [MEDIUM] Synchronous HTTP requests
 
-**File:** qunex-trade\web\api_main.py (line 209)
+**File:** C:\Users\chung\.openclaw\workspace\qunex-trade\web\api_main.py (line 209)
 
 **Impact:** Blocking I/O
 
@@ -207,7 +207,7 @@ Generated: 2026-02-19 02:12:18
 
 ### [MEDIUM] Synchronous HTTP requests
 
-**File:** qunex-trade\web\api_market_features.py (line 62)
+**File:** C:\Users\chung\.openclaw\workspace\qunex-trade\web\api_market_features.py (line 62)
 
 **Impact:** Blocking I/O
 
@@ -224,7 +224,7 @@ Generated: 2026-02-19 02:12:18
 
 ### [MEDIUM] Synchronous HTTP requests
 
-**File:** qunex-trade\web\api_portfolio.py (line 54)
+**File:** C:\Users\chung\.openclaw\workspace\qunex-trade\web\api_portfolio.py (line 54)
 
 **Impact:** Blocking I/O
 
@@ -241,7 +241,7 @@ Generated: 2026-02-19 02:12:18
 
 ### [MEDIUM] Synchronous HTTP requests
 
-**File:** qunex-trade\web\api_portfolio.py (line 67)
+**File:** C:\Users\chung\.openclaw\workspace\qunex-trade\web\api_portfolio.py (line 67)
 
 **Impact:** Blocking I/O
 
@@ -258,7 +258,7 @@ Generated: 2026-02-19 02:12:18
 
 ### [MEDIUM] Synchronous HTTP requests
 
-**File:** qunex-trade\web\api_swing.py (line 129)
+**File:** C:\Users\chung\.openclaw\workspace\qunex-trade\web\api_swing.py (line 129)
 
 **Impact:** Blocking I/O
 
@@ -275,24 +275,23 @@ Generated: 2026-02-19 02:12:18
 
 ### [MEDIUM] Synchronous HTTP requests
 
-**File:** qunex-trade\web\indices_service.py (line 82)
+**File:** C:\Users\chung\.openclaw\workspace\qunex-trade\web\indices_service.py (line 99)
 
 **Impact:** Blocking I/O
 
 **Suggestion:** Consider async with aiohttp for concurrent requests
 
 ```python
-            response = requests.get(url, params=params, timeout=10)
-
-            if response.status_code == 429:
-                logger.error("[Indices] Rate limit exceeded (5 calls/minute)")
+                response = requests.get(url, params=params, timeout=10)
+                if response.status_code == 429:
+                    logger.error("[Indices] Rate limit exceeded (5 calls/minute)
 ```
 
 ---
 
 ### [MEDIUM] Import inside function
 
-**File:** qunex-trade\web\utils.py (line 89)
+**File:** C:\Users\chung\.openclaw\workspace\qunex-trade\web\utils.py (line 89)
 
 **Impact:** Repeated import overhead
 
@@ -309,7 +308,7 @@ def rate_limit(calls_per_minute: int = 60):
 
 ### [MEDIUM] Synchronous HTTP requests
 
-**File:** qunex-trade\src\services\market_data_service.py (line 160)
+**File:** C:\Users\chung\.openclaw\workspace\qunex-trade\src\services\market_data_service.py (line 160)
 
 **Impact:** Blocking I/O
 
@@ -326,7 +325,7 @@ def rate_limit(calls_per_minute: int = 60):
 
 ### [MEDIUM] Synchronous HTTP requests
 
-**File:** qunex-trade\src\services\scalp_engine.py (line 1234)
+**File:** C:\Users\chung\.openclaw\workspace\qunex-trade\src\services\scalp_engine.py (line 1234)
 
 **Impact:** Blocking I/O
 
@@ -343,7 +342,7 @@ def rate_limit(calls_per_minute: int = 60):
 
 ### [MEDIUM] Synchronous HTTP requests
 
-**File:** qunex-trade\src\services\scalp_engine.py (line 1291)
+**File:** C:\Users\chung\.openclaw\workspace\qunex-trade\src\services\scalp_engine.py (line 1291)
 
 **Impact:** Blocking I/O
 
