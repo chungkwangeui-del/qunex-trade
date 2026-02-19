@@ -6,7 +6,7 @@ from flask import Blueprint, jsonify, request
 from flask_login import login_required, current_user
 from web.database import db, Transaction, User
 from web.polygon_service import get_polygon_service
-from web.extensions import csrf
+from web.extensions import csrf, cache
 from datetime import datetime, timezone
 from sqlalchemy import func
 from decimal import Decimal
@@ -22,9 +22,10 @@ logger = logging.getLogger(__name__)
 api_portfolio = Blueprint('api_portfolio', __name__)
 csrf.exempt(api_portfolio)
 
+@cache.memoize(timeout=300)
 def get_current_price(ticker):
     """
-    Get current price for a ticker.
+    Get current price for a ticker with caching.
     Tries multiple sources: Polygon snapshot, Polygon previous close, Twelve Data
     """
     # Try Polygon snapshot first

@@ -38,6 +38,8 @@ oauth = OAuth()
 RECAPTCHA_SECRET_KEY = os.getenv("RECAPTCHA_SECRET_KEY")
 RECAPTCHA_VERIFY_URL = "https://www.google.com/recaptcha/api/siteverify"
 
+# Create a shared requests session for reCAPTCHA
+recaptcha_session = requests.Session()
 
 def verify_recaptcha(token: Optional[str]) -> bool:
     """
@@ -70,7 +72,7 @@ def verify_recaptcha(token: Optional[str]) -> bool:
         return True
 
     try:
-        resp = requests.post(
+        resp = recaptcha_session.post(
             RECAPTCHA_VERIFY_URL,
             data={"secret": RECAPTCHA_SECRET_KEY, "response": token},
             timeout=5,

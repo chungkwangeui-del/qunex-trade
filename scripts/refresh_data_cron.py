@@ -14,6 +14,7 @@ This replaces the old threading-based background task system.
 import os
 import sys
 import logging
+import requests
 from datetime import datetime, timedelta, timezone
 from datetime import timedelta
 from datetime import timezone
@@ -24,6 +25,12 @@ parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 web_dir = os.path.join(parent_dir, "web")
 sys.path.insert(0, web_dir)
 sys.path.insert(0, parent_dir)
+
+# Import app first to ensure proper initialization
+from web.app import app
+from web.database import db, NewsArticle, EconomicEvent
+from src.news_collector import collect_news
+from src.news_analyzer import NewsAnalyzer
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -47,12 +54,6 @@ def refresh_news_data():
         - Commits database transactions
     """
     try:
-        # Import app first to ensure proper initialization
-        from web.app import app
-        from web.database import db, NewsArticle
-        from src.news_collector import collect_news
-        from src.news_analyzer import NewsAnalyzer
-
         logger.info("Starting news refresh...")
 
         # CRITICAL: Validate required API keys
@@ -230,14 +231,7 @@ def refresh_calendar_data():
     Returns:
         bool: True if refresh succeeded, False otherwise
     """
-    import requests
-
     try:
-        # Import app first to ensure proper initialization
-        from web.app import app
-        from web.database import db, EconomicEvent
-        from datetime import datetime, timedelta
-
         logger.info("Starting calendar refresh...")
 
         # CRITICAL: Validate required API key
