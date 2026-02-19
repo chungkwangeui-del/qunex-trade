@@ -49,7 +49,7 @@ class PerformanceOptimizer:
             'description': 'String concatenation in loop',
             'severity': 'high',
             'suggestion': 'Use list comprehension with join(), or StringIO',
-            'impact': 'O(n²) → O(n)'
+            'impact': 'O(n2) -> O(n)'
         },
         {
             'name': 'list_in_loop',
@@ -57,7 +57,7 @@ class PerformanceOptimizer:
             'description': 'List membership check in loop',
             'severity': 'high',
             'suggestion': 'Convert list to set for O(1) lookups',
-            'impact': 'O(n×m) → O(n)'
+            'impact': 'O(nxm) -> O(n)'
         },
         {
             'name': 'nested_loops',
@@ -65,7 +65,7 @@ class PerformanceOptimizer:
             'description': 'Triple nested loop detected',
             'severity': 'critical',
             'suggestion': 'Consider algorithm optimization or data structure change',
-            'impact': 'O(n³) complexity'
+            'impact': 'O(n3) complexity'
         },
         {
             'name': 'repeated_computation',
@@ -105,7 +105,7 @@ class PerformanceOptimizer:
             'description': 'Regex compilation in loop',
             'severity': 'medium',
             'suggestion': 'Pre-compile regex with re.compile() outside loop',
-            'impact': 'Regex compilation overhead'
+            'impact': 'Repeated compilation overhead'
         },
         {
             'name': 'exception_in_loop',
@@ -145,7 +145,7 @@ class PerformanceOptimizer:
             'description': 'Concatenating DataFrames in loop',
             'severity': 'high',
             'suggestion': 'Collect in list and concat once at end',
-            'impact': 'O(n²) memory operations'
+            'impact': 'O(n2) memory operations'
         }
     ]
 
@@ -266,75 +266,78 @@ class PerformanceOptimizer:
 
         summary = self.get_summary()
 
-        # Build the report as a single string to avoid rendering issues
-        report = []
-        report.append("# Performance Analysis Report")
-        report.append("")
-        report.append("Generated: " + datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
-        report.append("")
-        report.append("## Summary")
-        report.append("")
-        report.append("| Severity | Count |")
-        report.append("|----------|-------|")
-        report.append("| CRITICAL | " + str(summary.get('by_severity', {}).get('critical', 0)) + " |")
-        report.append("| HIGH | " + str(summary.get('by_severity', {}).get('high', 0)) + " |")
-        report.append("| MEDIUM | " + str(summary.get('by_severity', {}).get('medium', 0)) + " |")
-        report.append("| LOW | " + str(summary.get('by_severity', {}).get('low', 0)) + " |")
-        report.append("| **Total** | **" + str(summary.get('total', 0)) + "** |")
-        report.append("")
-        report.append("## Issues by Type")
-        report.append("")
+        report = f\"\"\"# Performance Analysis Report
 
+Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+
+## Summary
+
+| Severity | Count |
+|----------|-------|
+| 🔴 Critical | {summary.get('by_severity', {}).get('critical', 0)} |
+| 🟠 High | {summary.get('by_severity', {}).get('high', 0)} |
+| 🟡 Medium | {summary.get('by_severity', {}).get('medium', 0)} |
+| 🟢 Low | {summary.get('by_severity', {}).get('low', 0)} |
+| **Total** | **{summary.get('total', 0)}** |
+
+## Issues by Type
+
+\"\"\"
         for issue_type, count in summary.get('by_type', {}).items():
-            report.append("- **" + issue_type.replace('_', ' ').title() + "**: " + str(count))
+            report += f"- **{issue_type.replace('_', ' ').title()}**: {count}\n"
 
-        report.append("")
-        report.append("## Top Issues to Address")
-        report.append("")
+        report += "\n## Top Issues to Address\n\n"
 
         for issue in self.issues[:20]:
-            severity_label = issue.severity.upper()
-            report.append("### " + severity_label + " " + issue.description)
-            report.append("")
-            report.append("**File:** `" + issue.file_path + "` (line " + str(issue.line_number) + ")")
-            report.append("")
-            report.append("**Impact:** " + issue.estimated_impact)
-            report.append("")
-            report_lines_snippet = issue.code_snippet.split('\n')
-            report.append("**Suggestion:** " + issue.suggestion)
-            report.append("")
-            report.append("```python")
-            for line in report_lines_snippet:
-                report.append(line)
-            report.append("```")
-            report.append("")
-            report.append("---")
-            report.append("")
+            severity_icon = {
+                'critical': '🔴',
+                'high': '🟠',
+                'medium': '🟡',
+                'low': '🟢'
+            }.get(issue.severity, '⚪')
 
-        report.append("## General Optimization Tips")
-        report.append("")
-        report.append("1. **Use appropriate data structures**")
-        report.append("   - Set for membership testing")
-        report.append("   - Dict for key-value lookups")
-        report.append("   - Deque for queue operations")
-        report.append("")
-        report.append("2. **Vectorize operations**")
-        report.append("   - Use NumPy/Pandas vectorization instead of loops")
-        report.append("   - Use list comprehensions over append loops")
-        report.append("")
-        report.append("3. **Minimize I/O**")
-        report.append("   - Batch database queries")
-        report.append("   - Use async I/O for concurrent operations")
-        report.append("   - Cache frequently accessed data")
-        report.append("")
-        report.append("4. **Profile before optimizing**")
-        report.append("   - Use cProfile or line_profiler")
-        report.append("   - Focus on actual bottlenecks")
-        report.append("")
-        report.append("---")
-        report.append("*Report generated by Performance Optimizer*")
+            report += f\"\"\"### {severity_icon} {issue.description}
 
-        output.write_text("\n".join(report), encoding='utf-8')
+**File:** `{issue.file_path}` (line {issue.line_number})
+
+**Impact:** {issue.estimated_impact}
+
+**Suggestion:** {issue.suggestion}
+
+```python
+{issue.code_snippet}
+```
+
+---
+
+\"\"\"
+
+        # Add optimization tips
+        report += \"\"\"## General Optimization Tips
+
+1. **Use appropriate data structures**
+   - Set for membership testing
+   - Dict for key-value lookups
+   - Deque for queue operations
+
+2. **Vectorize operations**
+   - Use NumPy/Pandas vectorization instead of loops
+   - Use list comprehensions over append loops
+
+3. **Minimize I/O**
+   - Batch database queries
+   - Use async I/O for concurrent operations
+   - Cache frequently accessed data
+
+4. **Profile before optimizing**
+   - Use cProfile or line_profiler
+   - Focus on actual bottlenecks
+
+---
+*Report generated by Performance Optimizer*
+\"\"\"
+
+        output.write_text(report, encoding='utf-8')
         return str(output)
 
 

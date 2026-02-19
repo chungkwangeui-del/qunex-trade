@@ -444,7 +444,7 @@ class ExpertFixer:
         medium = [r for r in self.manual_review if r.severity == 'medium']
         low = [r for r in self.manual_review if r.severity == 'low']
 
-        report = """# Security & Code Review Report
+        report = f"""# Security & Code Review Report
 
 Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 
@@ -526,7 +526,7 @@ subprocess.run(['rm', filename], check=True)
     def _format_issue(self, issue: IssueReport) -> str:
         """Format a single issue for the report."""
         rel_path = issue.file_path.replace(str(self.project_root), '').lstrip('/\\')
-        return """### {issue.issue_type.replace('_', ' ').title()}
+        return f\"\"\"### {issue.issue_type.replace('_', ' ').title()}
 
 **File:** `{rel_path}` (line {issue.line_number})
 
@@ -541,4 +541,4 @@ subprocess.run(['rm', filename], check=True)
 
 ---
 
-"""
+\"\"\"
