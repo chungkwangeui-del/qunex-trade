@@ -76,6 +76,7 @@ def create_app(config_class=Config):
     csrf.exempt("web.auth.delete_announcement")
     csrf.exempt("web.auth.toggle_announcement")
     csrf.exempt("web.auth.get_active_announcement")
+    csrf.exempt("web.auth.ping")
 
     # Register Blueprints
     from web.auth import auth, oauth

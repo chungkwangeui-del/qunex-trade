@@ -621,7 +621,7 @@
             <button class="type-button buy active" onclick="setTransactionType('buy')">BUY</button>
             <button class="type-button sell" onclick="setTransactionType('sell')">SELL</button>
         </div>
-        <form id="transactionForm" onsubmit="submitTransaction(event)">
+        <form id="transactionForm" onsubmit="submitTransaction(event); return false;">
             <input type="hidden" id="transactionType" value="buy">
             <input type="hidden" id="editingId" value="">
 

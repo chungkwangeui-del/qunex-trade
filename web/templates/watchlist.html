@@ -633,7 +633,7 @@
             <button class="modal-close" onclick="closeAddStockModal()">&times;</button>
         </div>
         <div class="modal-body">
-            <form id="addStockForm" onsubmit="addStock(event)">
+            <form id="addStockForm" onsubmit="addStock(event); return false;">
                 <div class="form-group">
                     <label class="form-label">Ticker Symbol</label>
                     <input type="text" id="ticker" class="form-input" placeholder="e.g., AAPL, TSLA, NVDA"
@@ -660,7 +660,7 @@
             <button class="modal-close" onclick="closeEditNotesModal()">&times;</button>
         </div>
         <div class="modal-body">
-            <form id="editNotesForm" onsubmit="updateNotes(event)">
+            <form id="editNotesForm" onsubmit="updateNotes(event); return false;">
                 <input type="hidden" id="edit-item-id">
                 <div class="form-group">
                     <label class="form-label">Notes for <span id="edit-ticker" style="color: #00d9ff;"></span></label>
@@ -683,7 +683,7 @@
             <button class="modal-close" onclick="closeAlertModal()">&times;</button>
         </div>
         <div class="modal-body">
-            <form id="alertForm" onsubmit="saveAlerts(event)">
+            <form id="alertForm" onsubmit="saveAlerts(event); return false;">
                 <input type="hidden" id="alert-item-id">
                 <div style="text-align: center; margin-bottom: 20px;">
                     <span id="alert-ticker" style="font-size: 1.5rem; font-weight: 700; color: #00d9ff;"></span>

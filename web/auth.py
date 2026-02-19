@@ -409,6 +409,12 @@ def get_active_announcement():
     return jsonify(None)
 
 
+@auth.route("/ping", methods=["POST"])
+def ping():
+    """Session keep-alive endpoint"""
+    return jsonify({"success": True, "timestamp": datetime.now(timezone.utc).isoformat()})
+
+
 @auth.route("/google/login")
 def google_login():
     """Initiate Google OAuth login"""

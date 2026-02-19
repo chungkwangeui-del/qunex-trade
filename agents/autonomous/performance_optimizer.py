@@ -8,7 +8,7 @@ import time
 from pathlib import Path
 from datetime import datetime
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Optional, List, Dict, Any
 import logging
 
 logger = logging.getLogger(__name__)
@@ -49,7 +49,7 @@ class PerformanceOptimizer:
             'description': 'String concatenation in loop',
             'severity': 'high',
             'suggestion': 'Use list comprehension with join(), or StringIO',
-            'impact': 'O(n2) -> O(n)'
+            'impact': 'O(n²) → O(n)'
         },
         {
             'name': 'list_in_loop',
@@ -57,7 +57,7 @@ class PerformanceOptimizer:
             'description': 'List membership check in loop',
             'severity': 'high',
             'suggestion': 'Convert list to set for O(1) lookups',
-            'impact': 'O(nxm) -> O(n)'
+            'impact': 'O(n×m) → O(n)'
         },
         {
             'name': 'nested_loops',
@@ -65,7 +65,7 @@ class PerformanceOptimizer:
             'description': 'Triple nested loop detected',
             'severity': 'critical',
             'suggestion': 'Consider algorithm optimization or data structure change',
-            'impact': 'O(n3) complexity'
+            'impact': 'O(n³) complexity'
         },
         {
             'name': 'repeated_computation',
@@ -105,7 +105,7 @@ class PerformanceOptimizer:
             'description': 'Regex compilation in loop',
             'severity': 'medium',
             'suggestion': 'Pre-compile regex with re.compile() outside loop',
-            'impact': 'Repeated compilation overhead'
+            'impact': 'Regex compilation overhead'
         },
         {
             'name': 'exception_in_loop',
@@ -145,16 +145,16 @@ class PerformanceOptimizer:
             'description': 'Concatenating DataFrames in loop',
             'severity': 'high',
             'suggestion': 'Collect in list and concat once at end',
-            'impact': 'O(n2) memory operations'
+            'impact': 'O(n²) memory operations'
         }
     ]
 
     def __init__(self, project_root: Optional[Path] = None):
         self.project_root = project_root or Path.cwd()
-        self.issues: list[PerformanceIssue] = []
-        self.optimizations: list[OptimizationResult] = []
+        self.issues: List[PerformanceIssue] = []
+        self.optimizations: List[OptimizationResult] = []
 
-    def analyze_file(self, file_path: Path) -> list[PerformanceIssue]:
+    def analyze_file(self, file_path: Path) -> List[PerformanceIssue]:
         """Analyze a file for performance issues."""
         issues = []
 
@@ -194,7 +194,7 @@ class PerformanceOptimizer:
 
         return issues
 
-    def analyze_project(self) -> list[PerformanceIssue]:
+    def analyze_project(self) -> List[PerformanceIssue]:
         """Analyze entire project for performance issues."""
         try:
             print("  Analyzing performance...")
@@ -227,7 +227,7 @@ class PerformanceOptimizer:
 
         return all_issues
 
-    def get_summary(self) -> dict:
+    def get_summary(self) -> Dict[str, Any]:
         """Get summary of performance issues."""
         if not self.issues:
             return {'status': 'no_issues', 'total': 0}
@@ -266,76 +266,61 @@ class PerformanceOptimizer:
 
         summary = self.get_summary()
 
-        report = """# Performance Analysis Report
+        # Severity icons mapping
+        severity_icons = {
+            'critical': '🔴',
+            'high': '🟠',
+            'medium': '🟡',
+            'low': '🟢'
+        }
 
-Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+        now_str = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-## Summary
+        # Build the report manually using string concatenation to bypass rendering issues
+        report = "# Performance Analysis Report\n\n"
+        report += "Generated: " + now_str + "\n\n"
+        report += "## Summary\n\n"
+        report += "| Severity | Count |\n"
+        report += "|----------|-------|\n"
+        report += f"| {severity_icons['critical']} Critical | " + str(summary.get('by_severity', {}).get('critical', 0)) + " |\n"
+        report += f"| {severity_icons['high']} High | " + str(summary.get('by_severity', {}).get('high', 0)) + " |\n"
+        report += f"| {severity_icons['medium']} Medium | " + str(summary.get('by_severity', {}).get('medium', 0)) + " |\n"
+        report += f"| {severity_icons['low']} Low | " + str(summary.get('by_severity', {}).get('low', 0)) + " |\n"
+        report += "| **Total** | **" + str(summary.get('total', 0)) + "** |\n\n"
 
-| Severity | Count |
-|----------|-------|
-| 🔴 Critical | {summary.get('by_severity', {}).get('critical', 0)} |
-| 🟠 High | {summary.get('by_severity', {}).get('high', 0)} |
-| 🟡 Medium | {summary.get('by_severity', {}).get('medium', 0)} |
-| 🟢 Low | {summary.get('by_severity', {}).get('low', 0)} |
-| **Total** | **{summary.get('total', 0)}** |
-
-## Issues by Type
-
-"""
+        report += "## Issues by Type\n\n"
         for issue_type, count in summary.get('by_type', {}).items():
-            report += f"- **{issue_type.replace('_', ' ').title()}**: {count}\n"
+            report += "- **" + str(issue_type.replace('_', ' ').title()) + "**: " + str(count) + "\n"
 
         report += "\n## Top Issues to Address\n\n"
-
         for issue in self.issues[:20]:
-            severity_icon = {
-                'critical': '🔴',
-                'high': '🟠',
-                'medium': '🟡',
-                'low': '🟢'
-            }.get(issue.severity, '⚪')
+            severity_label = str(issue.severity.upper())
+            icon = severity_icons.get(issue.severity, '⚪')
+            report += "### " + icon + " " + str(issue.description) + "\n\n"
+            report += "**File:** `" + str(issue.file_path) + "` (line " + str(issue.line_number) + ")\n\n"
+            report += "**Impact:** " + str(issue.estimated_impact) + "\n\n"
+            report += "**Suggestion:** " + str(issue.suggestion) + "\n\n"
+            report += "```python\n"
+            report += str(issue.code_snippet) + "\n"
+            report += "```\n\n---\n\n"
 
-            report += """### {severity_icon} {issue.description}
-
-**File:** `{issue.file_path}` (line {issue.line_number})
-
-**Impact:** {issue.estimated_impact}
-
-**Suggestion:** {issue.suggestion}
-
-```python
-{issue.code_snippet}
-```
-
----
-
-"""
-
-        # Add optimization tips
-        report += """## General Optimization Tips
-
-1. **Use appropriate data structures**
-   - Set for membership testing
-   - Dict for key-value lookups
-   - Deque for queue operations
-
-2. **Vectorize operations**
-   - Use NumPy/Pandas vectorization instead of loops
-   - Use list comprehensions over append loops
-
-3. **Minimize I/O**
-   - Batch database queries
-   - Use async I/O for concurrent operations
-   - Cache frequently accessed data
-
-4. **Profile before optimizing**
-   - Use cProfile or line_profiler
-   - Focus on actual bottlenecks
-
----
-*Report generated by Performance Optimizer*
-"""
+        report += "## General Optimization Tips\n\n"
+        report += "1. **Use appropriate data structures**\n"
+        report += "   - Set for membership testing\n"
+        report += "   - Dict for key-value lookups\n"
+        report += "   - Deque for queue operations\n\n"
+        report += "2. **Vectorize operations**\n"
+        report += "   - Use NumPy/Pandas vectorization instead of loops\n"
+        report += "   - Use list comprehensions over append loops\n\n"
+        report += "3. **Minimize I/O**\n"
+        report += "   - Batch database queries\n"
+        report += "   - Use async I/O for concurrent operations\n"
+        report += "   - Cache frequently accessed data\n\n"
+        report += "4. **Profile before optimizing**\n"
+        report += "   - Use cProfile or line_profiler\n"
+        report += "   - Focus on actual bottlenecks\n\n"
+        report += "---\n"
+        report += "*Report generated by Performance Optimizer*"
 
         output.write_text(report, encoding='utf-8')
         return str(output)
