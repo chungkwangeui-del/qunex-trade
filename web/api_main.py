@@ -6,13 +6,28 @@ from web.polygon_service import get_polygon_service
 from datetime import datetime, timezone, timedelta
 from sqlalchemy import or_
 import logging
+import asyncio
 import requests
 import os
 import json
 
+try:
+    from src.services.async_http_service import AsyncHttpClient
+except ImportError:
+    AsyncHttpClient = None
+
 logger = logging.getLogger(__name__)
 
 api_main = Blueprint("api_main", __name__)
+
+def run_async(coro):
+    """Run a coroutine from synchronous code"""
+    try:
+        loop = asyncio.get_event_loop()
+    except RuntimeError:
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+    return loop.run_until_complete(coro)
 
 
 @api_main.route("/api/news")
@@ -146,19 +161,34 @@ def get_api_status():
     twelvedata_key = os.environ.get("TWELVEDATA_API_KEY", "")
     if twelvedata_key:
         try:
-            resp = requests.get("https://api.twelvedata.com/quote", params={"symbol": "AAPL", "apikey": twelvedata_key}, timeout=10)
-            if resp.status_code == 200:
-                data = resp.json()
+            if AsyncHttpClient:
+                data = run_async(AsyncHttpClient.get("https://api.twelvedata.com/quote", params={"symbol": "AAPL", "apikey": twelvedata_key}, timeout=10))
                 if data and not data.get("code") and data.get("close"):
                     status["twelvedata"] = {"connected": True, "message": f"OK: AAPL=${float(data['close']):.2f}", "label": "Twelve Data (800/day)", "env_var": "TWELVEDATA_API_KEY"}
+            else:
+                resp = requests.get("https://api.twelvedata.com/quote", params={"symbol": "AAPL", "apikey": twelvedata_key}, timeout=10)
+                if resp.status_code == 200:
+                    data = resp.json()
+                    if data and not data.get("code") and data.get("close"):
+                        status["twelvedata"] = {"connected": True, "message": f"OK: AAPL=${float(data['close']):.2f}", "label": "Twelve Data (800/day)", "env_var": "TWELVEDATA_API_KEY"}
         except Exception as e:
             status["twelvedata"]["message"] = f"ERROR: {str(e)[:40]}"
 
     # Check Binance
     try:
-        resp = requests.get("https://api.binance.us/api/v3/ping", timeout=5)
-        if resp.status_code == 200:
-            status["binance"] = {"connected": True, "message": "OK: Binance.US working", "label": "Binance (Crypto)", "env_var": None}
+        if AsyncHttpClient:
+            # Note: AsyncHttpClient currently only returns JSON, ping might return empty
+            session = run_async(AsyncHttpClient.get_session())
+            async def check_binance():
+                async with session.get("https://api.binance.us/api/v3/ping", timeout=5) as resp:
+                    return resp.status == 200
+
+            if run_async(check_binance()):
+                status["binance"] = {"connected": True, "message": "OK: Binance.US working", "label": "Binance (Crypto)", "env_var": None}
+        else:
+            resp = requests.get("https://api.binance.us/api/v3/ping", timeout=5)
+            if resp.status_code == 200:
+                status["binance"] = {"connected": True, "message": "OK: Binance.US working", "label": "Binance (Crypto)", "env_var": None}
     except Exception:
         status["binance"]["message"] = "NETWORK: Unreachable"
 
@@ -171,9 +201,14 @@ def get_api_status():
     finnhub_key = os.environ.get("FINNHUB_API_KEY", "")
     if finnhub_key:
         try:
-            resp = requests.get(f"https://finnhub.io/api/v1/stock/symbol?exchange=US&token={finnhub_key}", timeout=5)
-            if resp.status_code == 200:
-                status["finnhub"] = {"connected": True, "message": "OK: API working", "label": "Finnhub", "env_var": "FINNHUB_API_KEY"}
+            if AsyncHttpClient:
+                data = run_async(AsyncHttpClient.get(f"https://finnhub.io/api/v1/stock/symbol?exchange=US&token={finnhub_key}", timeout=5))
+                if data:
+                    status["finnhub"] = {"connected": True, "message": "OK: API working", "label": "Finnhub", "env_var": "FINNHUB_API_KEY"}
+            else:
+                resp = requests.get(f"https://finnhub.io/api/v1/stock/symbol?exchange=US&token={finnhub_key}", timeout=5)
+                if resp.status_code == 200:
+                    status["finnhub"] = {"connected": True, "message": "OK: API working", "label": "Finnhub", "env_var": "FINNHUB_API_KEY"}
         except Exception:
             status["finnhub"]["message"] = "NETWORK: Error"
 

@@ -1,28 +1,28 @@
 # Performance Analysis Report
 
-Generated: 2026-02-18 23:23:12
+Generated: 2026-02-19 01:17:04
 
 ## Summary
 
 | Severity | Count |
 |----------|-------|
-| CRITICAL | 0 |
-| HIGH | 0 |
-| MEDIUM | 28 |
-| LOW | 39 |
-| **Total** | **67** |
+| 🔴 Critical | 0 |
+| 🟠 High | 0 |
+| 🟡 Medium | 22 |
+| 🟢 Low | 39 |
+| **Total** | **61** |
 
 ## Issues by Type
 
 - **Read Entire File**: 1
-- **Global Import In Function**: 9
-- **Synchronous Io**: 18
+- **Global Import In Function**: 4
+- **Synchronous Io**: 17
 - **Unnecessary List Conversion**: 7
 - **Exception In Loop**: 32
 
 ## Top Issues to Address
 
-### MEDIUM Reading entire file into memory
+### 🟡 Reading entire file into memory
 
 **File:** `C:\Users\chung\.openclaw\workspace\qunex-trade\agents\codebase_knowledge.py` (line 387)
 
@@ -39,7 +39,7 @@ Generated: 2026-02-18 23:23:12
 
 ---
 
-### MEDIUM Import inside function
+### 🟡 Import inside function
 
 **File:** `C:\Users\chung\.openclaw\workspace\qunex-trade\agents\scheduler.py` (line 39)
 
@@ -56,7 +56,7 @@ Generated: 2026-02-18 23:23:12
 
 ---
 
-### MEDIUM Synchronous HTTP requests
+### 🟡 Synchronous HTTP requests
 
 **File:** `C:\Users\chung\.openclaw\workspace\qunex-trade\scripts\cron_refresh_insider.py` (line 146)
 
@@ -73,26 +73,9 @@ Generated: 2026-02-18 23:23:12
 
 ---
 
-### MEDIUM Import inside function
+### 🟡 Synchronous HTTP requests
 
-**File:** `C:\Users\chung\.openclaw\workspace\qunex-trade\scripts\refresh_data_cron.py` (line 33)
-
-**Impact:** Repeated import overhead
-
-**Suggestion:** Move import to module level (unless conditional)
-
-```python
-def refresh_news_data():
-    """
-    Fetch and analyze latest news articles from Polygon News API.
-
-```
-
----
-
-### MEDIUM Synchronous HTTP requests
-
-**File:** `C:\Users\chung\.openclaw\workspace\qunex-trade\scripts\refresh_data_cron.py` (line 264)
+**File:** `C:\Users\chung\.openclaw\workspace\qunex-trade\scripts\refresh_data_cron.py` (line 258)
 
 **Impact:** Blocking I/O
 
@@ -107,7 +90,7 @@ def refresh_news_data():
 
 ---
 
-### MEDIUM Synchronous HTTP requests
+### 🟡 Synchronous HTTP requests
 
 **File:** `C:\Users\chung\.openclaw\workspace\qunex-trade\src\news_collector.py` (line 87)
 
@@ -124,7 +107,7 @@ def refresh_news_data():
 
 ---
 
-### MEDIUM Synchronous HTTP requests
+### 🟡 Synchronous HTTP requests
 
 **File:** `C:\Users\chung\.openclaw\workspace\qunex-trade\web\advanced_sr_analysis.py` (line 107)
 
@@ -141,7 +124,7 @@ def refresh_news_data():
 
 ---
 
-### MEDIUM Synchronous HTTP requests
+### 🟡 Synchronous HTTP requests
 
 **File:** `C:\Users\chung\.openclaw\workspace\qunex-trade\web\advanced_sr_analysis.py` (line 132)
 
@@ -158,7 +141,7 @@ def refresh_news_data():
 
 ---
 
-### MEDIUM Synchronous HTTP requests
+### 🟡 Synchronous HTTP requests
 
 **File:** `C:\Users\chung\.openclaw\workspace\qunex-trade\web\api_flow.py` (line 57)
 
@@ -175,7 +158,7 @@ def refresh_news_data():
 
 ---
 
-### MEDIUM Synchronous HTTP requests
+### 🟡 Synchronous HTTP requests
 
 **File:** `C:\Users\chung\.openclaw\workspace\qunex-trade\web\api_main.py` (line 149)
 
@@ -191,7 +174,7 @@ def refresh_news_data():
 
 ---
 
-### MEDIUM Synchronous HTTP requests
+### 🟡 Synchronous HTTP requests
 
 **File:** `C:\Users\chung\.openclaw\workspace\qunex-trade\web\api_main.py` (line 159)
 
@@ -207,7 +190,7 @@ def refresh_news_data():
 
 ---
 
-### MEDIUM Synchronous HTTP requests
+### 🟡 Synchronous HTTP requests
 
 **File:** `C:\Users\chung\.openclaw\workspace\qunex-trade\web\api_main.py` (line 174)
 
@@ -223,7 +206,7 @@ def refresh_news_data():
 
 ---
 
-### MEDIUM Synchronous HTTP requests
+### 🟡 Synchronous HTTP requests
 
 **File:** `C:\Users\chung\.openclaw\workspace\qunex-trade\web\api_market_features.py` (line 62)
 
@@ -240,9 +223,9 @@ def refresh_news_data():
 
 ---
 
-### MEDIUM Synchronous HTTP requests
+### 🟡 Synchronous HTTP requests
 
-**File:** `C:\Users\chung\.openclaw\workspace\qunex-trade\web\api_portfolio.py` (line 53)
+**File:** `C:\Users\chung\.openclaw\workspace\qunex-trade\web\api_portfolio.py` (line 54)
 
 **Impact:** Blocking I/O
 
@@ -257,9 +240,9 @@ def refresh_news_data():
 
 ---
 
-### MEDIUM Synchronous HTTP requests
+### 🟡 Synchronous HTTP requests
 
-**File:** `C:\Users\chung\.openclaw\workspace\qunex-trade\web\api_portfolio.py` (line 66)
+**File:** `C:\Users\chung\.openclaw\workspace\qunex-trade\web\api_portfolio.py` (line 67)
 
 **Impact:** Blocking I/O
 
@@ -274,7 +257,7 @@ def refresh_news_data():
 
 ---
 
-### MEDIUM Synchronous HTTP requests
+### 🟡 Synchronous HTTP requests
 
 **File:** `C:\Users\chung\.openclaw\workspace\qunex-trade\web\api_swing.py` (line 129)
 
@@ -291,70 +274,87 @@ def refresh_news_data():
 
 ---
 
-### MEDIUM Synchronous HTTP requests
+### 🟡 Synchronous HTTP requests
 
-**File:** `C:\Users\chung\.openclaw\workspace\qunex-trade\web\auth.py` (line 73)
+**File:** `C:\Users\chung\.openclaw\workspace\qunex-trade\web\indices_service.py` (line 82)
 
 **Impact:** Blocking I/O
 
 **Suggestion:** Consider async with aiohttp for concurrent requests
 
 ```python
-        resp = requests.post(
-            RECAPTCHA_VERIFY_URL,
-            data={"secret": RECAPTCHA_SECRET_KEY, "response": token},
-            timeout=5,
+            response = requests.get(url, params=params, timeout=10)
+
+            if response.status_code == 429:
+                logger.error("[Indices] Rate limit exceeded (5 calls/minute)")
 ```
 
 ---
 
-### MEDIUM Import inside function
+### 🟡 Import inside function
 
-**File:** `C:\Users\chung\.openclaw\workspace\qunex-trade\web\database.py` (line 55)
+**File:** `C:\Users\chung\.openclaw\workspace\qunex-trade\web\utils.py` (line 89)
 
 **Impact:** Repeated import overhead
 
 **Suggestion:** Move import to module level (unless conditional)
 
 ```python
-    def set_password(self, password):
-        """Hash and set password"""
-        if password:
-            self.password_hash = generate_password_hash(password)
+def rate_limit(calls_per_minute: int = 60):
+    """
+    Simple rate limiter decorator for API calls.
+
 ```
 
 ---
 
-### MEDIUM Import inside function
+### 🟡 Synchronous HTTP requests
 
-**File:** `C:\Users\chung\.openclaw\workspace\qunex-trade\web\database.py` (line 384)
+**File:** `C:\Users\chung\.openclaw\workspace\qunex-trade\src\services\market_data_service.py` (line 160)
 
-**Impact:** Repeated import overhead
+**Impact:** Blocking I/O
 
-**Suggestion:** Move import to module level (unless conditional)
+**Suggestion:** Consider async with aiohttp for concurrent requests
 
 ```python
-    def to_dict(self):
-        """Convert to dictionary for JSON serialization"""
-        return {
-            "id": self.id,
+            response = requests.get(url, params=params, timeout=30)
+            response.raise_for_status()
+            data = response.json()
+
 ```
 
 ---
 
-### MEDIUM Import inside function
+### 🟡 Synchronous HTTP requests
 
-**File:** `C:\Users\chung\.openclaw\workspace\qunex-trade\web\database.py` (line 958)
+**File:** `C:\Users\chung\.openclaw\workspace\qunex-trade\src\services\scalp_engine.py` (line 1234)
 
-**Impact:** Repeated import overhead
+**Impact:** Blocking I/O
 
-**Suggestion:** Move import to module level (unless conditional)
+**Suggestion:** Consider async with aiohttp for concurrent requests
 
 ```python
-    def to_dict(self):
-        import json
+                response = requests.get(url, params=params, timeout=10)
 
-        return {
+                # Skip to next endpoint if geo-restricted (451)
+                if response.status_code == 451:
+```
+
+---
+
+### 🟡 Synchronous HTTP requests
+
+**File:** `C:\Users\chung\.openclaw\workspace\qunex-trade\src\services\scalp_engine.py` (line 1291)
+
+**Impact:** Blocking I/O
+
+**Suggestion:** Consider async with aiohttp for concurrent requests
+
+```python
+            response = requests.get(url, params=params, timeout=15)
+            response.raise_for_status()
+            data = response.json()
+
 ```
 
 ---
