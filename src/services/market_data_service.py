@@ -1,10 +1,24 @@
 from datetime import datetime, timezone, timedelta
 import os
-import requests
+import asyncio
 import logging
 from web.database import db, NewsArticle, EconomicEvent
 
+try:
+    from src.services.async_http_service import AsyncHttpClient
+except ImportError:
+    AsyncHttpClient = None
+
 logger = logging.getLogger(__name__)
+
+def run_async(coro):
+    """Run a coroutine from synchronous code"""
+    try:
+        loop = asyncio.get_event_loop()
+    except RuntimeError:
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+    return loop.run_until_complete(coro)
 
 class MarketDataService:
     @staticmethod
@@ -157,11 +171,15 @@ class MarketDataService:
                 "token": finnhub_api_key,
             }
 
-            response = requests.get(url, params=params, timeout=30)
-            response.raise_for_status()
-            data = response.json()
+            if AsyncHttpClient:
+                data = run_async(AsyncHttpClient.get(url, params=params, timeout=30))
+            else:
+                import requests
+                response = requests.get(url, params=params, timeout=30)
+                response.raise_for_status()
+                data = response.json()
 
-            if "economicCalendar" not in data:
+            if not data or "economicCalendar" not in data:
                 logger.error(f"Unexpected Finnhub response: {data}")
                 return {"success": False, "message": "Invalid response from Finnhub"}
 
