@@ -275,7 +275,7 @@ class PerformanceOptimizer:
         }
 
         now_str = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        
+
         # Build the report using a list of lines joined at the end
         report = [
             "# Performance Analysis Report",
