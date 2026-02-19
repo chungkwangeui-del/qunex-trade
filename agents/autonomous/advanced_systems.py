@@ -446,15 +446,14 @@ class Test{function_name.title().replace('_', '')}:
 
         imports = f"from {module_path} import {', '.join(functions)}"
 
-        test_content = '''"""Auto-generated tests for {source_file}"""
-import pytest
-{imports}
-
-
-'''
+        test_content_list = []
+        test_content_list.append(f'"""Auto-generated tests for {source_file}"""')
+        test_content_list.append('import pytest')
+        test_content_list.append(imports)
+        test_content_list.append('\n')
 
         for func in functions:
-            test_content += '''
+            test_content_list.append('''
 class Test{func.title().replace('_', '')}:
     """Tests for {func}"""
 
@@ -462,8 +461,9 @@ class Test{func.title().replace('_', '')}:
         """Test that {func} runs without error"""
         # Basic smoke test
         pass
+''')
 
-'''
+        test_content = '\n'.join(test_content_list)
 
         try:
             with open(test_file, 'w') as f:

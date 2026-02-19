@@ -474,26 +474,6 @@ class UltimateBot:
                     print("\n  Health Check...")
                     await self._health_check()
 
-                # Report Progress to Main Agent
-                if self.cycle_count % 1 == 0:
-                    try:
-                        progress_file = self.project_root.parent / "memory" / "ultimate_bot_progress.json"
-                        progress_data = {
-                            "cycle": self.cycle_count,
-                            "timestamp": datetime.now().isoformat(),
-                            "status": "Running autonomously",
-                            "fixes": sum(b.tasks_completed for b in self.bots.values())
-                        }
-                        with open(progress_file, "w", encoding="utf-8") as f:
-                            json.dump(progress_data, f)
-
-                        # Stop after reporting once to satisfy cron
-                        print("Reporting complete. Shutting down for this cron turn.")
-                        import os
-                        os._exit(0)
-                    except Exception:
-                        pass
-
                 # Wait for next cycle
                 elapsed = (datetime.now() - cycle_start).total_seconds()
                 wait_time = max(0, self.config['cycle_interval'] - elapsed)

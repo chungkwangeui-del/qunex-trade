@@ -8,7 +8,7 @@ from flask import Blueprint, jsonify, request
 from flask_login import login_required
 from datetime import datetime, timedelta
 import logging
-from datetime import timedelta
+import pandas as pd
 
 try:
     from web.polygon_service import get_polygon_service
@@ -135,12 +135,13 @@ def get_stock_earnings(ticker):
         try:
             hist = stock.earnings_history
             if hist is not None and not hist.empty:
-                for idx, row in hist.iterrows():
+                for row in hist.itertuples():
+                    idx = row.Index
                     earnings_history.append({
                         "date": str(idx) if hasattr(idx, '__str__') else str(idx),
-                        "eps_actual": row.get("epsActual"),
-                        "eps_estimate": row.get("epsEstimate"),
-                        "surprise_pct": row.get("surprisePercent"),
+                        "eps_actual": getattr(row, 'epsActual', None),
+                        "eps_estimate": getattr(row, 'epsEstimate', None),
+                        "surprise_pct": getattr(row, 'surprisePercent', None),
                     })
         except Exception:
             pass
@@ -150,11 +151,12 @@ def get_stock_earnings(ticker):
         try:
             q_earnings = stock.quarterly_earnings
             if q_earnings is not None and not q_earnings.empty:
-                for idx, row in q_earnings.iterrows():
+                for row in q_earnings.itertuples():
+                    idx = row.Index
                     quarterly.append({
                         "quarter": str(idx),
-                        "revenue": row.get("Revenue"),
-                        "earnings": row.get("Earnings"),
+                        "revenue": getattr(row, 'Revenue', None),
+                        "earnings": getattr(row, 'Earnings', None),
                     })
         except Exception:
             pass
