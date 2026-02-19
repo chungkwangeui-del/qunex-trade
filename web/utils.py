@@ -6,6 +6,7 @@ Includes data fetching, retry logic, caching helpers, and common operations.
 import time
 import random
 import logging
+import pytz
 from datetime import datetime, timedelta
 from typing import List, Dict, Callable, TypeVar, Optional, Any
 from functools import wraps
@@ -232,8 +233,6 @@ def is_market_hours() -> bool:
     Check if US stock market is currently open.
     Market hours: 9:30 AM - 4:00 PM ET, Monday-Friday
     """
-    import pytz
-
     try:
         et = pytz.timezone('America/New_York')
         now = datetime.now(et)
@@ -262,8 +261,6 @@ def get_market_status() -> Dict[str, Any]:
     Returns:
         Dictionary with status, next_open, next_close, session type
     """
-    import pytz
-
     try:
         et = pytz.timezone('America/New_York')
         now = datetime.now(et)

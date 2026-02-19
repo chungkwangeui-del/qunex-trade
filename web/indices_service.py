@@ -96,14 +96,21 @@ class IndicesService:
                 data = run_async(AsyncHttpClient.get(url, params=params, timeout=10))
             else:
                 import requests
-                response = requests.get(url, params=params, timeout=10)
-                if response.status_code == 429:
-                    logger.error("[Indices] Rate limit exceeded (5 calls/minute)")
+                try:
+                    response = requests.get(url, params=params, timeout=10)
+                    if response.status_code == 429:
+                        logger.error("[Indices] Rate limit exceeded (5 calls/minute)")
+                        return self._cache if self._cache else {}
+                    if response.status_code != 200:
+                        logger.error(f"[Indices] API error {response.status_code}: {response.text}")
+                        return self._cache if self._cache else {}
+                    data = response.json()
+                except requests.Timeout:
+                    logger.error("[Indices] Request timeout")
                     return self._cache if self._cache else {}
-                if response.status_code != 200:
-                    logger.error(f"[Indices] API error {response.status_code}: {response.text}")
+                except Exception as e:
+                    logger.error(f"[Indices] requests error: {e}")
                     return self._cache if self._cache else {}
-                data = response.json()
 
             if not data:
                 logger.warning("[Indices] No data returned from API")
@@ -155,10 +162,6 @@ class IndicesService:
             self._cache_timestamp = datetime.now()
 
             return indices_data
-
-        except requests.Timeout:
-            logger.error("[Indices] Request timeout")
-            return self._cache if self._cache else {}
 
         except Exception as e:
             logger.error(f"[Indices] Error fetching data: {e}", exc_info=True)

@@ -7,6 +7,8 @@ from flask_login import login_required, current_user
 from web.database import db, Transaction, User
 from web.polygon_service import get_polygon_service
 from web.extensions import csrf, cache
+from src.services.async_http_service import AsyncHttpClient
+import asyncio
 from datetime import datetime, timezone
 from sqlalchemy import func
 from decimal import Decimal
@@ -21,6 +23,15 @@ logger = logging.getLogger(__name__)
 
 api_portfolio = Blueprint('api_portfolio', __name__)
 csrf.exempt(api_portfolio)
+
+def run_async(coro):
+    """Run a coroutine from synchronous code"""
+    try:
+        loop = asyncio.get_event_loop()
+    except RuntimeError:
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+    return loop.run_until_complete(coro)
 
 @cache.memoize(timeout=300)
 def get_current_price(ticker):
@@ -51,11 +62,9 @@ def get_current_price(ticker):
         twelvedata_key = os.getenv("TWELVEDATA_API_KEY", "")
         if twelvedata_key:
             url = "https://api.twelvedata.com/quote"
-            response = requests.get(url, params={"symbol": ticker, "apikey": twelvedata_key}, timeout=10)
-            if response.ok:
-                data = response.json()
-                if data and not data.get("code") and data.get("close"):
-                    return float(data["close"])
+            data = run_async(AsyncHttpClient.get(url, params={"symbol": ticker, "apikey": twelvedata_key}, timeout=10))
+            if data and not data.get("code") and data.get("close"):
+                return float(data["close"])
     except Exception as e:
         logger.info(f"Twelve Data API error for {ticker}: {e}")
 
@@ -64,11 +73,9 @@ def get_current_price(ticker):
         finnhub_key = os.getenv("FINNHUB_API_KEY", "")
         if finnhub_key:
             url = "https://finnhub.io/api/v1/quote"
-            response = requests.get(url, params={"symbol": ticker, "token": finnhub_key}, timeout=5)
-            if response.ok:
-                data = response.json()
-                if data and data.get("c", 0) > 0:
-                    return float(data["c"])
+            data = run_async(AsyncHttpClient.get(url, params={"symbol": ticker, "token": finnhub_key}, timeout=5))
+            if data and data.get("c", 0) > 0:
+                return float(data["c"])
     except Exception as e:
         logger.info(f"Finnhub API error for {ticker}: {e}")
 
