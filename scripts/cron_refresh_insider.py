@@ -16,9 +16,14 @@ import os
 import sys
 import logging
 import time
+import asyncio
 from datetime import datetime, timedelta
-from datetime import timedelta
 import json
+
+try:
+    from src.services.async_http_service import AsyncHttpClient
+except ImportError:
+    AsyncHttpClient = None
 
 # Add parent directory and web directory to path for imports
 parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -34,21 +39,22 @@ logger = logging.getLogger(__name__)
 def refresh_insider_data():
     """
     Fetch and store latest insider trading data.
-
-    Retrieves insider transactions for all watchlist stocks from Polygon API,
-    calculates sentiment metrics, and stores in database.
-
-    Returns:
-        bool: True if refresh succeeded, False otherwise
-
-    Side Effects:
-        - Adds new InsiderTrade records to database
-        - Updates sentiment metrics
-        - Commits database transactions
     """
     try:
         from flask import Flask
         from flask_sqlalchemy import SQLAlchemy
+
+        # Add project root to sys.path if not already there
+        if parent_dir not in sys.path:
+            sys.path.insert(0, parent_dir)
+
+        def run_async(coro):
+            try:
+                loop = asyncio.get_event_loop()
+            except RuntimeError:
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
+            return loop.run_until_complete(coro)
 
         logger.info("Starting insider trading data refresh...")
 
@@ -143,15 +149,17 @@ def refresh_insider_data():
                         "token": finnhub_key,
                     }
 
-                    response = requests.get(url, params=params, timeout=10)
+                    if AsyncHttpClient:
+                        data = run_async(AsyncHttpClient.get(url, params=params, timeout=10))
+                    else:
+                        import requests
+                        response = requests.get(url, params=params, timeout=10)
+                        if response.status_code != 200:
+                            logger.warning(f"Failed to fetch insider data for {ticker}")
+                            continue
+                        data = response.json()
 
-                    if response.status_code != 200:
-                        logger.warning(f"Failed to fetch insider data for {ticker}")
-                        continue
-
-                    data = response.json()
-
-                    if "data" not in data or not data["data"]:
+                    if not data or "data" not in data or not data["data"]:
                         logger.debug(f"No insider trades for {ticker}")
                         continue
 
