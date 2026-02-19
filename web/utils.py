@@ -104,6 +104,7 @@ def rate_limit(calls_per_minute: int = 60):
     def decorator(func: Callable[..., T]) -> Callable[..., T]:
         @wraps(func)
         def wrapper(*args, **kwargs) -> T:
+            # Lift time.time import to module if possible, but here it's already at module level.
             func_name = func.__name__
             now = time.time()
 

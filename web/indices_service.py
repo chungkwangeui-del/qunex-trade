@@ -5,15 +5,27 @@ Replaces ETF proxy approach with real index values
 """
 
 import os
-import requests
+import asyncio
 import logging
 from typing import Dict, Optional
 from datetime import datetime, timedelta
-from datetime import timedelta
 import json
-from typing import Optional
+
+try:
+    from src.services.async_http_service import AsyncHttpClient
+except ImportError:
+    AsyncHttpClient = None
 
 logger = logging.getLogger(__name__)
+
+def run_async(coro):
+    """Run a coroutine from synchronous code"""
+    try:
+        loop = asyncio.get_event_loop()
+    except RuntimeError:
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+    return loop.run_until_complete(coro)
 
 
 class IndicesService:
@@ -79,21 +91,28 @@ class IndicesService:
             params = {"ticker.any_of": tickers_str, "apiKey": self.api_key}
 
             logger.info(f"[Indices] Fetching data for {len(indices_map)} indices")
-            response = requests.get(url, params=params, timeout=10)
 
-            if response.status_code == 429:
-                logger.error("[Indices] Rate limit exceeded (5 calls/minute)")
+            if AsyncHttpClient:
+                data = run_async(AsyncHttpClient.get(url, params=params, timeout=10))
+            else:
+                import requests
+                response = requests.get(url, params=params, timeout=10)
+                if response.status_code == 429:
+                    logger.error("[Indices] Rate limit exceeded (5 calls/minute)")
+                    return self._cache if self._cache else {}
+                if response.status_code != 200:
+                    logger.error(f"[Indices] API error {response.status_code}: {response.text}")
+                    return self._cache if self._cache else {}
+                data = response.json()
+
+            if not data:
+                logger.warning("[Indices] No data returned from API")
                 return self._cache if self._cache else {}
 
-            if response.status_code != 200:
-                logger.error(f"[Indices] API error {response.status_code}: {response.text}")
-                return self._cache if self._cache else {}
-
-            data = response.json()
             results = data.get("results", [])
 
             if not results:
-                logger.warning("[Indices] No data returned from API")
+                logger.warning("[Indices] No data results in API response")
                 return self._cache if self._cache else {}
 
             # Parse results
