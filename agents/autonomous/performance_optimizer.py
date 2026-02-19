@@ -276,8 +276,9 @@ class PerformanceOptimizer:
 
         now_str = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-        # Build the report using manual concatenation to be safe
-        report = "# Performance Analysis Report\n\n"
+        # Build the report manually using simple string concatenation
+        report = ""
+        report += "# Performance Analysis Report\n\n"
         report += "Generated: " + str(now_str) + "\n\n"
         report += "## Summary\n\n"
         report += "| Severity | Count |\n"
