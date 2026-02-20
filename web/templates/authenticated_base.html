@@ -35,8 +35,10 @@
         /* Sidebar */
         .sidebar {
             width: 260px;
-            background: rgba(255, 255, 255, 0.03);
-            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(10, 10, 10, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.08);
             display: flex;
             flex-direction: column;
             position: fixed;
@@ -48,7 +50,7 @@
 
         .sidebar-header {
             padding: 24px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
         }
 
         .logo {
@@ -63,18 +65,20 @@
             width: 40px;
             height: 40px;
             background: linear-gradient(135deg, #00d9ff, #a855f7);
-            border-radius: 10px;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 800;
             font-size: 20px;
             color: #000;
+            box-shadow: 0 0 20px rgba(0, 217, 255, 0.3);
         }
 
         .logo-text {
             font-size: 20px;
             font-weight: 700;
+            letter-spacing: -0.02em;
         }
 
         .sidebar-nav {
@@ -84,16 +88,16 @@
         }
 
         .nav-section {
-            margin-bottom: 24px;
+            margin-bottom: 28px;
         }
 
         .nav-section-title {
-            font-size: 12px;
+            font-size: 11px;
             text-transform: uppercase;
-            color: rgba(255, 255, 255, 0.4);
-            font-weight: 600;
-            letter-spacing: 0.05em;
-            margin-bottom: 8px;
+            color: rgba(255, 255, 255, 0.3);
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            margin-bottom: 12px;
             padding: 0 12px;
         }
 
@@ -101,31 +105,36 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            padding: 12px;
-            border-radius: 8px;
-            color: rgba(255, 255, 255, 0.7);
+            padding: 10px 14px;
+            border-radius: 10px;
+            color: rgba(255, 255, 255, 0.6);
             text-decoration: none;
-            transition: all 0.2s;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             margin-bottom: 4px;
+            font-size: 14px;
+            font-weight: 500;
         }
 
         .nav-link:hover {
             background: rgba(255, 255, 255, 0.05);
             color: #fff;
+            transform: translateX(4px);
         }
 
         .nav-link.active {
             background: linear-gradient(135deg, rgba(0, 217, 255, 0.1), rgba(168, 85, 247, 0.1));
             color: #00d9ff;
             border: 1px solid rgba(0, 217, 255, 0.2);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
 
         .nav-icon {
-            width: 20px;
-            height: 20px;
+            width: 18px;
+            height: 18px;
             display: flex;
             align-items: center;
             justify-content: center;
+            opacity: 0.8;
         }
 
         /* Main Content Area */
@@ -134,13 +143,17 @@
             margin-left: 260px;
             display: flex;
             flex-direction: column;
+            background: radial-gradient(circle at top right, rgba(168, 85, 247, 0.03), transparent 400px),
+                        radial-gradient(circle at bottom left, rgba(0, 217, 255, 0.03), transparent 400px);
         }
 
         /* Top Bar */
         .topbar {
-            height: 70px;
-            background: rgba(255, 255, 255, 0.02);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            height: 72px;
+            background: rgba(10, 10, 10, 0.4);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -148,7 +161,6 @@
             position: sticky;
             top: 0;
             z-index: 50;
-            backdrop-filter: blur(10px);
         }
 
         .topbar-left {
@@ -382,7 +394,7 @@
 
             <nav class="sidebar-nav">
                 <div class="nav-section">
-                    <div class="nav-section-title">Main</div>
+                    <div class="nav-section-title">📡 Intelligence</div>
                     <a href="/dashboard" class="nav-link {% if request.endpoint == 'main.dashboard' %}active{% endif %}">
                         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <rect x="3" y="3" width="7" height="7"></rect>
@@ -397,8 +409,51 @@
                             <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
                             <polyline points="17 6 23 6 23 12"></polyline>
                         </svg>
-                        <span>Market</span>
+                        <span>Market Overview</span>
                     </a>
+                    <a href="/sentiment" class="nav-link {% if request.endpoint == 'main.market_sentiment' %}active{% endif %}">
+                        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
+                            <line x1="9" y1="9" x2="9.01" y2="9"></line>
+                            <line x1="15" y1="9" x2="15.01" y2="9"></line>
+                        </svg>
+                        <span>Market Sentiment</span>
+                    </a>
+                    <a href="/news" class="nav-link {% if request.endpoint == 'main.news' %}active{% endif %}">
+                        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M4 6h16M4 12h16M4 18h7"></path>
+                        </svg>
+                        <span>News Feed</span>
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">🎯 Strategies</div>
+                    <a href="/scalping" class="nav-link {% if request.endpoint == 'main.scalping' %}active{% endif %}">
+                        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+                        </svg>
+                        <span>Scalping (M1/M5)</span>
+                    </a>
+                    <a href="/swing" class="nav-link {% if request.endpoint == 'main.swing' %}active{% endif %}">
+                        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M2 2v20h20"></path>
+                            <path d="M5 19l4-7 4 4 6-11"></path>
+                        </svg>
+                        <span>Swing (ICT/SMC)</span>
+                    </a>
+                    <a href="/options" class="nav-link {% if request.endpoint == 'main.options_flow' %}active{% endif %}">
+                        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <path d="M12 6v6l4 2"></path>
+                        </svg>
+                        <span>Options Flow</span>
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">📊 Terminal</div>
                     <a href="/portfolio" class="nav-link {% if request.endpoint == 'main.portfolio' %}active{% endif %}">
                         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
@@ -411,42 +466,32 @@
                         </svg>
                         <span>Watchlist</span>
                     </a>
+                    <a href="/journal" class="nav-link {% if request.endpoint == 'main.trade_journal' %}active{% endif %}">
+                        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                        </svg>
+                        <span>Trade Journal</span>
+                    </a>
                 </div>
 
                 <div class="nav-section">
-                    <div class="nav-section-title">Analysis</div>
-                    <a href="/screener" class="nav-link {% if request.endpoint == 'main.screener' %}active{% endif %}">
+                    <div class="nav-section-title">⚙️ System</div>
+                    <a href="/agents" class="nav-link {% if request.endpoint == 'main.agents_dashboard' %}active{% endif %}">
                         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="11" cy="11" r="8"></circle>
-                            <path d="m21 21-4.35-4.35"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
                         </svg>
-                        <span>Screener</span>
+                        <span>AI Agents</span>
                     </a>
-                    <a href="/scalping" class="nav-link {% if request.endpoint == 'main.scalping' %}active{% endif %}">
+                    <a href="/tools" class="nav-link {% if request.endpoint == 'main.trading_tools' %}active{% endif %}">
                         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+                            <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
                         </svg>
-                        <span>Scalping</span>
+                        <span>Tools</span>
                     </a>
-                    <a href="/swing" class="nav-link {% if request.endpoint == 'main.swing' %}active{% endif %}">
-                        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M2 2v20h20"></path>
-                            <path d="M5 19l4-7 4 4 6-11"></path>
-                        </svg>
-                        <span>Swing (ICT)</span>
-                    </a>
-                    <a href="/patterns" class="nav-link {% if request.endpoint == 'main.chart_patterns' %}active{% endif %}">
-                        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
-                            <polyline points="2 17 12 22 22 17"></polyline>
-                            <polyline points="2 12 12 17 22 12"></polyline>
-                        </svg>
-                        <span>Chart Patterns</span>
-                    </a>
-                    <a href="/sentiment" class="nav-link {% if request.endpoint == 'main.market_sentiment' %}active{% endif %}">
-                        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
+                </div>
+            </nav>
                             <line x1="9" y1="9" x2="9.01" y2="9"></line>
                             <line x1="15" y1="9" x2="15.01" y2="9"></line>
                         </svg>

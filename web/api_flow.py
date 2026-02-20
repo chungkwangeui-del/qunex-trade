@@ -291,113 +291,128 @@ class InsiderAnalyzer:
 
             # If no data in DB, try to fetch from Finnhub
             if not trades:
-                finnhub = get_finnhub_service()
-                if finnhub:
-                    try:
-                        insider_data = finnhub.get_insider_transactions(ticker.upper())
-                        if insider_data:
-                            # Store in database
-                            for txn in insider_data[:50]:  # Limit to 50
-                                # Check if exists
-                                existing = InsiderTrade.query.filter_by(
-                                    ticker=ticker.upper(),
-                                    insider_name=txn.get("name", "Unknown"),
-                                    filing_date=datetime.strptime(txn.get("filingDate", "2024-01-01"), "%Y-%m-%d").date()
-                                ).first()
-
-                                if not existing:
-                                    trade = InsiderTrade(
-                                        ticker=ticker.upper(),
-                                        insider_name=txn.get("name", "Unknown"),
-                                        position=txn.get("position", ""),
-                                        transaction_type="buy" if txn.get("transactionType") == "P" else "sell",
-                                        shares=abs(txn.get("share", 0)),
-                                        price=txn.get("transactionPrice"),
-                                        transaction_date=datetime.strptime(txn.get("transactionDate", "2024-01-01"), "%Y-%m-%d").date(),
-                                        filing_date=datetime.strptime(txn.get("filingDate", "2024-01-01"), "%Y-%m-%d").date()
-                                    )
-                                    db.session.add(trade)
-
-                            db.session.commit()
-
-                            # Re-fetch from database
-                            trades = InsiderTrade.query.filter(
-                                InsiderTrade.ticker == ticker.upper(),
-                                InsiderTrade.filing_date >= cutoff.date()
-                            ).order_by(InsiderTrade.filing_date.desc()).all()
-                    except Exception as e:
-                        logger.warning(f"Failed to fetch insider data from Finnhub: {e}")
+                trades = self._fetch_and_store_insider_trades(ticker, cutoff)
 
             # Analyze trades
-            buys = [t for t in trades if t.transaction_type == "buy"]
-            sells = [t for t in trades if t.transaction_type == "sell"]
-
-            total_bought_shares = sum(t.shares for t in buys)
-            total_sold_shares = sum(t.shares for t in sells)
-
-            total_bought_value = sum(float(t.shares) * float(t.price or 0) for t in buys)
-            total_sold_value = sum(float(t.shares) * float(t.price or 0) for t in sells)
-
-            # Detect cluster buys (multiple insiders buying)
-            cluster_buy = False
-            unique_buyers = set(t.insider_name for t in buys)
-            if len(unique_buyers) >= 2:
-                cluster_buy = True
-
-            # Calculate insider sentiment score (0-100)
-            # Higher = more bullish insider activity
-            insider_score = 50  # Neutral baseline
-
-            if total_bought_value > total_sold_value:
-                ratio = total_bought_value / (total_sold_value + 1)
-                insider_score += min(40, int(ratio * 10))
-            else:
-                ratio = total_sold_value / (total_bought_value + 1)
-                insider_score -= min(40, int(ratio * 10))
-
-            if cluster_buy:
-                insider_score += 15
-
-            # CEO/CFO buys are stronger signals
-            executive_buys = [t for t in buys if any(title in (t.position or "").upper() for title in ["CEO", "CFO", "COO", "PRESIDENT", "CHAIRMAN"])]
-            if executive_buys:
-                insider_score += 10
-
-            insider_score = max(0, min(100, insider_score))
-
-            return {
-                "ticker": ticker.upper(),
-                "period_days": days,
-                "total_trades": len(trades),
-                "buys": {
-                    "count": len(buys),
-                    "total_shares": total_bought_shares,
-                    "total_value": round(total_bought_value, 2),
-                    "unique_insiders": len(unique_buyers)
-                },
-                "sells": {
-                    "count": len(sells),
-                    "total_shares": total_sold_shares,
-                    "total_value": round(total_sold_value, 2),
-                    "unique_insiders": len(set(t.insider_name for t in sells))
-                },
-                "cluster_buy_detected": cluster_buy,
-                "executive_buying": len(executive_buys) > 0,
-                "insider_score": insider_score,
-                "interpretation": (
-                    "Strong insider buying" if insider_score >= 70 else
-                    "Moderate insider buying" if insider_score >= 55 else
-                    "Neutral insider activity" if insider_score >= 45 else
-                    "Moderate insider selling" if insider_score >= 30 else
-                    "Heavy insider selling"
-                ),
-                "recent_trades": [t.to_dict() for t in trades[:10]],
-                "timestamp": datetime.now(timezone.utc).isoformat()
-            }
+            return self._analyze_insider_trades(ticker, trades, days)
 
         except Exception as e:
-            logger.error(f"Insider analysis error: {e}")
+            logger.error(f"Error in get_insider_trades for {ticker}: {e}")
             return {"error": str(e), "ticker": ticker}
+
+    def _fetch_and_store_insider_trades(self, ticker: str, cutoff: datetime) -> List[InsiderTrade]:
+        """Fetch from Finnhub and store in DB"""
+        finnhub = get_finnhub_service()
+        if not finnhub:
+            return []
+
+        try:
+            insider_data = finnhub.get_insider_transactions(ticker.upper())
+            if not insider_data:
+                return []
+
+            # Store in database
+            for txn in insider_data[:50]:  # Limit to 50
+                # Check if exists
+                existing = InsiderTrade.query.filter_by(
+                    ticker=ticker.upper(),
+                    insider_name=txn.get("name", "Unknown"),
+                    filing_date=datetime.strptime(txn.get("filingDate", "2024-01-01"), "%Y-%m-%d").date()
+                ).first()
+
+                if not existing:
+                    trade = InsiderTrade(
+                        ticker=ticker.upper(),
+                        insider_name=txn.get("name", "Unknown"),
+                        position=txn.get("position", ""),
+                        transaction_type="buy" if txn.get("transactionType") == "P" else "sell",
+                        shares=abs(txn.get("share", 0)),
+                        price=txn.get("transactionPrice"),
+                        transaction_date=datetime.strptime(txn.get("transactionDate", "2024-01-01"), "%Y-%m-%d").date(),
+                        filing_date=datetime.strptime(txn.get("filingDate", "2024-01-01"), "%Y-%m-%d").date()
+                    )
+                    db.session.add(trade)
+
+            db.session.commit()
+
+            # Re-fetch from database
+            return InsiderTrade.query.filter(
+                InsiderTrade.ticker == ticker.upper(),
+                InsiderTrade.filing_date >= cutoff.date()
+            ).order_by(InsiderTrade.filing_date.desc()).all()
+        except Exception as e:
+            logger.warning(f"Failed to fetch insider data from Finnhub: {e}")
+            return []
+
+    def _analyze_insider_trades(self, ticker: str, trades: List[InsiderTrade], days: int) -> dict:
+        """Calculate metrics and sentiment from trades"""
+        buys = [t for t in trades if t.transaction_type == "buy"]
+        sells = [t for t in trades if t.transaction_type == "sell"]
+
+        total_bought_shares = sum(t.shares for t in buys)
+        total_sold_shares = sum(t.shares for t in sells)
+
+        total_bought_value = sum(float(t.shares) * float(t.price or 0) for t in buys)
+        total_sold_value = sum(float(t.shares) * float(t.price or 0) for t in sells)
+
+        # Detect cluster buys (multiple insiders buying)
+        unique_buyers = set(t.insider_name for t in buys)
+        cluster_buy = len(unique_buyers) >= 2
+
+        # Executive buying signals
+        executive_buys = [t for t in buys if any(title in (t.position or "").upper() for title in ["CEO", "CFO", "COO", "PRESIDENT", "CHAIRMAN"])]
+
+        # Calculate insider sentiment score (0-100)
+        insider_score = self._calculate_insider_score(total_bought_value, total_sold_value, cluster_buy, executive_buys)
+
+        return {
+            "ticker": ticker.upper(),
+            "period_days": days,
+            "total_trades": len(trades),
+            "buys": {
+                "count": len(buys),
+                "total_shares": total_bought_shares,
+                "total_value": round(total_bought_value, 2),
+                "unique_insiders": len(unique_buyers)
+            },
+            "sells": {
+                "count": len(sells),
+                "total_shares": total_sold_shares,
+                "total_value": round(total_sold_value, 2),
+                "unique_insiders": len(set(t.insider_name for t in sells))
+            },
+            "cluster_buy_detected": cluster_buy,
+            "executive_buying": len(executive_buys) > 0,
+            "insider_score": insider_score,
+            "interpretation": (
+                "Strong insider buying" if insider_score >= 70 else
+                "Moderate insider buying" if insider_score >= 55 else
+                "Neutral insider activity" if insider_score >= 45 else
+                "Moderate insider selling" if insider_score >= 30 else
+                "Heavy insider selling"
+            ),
+            "recent_trades": [t.to_dict() for t in trades[:10]],
+            "timestamp": datetime.now(timezone.utc).isoformat()
+        }
+
+    def _calculate_insider_score(self, bought_val: float, sold_val: float, cluster: bool, exec_buys: List) -> int:
+        """Heuristic for insider sentiment score"""
+        score = 50  # Neutral baseline
+
+        if bought_val > sold_val:
+            ratio = bought_val / (sold_val + 1)
+            score += min(40, int(ratio * 10))
+        else:
+            ratio = sold_val / (bought_val + 1)
+            score -= min(40, int(ratio * 10))
+
+        if cluster:
+            score += 15
+
+        if exec_buys:
+            score += 10
+
+        return max(0, min(100, score))
 
 # Initialize analyzers
 options_analyzer = OptionsFlowAnalyzer()

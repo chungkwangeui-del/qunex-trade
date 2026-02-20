@@ -3,80 +3,85 @@
 
 :root {
     /* Colors - Dark Theme (default) */
-    --bg-primary: #000000;
+    --bg-primary: #050505;
     --bg-secondary: #0a0a0a;
     --bg-card: rgba(255, 255, 255, 0.03);
-    --bg-hover: rgba(255, 255, 255, 0.05);
+    --bg-hover: rgba(255, 255, 255, 0.06);
+    --glass-bg: rgba(10, 10, 10, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.08);
 
     --text-primary: #ffffff;
     --text-secondary: rgba(255, 255, 255, 0.7);
-    --text-tertiary: rgba(255, 255, 255, 0.5);
+    --text-tertiary: rgba(255, 255, 255, 0.4);
 
     --accent-cyan: #00d9ff;
     --accent-purple: #a855f7;
+    --accent-glow: rgba(0, 217, 255, 0.3);
     --accent-green: #00ff88;
+    --accent-red: #ff3b3b;
 
     --border: rgba(255, 255, 255, 0.1);
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 20px;
 
     /* Typography */
     --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     --font-mono: 'JetBrains Mono', monospace;
 }
 
-/* Light Theme */
-[data-theme="light"] {
-    --bg-primary: #f8fafc;
-    --bg-secondary: #ffffff;
-    --bg-card: rgba(0, 0, 0, 0.02);
-    --bg-hover: rgba(0, 0, 0, 0.04);
-
-    --text-primary: #0f172a;
-    --text-secondary: rgba(15, 23, 42, 0.7);
-    --text-tertiary: rgba(15, 23, 42, 0.5);
-
-    --accent-cyan: #0891b2;
-    --accent-purple: #7c3aed;
-    --accent-green: #059669;
-
-    --border: rgba(0, 0, 0, 0.1);
+/* Glassmorphism Classes */
+.glass-panel {
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
 }
 
-/* Light theme specific overrides */
-[data-theme="light"] .header {
-    background: rgba(248, 250, 252, 0.8);
-    border-bottom-color: rgba(0, 0, 0, 0.06);
+.sidebar {
+    width: 260px;
+    background: var(--bg-primary);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 100;
 }
 
-[data-theme="light"] .header.scrolled {
-    background: rgba(248, 250, 252, 0.95);
+.nav-link.active {
+    background: linear-gradient(135deg, rgba(0, 217, 255, 0.08), rgba(168, 85, 247, 0.08));
+    color: var(--accent-cyan);
+    border: 1px solid rgba(0, 217, 255, 0.15);
+    box-shadow: 0 0 20px rgba(0, 217, 255, 0.05);
 }
 
-[data-theme="light"] .sidebar {
-    background: #ffffff;
-    border-right-color: rgba(0, 0, 0, 0.08);
+.nav-link:hover {
+    background: var(--bg-hover);
+    color: #fff;
+    transform: translateX(4px);
 }
 
-[data-theme="light"] .card,
-[data-theme="light"] .stat-card,
-[data-theme="light"] .feature-card {
-    background: #ffffff;
-    border-color: rgba(0, 0, 0, 0.08);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+.nav-link {
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-[data-theme="light"] input,
-[data-theme="light"] select,
-[data-theme="light"] textarea {
-    background: #ffffff;
-    border-color: rgba(0, 0, 0, 0.15);
-    color: var(--text-primary);
+.card, .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
 }
 
-[data-theme="light"] input:focus,
-[data-theme="light"] select:focus,
-[data-theme="light"] textarea:focus {
-    border-color: var(--accent-cyan);
+.card:hover {
+    border-color: rgba(0, 217, 255, 0.3);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 15px rgba(0, 217, 255, 0.05);
+    transform: translateY(-2px);
 }
+
 
 /* Theme Toggle Button */
 .theme-toggle {
