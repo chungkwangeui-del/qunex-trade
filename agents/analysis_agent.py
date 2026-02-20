@@ -141,11 +141,10 @@ class AnalysisAgent(BaseAgent):
     async def fix_errors(self, auto_fix: bool = False) -> AgentResult:
         """Attempt to fix analysis errors."""
         fixes_available = []
-        fixes_applied = []
 
         # Check sentiment data freshness
         try:
-            from web.database import db, SentimentData
+            from web.database import SentimentData
             from web.app import create_app
 
             app = create_app()
@@ -157,8 +156,8 @@ class AnalysisAgent(BaseAgent):
 
                 if stale_count > 0:
                     fixes_available.append(f"Update {stale_count} stale sentiment records")
-        except Exception:
-            pass
+        except Exception as e:
+            logger.error(f"Error checking sentiment freshness: {e}")
 
         if not fixes_available:
             return AgentResult(

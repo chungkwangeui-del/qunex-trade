@@ -135,47 +135,10 @@ def _find_swing_points(bars: List[Dict], lookback: int = 5) -> Dict:
         "swing_lows": swing_lows
     }
 
-def _detect_market_structure(bars: List[Dict], lookback: int = 5) -> Dict:
-    """
-    Detect Market Structure: BOS (Break of Structure) and CHoCH (Change of Character)
-
-    BOS = Trend continuation (HH in uptrend, LL in downtrend)
-    CHoCH = Trend reversal (LL in uptrend, HH in downtrend)
-
-    Returns current trend and recent structure breaks.
-    """
-    swing_points = _find_swing_points(bars, lookback)
-    swing_highs = swing_points["swing_highs"]
-    swing_lows = swing_points["swing_lows"]
-
-    if len(swing_highs) < 2 or len(swing_lows) < 2:
-        return {
-            "trend": "neutral",
-            "bos": None,
-            "choch": None,
-            "swing_highs": swing_highs,
-            "swing_lows": swing_lows,
-            # Provide zeroed structure counts so downstream consumers never KeyError
-            "hh_count": 0,
-            "hl_count": 0,
-            "lh_count": 0,
-            "ll_count": 0,
-            "last_hh": None,
-            "last_ll": None,
-            "last_hl": None,
-            "last_lh": None,
-        }
-
-    # Analyze recent swing points
-    recent_highs = swing_highs[-4:] if len(swing_highs) >= 4 else swing_highs
-    recent_lows = swing_lows[-4:] if len(swing_lows) >= 4 else swing_lows
-
-    # Determine trend from swing structure
-    hh_count = 0  # Higher Highs
-    hl_count = 0  # Higher Lows
-    lh_count = 0  # Lower Highs
-    ll_count = 0  # Lower Lows
-
+def _analyze_swing_counts(recent_highs, recent_lows):
+    """Calculate counts of HH, LH, HL, LL from recent swing points"""
+    hh_count, lh_count, hl_count, ll_count = 0, 0, 0, 0
+    
     for i in range(1, len(recent_highs)):
         if recent_highs[i]["price"] > recent_highs[i-1]["price"]:
             hh_count += 1
@@ -187,66 +150,53 @@ def _detect_market_structure(bars: List[Dict], lookback: int = 5) -> Dict:
             hl_count += 1
         else:
             ll_count += 1
+            
+    return hh_count, lh_count, hl_count, ll_count
 
-    # Determine current trend
+def _determine_trend(hh_count, hl_count, lh_count, ll_count):
+    """Determine current trend from swing structure counts"""
     if hh_count >= 1 and hl_count >= 1:
-        trend = "bullish"  # Uptrend: HH + HL
+        return "bullish"
     elif ll_count >= 1 and lh_count >= 1:
-        trend = "bearish"  # Downtrend: LL + LH
-    else:
-        trend = "neutral"
+        return "bearish"
+    return "neutral"
 
-    # Detect BOS and CHoCH
-    bos = None
-    choch = None
+def _detect_bos_choch(trend, current_price, last_high, last_low, prev_high, prev_low):
+    """Identify BOS and CHoCH based on trend and price breaks"""
+    bos, choch = None, None
+    
+    if trend == "bullish":
+        if current_price > last_high:
+            bos = {"type": "bullish", "level": last_high, "description": "BOS - Price broke above swing high (trend continuation)"}
+        elif current_price < last_low:
+            choch = {"type": "bearish", "level": last_low, "description": "CHoCH - Price broke below swing low (potential reversal)"}
+    elif trend == "bearish":
+        if current_price < last_low:
+            bos = {"type": "bearish", "level": last_low, "description": "BOS - Price broke below swing low (trend continuation)"}
+        elif current_price > last_high:
+            choch = {"type": "bullish", "level": last_high, "description": "CHoCH - Price broke above swing high (potential reversal)"}
+            
+    return bos, choch
+
+def _detect_market_structure(bars: List[Dict], lookback: int = 5) -> Dict:
+    """Detect Market Structure: Trend, BOS, and CHoCH"""
+    swing_points = _find_swing_points(bars, lookback)
+    sh, sl = swing_points["swing_highs"], swing_points["swing_lows"]
+
+    if len(sh) < 2 or len(sl) < 2:
+        return {"trend": "neutral", "bos": None, "choch": None, "swing_highs": sh, "swing_lows": sl,
+                "hh_count": 0, "hl_count": 0, "lh_count": 0, "ll_count": 0}
+
+    recent_h, recent_l = sh[-4:], sl[-4:]
+    hh, lh, hl, ll = _analyze_swing_counts(recent_h, recent_l)
+    trend = _determine_trend(hh, hl, lh, ll)
+    
     current_price = _get_candle_info(bars[-1])["close"]
+    bos, choch = _detect_bos_choch(trend, current_price, recent_h[-1]["price"], recent_l[-1]["price"], 
+                                   recent_h[-2]["price"], recent_l[-2]["price"])
 
-    if len(recent_highs) >= 2 and len(recent_lows) >= 2:
-        last_swing_high = recent_highs[-1]["price"]
-        prev_swing_high = recent_highs[-2]["price"]
-        last_swing_low = recent_lows[-1]["price"]
-        prev_swing_low = recent_lows[-2]["price"]
-
-        # BOS Detection
-        if trend == "bullish":
-            if current_price > last_swing_high:
-                bos = {
-                    "type": "bullish",
-                    "level": last_swing_high,
-                    "description": "BOS - Price broke above swing high (trend continuation)"
-                }
-            elif current_price < last_swing_low:
-                choch = {
-                    "type": "bearish",
-                    "level": last_swing_low,
-                    "description": "CHoCH - Price broke below swing low (potential reversal)"
-                }
-
-        elif trend == "bearish":
-            if current_price < last_swing_low:
-                bos = {
-                    "type": "bearish",
-                    "level": last_swing_low,
-                    "description": "BOS - Price broke below swing low (trend continuation)"
-                }
-            elif current_price > last_swing_high:
-                choch = {
-                    "type": "bullish",
-                    "level": last_swing_high,
-                    "description": "CHoCH - Price broke above swing high (potential reversal)"
-                }
-
-    return {
-        "trend": trend,
-        "bos": bos,
-        "choch": choch,
-        "swing_highs": swing_highs,
-        "swing_lows": swing_lows,
-        "hh_count": hh_count,
-        "hl_count": hl_count,
-        "lh_count": lh_count,
-        "ll_count": ll_count,
-    }
+    return {"trend": trend, "bos": bos, "choch": choch, "swing_highs": sh, "swing_lows": sl,
+            "hh_count": hh, "hl_count": hl, "lh_count": lh, "ll_count": ll}
 
 # =============================================================================
 # LIQUIDITY - BSL, SSL & SWEEPS
@@ -322,19 +272,20 @@ def _detect_liquidity_zones(bars: List[Dict], lookback: int = 20) -> Dict:
         "sweeps": sweeps,
     }
 
+def _is_bullish_sweep(candle, current_close, ssl_price):
+    """Check for bullish liquidity sweep (price breaks below SSL then recovers)"""
+    return candle["low"] < ssl_price * 0.998 and current_close > ssl_price
+
+def _is_bearish_sweep(candle, current_close, bsl_price):
+    """Check for bearish liquidity sweep (price breaks above BSL then rejected)"""
+    return candle["high"] > bsl_price * 1.002 and current_close < bsl_price
+
 def _detect_liquidity_sweeps(
     bars: List[Dict],
     bsl_zones: List[Dict],
     ssl_zones: List[Dict]
 ) -> List[Dict]:
-    """
-    Detect Liquidity Sweeps - Price takes out liquidity then reverses.
-
-    Bullish Sweep: Price breaks below SSL, then closes above
-    Bearish Sweep: Price breaks above BSL, then closes below
-
-    Liquidity sweeps are HIGH PROBABILITY reversal signals.
-    """
+    """Detect Liquidity Sweeps - Price takes out liquidity then reverses."""
     sweeps = []
     if len(bars) < 5:
         return sweeps
@@ -344,31 +295,23 @@ def _detect_liquidity_sweeps(
 
     # Check for bullish sweep (SSL taken then recovered)
     for ssl in ssl_zones:
-        for candle in last_candles[:-1]:
-            # Wick went below SSL
-            if candle["low"] < ssl["price"] * 0.998:
-                # But current closed above
-                if current["close"] > ssl["price"]:
-                    sweeps.append({
-                        "type": "bullish",
-                        "level": ssl["price"],
-                        "description": f"Liquidity sweep below {ssl['type']} - LONG setup",
-                        "strength": ssl["strength"] + 10,
-                    })
-                    break
+        if any(_is_bullish_sweep(c, current["close"], ssl["price"]) for c in last_candles[:-1]):
+            sweeps.append({
+                "type": "bullish",
+                "level": ssl["price"],
+                "description": f"Liquidity sweep below {ssl['type']} - LONG setup",
+                "strength": ssl["strength"] + 10,
+            })
 
     # Check for bearish sweep (BSL taken then rejected)
     for bsl in bsl_zones:
-        for candle in last_candles[:-1]:
-            if candle["high"] > bsl["price"] * 1.002:
-                if current["close"] < bsl["price"]:
-                    sweeps.append({
-                        "type": "bearish",
-                        "level": bsl["price"],
-                        "description": f"Liquidity sweep above {bsl['type']} - SHORT setup",
-                        "strength": bsl["strength"] + 10,
-                    })
-                    break
+        if any(_is_bearish_sweep(c, current["close"], bsl["price"]) for c in last_candles[:-1]):
+            sweeps.append({
+                "type": "bearish",
+                "level": bsl["price"],
+                "description": f"Liquidity sweep above {bsl['type']} - SHORT setup",
+                "strength": bsl["strength"] + 10,
+            })
 
     return sweeps
 
@@ -376,76 +319,53 @@ def _detect_liquidity_sweeps(
 # ORDER BLOCKS & BREAKER BLOCKS
 # =============================================================================
 
+def _is_bullish_ob(prev, curr, next_candle):
+    """Check for Bullish Order Block criteria"""
+    return (prev["is_bearish"] and curr["is_bullish"] and 
+            curr["body"] > prev["body"] * 1.5 and 
+            curr["body_percent"] > 60 and 
+            next_candle["close"] > curr["close"])
+
+def _is_bearish_ob(prev, curr, next_candle):
+    """Check for Bearish Order Block criteria"""
+    return (prev["is_bullish"] and curr["is_bearish"] and 
+            curr["body"] > prev["body"] * 1.5 and 
+            curr["body_percent"] > 60 and 
+            next_candle["close"] < curr["close"])
+
 def _detect_order_blocks(bars: List[Dict], lookback: int = 30) -> Dict:
-    """
-    Detect ICT Order Blocks - Institutional order zones.
-
-    Bullish OB: Last bearish candle before impulsive bullish move
-    Bearish OB: Last bullish candle before impulsive bearish move
-
-    Valid OB requirements:
-    - Must precede displacement (strong move)
-    - Should have BOS or CHoCH following
-    """
+    """Detect ICT Order Blocks and Breaker Blocks"""
     if len(bars) < 10:
         return {"bullish": [], "bearish": [], "breakers": []}
 
-    bullish_obs = []
-    bearish_obs = []
-    recent_bars = bars[-lookback:] if len(bars) > lookback else bars
-
-    for i in range(2, len(recent_bars) - 1):
-        prev = _get_candle_info(recent_bars[i - 1])
-        curr = _get_candle_info(recent_bars[i])
-        next_candle = _get_candle_info(recent_bars[i + 1])
-
-        # Bullish Order Block: Bearish candle before bullish displacement
-        if prev["is_bearish"] and curr["is_bullish"]:
-            # Check for displacement (strong move)
-            if curr["body"] > prev["body"] * 1.5 and curr["body_percent"] > 60:
-                # Next candle should continue upward
-                if next_candle["close"] > curr["close"]:
-                    ob = {
-                        "zone_top": prev["body_top"],
-                        "zone_bottom": prev["low"],  # Include wick for OB
-                        "zone_mid": (prev["body_top"] + prev["low"]) / 2,
-                        "strength": 75 + min(25, int(curr["body_percent"] / 4)),
-                        "index": i - 1,
-                        "valid": True,
-                    }
-                    bullish_obs.append(ob)
-
-        # Bearish Order Block: Bullish candle before bearish displacement
-        if prev["is_bullish"] and curr["is_bearish"]:
-            if curr["body"] > prev["body"] * 1.5 and curr["body_percent"] > 60:
-                if next_candle["close"] < curr["close"]:
-                    ob = {
-                        "zone_top": prev["high"],  # Include wick for OB
-                        "zone_bottom": prev["body_bottom"],
-                        "zone_mid": (prev["high"] + prev["body_bottom"]) / 2,
-                        "strength": 75 + min(25, int(curr["body_percent"] / 4)),
-                        "index": i - 1,
-                        "valid": True,
-                    }
-                    bearish_obs.append(ob)
-
-    # Detect Breaker Blocks (failed Order Blocks)
-    breakers = _detect_breaker_blocks(bars, bullish_obs, bearish_obs)
-
-    # Mark invalidated OBs
+    bullish_obs, bearish_obs = [], []
+    recent = bars[-lookback:] if len(bars) > lookback else bars
     current_price = _get_candle_info(bars[-1])["close"]
-    for ob in bullish_obs:
-        if current_price < ob["zone_bottom"]:
-            ob["valid"] = False
-    for ob in bearish_obs:
-        if current_price > ob["zone_top"]:
-            ob["valid"] = False
 
+    for i in range(2, len(recent) - 1):
+        p, c, n = _get_candle_info(recent[i-1]), _get_candle_info(recent[i]), _get_candle_info(recent[i+1])
+        _process_ob_candidates(p, c, n, i, current_price, bullish_obs, bearish_obs)
+
+    breakers = _detect_breaker_blocks(bars, bullish_obs, bearish_obs)
     return {
         "bullish": [ob for ob in bullish_obs if ob["valid"]][-5:],
         "bearish": [ob for ob in bearish_obs if ob["valid"]][-5:],
         "breakers": breakers,
     }
+
+def _process_ob_candidates(p: Dict, c: Dict, n: Dict, index: int, current_price: float, bullish_obs: List, bearish_obs: List):
+    """Check and add OB candidates"""
+    if _is_bullish_ob(p, c, n):
+        bullish_obs.append({
+            "zone_top": p["body_top"], "zone_bottom": p["low"], "zone_mid": (p["body_top"] + p["low"]) / 2,
+            "strength": 75 + min(25, int(c["body_percent"] / 4)), "index": index - 1, "valid": current_price >= p["low"]
+        })
+
+    if _is_bearish_ob(p, c, n):
+        bearish_obs.append({
+            "zone_top": p["high"], "zone_bottom": p["body_bottom"], "zone_mid": (p["high"] + p["body_bottom"]) / 2,
+            "strength": 75 + min(25, int(c["body_percent"] / 4)), "index": index - 1, "valid": current_price <= p["high"]
+        })
 
 def _detect_breaker_blocks(
     bars: List[Dict],
@@ -493,80 +413,52 @@ def _detect_breaker_blocks(
 # FAIR VALUE GAPS (FVG)
 # =============================================================================
 
+def _is_bullish_fvg(c1, c2, c3, min_gap_percent):
+    """Check for Bullish FVG (Gap up)"""
+    if c1["high"] < c3["low"]:
+        gap_size = c3["low"] - c1["high"]
+        gap_percent = (gap_size / c1["high"]) * 100 if c1["high"] > 0 else 0
+        return gap_percent >= min_gap_percent and c2["is_bullish"] and c2["body_percent"] > 50, gap_percent
+    return False, 0
+
+def _is_bearish_fvg(c1, c2, c3, min_gap_percent):
+    """Check for Bearish FVG (Gap down)"""
+    if c1["low"] > c3["high"]:
+        gap_size = c1["low"] - c3["high"]
+        gap_percent = (gap_size / c3["high"]) * 100 if c3["high"] > 0 else 0
+        return gap_percent >= min_gap_percent and c2["is_bearish"] and c2["body_percent"] > 50, gap_percent
+    return False, 0
+
 def _detect_fvg(bars: List[Dict], min_gap_percent: float = 0.1) -> Dict:
-    """
-    Detect Fair Value Gaps (FVG) - Price imbalances.
-
-    FVG forms when candle 1's wick doesn't overlap with candle 3's wick.
-
-    Bullish FVG: C1 high < C3 low (gap up) - Support zone
-    Bearish FVG: C1 low > C3 high (gap down) - Resistance zone
-
-    Price tends to return to "fill" these gaps.
-    """
+    """Detect Fair Value Gaps (FVG) - Price imbalances."""
     if len(bars) < 10:
         return {"bullish": [], "bearish": []}
 
-    bullish_fvgs = []
-    bearish_fvgs = []
-
-    for i in range(2, len(bars)):
-        c1 = _get_candle_info(bars[i - 2])
-        c2 = _get_candle_info(bars[i - 1])  # The impulsive candle
-        c3 = _get_candle_info(bars[i])
-
-        # Bullish FVG: Gap up (C1 high < C3 low)
-        if c1["high"] < c3["low"]:
-            gap_size = c3["low"] - c1["high"]
-            gap_percent = (gap_size / c1["high"]) * 100 if c1["high"] > 0 else 0
-
-            if gap_percent >= min_gap_percent:
-                # Check if C2 was impulsive (displacement)
-                if c2["is_bullish"] and c2["body_percent"] > 50:
-                    fvg = {
-                        "zone_top": c3["low"],
-                        "zone_bottom": c1["high"],
-                        "zone_mid": (c3["low"] + c1["high"]) / 2,  # Consequent Encroachment
-                        "size_percent": round(gap_percent, 2),
-                        "strength": min(100, 65 + int(gap_percent * 15)),
-                        "filled": False,
-                        "index": i,
-                    }
-                    bullish_fvgs.append(fvg)
-
-        # Bearish FVG: Gap down (C1 low > C3 high)
-        if c1["low"] > c3["high"]:
-            gap_size = c1["low"] - c3["high"]
-            gap_percent = (gap_size / c3["high"]) * 100 if c3["high"] > 0 else 0
-
-            if gap_percent >= min_gap_percent:
-                if c2["is_bearish"] and c2["body_percent"] > 50:
-                    fvg = {
-                        "zone_top": c1["low"],
-                        "zone_bottom": c3["high"],
-                        "zone_mid": (c1["low"] + c3["high"]) / 2,
-                        "size_percent": round(gap_percent, 2),
-                        "strength": min(100, 65 + int(gap_percent * 15)),
-                        "filled": False,
-                        "index": i,
-                    }
-                    bearish_fvgs.append(fvg)
-
-    # Check if FVGs are filled
+    bullish_fvgs, bearish_fvgs = [], []
     current_price = _get_candle_info(bars[-1])["close"]
 
-    for fvg in bullish_fvgs:
-        # FVG is filled if price traded through the zone
-        if current_price < fvg["zone_bottom"]:
-            fvg["filled"] = True
+    for i in range(2, len(bars)):
+        c1, c2, c3 = _get_candle_info(bars[i-2]), _get_candle_info(bars[i-1]), _get_candle_info(bars[i])
+        
+        is_bull, bull_gap = _is_bullish_fvg(c1, c2, c3, min_gap_percent)
+        if is_bull:
+            bullish_fvgs.append({
+                "zone_top": c3["low"], "zone_bottom": c1["high"], "zone_mid": (c3["low"] + c1["high"]) / 2,
+                "size_percent": round(bull_gap, 2), "strength": min(100, 65 + int(bull_gap * 15)),
+                "filled": current_price < c1["high"], "index": i
+            })
 
-    for fvg in bearish_fvgs:
-        if current_price > fvg["zone_top"]:
-            fvg["filled"] = True
+        is_bear, bear_gap = _is_bearish_fvg(c1, c2, c3, min_gap_percent)
+        if is_bear:
+            bearish_fvgs.append({
+                "zone_top": c1["low"], "zone_bottom": c3["high"], "zone_mid": (c1["low"] + c3["high"]) / 2,
+                "size_percent": round(bear_gap, 2), "strength": min(100, 65 + int(bear_gap * 15)),
+                "filled": current_price > c1["low"], "index": i
+            })
 
     return {
         "bullish": [f for f in bullish_fvgs if not f["filled"]][-5:],
-        "bearish": [f for f in bearish_fvgs if not f["filled"]][-5:],
+        "bearish": [f for f in bearish_fvgs if not f["filled"]][-5:]
     }
 
 # =============================================================================
@@ -719,148 +611,108 @@ def _calculate_confluence(
     bearish_reasons = []
 
     # 1. Market Structure
-    if market_structure["trend"] == "bullish":
-        bullish_reasons.append({
-            "reason": "Bullish market structure (HH + HL)",
-            "strength": 60,
-        })
-        if market_structure["bos"] and market_structure["bos"]["type"] == "bullish":
-            bullish_reasons.append({
-                "reason": market_structure["bos"]["description"],
-                "strength": 75,
-            })
-    elif market_structure["trend"] == "bearish":
-        bearish_reasons.append({
-            "reason": "Bearish market structure (LH + LL)",
-            "strength": 60,
-        })
-        if market_structure["bos"] and market_structure["bos"]["type"] == "bearish":
-            bearish_reasons.append({
-                "reason": market_structure["bos"]["description"],
-                "strength": 75,
-            })
+    _check_structure_confluence(market_structure, bullish_reasons, bearish_reasons)
 
-    # CHoCH signals potential reversal
+    # 2. Liquidity Sweeps
+    _check_liquidity_confluence(liquidity, bullish_reasons, bearish_reasons)
+
+    # 3. Supply/Demand Zones (OBs, Breakers, FVGs)
+    _check_zone_confluence(current_price, order_blocks, fvgs, bullish_reasons, bearish_reasons)
+
+    # 4. Premium/Discount (OTE)
+    _check_premium_discount_confluence(premium_discount, bullish_reasons, bearish_reasons)
+
+    return _finalize_swing_confluence(bullish_reasons, bearish_reasons)
+
+def _check_structure_confluence(market_structure: Dict, bullish: List, bearish: List):
+    """Check trend and BOS/CHoCH alignment"""
+    if market_structure["trend"] == "bullish":
+        bullish.append({"reason": "Bullish market structure (HH + HL)", "strength": 60})
+        if market_structure["bos"] and market_structure["bos"]["type"] == "bullish":
+            bullish.append({"reason": market_structure["bos"]["description"], "strength": 75})
+    elif market_structure["trend"] == "bearish":
+        bearish.append({"reason": "Bearish market structure (LH + LL)", "strength": 60})
+        if market_structure["bos"] and market_structure["bos"]["type"] == "bearish":
+            bearish.append({"reason": market_structure["bos"]["description"], "strength": 75})
+
+    # CHoCH signals
     if market_structure["choch"]:
         choch = market_structure["choch"]
         if choch["type"] == "bullish":
-            bullish_reasons.append({
-                "reason": choch["description"],
-                "strength": 80,
-            })
+            bullish.append({"reason": choch["description"], "strength": 80})
         else:
-            bearish_reasons.append({
-                "reason": choch["description"],
-                "strength": 80,
-            })
+            bearish.append({"reason": choch["description"], "strength": 80})
 
-    # 2. Liquidity Sweeps (HIGH PROBABILITY!)
+def _check_liquidity_confluence(liquidity: Dict, bullish: List, bearish: List):
+    """Check for recent liquidity sweeps"""
     for sweep in liquidity["sweeps"]:
         if sweep["type"] == "bullish":
-            bullish_reasons.append({
-                "reason": sweep["description"],
-                "strength": sweep["strength"],
-            })
+            bullish.append({"reason": sweep["description"], "strength": sweep["strength"]})
         else:
-            bearish_reasons.append({
-                "reason": sweep["description"],
-                "strength": sweep["strength"],
-            })
+            bearish.append({"reason": sweep["description"], "strength": sweep["strength"]})
 
-    # 3. At Order Block
+def _check_zone_confluence(current_price: float, order_blocks: Dict, fvgs: Dict, bullish: List, bearish: List):
+    """Check if price is within Order Blocks, Breakers, or FVGs"""
+    # Order Blocks
     for ob in order_blocks["bullish"]:
         if ob["zone_bottom"] <= current_price <= ob["zone_top"]:
-            bullish_reasons.append({
-                "reason": "At Bullish Order Block (institutional demand)",
-                "strength": ob["strength"],
-                "zone": ob,
-            })
+            bullish.append({"reason": "At Bullish Order Block (institutional demand)", "strength": ob["strength"], "zone": ob})
 
     for ob in order_blocks["bearish"]:
         if ob["zone_bottom"] <= current_price <= ob["zone_top"]:
-            bearish_reasons.append({
-                "reason": "At Bearish Order Block (institutional supply)",
-                "strength": ob["strength"],
-                "zone": ob,
-            })
+            bearish.append({"reason": "At Bearish Order Block (institutional supply)", "strength": ob["strength"], "zone": ob})
 
     # Breaker Blocks
     for bb in order_blocks["breakers"]:
         if bb["zone_bottom"] <= current_price <= bb["zone_top"]:
+            reason = {"reason": bb["description"], "strength": bb["strength"], "zone": bb}
             if bb["type"] == "bullish":
-                bullish_reasons.append({
-                    "reason": bb["description"],
-                    "strength": bb["strength"],
-                    "zone": bb,
-                })
+                bullish.append(reason)
             else:
-                bearish_reasons.append({
-                    "reason": bb["description"],
-                    "strength": bb["strength"],
-                    "zone": bb,
-                })
+                bearish.append(reason)
 
-    # 4. At FVG
+    # FVGs
     for fvg in fvgs["bullish"]:
         if fvg["zone_bottom"] <= current_price <= fvg["zone_top"]:
-            bullish_reasons.append({
-                "reason": f"At Bullish FVG ({fvg['size_percent']}% gap)",
-                "strength": fvg["strength"],
-                "zone": fvg,
-            })
+            bullish.append({"reason": f"At Bullish FVG ({fvg['size_percent']}% gap)", "strength": fvg["strength"], "zone": fvg})
 
     for fvg in fvgs["bearish"]:
         if fvg["zone_bottom"] <= current_price <= fvg["zone_top"]:
-            bearish_reasons.append({
-                "reason": f"At Bearish FVG ({fvg['size_percent']}% gap)",
-                "strength": fvg["strength"],
-                "zone": fvg,
-            })
+            bearish.append({"reason": f"At Bearish FVG ({fvg['size_percent']}% gap)", "strength": fvg["strength"], "zone": fvg})
 
-    # 5. Premium/Discount Zone
-    if premium_discount["in_ote"]:
-        if premium_discount["ote_type"] == "bullish":
-            bullish_reasons.append({
-                "reason": "In OTE zone (discount) - Optimal for longs",
-                "strength": 70,
-            })
+def _check_premium_discount_confluence(pd: Dict, bullish: List, bearish: List):
+    """Check OTE and P/D alignment"""
+    if pd["in_ote"]:
+        if pd["ote_type"] == "bullish":
+            bullish.append({"reason": "In OTE zone (discount) - Optimal for longs", "strength": 70})
         else:
-            bearish_reasons.append({
-                "reason": "In OTE zone (premium) - Optimal for shorts",
-                "strength": 70,
-            })
-    elif premium_discount["current_zone"] == "discount":
-        bullish_reasons.append({
-            "reason": f"Price in Discount zone ({premium_discount['price_position']:.0f}%)",
-            "strength": 55,
-        })
-    elif premium_discount["current_zone"] == "premium":
-        bearish_reasons.append({
-            "reason": f"Price in Premium zone ({premium_discount['price_position']:.0f}%)",
-            "strength": 55,
-        })
+            bearish.append({"reason": "In OTE zone (premium) - Optimal for shorts", "strength": 70})
+    elif pd["current_zone"] == "discount":
+        bullish.append({"reason": f"Price in Discount zone ({pd['price_position']:.0f}%)", "strength": 55})
+    elif pd["current_zone"] == "premium":
+        bearish.append({"reason": f"Price in Premium zone ({pd['price_position']:.0f}%)", "strength": 55})
 
-    # Calculate scores
-    bullish_score = sum(r["strength"] for r in bullish_reasons)
-    bearish_score = sum(r["strength"] for r in bearish_reasons)
+def _finalize_swing_confluence(bullish: List, bearish: List) -> Dict:
+    """Calculate final swing scores and direction"""
+    bullish_score = sum(r["strength"] for r in bullish)
+    bearish_score = sum(r["strength"] for r in bearish)
 
-    # Determine direction
     direction = "neutral"
-    if len(bullish_reasons) >= 2 and bullish_score > bearish_score:
+    if len(bullish) >= 2 and bullish_score > bearish_score:
         direction = "bullish"
-    elif len(bearish_reasons) >= 2 and bearish_score > bullish_score:
+    elif len(bearish) >= 2 and bearish_score > bullish_score:
         direction = "bearish"
 
     return {
         "direction": direction,
-        "bullish_count": len(bullish_reasons),
-        "bearish_count": len(bearish_reasons),
+        "bullish_count": len(bullish),
+        "bearish_count": len(bearish),
         "bullish_score": bullish_score,
         "bearish_score": bearish_score,
-        "bullish_reasons": bullish_reasons,
-        "bearish_reasons": bearish_reasons,
-        "min_confluence_met": (direction == "bullish" and len(bullish_reasons) >= 2) or \
-                             (direction == "bearish" and len(bearish_reasons) >= 2),
+        "bullish_reasons": bullish,
+        "bearish_reasons": bearish,
+        "min_confluence_met": (direction == "bullish" and len(bullish) >= 2) or \
+                             (direction == "bearish" and len(bearish) >= 2),
     }
 
 # =============================================================================

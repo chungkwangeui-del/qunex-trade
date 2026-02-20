@@ -261,8 +261,8 @@ def _calculate_change(stock, days: int) -> float:
             current = hist['Close'].iloc[-1]
             past = hist['Close'].iloc[-min(days, len(hist))]
             return round(((current - past) / past) * 100, 2)
-    except Exception:
-        pass
+    except Exception as e:
+        logger.error(f"Error calculating price change for {stock}: {e}")
     return None
 
 @api_comparison.route("/api/compare/quick/<ticker1>/<ticker2>")

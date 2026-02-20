@@ -186,86 +186,54 @@ class MultiTimeframeSR:
 
         return swing_highs, swing_lows
 
+    def _get_timeframe_config(self, tf: str) -> Dict:
+        """Get config for a specific timeframe"""
+        return self.TIMEFRAMES.get(tf, {"name": tf, "weight": 1.0, "minutes": int(tf) if tf.isdigit() else 0})
+
+    def _collect_all_raw_levels(self, mtf_data: Dict[str, List[Dict]]) -> Tuple[List[Dict], List[Dict]]:
+        """Collect raw swing points from all timeframes"""
+        all_supports, all_resistances = [], []
+        for tf, bars in mtf_data.items():
+            config = self._get_timeframe_config(tf)
+            swing_highs, swing_lows = self.find_swing_points(bars)
+            for sh in swing_highs:
+                all_resistances.append({"price": sh["price"], "timeframe": tf, "weight": config["weight"], "tf_name": config["name"]})
+            for sl in swing_lows:
+                all_supports.append({"price": sl["price"], "timeframe": tf, "weight": config["weight"], "tf_name": config["name"]})
+        return all_supports, all_resistances
+
     def analyze_multi_timeframe(
         self,
         ticker: str,
         timeframes: List[str] = ["5", "15", "60"]
     ) -> Dict:
-        """
-        Analyze S/R across multiple timeframes and find confluence zones
-
-        Returns:
-            Dict with:
-            - confluence_supports: List of support levels with MTF confluence
-            - confluence_resistances: List of resistance levels with MTF confluence
-            - current_price: Current price
-            - strongest_support: Strongest support level
-            - strongest_resistance: Strongest resistance level
-        """
-        # Fetch data for all timeframes
+        """Analyze S/R across multiple timeframes and find confluence zones"""
         mtf_data = self.fetch_multi_timeframe_data(ticker, timeframes)
-
         if not mtf_data:
             return {"error": "Failed to fetch multi-timeframe data"}
 
-        # Get current price from lowest timeframe
         lowest_tf = min(timeframes, key=lambda x: int(x))
         current_price = mtf_data[lowest_tf][-1]["c"] if mtf_data.get(lowest_tf) else 0
 
-        # Collect S/R from each timeframe
-        all_supports = []  # [(price, timeframe, weight)]
-        all_resistances = []
+        all_supports, all_resistances = self._collect_all_raw_levels(mtf_data)
+        
+        conf_supports = self._find_confluence_zones(all_supports, current_price)
+        conf_resistances = self._find_confluence_zones(all_resistances, current_price)
 
-        for tf, bars in mtf_data.items():
-            weight = self.TIMEFRAMES.get(tf, {}).get("weight", 1.0)
-            swing_highs, swing_lows = self.find_swing_points(bars)
+        conf_supports.sort(key=lambda x: x["strength"], reverse=True)
+        conf_resistances.sort(key=lambda x: x["strength"], reverse=True)
 
-            for sh in swing_highs:
-                all_resistances.append({
-                    "price": sh["price"],
-                    "timeframe": tf,
-                    "weight": weight,
-                    "tf_name": self.TIMEFRAMES.get(tf, {}).get("name", tf),
-                })
-
-            for sl in swing_lows:
-                all_supports.append({
-                    "price": sl["price"],
-                    "timeframe": tf,
-                    "weight": weight,
-                    "tf_name": self.TIMEFRAMES.get(tf, {}).get("name", tf),
-                })
-
-        # Find confluence zones (levels that appear in multiple timeframes)
-        confluence_supports = self._find_confluence_zones(all_supports, current_price)
-        confluence_resistances = self._find_confluence_zones(all_resistances, current_price)
-
-        # Sort by strength
-        confluence_supports.sort(key=lambda x: x["strength"], reverse=True)
-        confluence_resistances.sort(key=lambda x: x["strength"], reverse=True)
-
-        # Find nearest levels
-        nearest_support = None
-        nearest_resistance = None
-
-        for s in confluence_supports:
-            if s["price"] < current_price:
-                if nearest_support is None or s["price"] > nearest_support["price"]:
-                    nearest_support = s
-
-        for r in confluence_resistances:
-            if r["price"] > current_price:
-                if nearest_resistance is None or r["price"] < nearest_resistance["price"]:
-                    nearest_resistance = r
+        nearest_s = next((s for s in sorted(conf_supports, key=lambda x: x["price"], reverse=True) if s["price"] < current_price), None)
+        nearest_r = next((r for r in sorted(conf_resistances, key=lambda x: x["price"]) if r["price"] > current_price), None)
 
         return {
-            "confluence_supports": confluence_supports[:10],  # Top 10
-            "confluence_resistances": confluence_resistances[:10],
+            "confluence_supports": conf_supports[:10],
+            "confluence_resistances": conf_resistances[:10],
             "current_price": current_price,
-            "nearest_support": nearest_support,
-            "nearest_resistance": nearest_resistance,
-            "strongest_support": confluence_supports[0] if confluence_supports else None,
-            "strongest_resistance": confluence_resistances[0] if confluence_resistances else None,
+            "nearest_support": nearest_s,
+            "nearest_resistance": nearest_r,
+            "strongest_support": conf_supports[0] if conf_supports else None,
+            "strongest_resistance": conf_resistances[0] if conf_resistances else None,
             "timeframes_analyzed": list(mtf_data.keys()),
         }
 
@@ -366,99 +334,61 @@ class VolumeProfileAnalyzer:
     def __init__(self, num_bins: int = 50):
         self.num_bins = num_bins
 
-    def calculate_volume_profile(self, bars: List[Dict]) -> Dict:
-        """
-        Calculate Volume Profile from OHLCV data
-
-        Uses typical price (HLC/3) weighted by volume for each candle
-        """
-        if not bars or len(bars) < 10:
-            return {"error": "Insufficient data for volume profile"}
-
-        # Find price range
+    def _get_price_range(self, bars: List[Dict]) -> Tuple[float, float]:
+        """Find min and max price range from bars"""
         all_highs = [b.get("h", 0) for b in bars]
         all_lows = [b.get("l", 0) for b in bars]
-        price_min = min(all_lows)
-        price_max = max(all_highs)
+        return min(all_lows), max(all_highs)
 
-        if price_min >= price_max:
-            return {"error": "Invalid price range"}
-
-        # Create price bins
-        bin_size = (price_max - price_min) / self.num_bins
+    def _distribute_volume(self, bars: List[Dict], price_min: float, bin_size: float) -> Dict[float, float]:
+        """Distribute volume across price bins for each candle"""
         volume_at_price = defaultdict(float)
-
         for bar in bars:
-            h, l, c, v = bar.get("h", 0), bar.get("l", 0), bar.get("c", 0), bar.get("v", 0)
-
-            # Distribute volume across the candle's price range
-            # More accurate than just using typical price
+            h, l, v = bar.get("h", 0), bar.get("l", 0), bar.get("v", 0)
             candle_bins = []
             for i in range(self.num_bins):
                 bin_low = price_min + i * bin_size
                 bin_high = bin_low + bin_size
-                bin_mid = (bin_low + bin_high) / 2
-
-                # Check if this bin overlaps with candle range
                 if bin_low <= h and bin_high >= l:
-                    candle_bins.append(bin_mid)
-
-            # Distribute volume evenly across touched bins
+                    candle_bins.append(round((bin_low + bin_high) / 2, 4))
+            
             if candle_bins:
                 vol_per_bin = v / len(candle_bins)
                 for bin_price in candle_bins:
-                    volume_at_price[round(bin_price, 4)] += vol_per_bin
+                    volume_at_price[bin_price] += vol_per_bin
+        return volume_at_price
 
-        # Convert to sorted list
-        profile = sorted(
-            [{"price": p, "volume": v} for p, v in volume_at_price.items()],
-            key=lambda x: x["price"]
-        )
+    def calculate_volume_profile(self, bars: List[Dict]) -> Dict:
+        """Calculate Volume Profile from OHLCV data"""
+        if not bars or len(bars) < 10:
+            return {"error": "Insufficient data for volume profile"}
 
-        # Calculate statistics
-        total_volume = sum(p["volume"] for p in profile)
-        max_volume = max(p["volume"] for p in profile) if profile else 0
+        p_min, p_max = self._get_price_range(bars)
+        if p_min >= p_max:
+            return {"error": "Invalid price range"}
 
-        # Find VPOC (Volume Point of Control)
+        bin_size = (p_max - p_min) / self.num_bins
+        vol_at_price = self._distribute_volume(bars, p_min, bin_size)
+
+        profile = sorted([{"price": p, "volume": v} for p, v in vol_at_price.items()], key=lambda x: x["price"])
+        total_vol = sum(p["volume"] for p in profile)
+        max_vol = max(p["volume"] for p in profile) if profile else 0
         vpoc = max(profile, key=lambda x: x["volume"]) if profile else None
+        va = self._calculate_value_area(profile, total_vol)
 
-        # Find Value Area (70% of volume)
-        value_area = self._calculate_value_area(profile, total_volume)
-
-        # Find High Volume Nodes (above average)
-        avg_volume = total_volume / len(profile) if profile else 0
-        hvn_threshold = avg_volume * 1.5
-        lvn_threshold = avg_volume * 0.5
-
-        hvn = [p for p in profile if p["volume"] >= hvn_threshold]
-        lvn = [p for p in profile if p["volume"] <= lvn_threshold]
-
-        # Current price context
-        current_price = bars[-1].get("c", 0)
+        avg_vol = total_vol / len(profile) if profile else 0
+        hvn = [p for p in profile if p["volume"] >= avg_vol * 1.5]
+        lvn = [p for p in profile if p["volume"] <= avg_vol * 0.5]
+        curr_p = bars[-1].get("c", 0)
 
         return {
-            "vpoc": {
-                "price": vpoc["price"] if vpoc else None,
-                "volume": vpoc["volume"] if vpoc else 0,
-                "distance_percent": abs(current_price - vpoc["price"]) / current_price * 100 if vpoc else 0,
-            },
-            "value_area": {
-                "high": value_area["vah"],
-                "low": value_area["val"],
-                "volume_percent": 70,
-            },
-            "high_volume_nodes": [
-                {"price": h["price"], "volume": h["volume"], "strength": min(100, h["volume"] / max_volume * 100)}
-                for h in sorted(hvn, key=lambda x: x["volume"], reverse=True)[:5]
-            ],
-            "low_volume_nodes": [
-                {"price": l["price"], "volume": l["volume"]}
-                for l in sorted(lvn, key=lambda x: x["price"])[:5]
-            ],
-            "current_price": current_price,
-            "price_range": {"min": price_min, "max": price_max},
-            "total_volume": total_volume,
-            "profile": profile,  # Full profile for visualization
+            "vpoc": {"price": vpoc["price"] if vpoc else None, "volume": vpoc["volume"] if vpoc else 0,
+                     "distance_percent": abs(curr_p - vpoc["price"]) / curr_p * 100 if vpoc else 0},
+            "value_area": {"high": va["vah"], "low": va["val"], "volume_percent": 70},
+            "high_volume_nodes": [{"price": h["price"], "volume": h["volume"], "strength": min(100, h["volume"] / max_vol * 100)}
+                                  for h in sorted(hvn, key=lambda x: x["volume"], reverse=True)[:5]],
+            "low_volume_nodes": [{"price": l["price"], "volume": l["volume"]} for l in sorted(lvn, key=lambda x: x["price"])[:5]],
+            "current_price": curr_p, "price_range": {"min": p_min, "max": p_max}, "total_volume": total_vol, "profile": profile
         }
 
     def _calculate_value_area(

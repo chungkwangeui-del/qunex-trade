@@ -220,34 +220,11 @@ def update_journal_entry(entry_id):
     data = request.get_json() or {}
 
     try:
-        # Update allowed fields
-        if data.get("exit_price"):
-            entry.exit_price = Decimal(str(data["exit_price"]))
+        # Update price and dates
+        _update_price_and_dates(entry, data)
 
-        if data.get("exit_date"):
-            try:
-                entry.exit_date = datetime.fromisoformat(data["exit_date"].replace("Z", "+00:00"))
-            except (ValueError, AttributeError):
-                pass
-
-        if data.get("stop_loss"):
-            entry.stop_loss = Decimal(str(data["stop_loss"]))
-
-        if data.get("take_profit"):
-            entry.take_profit = Decimal(str(data["take_profit"]))
-
-        # String fields
-        for field in ["strategy", "setup_type", "timeframe", "emotion_before",
-                      "emotion_after", "entry_reason", "exit_reason", "mistakes",
-                      "lessons_learned", "notes", "market_condition", "news_catalyst"]:
-            if field in data:
-                setattr(entry, field, data[field])
-
-        if data.get("confidence_level"):
-            entry.confidence_level = min(10, max(1, int(data["confidence_level"])))
-
-        if "followed_plan" in data:
-            entry.followed_plan = bool(data["followed_plan"])
+        # Update metadata and strings
+        _update_entry_metadata(entry, data)
 
         # Recalculate P&L if exit price changed
         if entry.exit_price:
@@ -264,6 +241,38 @@ def update_journal_entry(entry_id):
         db.session.rollback()
         logger.error(f"Error updating journal entry: {e}")
         return jsonify({"error": str(e)}), 500
+
+def _update_price_and_dates(entry, data):
+    """Update price and date fields from data dictionary"""
+    if data.get("exit_price"):
+        entry.exit_price = Decimal(str(data["exit_price"]))
+
+    if data.get("exit_date"):
+        try:
+            entry.exit_date = datetime.fromisoformat(data["exit_date"].replace("Z", "+00:00"))
+        except (ValueError, AttributeError):
+            pass
+
+    if data.get("stop_loss"):
+        entry.stop_loss = Decimal(str(data["stop_loss"]))
+
+    if data.get("take_profit"):
+        entry.take_profit = Decimal(str(data["take_profit"]))
+
+def _update_entry_metadata(entry, data):
+    """Update non-price metadata fields"""
+    # String fields
+    for field in ["strategy", "setup_type", "timeframe", "emotion_before",
+                  "emotion_after", "entry_reason", "exit_reason", "mistakes",
+                  "lessons_learned", "notes", "market_condition", "news_catalyst"]:
+        if field in data:
+            setattr(entry, field, data[field])
+
+    if data.get("confidence_level"):
+        entry.confidence_level = min(10, max(1, int(data["confidence_level"])))
+
+    if "followed_plan" in data:
+        entry.followed_plan = bool(data["followed_plan"])
 
 
 @api_journal.route("/api/journal/entries/<int:entry_id>", methods=["DELETE"])
@@ -317,21 +326,7 @@ def close_trade(entry_id):
         return jsonify({"error": "exit_price is required"}), 400
 
     try:
-        entry.exit_price = Decimal(str(data["exit_price"]))
-
-        if data.get("exit_date"):
-            entry.exit_date = datetime.fromisoformat(data["exit_date"].replace("Z", "+00:00"))
-        else:
-            entry.exit_date = datetime.now(timezone.utc)
-
-        if data.get("exit_reason"):
-            entry.exit_reason = data["exit_reason"]
-
-        if data.get("emotion_after"):
-            entry.emotion_after = data["emotion_after"]
-
-        if data.get("lessons_learned"):
-            entry.lessons_learned = data["lessons_learned"]
+        _apply_close_details(entry, data)
 
         # Calculate P&L
         _calculate_pnl(entry)
@@ -346,6 +341,24 @@ def close_trade(entry_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
+
+def _apply_close_details(entry, data):
+    """Apply exit price and metadata to closing entry"""
+    entry.exit_price = Decimal(str(data["exit_price"]))
+
+    if data.get("exit_date"):
+        entry.exit_date = datetime.fromisoformat(data["exit_date"].replace("Z", "+00:00"))
+    else:
+        entry.exit_date = datetime.now(timezone.utc)
+
+    if data.get("exit_reason"):
+        entry.exit_reason = data["exit_reason"]
+
+    if data.get("emotion_after"):
+        entry.emotion_after = data["emotion_after"]
+
+    if data.get("lessons_learned"):
+        entry.lessons_learned = data["lessons_learned"]
 
 
 def _calculate_pnl(entry: TradeJournal):
@@ -373,60 +386,67 @@ def _calculate_pnl(entry: TradeJournal):
 
     # Calculate actual R:R if stop loss was set
     if entry.stop_loss:
-        risk = abs(float(entry.entry_price) - float(entry.stop_loss)) * float(entry.shares)
-        if risk > 0:
-            entry.actual_risk_reward = round(float(entry.pnl) / risk, 2)
+        risk_per_share = abs(float(entry.entry_price) - float(entry.stop_loss))
+        if risk_per_share > 0:
+            entry.actual_risk_reward = round(float(entry.pnl) / (risk_per_share * float(entry.shares)), 2)
 
+def _get_closed_trades(user_id: int):
+    """Helper to get all closed trades for a user"""
+    return TradeJournal.query.filter(
+        TradeJournal.user_id == user_id,
+        TradeJournal.exit_price.isnot(None)
+    ).all()
+
+def _calculate_win_rate_stats(trades):
+    """Calculate win rate, avg win, avg loss"""
+    if not trades:
+        return 0, 0, 0, 0, 0
+    
+    wins = [e for e in trades if e.outcome == "win"]
+    losses = [e for e in trades if e.outcome == "loss"]
+    
+    win_rate = (len(wins) / len(trades) * 100)
+    avg_win = sum(float(e.pnl or 0) for e in wins) / len(wins) if wins else 0
+    avg_loss = sum(float(e.pnl or 0) for e in losses) / len(losses) if losses else 0
+    total_win_pnl = sum(float(e.pnl or 0) for e in wins)
+    total_loss_pnl = abs(sum(float(e.pnl or 0) for e in losses))
+    
+    return win_rate, avg_win, avg_loss, total_win_pnl, total_loss_pnl
 
 @api_journal.route("/api/journal/stats", methods=["GET"])
 @login_required
 def get_journal_stats():
     """
     Get trading statistics from journal entries.
-
-    Returns win rate, average P&L, best/worst trades, etc.
     """
-    entries = TradeJournal.query.filter_by(user_id=current_user.id).all()
+    all_entries = TradeJournal.query.filter_by(user_id=current_user.id).all()
+    if not all_entries:
+        return jsonify({"total_trades": 0, "message": "No trades recorded yet"})
 
-    if not entries:
-        return jsonify({
-            "total_trades": 0,
-            "message": "No trades recorded yet",
-        })
-
-    closed_trades = [e for e in entries if e.exit_price is not None]
-
+    closed_trades = [e for e in all_entries if e.exit_price is not None]
     if not closed_trades:
         return jsonify({
-            "total_trades": len(entries),
-            "open_trades": len(entries),
+            "total_trades": len(all_entries),
+            "open_trades": len(all_entries),
             "closed_trades": 0,
             "message": "No closed trades yet",
         })
 
-    # Basic stats
-    wins = [e for e in closed_trades if e.outcome == "win"]
-    losses = [e for e in closed_trades if e.outcome == "loss"]
-
-    total_pnl = sum(float(e.pnl or 0) for e in closed_trades)
-    win_rate = (len(wins) / len(closed_trades) * 100) if closed_trades else 0
-
-    # Average win/loss
-    avg_win = sum(float(e.pnl or 0) for e in wins) / len(wins) if wins else 0
-    avg_loss = sum(float(e.pnl or 0) for e in losses) / len(losses) if losses else 0
-
-    # Profit factor
-    total_wins = sum(float(e.pnl or 0) for e in wins)
-    total_losses = abs(sum(float(e.pnl or 0) for e in losses))
-    profit_factor = total_wins / total_losses if total_losses > 0 else float('inf')
-
-    # Best and worst
+    # Core Stats
+    win_rate, avg_win, avg_loss, tot_w, tot_l = _calculate_win_rate_stats(closed_trades)
+    profit_factor = tot_w / tot_l if tot_l > 0 else float('inf')
+    
+    # Best/Worst
     best_trade = max(closed_trades, key=lambda e: float(e.pnl or 0))
     worst_trade = min(closed_trades, key=lambda e: float(e.pnl or 0))
 
-    # By strategy
+    # Strategies & Psychology
     strategies = {}
+    plan_followers = []
+    plan_breakers = []
+
     for e in closed_trades:
+        # Strategy grouping
         strat = e.strategy or "Unknown"
         if strat not in strategies:
             strategies[strat] = {"trades": 0, "wins": 0, "pnl": 0}
@@ -434,52 +454,34 @@ def get_journal_stats():
         if e.outcome == "win":
             strategies[strat]["wins"] += 1
         strategies[strat]["pnl"] += float(e.pnl or 0)
+        
+        # Plan adherence
+        if e.followed_plan:
+            plan_followers.append(e)
+        else:
+            plan_breakers.append(e)
 
-    for strat in strategies:
-        strategies[strat]["win_rate"] = round(
-            (strategies[strat]["wins"] / strategies[strat]["trades"]) * 100, 1
-        )
-        strategies[strat]["pnl"] = round(strategies[strat]["pnl"], 2)
-
-    # Psychology stats
-    followed_plan_count = sum(1 for e in closed_trades if e.followed_plan)
-    followed_plan_pct = (followed_plan_count / len(closed_trades) * 100) if closed_trades else 0
-
-    # Plan adherence impact
-    plan_followers = [e for e in closed_trades if e.followed_plan]
-    plan_breakers = [e for e in closed_trades if not e.followed_plan]
-
-    plan_follow_pnl = sum(float(e.pnl or 0) for e in plan_followers) if plan_followers else 0
-    plan_break_pnl = sum(float(e.pnl or 0) for e in plan_breakers) if plan_breakers else 0
+    for s in strategies.values():
+        s["win_rate"] = round((s["wins"] / s["trades"]) * 100, 1)
+        s["pnl"] = round(s["pnl"], 2)
 
     return jsonify({
-        "total_trades": len(entries),
-        "open_trades": len(entries) - len(closed_trades),
+        "total_trades": len(all_entries),
+        "open_trades": len(all_entries) - len(closed_trades),
         "closed_trades": len(closed_trades),
-        "wins": len(wins),
-        "losses": len(losses),
-        "breakeven": len(closed_trades) - len(wins) - len(losses),
         "win_rate": round(win_rate, 1),
-        "total_pnl": round(total_pnl, 2),
+        "total_pnl": round(tot_w - tot_l, 2),
         "avg_win": round(avg_win, 2),
         "avg_loss": round(avg_loss, 2),
         "profit_factor": round(profit_factor, 2) if profit_factor != float('inf') else "∞",
         "expectancy": round((win_rate/100 * avg_win) + ((100-win_rate)/100 * avg_loss), 2),
-        "best_trade": {
-            "ticker": best_trade.ticker,
-            "pnl": float(best_trade.pnl or 0),
-            "date": best_trade.entry_date.isoformat() if best_trade.entry_date else None,
-        },
-        "worst_trade": {
-            "ticker": worst_trade.ticker,
-            "pnl": float(worst_trade.pnl or 0),
-            "date": worst_trade.entry_date.isoformat() if worst_trade.entry_date else None,
-        },
+        "best_trade": {"ticker": best_trade.ticker, "pnl": float(best_trade.pnl or 0), "date": best_trade.entry_date.isoformat() if best_trade.entry_date else None},
+        "worst_trade": {"ticker": worst_trade.ticker, "pnl": float(worst_trade.pnl or 0), "date": worst_trade.entry_date.isoformat() if worst_trade.entry_date else None},
         "by_strategy": strategies,
         "psychology": {
-            "followed_plan_pct": round(followed_plan_pct, 1),
-            "plan_follow_pnl": round(plan_follow_pnl, 2),
-            "plan_break_pnl": round(plan_break_pnl, 2),
+            "followed_plan_pct": round((len(plan_followers)/len(closed_trades)*100), 1),
+            "plan_follow_pnl": round(sum(float(e.pnl or 0) for e in plan_followers), 2),
+            "plan_break_pnl": round(sum(float(e.pnl or 0) for e in plan_breakers), 2),
         },
     })
 

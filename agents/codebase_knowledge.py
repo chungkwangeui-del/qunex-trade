@@ -380,10 +380,6 @@ class CodebaseKnowledge:
             line_count = 0
 
             with open(full_path, 'r', encoding='utf-8') as f:
-                # Use a small buffer to parse incrementally if possible
-                # or just read the content for smaller files.
-                # Since ast.parse requires the full content, we still read it
-                # but we avoid holding multiple copies of large files.
                 content = f.read()
                 line_count = len(content.splitlines())
 
@@ -412,6 +408,7 @@ class CodebaseKnowledge:
                 "line_count": line_count,
             }
         except Exception as e:
+            logger.debug(f"Error scanning {filepath}: {e}")
             return {"error": str(e)}
 
     @classmethod
@@ -451,8 +448,10 @@ class CodebaseKnowledge:
                             "message": f"File has {line_count} lines - consider splitting",
                             "lines": line_count
                         })
-                except Exception:
-                    pass
+                except Exception as e:
+                    import logging
+                    logger = logging.getLogger(__name__)
+                    logger.debug(f"Error checking file length for {py_file}: {e}")
 
         return issues
 

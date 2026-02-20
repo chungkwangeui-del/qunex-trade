@@ -11,6 +11,13 @@ import logging
 import pandas as pd
 
 try:
+    import yfinance as yf
+    YFINANCE_AVAILABLE = True
+except ImportError:
+    yf = None
+    YFINANCE_AVAILABLE = False
+
+try:
     from web.polygon_service import get_polygon_service
     from web.extensions import cache
 except ImportError:
@@ -40,9 +47,7 @@ def get_upcoming_earnings():
 
     Uses yfinance for earnings calendar data.
     """
-    try:
-        import yfinance as yf
-    except ImportError:
+    if not YFINANCE_AVAILABLE:
         return jsonify({"error": "yfinance not installed"}), 500
 
     earnings = []
@@ -119,9 +124,7 @@ def get_stock_earnings(ticker):
     """
     Get earnings history and estimates for a specific stock.
     """
-    try:
-        import yfinance as yf
-    except ImportError:
+    if not YFINANCE_AVAILABLE:
         return jsonify({"error": "yfinance not installed"}), 500
 
     ticker = ticker.upper()
@@ -143,8 +146,8 @@ def get_stock_earnings(ticker):
                         "eps_estimate": getattr(row, 'epsEstimate', None),
                         "surprise_pct": getattr(row, 'surprisePercent', None),
                     })
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"Error getting earnings history for {ticker}: {e}")
 
         # Get quarterly earnings
         quarterly = []
@@ -158,8 +161,8 @@ def get_stock_earnings(ticker):
                         "revenue": getattr(row, 'Revenue', None),
                         "earnings": getattr(row, 'Earnings', None),
                     })
-        except Exception:
-            pass
+        except Exception as e:
+            logger.debug(f"Error getting quarterly earnings for {ticker}: {e}")
 
         return jsonify({
             "ticker": ticker,
@@ -184,9 +187,7 @@ def get_upcoming_dividends():
     """
     Get stocks with upcoming ex-dividend dates.
     """
-    try:
-        import yfinance as yf
-    except ImportError:
+    if not YFINANCE_AVAILABLE:
         return jsonify({"error": "yfinance not installed"}), 500
 
     dividends = []
@@ -245,9 +246,7 @@ def get_stock_dividends(ticker):
     """
     Get dividend history for a specific stock.
     """
-    try:
-        import yfinance as yf
-    except ImportError:
+    if not YFINANCE_AVAILABLE:
         return jsonify({"error": "yfinance not installed"}), 500
 
     ticker = ticker.upper()
