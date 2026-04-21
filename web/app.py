@@ -122,16 +122,6 @@ def create_app(config_class=Config):
         if route_name in app.view_functions:
             limiter.limit(rate_limit)(app.view_functions[route_name])
 
-    # Initialize Flask-Admin
-    try:
-        from web.admin_views import init_admin
-
-        init_admin(app)
-    except ImportError as e:
-        logger.warning(
-            f"Failed to import admin_views: {e}. Admin interface will not be available."
-        )
-
     @app.before_request
     def set_request_context():
         g.request_id = str(uuid4())
