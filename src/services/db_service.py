@@ -1,6 +1,6 @@
 from typing import List, Optional, Dict, Any
 from sqlalchemy import or_, desc
-from web.database import db, User, Watchlist, NewsArticle, EconomicEvent, AIScore, Transaction, PaperAccount, PaperTrade, TradeJournal
+from web.database import Watchlist, NewsArticle, EconomicEvent, AIScore
 
 class DatabaseService:
     @staticmethod
