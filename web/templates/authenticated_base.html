@@ -392,14 +392,13 @@
                         </svg>
                         <span>Market Overview</span>
                     </a>
-                    <a href="/sentiment" class="nav-link {% if request.endpoint == 'main.market_sentiment' %}active{% endif %}">
+                    <a href="/stocks" class="nav-link {% if request.endpoint == 'main.stocks' %}active{% endif %}">
                         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
-                            <line x1="9" y1="9" x2="9.01" y2="9"></line>
-                            <line x1="15" y1="9" x2="15.01" y2="9"></line>
+                            <line x1="12" y1="20" x2="12" y2="10"></line>
+                            <line x1="18" y1="20" x2="18" y2="4"></line>
+                            <line x1="6" y1="20" x2="6" y2="16"></line>
                         </svg>
-                        <span>Market Sentiment</span>
+                        <span>Stocks</span>
                     </a>
                     <a href="/news" class="nav-link {% if request.endpoint == 'main.news' %}active{% endif %}">
                         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -409,65 +408,9 @@
                     </a>
                 </div>
 
-                <!-- Group 2: Strategies -->
-                <div class="nav-section">
-                    <div class="nav-section-title">🎯 Strategies</div>
-                    <a href="/scalping" class="nav-link {% if request.endpoint == 'main.scalping' %}active{% endif %}">
-                        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
-                        </svg>
-                        <span>Scalping (M1/M5)</span>
-                    </a>
-                    <a href="/swing" class="nav-link {% if request.endpoint == 'main.swing' %}active{% endif %}">
-                        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M2 2v20h20"></path>
-                            <path d="M5 19l4-7 4 4 6-11"></path>
-                        </svg>
-                        <span>Swing (ICT/SMC)</span>
-                    </a>
-                    <a href="/options" class="nav-link {% if request.endpoint == 'main.options_flow' %}active{% endif %}">
-                        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <path d="M12 6v6l4 2"></path>
-                        </svg>
-                        <span>Options Flow</span>
-                    </a>
-                </div>
-
-                <!-- Group 3: Terminal -->
-                <div class="nav-section">
-                    <div class="nav-section-title">📊 Terminal</div>
-                    <a href="/portfolio" class="nav-link {% if request.endpoint == 'main.portfolio' %}active{% endif %}">
-                        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
-                        </svg>
-                        <span>Portfolio</span>
-                    </a>
-                    <a href="/watchlist" class="nav-link {% if request.endpoint == 'main.watchlist' %}active{% endif %}">
-                        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5z"></path>
-                        </svg>
-                        <span>Watchlist</span>
-                    </a>
-                    <a href="/journal" class="nav-link {% if request.endpoint == 'main.trade_journal' %}active{% endif %}">
-                        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-                            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-                        </svg>
-                        <span>Trade Journal</span>
-                    </a>
-                </div>
-
                 <!-- Group 4: System -->
                 <div class="nav-section">
                     <div class="nav-section-title">⚙️ System</div>
-                    <a href="/agents" class="nav-link {% if request.endpoint == 'main.agents_dashboard' %}active{% endif %}">
-                        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="3"></circle>
-                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-                        </svg>
-                        <span>AI Agents</span>
-                    </a>
                     <a href="/settings" class="nav-link {% if request.endpoint == 'main.settings' %}active{% endif %}">
                         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <circle cx="12" cy="12" r="3"></circle>

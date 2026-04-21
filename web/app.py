@@ -81,69 +81,19 @@ def create_app(config_class=Config):
     # Register Blueprints
     from web.auth import auth, oauth
     from web.api_polygon import api_polygon
-    from web.api_watchlist import api_watchlist
-    from web.api_portfolio import api_portfolio
-    from web.api_scalp import api_scalp
-    from web.api_swing import api_swing
-    from web.api_advanced_sr import api_advanced_sr
-    from web.api_market_features import api_market_features
     from web.main import main as main_blueprint
     from web.api_main import api_main
-    from web.api_paper import api_paper
-
-    # New feature APIs
-    from web.api_tools import api_tools
-    from web.api_earnings import api_earnings
-    from web.api_journal import api_journal
-    from web.api_analytics import api_analytics
-    from web.api_comparison import api_comparison
-    from web.api_options import api_options
-    from web.api_patterns import api_patterns
-    from web.api_sentiment import api_sentiment
-
-    # Advanced features - Chat, Leaderboard, Flow, WebSocket, SSE
-    from web.api_chat import api_chat
-    from web.api_leaderboard import api_leaderboard
-    from web.api_flow import api_flow
     from web.api_websocket import api_websocket
     from web.api_sse import api_sse
-
-    # Automated Agents API
-    from web.api_agents import api_agents
 
     oauth.init_app(app)
 
     app.register_blueprint(auth, url_prefix="/auth")
     app.register_blueprint(api_polygon)
-    app.register_blueprint(api_watchlist)
-    app.register_blueprint(api_portfolio)
-    app.register_blueprint(api_scalp)
-    app.register_blueprint(api_swing)
-    app.register_blueprint(api_advanced_sr)
-    app.register_blueprint(api_market_features)
     app.register_blueprint(main_blueprint)
     app.register_blueprint(api_main)
-    app.register_blueprint(api_paper)
-
-    # Register new feature APIs
-    app.register_blueprint(api_tools)
-    app.register_blueprint(api_earnings)
-    app.register_blueprint(api_journal)
-    app.register_blueprint(api_analytics)
-    app.register_blueprint(api_comparison)
-    app.register_blueprint(api_options)
-    app.register_blueprint(api_patterns)
-    app.register_blueprint(api_sentiment)
-
-    # Register advanced features - Chat, Leaderboard, Flow, WebSocket, SSE
-    app.register_blueprint(api_chat)
-    app.register_blueprint(api_leaderboard)
-    app.register_blueprint(api_flow)
     app.register_blueprint(api_websocket)
     app.register_blueprint(api_sse)
-
-    # Register Automated Agents API
-    app.register_blueprint(api_agents)
 
     # Apply rate limiting to auth routes
     auth_routes = [

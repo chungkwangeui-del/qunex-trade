@@ -682,7 +682,6 @@
                     <td class="market-cap">$${(stock.day_low || 0).toFixed(2)} - $${(stock.day_high || 0).toFixed(2)}</td>
                     <td>
                         <div class="action-buttons">
-                            <button class="btn-action" onclick="addToWatchlist('${stock.ticker}')">Watch</button>
                             <button class="btn-action primary" onclick="window.location='/stocks/${stock.ticker}'">View</button>
                         </div>
                     </td>
@@ -712,23 +711,7 @@
         loadStocks();
     }
 
-    async function addToWatchlist(ticker) {
-        try {
-            const response = await fetch('/api/watchlist', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ ticker: ticker })
-            });
-            if (response.ok) {
-                alert(`${ticker} added to watchlist!`);
-            } else {
-                const data = await response.json();
-                alert(data.error || 'Failed to add to watchlist');
-            }
-        } catch (error) {
-            alert('Failed to add to watchlist');
-        }
-    }
+    async function addToWatchlist(ticker) {}
 
     document.querySelector('.search-input').addEventListener('input', function(e) {
         const searchTerm = e.target.value.toLowerCase();
